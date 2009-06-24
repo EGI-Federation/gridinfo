@@ -19,7 +19,7 @@ install:
 
 clean:
 	@rm -f *~ *.deb
-	@rm -rf build
+	@rm -rf scratch
 dist:
 	@mkdir -p  ${topdir}/SOURCES/
 	@tar --gzip --exclude ".svn" --exclude "build" --exclude "*.deb" \
