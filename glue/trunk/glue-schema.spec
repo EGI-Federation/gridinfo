@@ -38,6 +38,7 @@ make install prefix=%{buildroot}%{prefix}
 %postun
 
 %files -f INSTALLED_FILES
+%defattr(-,root,root)
 
 %clean
 rm -rf %{buildroot}
