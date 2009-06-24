@@ -4,5 +4,6 @@ RELEASE: 6
 PREFIX: /
 LICENSE: Open Grid Forum (OGF) 
 VENDOR: Open Grid Forum (OGF) 
-PACKAGER: Laurence.Field@cern.ch
+PACKAGER: Laurence Field <Laurence.Field@cern.ch>
 GROUP: grid
+DESCRIPTION: LDAP schema files for the GLUE information model.
