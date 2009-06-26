@@ -9,7 +9,6 @@ configure-stamp:
 	dh_testdir
 	touch configure-stamp
 
-
 build: build-stamp
 
 build-stamp: configure-stamp 
