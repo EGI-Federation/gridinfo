@@ -1,0 +1,9 @@
+NAME=example
+VERSION=0.0.1
+RELEASE=1
+PREFIX=/
+LICENSE= EGEE
+VENDOR=EGEE
+PACKAGER=maintainer name <email@address.com>
+GROUP=grid
+DESCRIPTION=Short description

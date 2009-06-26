@@ -1,0 +1,5 @@
+#!/usr/bin/make -f 
+
+install:
+	install -d ${prefix}/etc/
+	install --mode=0644 etc/example.conf ${prefix}/etc/
