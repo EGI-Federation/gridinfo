@@ -24,7 +24,7 @@ clean:
 	@rm -rf scratch
 dist:
 	@mkdir -p  ${topdir}/SOURCES/
-	@tar --gzip --exclude ".svn" --exclude "build" --exclude "*.deb" \
+	@tar --gzip --exclude ".svn" --exclude "scratch" --exclude "*.deb" \
 	-cf ${topdir}/SOURCES/${name}-${version}.src.tgz *
 
 rpm: dist
