@@ -1,9 +1,0 @@
-NAME: glue-schema
-VERSION: 2.0.0
-RELEASE: 6
-PREFIX: /
-LICENSE: Open Grid Forum (OGF) 
-VENDOR: Open Grid Forum (OGF) 
-PACKAGER: Laurence Field <Laurence.Field@cern.ch>
-GROUP: grid
-DESCRIPTION: LDAP schema files for the GLUE information model.
