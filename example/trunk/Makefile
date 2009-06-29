@@ -12,12 +12,13 @@ clean:
 
 sdist:
 	@mkdir -p  ${SCRATCH}/SOURCES/
-	tar --gzip --exclude ".svn" -cf ${SCRATCH}/SOURCES/${NAME}-${VERSION}.src.tgz *
+	tar --gzip --exclude ".svn" --exclude "scratch" -cf ${SCRATCH}/SOURCES/${NAME}-${VERSION}.src.tgz *
 
 deb: sdist
 	@mkdir -p ${SCRATCH}/${NAME}-${VERSION}/
 	tar -zx -C ${SCRATCH}/${NAME}-${VERSION}/ -f \
 	${SCRATCH}/SOURCES/${NAME}-${VERSION}.src.tgz
+	rm -f ${SCRATCH}/${NAME}-${VERSION}/Makefile
 	@sed -i "s/Package:.*/Package: ${NAME}/" ${control}
 	@sed -i "s/Source:.*/Source: ${NAME}/" ${control}
 	@sed -i "s/Version:.*/Version: ${VERSION}/" ${control}
