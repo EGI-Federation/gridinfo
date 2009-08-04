@@ -1,0 +1,23 @@
+#############################
+# File description:
+#############################
+
+- README                  This file
+- glite_node_setup.sh     Main script
+- glite_getpatch.sh       Apply a patch
+- test-*                  Test scripts to be used with -t option
+- config-*                Config scripts to be used with -c option
+
+
+#############################
+# Usage example:
+#############################
+
+# Copy the files and get into the machine
+scp -o 'StrictHostKeyChecking=no' *.sh root@$HOST:/root/
+ssh -o 'StrictHostKeyChecking=no' root@$HOST
+
+# Run the scripts. Examples:
+./glite_node_setup.sh -r prod -m glite-BDII -p 3114 -y glite-BDII_top -t test-glite-BDII_top.sh
+./glite_node_setup.sh -r prod -m glite-BDII -p 3136 -y glite-BDII_site -t test-glite-BDII_site.sh
+./glite_node_setup.sh -r prod -m glite-SE_dpm_mysql -p 3114 -y glite-SE_dpm_mysql -c config-glite-SE_dpm_mysql.sh -t test-glite-BDII_resource.sh
