@@ -6,7 +6,7 @@
 if ($handle = opendir($CFG->dir)) {
   $count = 0;
   while (false !== ($file = readdir($handle))) {
-    if ($file != "." && $file != "..") { 
+    if ($file != '.' && $file != '..' && $file != '.svn') { 
       echo '<tr><td>'.$file.'</td>
       <td><a href="'.$CFG->dir.'/'.$file.'">Show</a> 
       <a 
