@@ -8,3 +8,5 @@
 2009-08-05 11:50:48 1249465848: deleted file 'files/SiteB' by user /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=lponcet/CN=610508/CN=Louis Poncet
 2009-08-05 11:50:51 1249465851: deleted file 'files/SiteC' by user /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=lponcet/CN=610508/CN=Louis Poncet
 2009-08-05 11:50:54 1249465854: deleted file 'files/SiteD' by user /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=lponcet/CN=610508/CN=Louis Poncet
+2009-08-05 12:09:25 1249466965: created file 'files/\\`mail louis.poncet@cern.ch < echo test\\`' by user /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=lponcet/CN=610508/CN=Louis Poncet
+2009-08-05 12:09:38 1249466978: deleted file 'files/\\`mail louis.poncet@cern.ch < echo test\\`' by user /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=lponcet/CN=610508/CN=Louis Poncet
