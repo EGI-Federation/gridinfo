@@ -26,6 +26,8 @@ $CFG->shownewfile = false;
 $CFG->showeditfile = false;
 $CFG->user = $_SERVER['PHP_AUTH_USER'];
 $CFG->logfile = 'log/actions.log';
+$CFG->linkdir = 
+'http://grid-deployment.web.cern.ch/grid-deployment/bdii/';
 
 ///////////////////////////////////////////////////////////////
 // CRUD operations
