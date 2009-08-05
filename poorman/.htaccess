@@ -1,0 +1,11 @@
+SSLRequireSSL
+SSLVerifyDepth 5
+SSLVerifyClient require
+SSLOptions +StdEnvVars +StrictRequire +OptRenegotiate
+
+SSLOptions +FakeBasicAuth
+
+AuthType Basic
+AuthName "BDII File Editor"
+AuthUserFile /afs/cern.ch/user/h/horat/poorman/certificates/httpd.passwd
+Require valid-user
