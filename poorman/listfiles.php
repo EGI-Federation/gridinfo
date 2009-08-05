@@ -10,7 +10,7 @@ if ($handle = opendir($CFG->dir)) {
       echo '<tr><td>'.$file.'</td>
       <td><a href="'.$CFG->dir.'/'.$file.'">Show</a> 
       <a 
-href="http://grid-deployment.web.cern.ch/grid-deployment/bdii/'.$file.'">Link</a> 
+href="'.$CFG->linkdir.$file.'">Link</a> 
       <a href="index.php?file='.$count.'&amp;edit=true">Edit</a> 
       <a href="index.php?file='.$count.'&amp;delete=true" onclick="return confirm(\'Are you sure you want to delete it?\');" >Delete</a> 
       </td></tr>'."\n";
