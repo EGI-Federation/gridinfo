@@ -14,8 +14,8 @@
 #############################
 
 # Copy the files and get into the machine
-scp -o 'StrictHostKeyChecking=no' *.sh root@$HOST:/root/
-ssh -o 'StrictHostKeyChecking=no' root@$HOST
+scp -o 'StrictHostKeyChecking=no' *.sh root@$REMOTEHOST:/root/
+ssh -o 'StrictHostKeyChecking=no' root@$REMOTEHOST
 
 # Run the scripts. Examples:
 ./glite_node_setup.sh -r prod -m glite-BDII -p 3114 -y glite-BDII_top -t test-glite-BDII_top.sh

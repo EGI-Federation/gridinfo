@@ -22,9 +22,7 @@
 
 # Give run time in seconds, error message and exit
 function quit {
-  RUNTIME=$[`date +%s` - $STARTTIME]
   echo
-  echo "This program took $RUNTIME seconds to run"
   echo "ERROR $1: $2"
   exit $1
 }
@@ -36,7 +34,6 @@ function quit {
 
 # Fixed variables
 VERSION='0.1'
-STARTTIME=`date +%s`
 SITEINFODEFFILE='/etc/yaim/site-info.def'
 HOST=`hostname`
 
@@ -68,7 +65,5 @@ sed -i 's/DPM_HOST="lxb7608v1.$MY_DOMAIN"/DPM_HOST="'$HOST'"/' $SITEINFODEFFILE
 sed -i 's,DPM_FILESYSTEMS="$DPM_HOST:/storage lxb7608v2.$MY_DOMAIN:/path2 lxfsrd0502.$MY_DOMAIN:/storage",DPM_FILESYSTEMS="$DPM_HOST:/storage",' $SITEINFODEFFILE
 
 # Bye messages and log
-RUNTIME=$[`date +%s` - $STARTTIME]
-echo -e "\n`basename $0` took $RUNTIME seconds to run"
 echo -e "OK!"
 exit 0
