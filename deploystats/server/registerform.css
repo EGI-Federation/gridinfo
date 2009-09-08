@@ -1,0 +1,35 @@
+/* 
+    Document   : Register Form
+    Author     : David.Horat@cern.ch
+    Description:
+        CSS for the register form of the DeployStats project.
+*/
+
+div.title {
+  display: block;
+  text-align: right;
+  float: left;
+  width: 40%;
+  margin: 5px 0 0 10px;
+}
+
+div.element {
+  display: block;
+  text-align: left;
+  float: left;
+  width: 50%;
+  margin: 5px 0 0 10px;
+}
+
+div.submit {
+  display: block;
+  text-align: center;
+  margin: 10px 10px 10px 10px;
+}
+
+input, select    { border: 1px solid silver; }
+input.error, select.error {border: 1px solid red; background-color: #FFFCE2;}
+input:focus, select:focus {border: 1px solid; background-color:#EFEFEF;}
+.mandatory  { font-weight: bold; }
+.comment    { color: #BBBBBB; }
+

@@ -9,7 +9,7 @@ $CFG->referer = $_SERVER['HTTP_REFERER'];
 $CFG->db = new Datalib('../../deploystats.xml');
 
 // Check if needed files exist
-foreach (array('siteName', 'public', 'contactName', 'contactEmail', 'country',
+foreach (array('siteName', 'whatIsPublic', 'contactName', 'contactEmail', 'country',
     'release', 'notifications', 'url') as $x) {
   if (! $_REQUEST[$x]) {
     $CFG->title = 'Error';
@@ -22,7 +22,7 @@ foreach (array('siteName', 'public', 'contactName', 'contactEmail', 'country',
 // Insert in the db
 if (! $CFG->db->exists($CFG->ip, $_REQUEST['url'])) {
   if ($CFG->db->insert($CFG->ip, $_REQUEST['url'], $_REQUEST['siteName'],
-        $_REQUEST['country'], $_REQUEST['public'], $_REQUEST['contactName'],
+        $_REQUEST['country'], $_REQUEST['whatIsPublic'], $_REQUEST['contactName'],
         $_REQUEST['contactEmail'], $_REQUEST['release'], $_REQUEST['notifications']
       )) {
     $CFG->title = 'OK';

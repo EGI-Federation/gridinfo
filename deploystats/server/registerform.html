@@ -4,10 +4,40 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <title>Deployment Stats example form</title>
-    <link rel="stylesheet" type="text/css" href="example.css" />
+    <link rel="stylesheet" type="text/css" href="registerform.css" />
+    <script type="text/javascript" src="jsval.js"></script>
+    <script type="text/javascript">
+      function initValidation() {
+          var objForm = document.forms["registrationform"];
+          objForm.siteName.required = 1;
+          objForm.siteName.realname = 'Site Name';
+
+          objForm.url.required = 1;
+          objForm.url.realname = 'URL for GStat';
+
+          objForm.country.required = 1;
+          objForm.country.exclude = '-1';
+          objForm.country.realname = 'Country';
+
+          objForm.whatIsPublic.required = 1;
+          objForm.whatIsPublic.exclude = '-1';
+          objForm.whatIsPublic.realname = 'Public directory';
+
+          objForm.contactName.required = 1;
+          objForm.contactName.realname = 'Contact Name';
+
+          objForm.contactEmail.required = 1;
+          objForm.contactEmail.regexp = "JSVAL_RX_EMAIL";
+          objForm.contactEmail.realname = 'Contact Email address';
+
+          objForm.notifications.required = 1;
+          objForm.notifications.exclude = '-1';
+          objForm.notifications.realname = 'Email notifications';
+      }
+    </script>
   </head>
-  <body>
-    <form action="http://localhost/deploystats/register/" method="post">
+  <body onLoad="initValidation()">
+    <form id="registrationform" action="http://localhost/deploystats/register/" method="post" onSubmit="return validateCompleteForm(this, 'error');">
       <fieldset id="registration"><legend>Registration Information</legend>
         <input type="hidden" name="release" value="GStat Beta1" />
         <div class="item">
@@ -21,7 +51,7 @@
         <div class="item">
           <div class="title"><label for="country">Country</label></div>
           <div class="element"><select name="country" >
-            <option value="" selected="selected">Select a country...</option>
+            <option value="-1" selected="selected">Select a country...</option>
             <option value="AF">Afghanistan</option>
             <option value="AX">Åland Islands</option>
             <option value="AL">Albania</option>
@@ -271,8 +301,8 @@
             </select></div>
         </div>
         <div class="item">
-          <div class="title"><label for="public">Public directory</label></div>
-          <div class="element"><select name="public" >
+          <div class="title"><label for="whatIsPublic">Public directory</label></div>
+          <div class="element"><select name="whatIsPublic" >
             <option value="no">Please do not publish this site</option>
             <option value="nameonly">Publish the site name only</option>
             <option value="nameandlink" selected="selected">Publish the site name with a link</option>
