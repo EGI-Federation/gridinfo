@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE sites SYSTEM "deploystats.xsd">
+<!--
+    Document   : deploystats.xml
+    Author     : David.Horat@cern.ch
+    Description:
+        XML Database for DeployStats project.
+-->
+
+<sites>
+</sites>
