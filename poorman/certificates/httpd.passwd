@@ -1,53 +1,15 @@
-/C=CH/O=CERN/OU=GRID/CN=Alexandre Duarte 8026 
 /C=CH/O=CERN/OU=GRID/CN=Andreas Unterkircher 8993 
-/C=CH/O=CERN/OU=GRID/CN=David Smith 9615
-/C=CH/O=CERN/OU=GRID/CN=Domenico Vicinanza 6589 
-/C=CH/O=CERN/OU=GRID/CN=Frederic Hemmer 6357
-/C=CH/O=CERN/OU=GRID/CN=Ian Bird 8064
-/C=CH/O=CERN/OU=GRID/CN=James Casey 8576
-/C=CH/O=CERN/OU=GRID/CN=Jean-Philippe Baud 7183
-/C=CH/O=CERN/OU=GRID/CN=Joachim Flammer 7942 
-/C=CH/O=CERN/OU=GRID/CN=Maite Barroso Lopez 5660
-/C=CH/O=CERN/OU=GRID/CN=Markus Schulz 1319
-/C=CH/O=CERN/OU=GRID/CN=Patricia Mendez Lorenzo 3183
 /C=CH/O=CERN/OU=GRID/CN=Romain Wartel 7120 
-/C=CH/O=CERN/OU=GRID/CN=Simone Campana 7461
-/C=CH/O=CERN/OU=GRID/CN=Vladimir Dimitrov 7853
-/C=CH/O=CERN/OU=GRID/CN=Yvan Calas 3892
-/C=TW/O=AS/OU=PHYS/CN=Di Qing/Email=Di.Qing@cern.ch
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=aretico/CN=624560/CN=Antonio Retico
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=caguado/CN=663037/CN=Carlos Aguado Sanchez 
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=dcollado/CN=496848/CN=David Collados Polidura
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=dhsmith/CN=477857/CN=David Smith 
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=dimou/CN=387719/CN=Maria Dimou
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=fnaz/CN=631088/CN=Farida Naz
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=gdebrecz/CN=546241/CN=Gergely Debreczeni 
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=gstoicea/CN=538901/CN=Gabriel Stoicea
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=herrala/CN=400125/CN=Juha Herrala  
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=ineilson/CN=606661/CN=Ian Neilson
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=jnovak/CN=582979/CN=Judit Novak
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=jshade/CN=468767/CN=John Shade
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=kskaburs/CN=658461/CN=Konstantin Skaburskas 
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=labadie/CN=622155/CN=Lana Abadie
 /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=lfield/CN=609275/CN=Laurence Field 
 /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=litmaath/CN=410032/CN=Maarten Litmaath 
 /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=lponcet/CN=610508/CN=Louis Poncet
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=malanxin/CN=454423/CN=Lanxin Ma
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=markusw/CN=430629/CN=Markus Schulz
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=mccance/CN=453200/CN=Gavin Mccance
 /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=okeeble/CN=609355/CN=Oliver Keeble
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=pnyczyk/CN=626004/CN=Piotr Nyczyk 
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=rmollon/CN=652521/CN=Remi Mollon
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=slemaitr/CN=609231/CN=Sophie Anne Lemaitre
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=straylen/CN=613539/CN=Steve Traylen
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=szamsu/CN=452476/CN=Akos Frohner
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=thackray/CN=435423/CN=Nicholas Thackray
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=ycalas/CN=642763/CN=Yvan Calas
-/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=zurek/CN=443172/CN=Marian Zurek
-/DC=org/DC=balticgrid/OU=mif.vu.lt/CN=Rolandas Naujikas
-/DC=org/DC=doegrids/OU=People/CN=Gilbert Grosdidier 378567
-/DC=ORG/DC=SEE-GRID/O=People/O=Institute of Physics Belgrade/CN=Dusan Vudragovic
-/C=IT/O=INFN/OU=Personal Certificate/L=Pisa/CN=Flavia Donno/Email=flavia.donno@pi.infn.it 
-/C=RS/O=AEGIS/OU=Institute of Physics Belgrade/CN=Danica Stojiljkovic
 /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=horat/CN=680393/CN=David Jesus Horat Flotats
+/C=GR/O=HellasGrid/OU=uoa.gr/CN=NikosVoutsinas
 /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=aelwell/CN=671736/CN=Andrew Elwell
+/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=pucciani/CN=621330/CN=Gianni Pucciani
+/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=rtiago/CN=674099/CN=Ricardo Mendes
+/C=IT/O=INFN/OU=Personal Certificate/L=GARR/CN=Mario Reale
+/O=GRID-FR/C=FR/O=CNRS/OU=UREC/CN=Etienne Duble
+/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=aalvarez/CN=678984/CN=Alejandro Alvarez Ayllon
+

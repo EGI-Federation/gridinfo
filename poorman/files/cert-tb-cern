@@ -3,17 +3,20 @@
 #
 
 CE  ldap://lxbra2307.cern.ch:2170/mds-vo-name=resource,o=grid
+CTBSA3INFN ldap://cream-37.pd.infn.it:2170/mds-vo-name=resource,o=grid
+
 CREAMCE  ldap://lxbra2308.cern.ch:2170/mds-vo-name=resource,o=grid
-CREAMCE2  ldap://vtb-generic-104.cern.ch:2170/mds-vo-name=resource,o=grid
 SE  ldap://lxbra1910.cern.ch:2170/mds-vo-name=resource,o=grid
 DPM  ldap://lxb7608v1.cern.ch:2170/mds-vo-name=resource,o=grid
 LFC  ldap://lxb7608v3.cern.ch:2170/mds-vo-name=resource,o=grid
 PX  ldap://lxbra2304.cern.ch:2170/mds-vo-name=resource,o=grid
 FTS  ldap://lxbra2310.cern.ch:2170/mds-vo-name=resource,o=grid
-CE2  ldap://vtb-generic-100.cern.ch:2170/mds-vo-name=resource,o=grid
-FTS  ldap://lxbra2310.cern.ch:2170/mds-vo-name=resource,o=grid
 VOBOX  ldap://lxb7607v2.cern.ch.cern.ch:2170/mds-vo-name=resource,o=grid
-CEAZ  ldap://lxb8076.cern.ch:2170/mds-vo-name=resource,o=grid
 LFCAZER  ldap://vtb-generic-92.cern.ch:2170/mds-vo-name=resource,o=grid
 
+# Andrew Certification
+AE-CREAM ldap://vtb-generic-104.cern.ch:2170/mds-vo-name=resource,o=grid
+AE-LCGCE  ldap://vtb-generic-100.cern.ch:2170/mds-vo-name=resource,o=grid
 
+# Alex certification
+ALEX_CREAM ldap://vtb-generic-114.cern.ch:2170/mds-vo-name=resource,o=grid
