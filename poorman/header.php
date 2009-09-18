@@ -2,7 +2,7 @@
     "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html>
 <head>
-  <title>BDII File Editor</title>
+  <title>BDII Web Config</title>
   <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-15" />
   <link rel="icon" href="" type="image/png" />
   <link rel="shortcut icon" href="" type="image/png" />
@@ -10,7 +10,7 @@
   <meta name="author" content="David Horat" />
   <meta name="organization" content="CERN" />
   <meta name="locality" content="Geneva, Switzerland" />
-  <meta name="keywords" content="BDII, EGEE, WLCG, Grid, CERN" />
+  <meta name="keywords" content="BDII, EGEE, WLCG, Grid, CERN, BDII Web Config" />
   <meta name="description" content="BDII config files editor" />
   <meta http-equiv="Pragma" content="no-cache" />
   
