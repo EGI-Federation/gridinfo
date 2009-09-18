@@ -31,4 +31,4 @@
 <body>
   <div id="welcome">Welcome, <b><?php echo substr($CFG->user, strrpos($CFG->user, '=') + 1); ?></b></div>
   <div id="Content">
-  <h1>BDII File Editor</h1>
+  <h1>BDII Web Config</h1>

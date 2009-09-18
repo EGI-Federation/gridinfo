@@ -4,6 +4,8 @@
 
 CERT-TB-CERN ldap://lxbra2306.cern.ch:2170/mds-vo-name=cert-tb-cern,o=grid
 
+AZ_GRID ldap://lxb7607v5.cern.ch:2170/mds-vo-name=AZ_GRID,o=grid
+
 #
 # EXTERNAL
 #
@@ -16,7 +18,9 @@ PIC-SA3  ldap://site-bdii-sa3.pic.es:2170/mds-vo-name=PIC-SA3,o=grid
 
 CESGA-SA3 ldap://sa3-ce.egee.cesga.es:2170/mds-vo-name=CESGA-SA3,o=grid
 
-CTBSA3INFN ldap://wmstest-ce06.cr.cnaf.infn.it:2170/mds-vo-name=CTBSA3INFN,o=grid
+CTBSA3INFN ldap://cream-37.pd.infn.it:2170/mds-vo-name=resource,o=grid
+
+#ldap://wmstest-ce06.cr.cnaf.infn.it:2170/mds-vo-name=CTBSA3INFN,o=grid
 
 EGEE-SEE-CERT ldap://ctb01.gridctb.uoa.gr:2170/mds-vo-name=egee-see-cert,o=grid
 
@@ -24,7 +28,9 @@ EGEE-SEE-CERT ldap://ctb01.gridctb.uoa.gr:2170/mds-vo-name=egee-see-cert,o=grid
 
 GARR ldap://rgma-bdii-4.dir.garr.it:2170/mds-vo-name=GARR,o=grid
 
-PARS-UREC ldap://bdii-ipv6-testbed.paris.urec.cnrs.fr:2170/mds-vo-name=paris-urec-ipv6,o=grid
+PARIS-UREC-IPV6 ldap://bdii-ipv6-testbed.paris.urec.cnrs.fr:2170/mds-vo-name=paris-urec-ipv6,o=grid
 
+RICARDO_LCGCE ldap://vtb-generic-83.cern.ch:2170/mds-vo-name=resource,o=grid
+RICARDO_CREAM ldap://vtb-generic-90.cern.ch:2170/mds-vo-name=resource,o=grid
 HORAT_T1 ldap://vtb-generic-89.cern.ch:2170/mds-vo-name=resource,o=grid
 HORAT_T2 ldap://vtb-generic-79.cern.ch:2170/mds-vo-name=resource,o=grid
