@@ -1,0 +1,57 @@
+
+table.layout {
+    border:         0 none;
+    border-spacing: 0;
+}
+
+table.noborder {
+    /* border:         0 none; */
+    border: 1px solid #BBBBBB;
+    border-spacing: 0;
+}
+
+tr.blockSeparator {
+    font-size:2px;
+    height:3px;
+    line-height: 3px;
+}
+
+td.columnSeparator {
+    font-size:      2px;
+    width:          10px;
+}
+
+td.blockTitle {
+    background-color: #C6D6EF;
+    border-bottom:    1px solid #BBBBBB;
+    /* border-top:       1px solid #BBBBBB; */
+    height:           18px;
+    padding:          0 1px 0 10px;
+    text-align:       center;
+    white-space:      nowrap;
+}
+
+td.key {
+    font-family:      verdana,arial,helvetica,sans-serif;
+    font-size:        90%;
+}
+
+td.value {
+    font-family:      verdana,arial,helvetica,sans-serif;
+    font-size:        90%;
+    padding-left:     5px;
+}
+
+a:link {
+/*    color:            #BA020E; */
+    text-decoration:  none;
+}
+
+a:visited {
+/*    color:            #BA020E; */
+    text-decoration:  none;
+}
+
+a.bold {
+    font-weight:      bold;
+}

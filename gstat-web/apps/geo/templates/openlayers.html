@@ -1,0 +1,71 @@
+{%extends "base_gstat.html"%}
+
+{% block breadcrumbs %}<a href="/gstat/">Home</a> :: <a href="/gstat/geo">Geo</a> :: <a href="/gstat/geo/openlayers">Open Layers</a>{% endblock %}
+
+{% block css-add %}
+    <link rel="stylesheet" href="/media/geo/css/openlayers.css" type="text/css" />
+	<script>window.dhx_globalImgPath = "/media/geo/dhtmlxcombo/imgs/";</script>
+	<link rel="stylesheet" href="/media/geo/dhtmlxcombo/dhtmlxcombo.css" type="text/css">
+{% endblock %}
+
+{% block scripts-add %}
+    <script src="/media/geo/scripts/OpenLayers.js" type="text/javascript"></script>
+    <script src="/media/geo/scripts/gstat-openlayers.js" type="text/javascript"></script>
+    <script src="/media/geo/dhtmlxcombo/dhtmlxcommon.js" type="text/javascript"></script>
+    <script src="/media/geo/dhtmlxcombo/dhtmlxcombo.js" type="text/javascript"></script>
+{% endblock %}
+
+{% block bodyparams %}onload="init()"{% endblock %}
+
+{% block content-main %}
+	<div style='width: 150px; float: left;'>
+	    <form>
+	        <label for="filtertype">Select a filter type:</label>
+	        <div id="filtertype"></div>
+	        <label for="filtervalue">Select a filter value:</label>
+	        <div id="filtervalue"></div>
+	    </form>
+	    <p><br />
+	      Other options:<br />
+	      <a href='/gstat/geo/gmap'>View it with Google Maps</a><br />
+	      <a id='kmllink' href='/gstat/geo/kml'>Download filtered KML</a><br />
+	      <a href='/gstat/geo/kml'>Download all KML</a><br />
+	      <a href='#' onClick="copyToClip();">Copy map</a>
+	    </p>
+	</div>
+    <div style='width: 780px; height:400px; float: right;' id="map" class="smallmap"></div>
+    <div style='height: 400px;' id="blank"></div>
+    <script type="text/javascript">
+		function changeFilterValue() {
+			kmllink = document.getElementById('kmllink');
+			kmlurl = "/gstat/geo/kml/" + combotype.getActualValue() + '/' + combovalue.getActualValue();
+			kmllink.pathname = kmlurl;
+		    map.removeLayer(sundials);
+		    sundials = new OpenLayers.Layer.Vector("The Grid", {
+		        projection: map.displayProjection,
+		        strategies: [new OpenLayers.Strategy.Fixed()],
+		        protocol: new OpenLayers.Protocol.HTTP({
+		            url: kmlurl,
+		            format: new OpenLayers.Format.KML({
+		                extractStyles: true,
+		                extractAttributes: true
+		            })
+		        })
+		    });
+		    map.addLayer(sundials);
+		    return true;
+		}
+		function copyToClip(){
+			var div = document.getElementById('map');
+			div.contentEditable = 'true';
+			var controlRange;
+			if (document.body.createControlRange) {
+				controlRange = document.body.createControlRange();
+				controlRange.addElement(div);
+				controlRange.execCommand('Copy');
+			}
+			div.contentEditable = 'false';
+		}
+    </script>
+    <script src="/media/geo/scripts/filter.js" type="text/javascript"></script>
+{% endblock %}
