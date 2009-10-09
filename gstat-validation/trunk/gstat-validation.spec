@@ -9,7 +9,7 @@ BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildArchitectures: noarch
 Vendor: Laurence Field <Laurence.Field@cern.ch>
-Requires: gstat-core
+Requires: openldap-clients
 Requires: python-dns
 Url: http://goc.grid.sinica.edu.tw/gocwiki/GSIndex
 
