@@ -1,0 +1,10 @@
+Metadata-Version: 1.0
+Name: gstat-validation
+Version: 2.0.15
+Summary: Gstat Valiation Scripts
+Home-page: http://goc.grid.sinica.edu.tw/gocwiki/GSIndex
+Author: Laurence Field
+Author-email: Laurence.Field@cern.ch
+License: EGEE
+Description: Valiation scripts for an LDAP based information system using the Glue 1.2 schema
+Platform: UNKNOWN
