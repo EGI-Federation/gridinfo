@@ -1,0 +1,32 @@
+{%  extends "base_gstat.html"  %}
+
+{% block breadcrumbs %}<a href="/gstat/">Home</a> :: <a href="/gstat/about">About</a>{% endblock %}
+
+{% block content-main %}
+<div style="float: right; width: 150px; margin-left: 10px;">
+  <p style="text-align: center;"><strong>Developers</strong></p>
+  <div style="text-align: center;">
+    <img src="/gstat/media/core/img/JoannaHuang.jpg" />
+    <p style="text-align: center;"><a href="https://twiki.cern.ch/twiki//bin/view/Main/JoannaHuang">Joanna Huang</a></p>
+  </div>
+  <div style="text-align: center;">
+    <img src="/gstat/media/core/img/LaurenceField.jpg" />
+    <p style="text-align: center;"><a href="https://twiki.cern.ch/twiki//bin/view/Main/LaurenceField">Laurence Field</a></p>
+  </div>
+  <div style="text-align: center;">
+    <img src="/gstat/media/core/img/DavidHorat.jpg" />
+    <p style="text-align: center;"><a href="http://cern.ch/horat">David Horat</a></p>
+  </div>
+</div>
+<div>
+  <h2>About</h2>
+  <p>The main aim of GStat is to obtain information about grid services, the grid information system itself and related metrics. The system is designed in modular way so that the software can be reused in different application scenarios.</p>
+  <p>This implementation is the result of a collaboration between <a href="http://www.sinica.edu.tw/">Academia Sinica</a> and the <a href="http://it-div-gd.web.cern.ch/it-div-gd/">Grid Deployment Group</a> at <a href="http://cern.ch">CERN</a>. The main purpose of the joint project is to align GStat with direction taken by the <a href="https://twiki.cern.ch/twiki/bin/view/LCG/GridServiceMonitoringInfo">WLCG monitoring group</a> with respect to operational tools and in addition ensure that GStat can make a contribution to middleware certification and site validation.</p>
+  <p>For more information, please take a look at the <a href="http://goc.grid.sinica.edu.tw/gocwiki/GSIndex">GStat Wiki page</a> and the <a href="http://cern.ch/gridinfo">BDII Product Team portal</a>.</p>
+  <p>If you want to provide some feedback, either positive or constructive, please email us at <a href="mailto:project-grid-info-support@cern.ch">project-grid-info-support@cern.ch</a>.</p>
+  
+  <h3>High-Level System Architecture</h3>
+  <p>The GStat architecture is split into four main areas; core, validation, monitoring and visualization. At the core of the system is a database where the data model defines the interface between the different areas. GStat core is responsible for extracting information from the information system and maintaining the entity cache. GStat visualization uses this information for the structure of displays and GStat validation conducts various validation tests on the information content. This mechanism has been designed so that it can be also be executed on the command line and as such can be used by site administrators and automated testing suites. GStat monitoring uses the entity cache to configure the monitoring framework which leverages the Nagios framework. The results of the validation tests and stored in the database and the Nagios database is used for the monitoring results. GStat visualization uses the all this information to present various views based on different used cases. The architecture of GStat is shown in the figure below.</p>
+  <img src="/gstat/media/core/img/Architecture.png" />
+</div>
+{% endblock %}

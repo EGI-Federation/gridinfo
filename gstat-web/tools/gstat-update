@@ -1,0 +1,22 @@
+#!/bin/sh
+
+if [ -f /etc/gstat/ref-bdii.conf ] ; then
+   
+   . /etc/gstat/ref-bdii.conf 2>&1   
+   
+   /usr/bin/snapshot -h ${BDII_HOST} -p ${BDII_PORT} -b ${BDII_BIND} > /var/log/gstat/snapshot.stdout 2>/var/log/gstat/snapshot.stderr 
+      
+   if [ ! "x${GSTAT_PROD}" -eq "x" ]; then
+       /usr/bin/import-prod-bdii >/var/log/gstat/prod.stdout 2>/var/log/gstat/prod.stderr 
+   fi
+   
+   /usr/bin/import-entities >/var/log/gstat/topology.stdout 2>/var/log/gstat/topology.stderr 
+
+   /usr/bin/gstat-update-rrd >/var/log/gstat/gstat-update-rrd.stdout 2>/var/log/gstat/gstat-update-rrd.stderr 
+ 
+fi 
+
+
+
+
+
