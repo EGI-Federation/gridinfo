@@ -180,7 +180,7 @@ for object in objects:
     unique_id = object.uniqueid
     type = "SE"
     hostname=get_hostname(unique_id)
-    store_entity(unique_id, type, hostname)
+    obj = store_entity(unique_id, type, hostname)
     services[unique_id] = obj
     if ( sites.has_key(object.gluesite_fk)):
         #sub = store_entity(unique_id, "Site")
