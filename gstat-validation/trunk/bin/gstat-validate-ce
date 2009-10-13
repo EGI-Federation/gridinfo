@@ -251,15 +251,6 @@ def test_glue_SubCluster(key,entry):
            details = "%s must be a valid integer" % (attribute)
            my_errors.log(key, "gstat.value.error", details, gsutils.get_site(key))
    
-   try:
-      LogicalCPUs = int(entry['GlueHostArchitectureSMPSize'][0]) * int(entry['GlueSubClusterPhysicalCPUs'][0])
-      if ( not int(entry['GlueSubClusterLogicalCPUs'][0]) == LogicalCPUs ):
-         details = "Cores * PhysicalCPUs != LogicalCPUs" % (attribute)
-         my_errors.log(key, "gstat.value.error", details, gsutils.get_site(key))
-   except:
-      details = "Could not calculate Logical CPUs"
-      my_errors.log(key, "gstat.value.error", details, gsutils.get_site(key))
-
   # GlueHostProcessorOtherDescription should be set; check value format
    if entry.has_key('GlueHostProcessorOtherDescription'):
       test_SubCluster_ProcessorOtherDescription(key,entry)
@@ -267,47 +258,57 @@ def test_glue_SubCluster(key,entry):
 
 def test_SubCluster_ProcessorOtherDescription(key,entry):
    logging.debug("Testing SubCluster for ProcessorOtherDescription")
+   
+   cores = 0
+   benchmark = None
 
    if (entry.has_key('GlueHostProcessorOtherDescription')): 
-     cores = None
-     benchmark = None
-     index  = entry['GlueHostProcessorOtherDescription'][0].find(',')
-     if ( index > -1 ):
-        cores = entry['GlueHostProcessorOtherDescription'][0][:index]
-        benchmark = entry['GlueHostProcessorOtherDescription'][0][index +1:]
-     else:
-        cores = entry['GlueHostProcessorOtherDescription'][0]
+      index  = entry['GlueHostProcessorOtherDescription'][0].find(',')
+      if ( index > -1 ):
+         cores = entry['GlueHostProcessorOtherDescription'][0][:index]
+         benchmark = entry['GlueHostProcessorOtherDescription'][0][index +1:]
+      else:
+         cores = entry['GlueHostProcessorOtherDescription'][0]
      
-     index  = cores.find('=')
-     if ( not index > -1 ):
-        my_errors.log(gsutils.get_unique_id(key),
-                      'SubCluster.OtherDescription.Cores',
-                      'Cores not defined', gsutils.get_site(key))
-     else:
-        value = cores[index +1:]
-        if (int(value) <= 0):
-           my_errors.log(gsutils.get_unique_id(key),
-                         'SubCluster.OtherDescription.Benchmark',
-                         'Number of Cores <= 0', gsutils.get_site(key))
-     if ( benchmark ):
-        index  = benchmark.find('=')
-        if ( not index > -1 ):
-           my_errors.log(gsutils.get_unique_id(key),
-                         'SubCluster.OtherDescription.Benchmark',
-                         'Benchmark not defined correctly', gsutils.get_site(key))
-        else:
-           value = benchmark[index+1:]
-           index = value.find("HEP-SPEC06")
-           if ( not index > -1 ):
-              my_errors.log(gsutils.get_unique_id(key),
-                                  'SubCluster.OtherDescription.Benchmark',
-                                  'Benchmark type unknown', gsutils.get_site(key))
-           else:
-              value = value[:index-1]
-              if (float(value) <= 0):
-                 my_errors.log(gsutils.get_unique_id(key),
-                               'SubCluster.OtherDescription.Benchmark',
-                               'Benchmark negative value', gsutils.get_site(key))
+      index  = cores.find('=')
+      if ( not index > -1 ):
+         my_errors.log(gsutils.get_unique_id(key),
+                       'SubCluster.OtherDescription.Cores',
+                       'Cores not defined', gsutils.get_site(key))
+      else:
+         value = cores[index +1:]
+         if (int(value) <= 0):
+            my_errors.log(gsutils.get_unique_id(key),
+                          'SubCluster.OtherDescription.Benchmark',
+                          'Number of Cores <= 0', gsutils.get_site(key))
+         if ( benchmark ):
+            index  = benchmark.find('=')
+         if ( not index > -1 ):
+            my_errors.log(gsutils.get_unique_id(key),
+                          'SubCluster.OtherDescription.Benchmark',
+                          'Benchmark not defined correctly', gsutils.get_site(key))
+         else:
+            value = benchmark[index+1:]
+            index = value.find("HEP-SPEC06")
+            if ( not index > -1 ):
+               my_errors.log(gsutils.get_unique_id(key),
+                             'SubCluster.OtherDescription.Benchmark',
+                             'Benchmark type unknown', gsutils.get_site(key))
+            else:
+               value = value[:index-1]
+               if (float(value) <= 0):
+                  my_errors.log(gsutils.get_unique_id(key),
+                                'SubCluster.OtherDescription.Benchmark',
+                                'Benchmark negative value', gsutils.get_site(key))
+
+   try:
+      LogicalCPUs = cores * int(entry['GlueSubClusterPhysicalCPUs'][0])
+      if ( not int(entry['GlueSubClusterLogicalCPUs'][0]) == LogicalCPUs ):
+         details = "Cores * PhysicalCPUs != LogicalCPUs"
+         my_errors.log(key, "gstat.value.error", details, gsutils.get_site(key))
+   except Exception, e:
+      details = "Could not calculate Logical CPUs %s" %str(e)
+      my_errors.log(key, "gstat.value.error", details, gsutils.get_site(key))
 
 def test_ACBR(key,entry,attribute,type):
    logging.debug("Testing %s for %s" %(type,entry[attribute][0]))
