@@ -32,7 +32,27 @@
         <!-- BLOCK/menu=END -->
         <div id="content">
             <!-- BLOCK/breadcrumbs=BEGIN -->
-            <div id="breadcrumbs">&nbsp;:: {% block breadcrumbs %}<a href="#">Home</a>{% endblock %}</div>
+            <div id="breadcrumbs" style='position: relative;'>
+                :: {% block breadcrumbs %}<a href="#">Home</a>{% endblock %}
+	            {% if filters_enabled %}
+				<div id="filters" style='display: inline;'>
+					<form style='display: inline; text-align: right; position: absolute; right: 0px;'>
+						<strong>Filters:</strong>
+						<select id="filtertype" onchange="changeFilterType(event)">
+						    <option value="no">Select one</option>				
+						    <option value="grids">GRID</option>
+						    <option value="rocs">EGEE_ROC</option>
+						    <option value="tiers">WLCG_TIER</option>
+						    <option value="countries">Country</option>
+						</select>
+						<strong>Values:</strong>
+						<select id="filtervalue" style='width: 200px' onchange="changeFilterValue(event)">
+						    <option value="">Select a filter first</option>
+						</select>
+					</form>
+				</div>
+				{% endif %}
+            </div>
             <!-- BLOCK/breadcrumbs=END -->
             
             <!-- BLOCK/vert-menu-left=BEGIN -->
@@ -42,6 +62,7 @@
             <!-- BLOCK/vert-menu-right=BEGIN -->
             {% block vert-menu-right %}{% endblock %}
             <!-- BLOCK/vert-menu-right=END -->
+
             <div id="content-main">
                 <!-- CONTENT BEGIN -->
                 {% block content-main %}{% endblock %}
@@ -51,6 +72,7 @@
         <div id="footer"><p>{% block footer-text %}Django Template &copy; 2009{% endblock %}</p></div>
     </div>
 </div>
+<script src="/media/core/scripts/filter.js" type="text/javascript"></script>
 </body>
 {% block scripts-bottom-add %}{% endblock %}
 </html>

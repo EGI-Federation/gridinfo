@@ -6,6 +6,4 @@ urlpatterns = patterns('geo.views',
     (r'^gmap', 'gmap'),
     (r'^kml$', 'kml'),
     (r'^kml/(?P<type>\w+)/(?P<value>\w+)$', 'kml'),
-    (r'^filter$', 'filter'),
-    (r'^filter/(?P<type>\w+)$', 'filter'),
 )
