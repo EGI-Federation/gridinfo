@@ -54,18 +54,22 @@ function changeFilterType(evt) {
     if (evt) {
         // equalize W3C/IE models to get event target reference
         var elem = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
-        if (elem) {
-            try {
-                if (elem.selectedIndex > 0) {
-                    loadXMLDoc("/gstat/core/filter/" + elem.options[elem.selectedIndex].value);
-                }	
-            }
-            catch(e) {
-                var msg = (typeof e == "string") ? e : ((e.message) ? e.message : "Unknown Error");
-                alert("Unable to get XML data:\n" + msg);
-                return;
-            }
-        }
+        if (elem[elem.selectedIndex].value == 'none') {
+        	changeFilterValue(evt);
+        } else {
+	        if (elem) {
+	            try {
+	                if (elem.selectedIndex > 0) {
+	                    loadXMLDoc("/gstat/core/filter/" + elem.options[elem.selectedIndex].value);
+	                }	
+	            }
+	            catch(e) {
+	                var msg = (typeof e == "string") ? e : ((e.message) ? e.message : "Unknown Error");
+	                alert("Unable to get XML data:\n" + msg);
+	                return;
+	            }
+	        }
+	    }
     }
 }
 

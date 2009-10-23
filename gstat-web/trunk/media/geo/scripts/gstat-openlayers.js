@@ -22,17 +22,24 @@ function init(){
             new OpenLayers.Control.ScaleLine(),
             new OpenLayers.Control.Permalink(),
             new OpenLayers.Control.MousePosition(),
-            new OpenLayers.Control.KeyboardDefaults()
+            new OpenLayers.Control.OverviewMap(),
+            new OpenLayers.Control.Attribution()
         ]
 	};
     map = new OpenLayers.Map('map', options);
+    map.fractionalZoom = true;
 
 	/*********************************/
 	/* Adding layers
 	/*********************************/
+	// Attribution
+	attribution = 'Provided by <a href="https://svnweb.cern.ch/trac/gridinfo/">GStat 2.0</a>';
+
     // OpenLayer WMS
     var olwms = new OpenLayers.Layer.WMS( "OpenLayers",
-            "http://labs.metacarta.com/wms/vmap0", {layers: 'basic'} );
+            "http://labs.metacarta.com/wms/vmap0",
+            {layers: 'basic'},
+            {'attribution': attribution} );
     map.addLayer(olwms);
 
     // OpenAerialMap
@@ -42,13 +49,15 @@ function init(){
       "http://oam2.hypercube.telascience.org/tiles/",
       "http://oam3.hypercube.telascience.org/tiles/"
      ],
-         {layers: 'openaerialmap'}, {buffer: 1} );
+         {layers: 'openaerialmap'},
+         {'attribution': attribution, buffer: 1} );
     map.addLayer(oam);
 
     // NASA Global Mosaic
     var jpl_wms = new OpenLayers.Layer.WMS( "NASA Global Mosaic",
         "http://t1.hypercube.telascience.org/cgi-bin/landsat7", 
-        {layers: "landsat7"});
+        {layers: "landsat7"},
+        {'attribution': attribution});
     map.addLayer(jpl_wms);
 
     // NASA WMS
@@ -56,7 +65,7 @@ function init(){
 		"http://wms.jpl.nasa.gov/wms.cgi?", {			
 			layers: 'BMNG',
 			format: 'image/png'},
-		{isBaseLayer: true});
+		{isBaseLayer: true, 'attribution': attribution});
 	map.addLayer(NASAwms);
 
 	/*********************************/
@@ -92,8 +101,8 @@ function init(){
 	/*********************************/
 	/* Final setup - center and zoom
 	/*********************************/
-    var vector = new OpenLayers.Layer.Vector("Editable Vectors");
-    map.addControl(new OpenLayers.Control.EditingToolbar(vector));
+//    var vector = new OpenLayers.Layer.Vector("Editable Vectors");
+//    map.addControl(new OpenLayers.Control.EditingToolbar(vector));
     //map.zoomToMaxExtent();
     if (!map.getCenter()) map.setCenter(new OpenLayers.LonLat(5, 15), 2);
 }
