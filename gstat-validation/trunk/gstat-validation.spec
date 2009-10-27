@@ -1,6 +1,6 @@
 Summary: Gstat Valiation Scripts
 Name: gstat-validation
-Version: 2.0.16
+Version: 2.0.17
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: EGEE
@@ -11,6 +11,7 @@ BuildArchitectures: noarch
 Vendor: Laurence Field <Laurence.Field@cern.ch>
 Requires: openldap-clients
 Requires: python-dns
+Obsolites: gstat-core
 Url: http://goc.grid.sinica.edu.tw/gocwiki/GSIndex
 
 %description

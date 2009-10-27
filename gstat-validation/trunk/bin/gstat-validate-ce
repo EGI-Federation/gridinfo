@@ -36,7 +36,7 @@ import gsutils
 
 error_messages = {
        "gstat.value.error": ["A value is incorrrect","ERROR"],
-   "CE.Attribute.Exist": ["Manditory attribute does not exist in the GlueCE entry.","ERROR"],
+   "CE.Attribute.Exist": ["Mandatory attribute does not exist in the GlueCE entry.","ERROR"],
    "CE.Attribute.OptionalExist": ["Optional attribute does not exist in the Glue CE entry.","WARNING"],
    "CE.UniqueID.Unique": ["GlueCEUniqueID is not unique","ERROR"],
    "CE.PolicyAssignedJobSlots.Value": ["GlueCEPolicyAssignedJobSlots has negative or null value","ERROR"],
@@ -48,7 +48,7 @@ error_messages = {
    "Cluster.ForeignKey.Value": ["GlueForeignKey does not contain GlueSiteUniqueID","ERROR"],
    "Cluster.UniqueID.Exist": ["GlueClusterUniqueID does not exist in the entry","ERROR"],
    "Cluster.UniqueID.Unique": ["GlueClusterUniqueID is not unique","ERROR"],
-   "SubCluster.Attribute.Exist": ["Manditory attribute does not exist in the GlueSubCluster entry.","ERROR"],
+   "SubCluster.Attribute.Exist": ["Mandatory attribute does not exist in the GlueSubCluster entry.","ERROR"],
    "SubCluster.Attribute.OptionalExist": ["Optional attribute does not exist in the Glue SubCluster entry.","WARNING"],
    "SubCluster.UniqueID.Unique": ["GlueSubClusterUniqueID is not unique","ERROR"],
    "SubCluster.CPU.Value": ["GlueSubCluster CPU value not valid","ERROR"],
@@ -276,8 +276,8 @@ def test_SubCluster_ProcessorOtherDescription(key,entry):
                        'SubCluster.OtherDescription.Cores',
                        'Cores not defined', gsutils.get_site(key))
       else:
-         value = cores[index +1:]
-         if (int(value) <= 0):
+         cores = cores[index +1:]
+         if (int(cores) <= 0):
             my_errors.log(gsutils.get_unique_id(key),
                           'SubCluster.OtherDescription.Benchmark',
                           'Number of Cores <= 0', gsutils.get_site(key))
@@ -295,14 +295,19 @@ def test_SubCluster_ProcessorOtherDescription(key,entry):
                              'SubCluster.OtherDescription.Benchmark',
                              'Benchmark type unknown', gsutils.get_site(key))
             else:
-               value = value[:index-1]
-               if (float(value) <= 0):
+               try:
+                  value = float(value[:index-1])
+               except:
+                  my_errors.log(gsutils.get_unique_id(key),
+                                'SubCluster.OtherDescription.Benchmark',
+                                'Benchmark not defined correctly', gsutils.get_site(key))
+               if (value <= 0):
                   my_errors.log(gsutils.get_unique_id(key),
                                 'SubCluster.OtherDescription.Benchmark',
                                 'Benchmark negative value', gsutils.get_site(key))
 
    try:
-      LogicalCPUs = cores * int(entry['GlueSubClusterPhysicalCPUs'][0])
+      LogicalCPUs = int(cores) * int(entry['GlueSubClusterPhysicalCPUs'][0])
       if ( not int(entry['GlueSubClusterLogicalCPUs'][0]) == LogicalCPUs ):
          details = "Cores * PhysicalCPUs != LogicalCPUs"
          my_errors.log(key, "gstat.value.error", details, gsutils.get_site(key))
