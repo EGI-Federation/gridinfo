@@ -11,7 +11,7 @@ BuildArchitectures: noarch
 Vendor: Laurence Field <Laurence.Field@cern.ch>
 Requires: openldap-clients
 Requires: python-dns
-Obsolites: gstat-core
+Obsoletes: gstat-core
 Url: http://goc.grid.sinica.edu.tw/gocwiki/GSIndex
 
 %description
