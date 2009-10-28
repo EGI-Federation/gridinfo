@@ -3,7 +3,7 @@ from django.utils import html
 from django.shortcuts import render_to_response
 from topology.models import Entity, Entityrelationship
 from glue.models import gluesite
-from summary.utils import countCPUsInSite, countStoragesInSite
+from core.utils import countCPUsInSite, countStoragesInSite
 import random
 from geo import countryInfo
 
