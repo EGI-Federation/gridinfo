@@ -16,26 +16,24 @@ function setText (id, percent)
 }
 
 /************************************************************/
-function display ( id, percentage, color, total, used, free, total_desc, used_desc, free_desc )
+function display ( total, used )
 {	
-	if (typeof color == "undefined") {
-        color = "1";
-  	} else {
-  	    if (percentage < 80) color = "1";
-  	    if (percentage >= 80 && percentage < 90) color = "2";
-  	    if (percentage >= 90 && percentage < 95) color = "3";
-  	    if (percentage >= 95) color = "4"; 	    
-  	}
+    if (total != 0) percentage = parseInt(used * 100 / total);
+    else            percentage = 0;
+
+  	if (percentage < 80) color = "1";
+  	if (percentage >= 80 && percentage < 90) color = "2";
+  	if (percentage >= 90 && percentage < 95) color = "3";
+  	if (percentage >= 95) color = "4"; 	    
+
     var percentageWidth = eachPercent * percentage;
     var actualWidth = initial + percentageWidth;
-    document.write('<img id="'+id+'" ' +
+    document.write('<img ' +
         'src="'+DIR_PATH_IMAGES+'percentImage.png" ' + 
         'alt="'+percentage+'%" ' + 
         'class="percentImage'+color+'" ' +
-        'style="background-position: '+actualWidth+'px 0px;"' +
-        'title="header=[Percentage: <span class=PercentageStatus'+color+'>'+percentage+'%</span>] body=[' +
-        total_desc+': '+total+'<br/>'+used_desc+': '+used+'<br/>'+free_desc+': '+free+'<br/>]" /> ' +
-        '<span id="'+id+'Text">'+percentage+'%</span>');
+        'style="background-position: '+actualWidth+'px 0px;"/> ' +
+        '<span>'+percentage+'%</span>');
 }
 
 /************************************************************/
