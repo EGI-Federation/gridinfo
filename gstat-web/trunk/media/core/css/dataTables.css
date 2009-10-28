@@ -18,11 +18,11 @@ table.nested tr {
 }
 
 .dataTables_wrapper {
-    margin-left: 162px;
+    /* margin-left: 162px; */
 	position: relative;
 	min-height: 302px;
 	_height: 302px;
- 	/* clear: both; */
+ 	clear: both; 
 }
 
 .dataTables_processing {
