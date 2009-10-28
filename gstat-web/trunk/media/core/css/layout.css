@@ -68,7 +68,7 @@ body { background-image:url(../images/BG-main-top-menu.jpg); }
 
 /* BLOCK/content=BEGIN */
 #content { background-color:#EFEFEF; width:100%; }
-#content-main { padding:10px; font-size:10pt; line-height:1.5em; background-color:#FFFFFF; }
+#content-main { padding:10px; font-size:10pt; line-height:1.5em; background-color:#FFFFFF; margin-left:0px; }
 /* BLOCK/content=END */
 
 /* BLOCK/breadcrumbs=BEGIN */
@@ -80,13 +80,12 @@ body { background-image:url(../images/BG-main-top-menu.jpg); }
 
 /* BLOCK/vert-menu-left=BEGIN */
 /* in order to turn it off uncomment display property and comment #content-main definition */
-#vert-menu-left { /*display:none;*/ float:left; width:162px; background-color:#DDDDDD; }
+#vert-menu-left { display:none; float:left; width:162px; background-color:#DDDDDD; }
 #vert-menu-left ul { list-style-type:none; margin:0px; padding:0px; }
 #vert-menu-left li { background-color:#EEEEEE; border-bottom:1px #DDDDDD solid; padding-left:5px; line-height:2em; }
 #vert-menu-left h2 { margin:0px; width:100%; background-color:#4C7898; font-size:14pt; color:white; text-align:center; }
 #vert-menu-left a { text-decoration:none; font-weight:bold; color:#184262; font-size:9pt; }
 #vert-menu-left a:hover { text-decoration:underline; }
-#content-main { margin-left:px; }
 /* BLOCK/vert-menu-left=END 
 
 /* BLOCK/vert-menu-right=BEGIN */
