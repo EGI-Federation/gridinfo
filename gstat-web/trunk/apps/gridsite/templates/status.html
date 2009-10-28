@@ -5,264 +5,128 @@
 {% block app-info %}{% endblock %}
 
 {% block css-add %}
-<link rel="stylesheet" type="text/css" href="/media/core/css/dataTables.css" />
-<!-- <link rel="stylesheet" type="text/css" href="/media/gridsite/css/ext-all.css"/> -->
+<link rel="stylesheet" type="text/css" href="/media/gridsite/css/site.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/tablesorter.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/jquery.treeview.css" />
+<link rel="stylesheet" type="text/css" href="/media/summary/css/nagios.css" />
 {% endblock %}
 
 {% block scripts-add %}
+<script type="text/javascript" src="/media/gridsite/scripts/site.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
-<script type="text/javascript" src="/media/core/scripts/jquery.dataTables.js"></script>
-<script type="text/javascript" charset="utf-8">
-    $(document).ready(function() {
-        $('#table_status').dataTable( { "iDisplayLength":3 } );  // dataTable script initialization using jQuery selectors
-        $('#content-main a').attr({"target":"_self"});      // here you can set up default targets for all heperlinks in content section
-        $('.dataTables_wrapper').attr({"style":"margin-left: 0px;"});
-        $('#table_status').attr({"style":"width: 100%;"});
-    } );
-</script>
-<!--  
-<script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-3.0/release/adapter/ext/ext-base.js"></script>
-<script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-3.0/release/ext-all.js"></script>
-<script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-3.0/release/examples/ux/RowExpander.js"></script>
-{#<script type="text/javascript" src="http://extjs-public.googlecode.com/svn/tags/extjs-3.0/release/examples/ux/XmlTreeLoader.js"></script>#}
-{#<script type="text/javascript" src="/media/gridsite/scripts/ext-base.js"></script>#}
-{#<script type="text/javascript" src="/media/gridsite/scripts/ext-all.js"></script>#}
--->
-<!-- 
+<script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script>
 <script type="text/javascript">
-Ext.onReady(function(){
-
-    Ext.QuickTips.init();
-    
-    var xg = Ext.grid;
-
-    // shared reader
-    var reader = new Ext.data.ArrayReader({}, [
-       {name: 'hostname'},
-       {name: 'check'},
-       {name: 'current_state'},
-       {name: 'plugin_output'},
-       {name: 'last_check', type: 'date', dateFormat: 'U'},
-       {name: 'long_plugin_output'}
-    ]);
-
-    // row expander
-    var expander = new Ext.ux.grid.RowExpander({
-        tpl : new Ext.Template(
-            '<p><b>Summary:</b> {long_plugin_output}</p>'
-        )
-    });
-
-    var grid = new xg.GridPanel({
-        store: new Ext.data.GroupingStore({
-            reader: reader,
-            data: xg.statusData,
-            sortInfo:{field: 'check', direction: "ASC"},
-            groupField:'hostname'
-        }),
-
-        columns: [
-            expander,
-            {header: "BDII", width: 20, sortable: true, dataIndex: 'hostname', hidden: true},
-            {id:'check',header: "Check", width: 20, sortable: true, dataIndex: 'check'},
-            {header: "Status", width: 20, sortable: true, dataIndex: 'current_state'},
-            {header: "Status Information", width: 60, sortable: true, dataIndex: 'plugin_output'},
-            {header: "Last Updated", width: 20, sortable: true, renderer: Ext.util.Format.dateRenderer('H:i:s m/d/Y'), dataIndex: 'last_check'}
-        ],
-
-        view: new Ext.grid.GroupingView({
-            forceFit:true,
-            groupTextTpl: '{text} ({[values.rs.length]} {[values.rs.length > 1 ? "Items" : "Item"]})'
-        }),
-        
-
-
-        frame: true,
-        columnLines: true,
-        width: 800,
-        height: 350,
-        plugins: expander,
-        collapsible: true,
-        animCollapse: false,
-        title: 'Information System Monitoring and Validation',
-        iconCls: 'icon-grid',
-        renderTo: 'status_grid'
-    });
-    
-//////////////////////////////////////////////////////////////////////////////////////////////    
-//    var detailsText = '<br><i>Select a GLUE ENTITY to see more information...</i>';
-//
-//	var tpl = new Ext.Template(
-//        '<h2 class="title">{title}</h2>',
-//        '<p><b>Value</b>: {innerText}</p>'
-//	);
-//    tpl.compile();
-//
-//    new Ext.Panel({
-//        title: 'Glue Information',
-//        renderTo: 'glue_panel',
-//        layout: 'border',
-//        width: 800,
-//        height: 200,
-//        collapsible: true,
-//        frame: true,
-//        items: [{
-//            xtype: 'treepanel',
-//            id: 'tree-panel',
-//            region: 'center',
-//            margins: '2 2 0 2',
-//            autoScroll: true,
-//	        rootVisible: false,
-//	        root: new Ext.tree.AsyncTreeNode(),
-//            // Our custom TreeLoader:
-//	        loader: new Ext.app.BookLoader({
-//	            dataUrl:'/gstat/site/{{ site_name }}/topbdii_xml',
-//	            requestMethod:'GET'
-//	        }),
-//	        //loader: new Ext.app.GlueLoader({
-//	        //    dataUrl:'/gstat/site/{{ site_name }}/topbdii_json',
-//	        //    requestMethod:'GET'
-//	        //}),	        
-//	        listeners: {
-//	            'render': function(tp){
-//                    tp.getSelectionModel().on('selectionchange', function(glue_panel, node){
-//                        var el = Ext.getCmp('details-panel').body;
-//	                    if(node && node.leaf){
-//	                        tpl.overwrite(el, node.attributes);
-//	                    }else{
-//                            el.update(detailsText);
-//                        }
-//                    })
-//	            }
-//	        }
-//        },{
-//            region: 'east',
-//            title: 'Entity Details',
-//            id: 'details-panel',
-//            autoScroll: true,
-//            collapsible: true,
-//            split: true,
-//            margins: '0 2 2 2',
-//            cmargins: '2 2 2 2',
-//            width: 450,
-//            height: 180,
-//            html: detailsText
-//        }]
-//    });
-//////////////////////////////////////////////////////////////////////////////////////////////     
-    
-    
-
-});
-
-////////////////////////////////////////////////////////////////////////////////////////////// 
-//Ext.app.GlueLoader = Ext.extend(Ext.tree.TreeLoader, {
-//    processResponse : function(response, node, callback){
-//        var json = response.responseText;
-//        try {
-//            var o = eval("("+json+")");
-//            for(var i = 0, len = o.length; i < len; i++){
-//                var n = this.createNode(o[i]);
-//                if(n){
-//                    node.appendChild(n);
-//                }
-//            }
-//            if(typeof callback == "function"){
-//                callback(this, node);
-//            }
-//        }catch(e){
-//            this.handleFailure(response);
-//        }
-//    },
-//});
-////////////////////////////////////////////////////////////////////////////////////////////// 
-//Ext.app.BookLoader = Ext.extend(Ext.ux.tree.XmlTreeLoader, {
-//    processAttributes : function(attr){
-//        if(attr.model){
-//            attr.text = attr.model
-//            attr.loaded = true;
-//            attr.expanded = true;
-//        }
-//        else if(attr.name){
-//            attr.text = attr.name
-//            attr.leaf = true;
-//        }
-//    }
-//});
-////////////////////////////////////////////////////////////////////////////////////////////// 
-
-// Array data for the grids
-Ext.grid.statusData = [
-    {% for row in status_list %}
-    ['{{ row.hostname }}', '{{ row.check }}', '{{ row.current_state }}', '{{ row.plugin_output }}', {{ row.last_check }}, '{{ row.long_plugin_output }}'], 
-    {% endfor %}
-];
-
+	$(document).ready(function(){
+	    if(typeof($("#tree"))!='undefined') {
+		    $("#tree").treeview();
+		}
+	});
 </script>
--->
 {% endblock %}
 
 {% block breadcrumbs %}{% endblock %}
 
 {% block content-main %}
 
-<!--  
-<div id="status_grid"></div>
-<br>
-<div id="glue_panel"></div>
-<br>
--->
-
-
-<table cellpadding="0" cellspacing="1" border="0" class="display" id="table_status">
-  <thead>
-    <tr>
-    {% for col in status_thead %}
-      {% if forloop.last %}
-      {% else %}
-      <th>{{ col }}</th>
-      {% endif %}
-    {% endfor %}
-    </tr>
-  </thead>
-  <tbody>
-    {% for check in status_list %}
-    <tr>
-      <td>{{ check.hostname }}</td>  
-      <td>{{ check.check }}</td>
-      <td>{{ check.current_state }}</td>      
-      <td>{{ check.plugin_output }}</td>  
-    </tr>    
-    {% endfor %}
-  </tbody>
-</table>
-
-
-<!--  
-<table id="table_glue" border=1>
-  <thead>
-    <tr>
-      <th>Class</th>
-      <th>UniqueID</th>
-      <th>Attribute</th>
-      <th>Value</th>
-    </tr>
-  </thead>
-  <tbody>
-    <p>
-    {% for entity in glue_list %}
-      <br>
-      Class: {{ entity.class }} <br>
-      UniqueID: {{ entity.uniqueid }} <br>
-      Attributes:  <br>
-      {% for attr in entity.attributes|dictsort:"attribute" %}
-        {{ attr.attribute }}: {{ attr.value }} <br>
-      {% endfor %}
-    {% endfor %}
-    </p>
-  </tbody>
-</table>
--->
+<div>
+  <div id="top-board" class="board">
+    {% ifequal check_type 'monitoring' %}
+    <h2>Information System Monitoring Check Results</h2>
+    {% else %}
+    <h2>Information Content Validation Check Results</h2>
+    {% endifequal %}
+    <table cellpadding="0" cellspacing="1" border="0" class="tablesorter" id="table_status">
+      <thead>
+        <tr>
+          <th> </th>
+          <th>BDII Hostname</th>
+          <th>Check</th>
+          <th>Current State</th>
+          <th>Information</th>
+          <th>Last Check</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for check in status_list %}
+        <tr>
+          <td rowspan="1" style="width: 12px;" align="center" onclick="expandRow('id{{ forloop.counter }}', this);" >
+            <img src="/media/gridsite/scripts/img/expand.gif" />
+          </td>
+          <td>{{ check.hostname }}</td>  
+          <td>{{ check.check }}</td>
+          <td><span class="NagiosStatus_{{ check.current_state }}"> {{ check.current_state }} </span></td>    
+          <td>{{ check.plugin_output }}</td> 
+          <td>
+            <script>
+              TimeFormat({{ check.last_check }});
+            </script>
+          </td>
+        </tr> 
+        <tr class="hidden" id="id{{ forloop.counter }}">
+          <td colspan="5"> 
+            <script>
+              ErrorsToTable('{{ check.long_plugin_output }}');
+            </script>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  <div class="clear"></div>
+  
+  {% if status_list %}
+  <div id="left-board" class="board">
+    {% ifequal check_type 'monitoring' %}
+    <h2>BDII Monitoring Checks</h2>
+    {% else %}
+    <h2>BDII Validation Checks</h2>
+    {% endifequal %}  
+    <ul id="tree" class="filetree treeview">
+      {% for check in status_list %}
+        {% ifchanged check.hostname %}
+           {% if forloop.first %}
+      <li>
+        <span class="ce">&nbsp;{{ check.hostname }} </span>
+        <ul>
+           {% else %}
+        </ul>
+      </li>
+      <li>
+        <span class="ce">&nbsp;{{ check.hostname }} </span>
+        <ul>
+           {% endif %}
+        {% endifchanged %} 
+        
+          <li>
+            <span class="{{ check_type }}">&nbsp;{{ check.check }}</span>
+            <ul>
+              <script>
+                var datasources = DataSources("{{ check.check }}");
+                for (datasource in datasources) {
+                    var link = '<a target="graphframe" href="/rrd/Nagios/{{ check.hostname }}/{{ check.check }}/'+datasources[datasource]+'/">&nbsp;'+datasources[datasource]+'</a>'
+                    document.write('<li><span class="datasource">'+link+'</span></li>');
+                }
+              </script>
+            </ul>
+          </li>
+      {% endfor %}       
+        </ul>
+      </li>
+    </ul>
+  </div>
+  <div id="middle-right-board" class="board" >
+    <h2>Viewing Graphs</h2>
+    <script>
+        var datasources = DataSources("{{ status_list|first }}.{{ check }}");
+        var link = '/rrd/Nagios/{{ status_list|first }}.{{ hostname}}/{{ status_list|first }}.{{ check}}/'+datasources+'/';
+        document.write('<iframe name="graphframe" src="'+link+'" frameborder="no" height="280px" width="100%" scrolling="no"></iframe>');
+    </script>
+  </div>
+  <div class="clear"/>  
+  {% endif %}
+</div>
 
 {% endblock %}
 

@@ -3,169 +3,110 @@ from django.http import HttpResponse, Http404
 from django.core.urlresolvers import reverse
 from django.utils import html
 from glue.models import glueservice
-from summary.utils import *
+from core.utils import *
 import gsutils
 import socket
 import re
+import time
 from django.core.serializers import serialize
    
 def overview(request, site_name):     
     # add exception here in case of empty queryset
-    gluesite = getGlueSite(site_name)
+    # Get the site information
+    gluesite = getGlueEntity('gluesite', uniqueids_list=[site_name])[0]
     if not gluesite:
         pass
         #raise Http404
-        
-                
+    gluesite.sysadmincontact = str(gluesite.sysadmincontact).split(":")[-1]      
     gluesite.usersupportcontact = str(gluesite.usersupportcontact).split(":")[-1]
+    gluesite.securitycontact = str(gluesite.securitycontact).split(":")[-1]
+    last_update = time.mktime(time.strptime(str(gluesite.updated_at), "%Y-%m-%d %H:%M:%S"))
+    minutes_ago = int((time.mktime(time.localtime()) - time.mktime(time.strptime(str(gluesite.updated_at), "%Y-%m-%d %H:%M:%S")))/60)
+    
+    
+    
+    # Get all the service and entity at site
     site_entity = getEntityByUniqueidType(site_name, 'Site')
     topbdii_list  = getNodesInSite(site_entity, 'bdii_top')
     sitebdii_list = getNodesInSite(site_entity, 'bdii_site')
     ce_list       = getNodesInSite(site_entity, 'CE')
     se_list       = getNodesInSite(site_entity, 'SE')
     service_list  = getServicesInSite(site_entity)
+    
+    # Count the numbers of entities
     count_dict             = {}
     count_dict['topbdii']  = len(topbdii_list)
     count_dict['sitebdii'] = len(sitebdii_list)
     count_dict['ce']       = len(ce_list)
     count_dict['se']       = len(se_list)
     count_dict['service']  = len(service_list)
+    
+    # Get the overall monitoring and validation results
     nagios_status = getNagiosStatusDict()
     overall_status_dict             = {}
     hostnames = [topbdii.hostname for topbdii in topbdii_list]
     (status, has_been_checked)      = getNodesOverallStatus(nagios_status, hostnames, '^check-bdii.+')
-    overall_status_dict['topbdii']  = Cell_Status(getNagiosStatusStr(status, has_been_checked))
+    overall_status_dict['topbdii']  = getNagiosStatusStr(status, has_been_checked)
     hostnames = [sitebdii.hostname for sitebdii in sitebdii_list]
     (status, has_been_checked)      = getNodesOverallStatus(nagios_status, hostnames, '^check-bdii.+')
-    overall_status_dict['sitebdii'] = Cell_Status(getNagiosStatusStr(status, has_been_checked))
+    overall_status_dict['sitebdii'] = getNagiosStatusStr(status, has_been_checked)
     (status, has_been_checked)      = getNodesOverallStatus(nagios_status, hostnames, '^check-ce$')
-    overall_status_dict['ce']       = Cell_Status(getNagiosStatusStr(status, has_been_checked))
+    overall_status_dict['ce']       = getNagiosStatusStr(status, has_been_checked)
     (status, has_been_checked)      = getNodesOverallStatus(nagios_status, hostnames, '^check-se$')
-    overall_status_dict['se']       = Cell_Status(getNagiosStatusStr(status, has_been_checked))
+    overall_status_dict['se']       = getNagiosStatusStr(status, has_been_checked)
     (status, has_been_checked)      = getNodesOverallStatus(nagios_status, hostnames, '^check-service$')
-    overall_status_dict['service']  = Cell_Status(getNagiosStatusStr(status, has_been_checked))
+    overall_status_dict['service']  = getNagiosStatusStr(status, has_been_checked)
     (status, has_been_checked)      = getNodesOverallStatus(nagios_status, hostnames, '^check-site$')
-    overall_status_dict['site']     = Cell_Status(getNagiosStatusStr(status, has_been_checked))
-
-    # To compose the content of table 
-    thead = ["Site Name", "Logical CPUs", "Physical CPUs", "Storage Space", "Waiting Jobs"]
-    tbody = generateTableContentForSiteList(site_entity)
+    overall_status_dict['site']     = getNagiosStatusStr(status, has_been_checked)
 
 
-    return render_to_response('overview.html', {'site': gluesite,
-                                                'topbdii_list': topbdii_list,
-                                                'sitebdii_list': sitebdii_list,
-                                                'ce_list': ce_list,
-                                                'se_list': se_list,
-                                                'service_list': service_list,
-                                                'count_dict': count_dict,
+    # Count the CPU and Jobs numbers in all CEs and the storage space in all SEs at site
+    installed_capacity = {}
+    (logicalcpus, physicalcpus)             = countCPUsInSite(site_entity)
+    installed_capacity['physicalcpus']      = physicalcpus
+    installed_capacity['logicalcpus']       = logicalcpus
+    (totalonlinesize, usedonlinesize, totalnearlinesize, usednearlinesize) = countStoragesInSite(site_entity)
+    installed_capacity['totalonlinesize']   = totalonlinesize
+    installed_capacity['usedonlinesize']    = usedonlinesize
+    installed_capacity['totalnearlinesize'] = totalnearlinesize
+    installed_capacity['usednearlinesize']  = usednearlinesize
+    #(runningjobs, waitingjobs, totaljobs) = countJobsInSite(site_entity)
+    #installed_capacity['runningjobs']     = runningjobs
+    #installed_capacity['waitingjobs']     = waitingjobs
+    #installed_capacity['totaljobs']       = totaljobs
+    
+    vo_list = getVOsInSite(site_entity)
+    
+    return render_to_response('overview.html', {'site'               : gluesite,
+                                                'count_dict'         : count_dict,
                                                 'overall_status_dict': overall_status_dict,
-                                                'thead': thead,
-                                                'tbody': tbody})
+                                                'installed_capacity' : installed_capacity,
+                                                'vo_list'            : vo_list,
+                                                'last_update'        : last_update,
+                                                'minutes_ago'        : minutes_ago})
     
-def topbdii(request, site_name):
-    status_thead = ['Top BDII', 'Check', 'Current State', 'Status Information', 'More Information']
-    status_list = getStatusList(site_name, '^check-bdii.+', 'bdii_top')
-    
-#    status_list = []
-#    glue_list = []
-#    site_entity = getEntityByUniqueidType(site_name, 'Site')
-#    if not site_entity:
-#        pass
-#        #raise Http404               
-#    node_list = getNodesInSite(site_entity, 'bdii_top')
-#    status_list = getStatusList([node.hostname for node in node_list], '^check-bdii.+')
-#
-#    for unique_id in [node.uniqueid for node in node_list]:
-#        glue_dict = {}
-#        glue_dict['class'] = 'GlueService'
-#        glue_dict['uniqueid'] = unique_id
-#        glue_dict['attributes'] = []
-#        glue_service_values = glueservice.objects.filter(endpoint = unique_id, type = 'bdii_top').values()
-#        for value_dict in glue_service_values:
-#            for key in value_dict.keys():
-#                glue_dict['attributes'].append({'attribute': key, 'value': value_dict[key]})                
-#        if glue_dict:
-#            glue_list.append(glue_dict)
+def status(request, site_name, type):
+    if type == 'topbdii':
+        status_list = getStatusList(site_name, '^check-bdii.+', 'bdii_top')
+    elif type == 'sitebdii':
+        status_list = getStatusList(site_name, '^check-bdii.+', 'bdii_site') 
+    elif type == 'ce':
+        status_list = getStatusList(site_name, '^check-ce$', 'bdii_site')
+    elif type == 'se':
+        status_list = getStatusList(site_name, '^check-se$', 'bdii_site')
+    elif type == 'service':
+        status_list = getStatusList(site_name, '^check-service$', 'bdii_site')
+    elif type == 'site':
+        status_list = getStatusList(site_name, '^check-site$', 'bdii_site')
+    if type in ['topbdii', 'sitebdii']:
+        check_type = 'monitoring'
+    else:
+        check_type = 'validation'
 
     return render_to_response('status.html', {'site_name'   : site_name,
-                                              'status_thead': status_thead,
-                                              'status_list' : status_list})
+                                              'status_list' : status_list,
+                                              'check_type'  : check_type})
 
-#def topbdii_xml(request, site_name):
-#    site_entity = getEntityByUniqueidType(site_name, 'Site')
-#    node_list = getNodesInSite(site_entity, 'bdii_top')
-#    glue = glueservice.objects.filter(endpoint__in=[node.uniqueid for node in node_list], type = 'bdii_top')
-#    xml = serialize('xml', glue)
-#    #f = open('/home/bubu/workspace/GStat2.0-gstat/apps/gridsite/xml-tree-data.xml','r')
-#    #xml=f.read()
-#    return HttpResponse(xml,mimetype='application/xml') 
-
-#def topbdii_json(request, site_name):
-#    site_entity = getEntityByUniqueidType(site_name, 'Site')
-#    node_list = getNodesInSite(site_entity, 'bdii_top')
-#    glue = glueservice.objects.filter(endpoint__in=[node.uniqueid for node in node_list], type = 'bdii_top')
-#    json = serialize('json', glue)
-#    return HttpResponse(json,mimetype='text/javascript;')
-
-def sitebdii(request, site_name):
-    status_thead = ['Site BDII', 'Check', 'Current State', 'Status Information', 'More Information']
-    status_list = getStatusList(site_name, '^check-bdii.+', 'bdii_site')            
-    return render_to_response('status.html', {'site_name'   : site_name,
-                                              'status_thead': status_thead,
-                                              'status_list' : status_list})
-    
-def ce(request, site_name):
-    status_thead = ['Site BDII', 'Check', 'Current State', 'Status Information', 'More Information']
-    status_list = getStatusList(site_name, '^check-ce$', 'bdii_site')
-            
-    return render_to_response('status.html', {'site_name'   : site_name,
-                                              'status_thead': status_thead,
-                                              'status_list' : status_list})    
-    
-def se(request, site_name):
-    status_thead = ['Site BDII', 'Check', 'Current State', 'Status Information', 'More Information']
-    status_list = getStatusList(site_name, '^check-se$', 'bdii_site')
-            
-    return render_to_response('status.html', {'site_name'   : site_name,
-                                              'status_thead': status_thead,
-                                              'status_list' : status_list})       
-    
-def service(request, site_name):
-    status_thead = ['Site BDII', 'Check', 'Current State', 'Status Information', 'More Information']
-    status_list = getStatusList(site_name, '^check-service$', 'bdii_site')
-            
-    return render_to_response('status.html', {'site_name'   : site_name,
-                                              'status_thead': status_thead,
-                                              'status_list' : status_list})    
-    
-def site(request, site_name):
-    status_thead = ['Site BDII', 'Check', 'Current State', 'Status Information', 'More Information']
-    status_list = getStatusList(site_name, '^check-site$', 'bdii_site')
-            
-    return render_to_response('status.html', {'site_name'   : site_name,
-                                              'status_thead': status_thead,
-                                              'status_list' : status_list}) 
-    
-"""
-def getStatusList(hostname_list, check_name_phrase):
-    nagios_status = getNagiosStatusDict()
-    status_list = []
-    for hostname in hostname_list:
-        for check in nagios_status[hostname].keys():
-            status_dict = {}
-            if re.compile(check_name_phrase).match(check):
-                status_dict['hostname'] = hostname
-                status_dict['check'] = check
-                status_dict['current_state']      = NAGIOS_STATUS_MAPPING[nagios_status[hostname][check]['current_state']]
-                status_dict['plugin_output']      = nagios_status[hostname][check]['plugin_output']
-                status_dict['long_plugin_output'] = nagios_status[hostname][check]['long_plugin_output'].split('\n')
-                status_dict['last_check']         = nagios_status[hostname][check]['last_check']
-            if status_dict:
-                status_list.append(status_dict)
-    return status_list    
-"""   
- 
 def getStatusList(site_name, search_phrase, node_type):
     site_entity = getEntityByUniqueidType(site_name, 'Site')
     if not site_entity:
@@ -195,60 +136,29 @@ def getStatusList(site_name, search_phrase, node_type):
     return status_list    
 
 
-
-
-
-""" THE FOLLOWING CODES ARE DUPLICATED FROM SUMMARY VIEW  """
-def generateTableContentForSiteList(site):
-    tbody = []
-    # To count the CPU and Jobs numbers for all CEs at all sites in certain Grid
-    # To count the storage space on all SEs at all sites in certain Grid
-    (logicalcpus, physicalcpus)           = countCPUsInSite(site)
-    (totalsize, usedsize)                 = countStoragesInSite(site)
-    (runningjobs, waitingjobs, totaljobs) = countJobsInSite(site)
-
-    # need to add a KeyError exception here
-    # "Grid Name", "Sites", "Logical/Physical CPUs", "Total/Used/Free Storage Space", "Running/Waiting/Total Jobs"
-    site_name     = Cell_Link(site.uniqueid, "/gstat/site/%s" % site.uniqueid)
-    logical_cpus  = Cell_Link(logicalcpus, "")
-    physical_cpus = Cell_Link(physicalcpus, "")
-    storage_space = Cell_PercentBar(totalsize, 
-                                    usedsize, 
-                                    total_desc="Total Space (GB)", 
-                                    used_desc="Used Space (GB)", 
-                                    free_desc="Free Space (GB)")
-    jobs          = Cell_PercentBar(totaljobs, 
-                                    waitingjobs, 
-                                    total_desc="Total Jobs", 
-                                    used_desc="Waiting Jobs", 
-                                    free_desc="Running Jobs")
-
-    row = [site_name, logical_cpus, physical_cpus, storage_space, jobs]
-    tbody.append(row)
+# ------------------------------------
+# -- RRD graphs HTML pages function --
+# ------------------------------------
+def site_graphs(request, site_name, attribute):
+    site_entity = getEntityByUniqueidType(site_name, 'Site')
+    if attribute == 'cpu':
+        ce_list  = getNodesInSite(site_entity, 'CE')
+        objects = getSubClusterByCluster(cluster_uniqueids_list=[ce.uniqueid for ce in ce_list])
+    elif attribute in ['online','nearline']:
+        se_list = getNodesInSite(site_entity, 'SE')
+        objects = getGlueEntity(model_name='gluese', uniqueids_list=[se.uniqueid for se in se_list])
         
-    return tbody
 
-class Cell_Status:
-    def __init__(self, status):
-        self.type = "Status"
-        self.status = status
+    return render_to_response('site_graphs.html', {'site_name': site_name,
+                                              'objects'  : objects,
+                                              'attribute': attribute}) 
 
-class Cell_Link:
-    def __init__(self, anchor_desc, url_addr):
-        self.type = "Link"
-        self.anchor_desc = anchor_desc
-        self.url_addr = url_addr
+def vo_graphs(request, site_name, attribute, vo_name):
+    site_entity = getEntityByUniqueidType(site_name, 'Site')
+    objects = getNodesInSite(site_entity, 'CE')
+        
 
-class Cell_PercentBar:
-    def __init__(self, total, used, total_desc="Total", used_desc="Used", free_desc="Free"):
-        self.type = "PercentBar"
-        self.total = total
-        self.used = used
-        self.free = total - used
-        if total != 0:
-            self.percentage = used * 100 / total
-        else:
-            self.percentage = 0
-        self.total_desc = total_desc
-        self.used_desc = used_desc
-        self.free_desc = free_desc
+    return render_to_response('vo_graphs.html', {'site_name': site_name,
+                                                 'objects'  : objects,
+                                                 'attribute': attribute,
+                                                 'vo_name'  : vo_name}) 
