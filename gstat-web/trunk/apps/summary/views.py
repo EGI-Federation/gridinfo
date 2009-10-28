@@ -7,7 +7,7 @@ import socket
 from django.utils import simplejson as json
 from topology.models import Entity
 from topology.models import Entityrelationship
-from summary.utils import *
+from core.utils import *
 
 def main(request, type=None, value=None, output=None):
     predicate = {'Grid': 'SiteGrid', 
@@ -51,10 +51,12 @@ def get_data_for_sites(site_list):
     for site in site_list:
         # Get installed capacities for site 
         (logical_cpus, physical_cpus)           = countCPUsInSite(site)
-        (total_size, used_size)                 = countStoragesInSite(site)
+        (totalonlinesize, usedonlinesize, totalnearlinesize, usednearlinesize) = countStoragesInSite(site)
         (running_jobs, waiting_jobs, total_jobs) = countJobsInSite(site)
         site_name = str(site.uniqueid)
-
+        total_size = totalonlinesize + totalnearlinesize
+        used_size  = usedonlinesize + usednearlinesize
+        
         row = [ site_name, 
                 logical_cpus, 
                 physical_cpus, 
