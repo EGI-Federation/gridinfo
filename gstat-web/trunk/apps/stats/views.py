@@ -34,6 +34,8 @@ def main(request, type='Grid', value=None, output=None):
     vo_view_list = get_vo_view(service_list)
     total_jobs, running_jobs, waiting_jobs = get_job_stats(vo_view_list)
 
+    versions = get_service_versions(service_list)
+
     breadcrumbs_list = [{'name':'Stats', 'url':'/gstat/stats/'}]
      
     return render_to_response('stats.html', {'summary_active': 1,
@@ -52,6 +54,7 @@ def main(request, type='Grid', value=None, output=None):
                                              'total_jobs': total_jobs,
                                              'running_jobs': running_jobs,
                                              'waiting_jobs': waiting_jobs,
+                                             'versions': versions,
                                              'os': os})
 
 def get_sites(type=None, value=None):
@@ -184,3 +187,25 @@ def get_job_stats(vo_view_list):
         if ( not int(voview.waitingjobs) == 444444):
             waiting_jobs += int(voview.waitingjobs)
     return  [ total_jobs, running_jobs, waiting_jobs ]
+
+def get_service_versions(service_list):
+    uniqueids = [service.uniqueid for service in service_list]
+    glue_service_list = glueservice.objects.filter(uniqueid__in = uniqueids)
+
+    services = {}
+    for service in glue_service_list:
+        type = service.type.lower()
+        version = service.version
+        if ( not services.has_key(type)):
+            services[type] = {}
+        if ( not services[type].has_key(version)):
+            services[type][version] = 0
+
+        services[type][version] += 1    
+
+    data = []
+    for  type in services:
+        for version in services[type]:
+            data.append([type, version, services[type][version] ])
+
+    return data
