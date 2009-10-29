@@ -103,4 +103,22 @@
  {% endfor %}
     </tbody>   
     </table>
+
+    <table cellspacing="0" cellpadding="0" border="0" class="noborder" >
+    <tbody>
+    <tr >
+      <td class="blockTitle">Service Type</td>
+      <td class="blockTitle">Service Version</td>
+      <td class="blockTitle">Instances</td>
+    </tr>
+
+ {% for row in versions %}
+    <tr >
+      {% for col in row %}
+      <td >{{ col }}</td>
+      {% endfor %}
+    </tr>
+ {% endfor %}
+    </tbody>   
+    </table>
 {% endblock %}
