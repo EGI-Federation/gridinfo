@@ -70,7 +70,7 @@ def overview(request, site_name):
     installed_capacity['usedonlinesize']    = usedonlinesize
     installed_capacity['totalnearlinesize'] = totalnearlinesize
     installed_capacity['usednearlinesize']  = usednearlinesize
-    #(runningjobs, waitingjobs, totaljobs) = countJobsInSite(site_entity)
+    #(totaljobs, runningjobs, waitingjobs) = countJobsInSite(site_entity)
     #installed_capacity['runningjobs']     = runningjobs
     #installed_capacity['waitingjobs']     = waitingjobs
     #installed_capacity['totaljobs']       = totaljobs
