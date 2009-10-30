@@ -24,9 +24,12 @@ function display ( total, used )
   	if (percentage < 80) color = "1";
   	if (percentage >= 80 && percentage < 90) color = "2";
   	if (percentage >= 90 && percentage < 95) color = "3";
-  	if (percentage >= 95) color = "4"; 	    
+  	if (percentage >= 95) color = "4";
+  	if (percentage < 0 || percentage > 100) color = "5";
 
-    var percentageWidth = eachPercent * percentage;
+    var percentageWidth = 0;
+    if (percentage < 0 || percentage > 100) percentageWidth = eachPercent * 100;
+    else percentageWidth = eachPercent * percentage;
     var actualWidth = initial + percentageWidth;
     document.write('<img ' +
         'src="'+DIR_PATH_IMAGES+'percentImage.png" ' + 
@@ -34,6 +37,31 @@ function display ( total, used )
         'class="percentImage'+color+'" ' +
         'style="background-position: '+actualWidth+'px 0px;"/> ' +
         '<span>'+percentage+'%</span>');
+}
+
+function display_string( total, used )
+{	
+    if (total != 0) percentage = parseInt(used * 100 / total);
+    else            percentage = 0;
+
+  	if (percentage < 80) color = "1";
+  	if (percentage >= 80 && percentage < 90) color = "2";
+  	if (percentage >= 90 && percentage < 95) color = "3";
+  	if (percentage >= 95) color = "4"; 
+  	if (percentage < 0 || percentage > 100) color = "5";
+
+    var percentageWidth = 0;
+    if (percentage < 0 || percentage > 100) percentageWidth = eachPercent * 100;
+    else percentageWidth = eachPercent * percentage;
+    var actualWidth = initial + percentageWidth;
+    var content = '<img ' +
+        'src="'+DIR_PATH_IMAGES+'percentImage.png" ' + 
+        'alt="'+percentage+'%" ' + 
+        'title="'+used+'" ' + 
+        'class="percentImage'+color+'" ' +
+        'style="background-position: '+actualWidth+'px 0px;"/> ' +
+        '<span class="PercentageStatus'+color+'">'+percentage+'%</span>';
+    return content;
 }
 
 /************************************************************/
