@@ -79,15 +79,16 @@ def main(request, type=None, output=None):
         return HttpResponse(content, mimetype='application/json')  
     else:
         if (type == 'top'):
-            breadcrumbs_list = [{'name':'Summary', 'url':'/gstat/summary/'},
-                                {'name':'Top BDII View', 'url':'/gstat/summary/top/'}]
+            title = "Top BDII View"
+            breadcrumbs_list = [{'name':'Site BDII View', 'url':'/gstat/bdii/site/'}]
             thead=["Hostname", "Instances", "Freshness", "Sites"]
         else:
-            breadcrumbs_list = [{'name':'Summary', 'url':'/gstat/summary/'},
-                                {'name':'Site BDII View', 'url':'/gstat/summary/site/'}]
+            title = "Site BDII View"
+            breadcrumbs_list = [{'name':'Top BDII View', 'url':'/gstat/bdii/top/'}]
             thead=["Hostname", "Instances", "Freshness", "Services"]
         return render_to_response('single_table.html', {'summary_active': 1,
                                                         'breadcrumbs_list': breadcrumbs_list,
+                                                        'title' : title,
                                                         'thead': thead})
 
     
