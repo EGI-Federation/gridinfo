@@ -91,17 +91,30 @@ table.nested tr {
  * DataTables display
  */
 table.display {
-	margin: 0 auto;
+	margin: 6px auto;
 	width: 100%;
 	float: left;
+	background-color:#CDCDCD;
  	/* clear: both; */
 }
 
 table.display thead th {
-    background-color: #6E91AA;
-    color: white;
-	padding: 3px 10px;
-	border-bottom: 1px solid black;
+    background-color: #C7D1D6;
+    color: #222222;
+	padding: 3px 5px;
+	border:1px solid #FFFFFF;
+	/* border-bottom: 1px solid black; */
+	font-weight: bold;
+	cursor: pointer;
+	* cursor: hand;
+}
+
+table.display thead th.sorting_asc,  table.display thead th.sorting_desc{
+    background-color: #8DBDD8;
+    color: #222222;
+	padding: 3px 5px;
+	border:1px solid #FFFFFF;
+	/* border-bottom: 1px solid black; */
 	font-weight: bold;
 	cursor: pointer;
 	* cursor: hand;
@@ -132,11 +145,13 @@ table.display td.center {
  */
 
 .sorting_asc {
-	background: url('../images/sort_asc.png') no-repeat center right;
+	background: #8DBDD8 url('../images/sort_asc.png') no-repeat center right;
+	background-color: #8DBDD8;
 }
 
 .sorting_desc {
-	background: url('../images/sort_desc.png') no-repeat center right;
+	background: #8DBDD8 url('../images/sort_desc.png') no-repeat center right;
+	background-color: #8DBDD8;
 }
 
 .sorting {
@@ -193,14 +208,17 @@ table.display tr.even.gradeU {
 }
 
 tr {
+    /*background-color: #EEF0F1;*/
     background-color: #EEF0F1;
 }
 
 tr.odd {
-	background-color: #E3E6E8;
+	/*background-color: #E3E6E8;*/
+	background-color: #FFFFFF;
 }
 
 tr.even {
+	/*background-color: #EEF0F1;*/
 	background-color: #EEF0F1;
 }
 
@@ -298,7 +316,7 @@ table.display tr.odd.row_selected td {
  */
 /* For the standard odd/even */
 tr.odd td.sorting_1 {
-	background-color: #C7D1D6;
+	background-color: #EEF0F1;
 }
 
 tr.odd td.sorting_2 {

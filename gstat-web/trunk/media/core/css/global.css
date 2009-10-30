@@ -9,7 +9,7 @@
 p { margin:0px 0px 10px 0px; text-align:justify; }     /* default paragraph style */
 .hl { font-weight:bold; color:#0C6DFF; }               /* highlight style */
 ul { color:#4C7898; }
-a { color:#0C6DFF; text-decoration:underline; }        /* default hyperlink style */
+a { color:#0C6DFF; text-decoration:underline; target:_self;}        /* default hyperlink style */
 a:hover { color:#66A3FF; }                             /* default hyperlink style */
 h2 { margin:0px; margin-bottom:10px; }
 /* BLOCK/content-main[text]=END */
