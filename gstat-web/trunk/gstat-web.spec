@@ -3,7 +3,7 @@ Name: gstat-web
 Version: 0.0.17
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
-License: EGEE
+License: Apache license v2.0
 Group: Web Application
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
