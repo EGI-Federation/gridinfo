@@ -26,6 +26,7 @@ setup(name='gstat-web',
       scripts =['tools/import-entities', 'tools/configure-nagios','tools/snapshot','tools/import-prod-bdii','tools/gstat-update-rrd','tools/gstat-update'],
       data_files = [
         ('/etc/gstat', ['config/gstat.ini']),
+        ('', ['LICENSE']),
         ('/etc/nagios/gstat', ['config/bdii-commands.cfg','config/bdii-services.cfg']),
         ('/etc/httpd/conf.d', ['apache/gstat.conf']),
         ('/etc/cron.d', ['config/gstat-update', 'config/configure-nagios']),
