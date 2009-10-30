@@ -3,10 +3,10 @@ from django.http import HttpResponseRedirect
 from topology.models import Entity
 import os
 
-known_types = {'grids': 'GRID',
-               'rocs': 'EGEE_ROC',
-               'tiers': 'WLCG_TIER',
-               'countries': 'Country'}
+known_types = {'GRID': 'GRID',
+               'EGEE_ROC': 'EGEE_ROC',
+               'WLCG_TIER': 'WLCG_TIER',
+               'Country': 'Country'}
 
 def initial(request):
     file = 'firstRun'

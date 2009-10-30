@@ -8,60 +8,64 @@ from topology.models import Entityrelationship
 from glue.models import *
 from summary.utils import *
 
-def main(request, type='Grid', value=None, output=None):
+def main(request, type='GRID', value=None, output=None):
+
+    overview = {}
 
     site_list = get_sites(type, value)
-    sites = len(site_list)
+    overview["Sites"] = len(site_list) 
 
     country_list = get_countries(site_list)
-    countries = len(country_list)
+    overview["Countries"] = len(country_list)
 
     service_list = get_services(site_list)
-    services = len(service_list)
+    overview["Services"] = len(service_list)
 
     vo_list = get_VOs(service_list)
-    vos = len(vo_list)
+    overview["VOs"]= len(vo_list)
 
     sub_cluster_list = get_subclusters(service_list)
 
     physical_cpu, logical_cpu = get_installed_capacity_cpu(sub_cluster_list)
+    overview["Physical CPU"] = physical_cpu
+    overview["Logical CPU"] = logical_cpu
+
     os = get_installed_capacity_per_os(sub_cluster_list)
     
     se_list = get_SEs(service_list)
 
     total_online, used_online, total_nearline, used_nearline = get_installed_capacity_storage(se_list)
+    overview["Total Online"] = total_online 
+    overview["Used Online"] = used_online
+    overview["Total Nearline"] = total_nearline
+    overview["Used Nearline"] = used_nearline
 
     vo_view_list = get_vo_view(service_list)
     total_jobs, running_jobs, waiting_jobs = get_job_stats(vo_view_list)
+    overview["Total Jobs"] = total_jobs
+    overview["Running Jobs"] = running_jobs
+    overview["Waiting Jobs"] = waiting_jobs
+
+    data = []
+    for  type in overview:
+            data.append([type, overview[type] ])
 
     versions = get_service_versions(service_list)
 
     breadcrumbs_list = [{'name':'Stats', 'url':'/gstat/stats/'}]
      
-    return render_to_response('stats.html', {'summary_active': 1,
+    return render_to_response('stats.html', {'stats_active': 1,
                                              'breadcrumbs_list': breadcrumbs_list,
                                              'filters_enabled': True,
-                                             'sites': sites,
-                                             'countries': countries,
-                                             'services': services,
-                                             'vos': vos,
-                                             'physical_cpu': physical_cpu,
-                                             'logical_cpu': logical_cpu,
-                                             'total_online': total_online,
-                                             'used_online': used_online,
-                                             'total_nearline': total_nearline,
-                                             'used_nearline': used_nearline,
-                                             'total_jobs': total_jobs,
-                                             'running_jobs': running_jobs,
-                                             'waiting_jobs': waiting_jobs,
+                                             'data': data,
                                              'versions': versions,
                                              'os': os})
 
 def get_sites(type=None, value=None):
-    predicate = {'Grid': 'SiteGrid', 
+    predicate = {'GRID': 'SiteGrid', 
                'EGEE_ROC': 'SiteEgeeRoc', 
                'WLCG_TIER': 'SiteWlcgTier',
-               'County': 'SiteCountry'}
+               'Country': 'SiteCountry'}
     
     if ( value == None ):
         entities = Entity.objects.filter(type=type)
@@ -160,7 +164,9 @@ def get_installed_capacity_per_os(sub_clusters_list):
         os[os_name][os_release][1] += int(sub_cluster.logicalcpus)
 
     data = []
-    for  name in os:
+    keys = os.keys()
+    keys.sort()
+    for  name in keys:
         for release in os[name]:
             data.append([name, release, os[name][release][0], os[name][release][1]])
 
@@ -204,7 +210,9 @@ def get_service_versions(service_list):
         services[type][version] += 1    
 
     data = []
-    for  type in services:
+    keys = services.keys()
+    keys.sort()
+    for  type in keys:
         for version in services[type]:
             data.append([type, version, services[type][version] ])
 
