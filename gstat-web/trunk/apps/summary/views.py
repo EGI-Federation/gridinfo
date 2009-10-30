@@ -20,7 +20,7 @@ def main(request, type=None, value=None, output=None):
     if ( type == None ):
         type = 'Grid'
     
-    if ( value == None ):
+    if ( value == "ALL" ):
         entities = Entity.objects.filter(type=type)
         for entity in entities:
             site_list = getSitesInGroup(predicate[type], entity)

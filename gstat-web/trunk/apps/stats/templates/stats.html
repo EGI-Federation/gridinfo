@@ -17,73 +17,48 @@
 <script type="text/javascript" src="/media/summary/scripts/percentbar_progress.js" ></script>
 <script type="text/javascript" src="/media/summary/scripts/percentbar_tooltip.js" ></script>
 
+<script type="text/javascript" charset="utf-8">
+
+
+function changeFilterValue(event) {
+    filtertype = document.getElementById('filtertype');
+    filtervalue = document.getElementById('filtervalue');
+window.location="/stats/" + filtertype.value + "/" + filtervalue.value;
+}
+</script>
+
+
 {% endblock %}
 
 {% block breadcrumbs %}{% endblock %}
 
 {% block content-main %}
 
-    <table cellspacing="0" cellpadding="0" border="0" class="noborder" >
+
+<table>
+<tr>
+<td valign="top">    
+
+<table cellspacing="0" cellpadding="0" border="0" class="noborder" >
     <tbody>
-    <tr valign="top">
-      <td class="blockTitle" colspan="2">Site Information</td>
+    <tr >
+      <td class="blockTitle" colspan="2">Overview</td>
+
     </tr>
-    <tr valign="baseline">
-      <td align="right" class="key">Sites:</td>
-      <td class="value">{{ sites}}</td>
+
+ {% for row in data %}
+    <tr >
+      {% for col in row %}
+      <td >{{ col }}</td>
+      {% endfor %}
     </tr>
-     <tr valign="baseline">
-      <td align="right" class="key">Countries:</td>
-      <td class="value">{{ countries }}</td>
-    </tr>
-    <tr valign="baseline">
-      <td align="right" class="key">Services:</td>
-      <td class="value">{{ services }}</td>
-    </tr>
-    <tr valign="baseline">
-      <td align="right" class="key">VOs:</td>
-      <td class="value">{{ vos }}</a></td>
-    </tr>
-    <tr valign="baseline">
-      <td align="right" class="key">Physical CPUs:</td>
-      <td class="value">{{ physical_cpu }}</a></td>
-    </tr>
-    <tr valign="baseline">
-      <td align="right" class="key">Logical CPUs:</td>
-      <td class="value">{{ logical_cpu }}</a></td>
-    </tr>
-    <tr valign="baseline">
-      <td align="right" class="key">Total Online:</td>
-      <td class="value">{{ total_online }}</a></td>
-    </tr>
-    <tr valign="baseline">
-      <td align="right" class="key">Used Online:</td>
-      <td class="value">{{ used_online }}</a></td>
-    </tr>
-    <tr valign="baseline">
-      <td align="right" class="key">Total Nearline:</td>
-      <td class="value">{{ total_nearline }}</a></td>
-    </tr>
-    <tr valign="baseline">
-      <td align="right" class="key">Used Nearlline:</td>
-      <td class="value">{{ used_nearline }}</a></td>
-    </tr>
-    <tr valign="baseline">
-      <td align="right" class="key">Total Jobs:</td>
-      <td class="value">{{ total_jobs }}</a></td>
-    </tr>
-    <tr valign="baseline">
-      <td align="right" class="key">Running Jobs:</td>
-      <td class="value">{{ running_jobs }}</a></td>
-    </tr>
-    <tr valign="baseline">
-      <td align="right" class="key">Waiting Jobs:</td>
-      <td class="value">{{ waiting_jobs }}</a></td>
-    </tr>
+ {% endfor %}
     </tbody>   
     </table>
 
 
+</td>
+<td valign="top">
 
     <table cellspacing="0" cellpadding="0" border="0" class="noborder" >
     <tbody>
@@ -104,11 +79,14 @@
     </tbody>   
     </table>
 
-    <table cellspacing="0" cellpadding="0" border="0" class="noborder" >
+</td>
+<td valign="top">
+
+<table cellspacing="0" cellpadding="0" border="0" class="noborder" >
     <tbody>
     <tr >
-      <td class="blockTitle">Service Type</td>
-      <td class="blockTitle">Service Version</td>
+      <td class="blockTitle">Service</td>
+      <td class="blockTitle">Version</td>
       <td class="blockTitle">Instances</td>
     </tr>
 
@@ -121,4 +99,10 @@
  {% endfor %}
     </tbody>   
     </table>
+
+</td>
+</tr>
+</table>
+
+
 {% endblock %}
