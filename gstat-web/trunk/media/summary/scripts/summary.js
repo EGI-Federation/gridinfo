@@ -25,12 +25,6 @@ function changeFilterValue(event) {
     filtertype = document.getElementById('filtertype');
     filtervalue = document.getElementById('filtervalue');
 
-    var type_mapping          = new Array();
-    type_mapping["grids"]     = "GRID";
-    type_mapping["rocs"]      = "EGEE_ROC";
-    type_mapping["tiers"]     = "WLCG_TIER";
-    type_mapping["countries"] = "Country";
-
     var oTable;
     var theads = $('#single_table > thead');
     $('#TableContainer').html('<table cellpadding="0" cellspacing="1" border="0" class="display" id="single_table"><thead>'+theads.html()+'</thead><tbody></tbody></table>');
@@ -70,7 +64,7 @@ function changeFilterValue(event) {
               sWidth: '110px'
             }]
     });
-    oTable.fnReloadAjax(type_mapping[filtertype.value] + "/" + encodeURIComponent(filtervalue.value) + "/json/");
+    oTable.fnReloadAjax(filtertype.value + "/" + encodeURIComponent(filtervalue.value) + "/json/");
     var value = $('#filtervalue :selected').val();
     //alert($('#sites_or_status').text());
     if (value=="" || value=="-1" || value=="ALL") $('#sites_or_status').text('Sites');
