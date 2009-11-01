@@ -33,7 +33,7 @@
     <ul id="tree" class="filetree treeview">
       <li>
         <span class="vo">
-          <a target="graphframe" href="/rrd/VO/{{ site_name }}/{{ vo_name }}/{{ attribute }}/">&nbsp;{{ vo_name }}</a>
+          <a target="graphframe" href="/gstat/rrd/VO/{{ site_name }}/{{ vo_name }}/{{ attribute }}/">&nbsp;{{ vo_name }}</a>
         </span>
         <ul>
           <li>
@@ -48,10 +48,10 @@
               <li>
                 {% ifequal attribute "job" %}
                 <span class="ce"> 
-                  <a target="graphframe" href="/rrd/Queue/{{ vo_name }}/{{ obj.uniqueid }}/{{ attribute }}/">&nbsp;{{ obj.uniqueid }}</a>
+                  <a target="graphframe" href="/gstat/rrd/Queue/{{ vo_name }}/{{ obj.uniqueid }}/{{ attribute }}/">&nbsp;{{ obj.uniqueid }}</a>
                 {% else %}
                 <span class="se">
-                  <a target="graphframe" href="/rrd/SE/{{ obj.uniqueid }}/{{ attribute }}/">&nbsp;{{ obj.uniqueid }}</a>
+                  <a target="graphframe" href="/gstat/rrd/SE/{{ obj.uniqueid }}/{{ attribute }}/">&nbsp;{{ obj.uniqueid }}</a>
                 {% endifequal %}
                 </span>
               </li>
@@ -64,7 +64,7 @@
   </div>
   <div id="middle-right-board" class="board" >
     <h2>Viewing Graphs</h2>
-    <iframe name="graphframe" src="/rrd/VO/{{ site_name }}/{{ vo_name }}/{{ attribute }}/" frameborder="no" height="280px" width="100%" scrolling="no">
+    <iframe name="graphframe" src="/gstat/rrd/VO/{{ site_name }}/{{ vo_name }}/{{ attribute }}/" frameborder="no" height="280px" width="100%" scrolling="no">
     </iframe>
   </div>
   <div class="clear"/>
