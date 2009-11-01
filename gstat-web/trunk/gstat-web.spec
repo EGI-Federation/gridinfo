@@ -1,6 +1,6 @@
 Summary: GStat Web Applciation
 Name: gstat-web
-Version: 0.0.17
+Version: 0.0.18
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: Apache license v2.0
@@ -8,9 +8,8 @@ Group: Web Application
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildArchitectures: noarch
-Vendor: Laurence Field <Laurence.Field@cern.ch>
-Url: http://goc.grid.sinica.edu.tw/gocwiki/GSIndex
-Requires: gstat-core
+Vendor: Laurence Field <Laurence.Field@cern.ch>, David Horat <David.Horat@cern.ch>, Joanna Huang <joanna@twgrid.org>
+Url: https://svnweb.cern.ch/trac/gridinfo/wiki#GStat
 Requires: gstat-validation
 Requires: glite-yaim-nagios
 Requires: grid-monitoring-probes-org.bdii
