@@ -26,14 +26,31 @@ $(document).ready(function() {
         "sAjaxSource": 'json', 
         "sDom": 'T<"clear">lfrtip',
         "aoColumns": [
-            { sWidth: '50px', sClass: 'orderAction' },
+            { sWidth: '50px', sClass: 'orderAction',
+              "fnRender": function(oObj) {
+                 var url = document.URL;
+                 if (url.split("/gstat/summary/")[1].length == 0) {
+                   var link = '<a href="/gstat/summary/GRID/'+oObj.aData[0]+'/">'+oObj.aData[0]+'</a>';
+                 } else {
+                   if (url[url.length-1] == '/') url = url.slice(0,length-1);
+                   if (url.split("/gstat/summary/")[1].split("/").length == 1) {
+                     var type = url.split("/gstat/summary/")[1].split("/");
+                    var link = '<a href="/gstat/summary/'+type+'/'+oObj.aData[0]+'/">'+oObj.aData[0]+'</a>';
+                   } else if (url.split("/gstat/summary/")[1].split("/").length == 2){
+                     var link = '<a href="/gstat/site/'+oObj.aData[0]+'/">'+oObj.aData[0]+'</a>';
+                   } 
+                 }
+                 return link;
+                },
+              "bUseRendered": false
+            },
             { "fnRender": function(oObj) {
                  var status = '<span class="NagiosStatus_'+oObj.aData[1]+'">'+oObj.aData[1]+'</span>';
                  return status;
                 },
               "bUseRendered": false
             },
-            { sWidth: null, sClass: 'master' },
+            { sWidth: null },
             { sWidth: null },
             { sWidth: null },
             { "fnRender": function(oObj) {
@@ -57,6 +74,11 @@ $(document).ready(function() {
               sWidth: '110px'
             }]
     });
+    
+    var url = document.URL.split("/gstat/summary/")[1];
+    if (url[url.length-1] == '/') url = url.slice(0,length-1);
+    if (url.split("/").length == 2) $('#sites_or_status').text('Monitoring Status');
+    else $('#sites_or_status').text('Sites'); 
 })
 </script>
 {% endblock %}

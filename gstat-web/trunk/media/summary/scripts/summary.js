@@ -33,7 +33,20 @@ function changeFilterValue(event) {
         "DisplayLength": 25, 
         "sDom": 'T<"clear">lfrtip',
         "aoColumns": [
-            { sWidth: '50px', sClass: 'orderAction' },
+            { sWidth: '50px', sClass: 'orderAction',
+              "fnRender": function(oObj) {
+                 var link = '';
+                 var type = $('#filtertype :selected').val();
+                 var value = $('#filtervalue :selected').val();
+                 if (value=="" || value=="-1" || value=="ALL") 
+                   link = '<a href="/gstat/summary/'+type+'/'+oObj.aData[0]+'/">'+oObj.aData[0]+'</a>';
+                 else 
+                   link = '<a href="/gstat/site/'+oObj.aData[0]+'/">'+oObj.aData[0]+'</a>';
+   
+                 return link;
+                },
+              "bUseRendered": false
+            },
             { "fnRender": function(oObj) {
                  var status = '<span class="NagiosStatus_'+oObj.aData[1]+'">'+oObj.aData[1]+'</span>';
                  return status;
@@ -64,10 +77,9 @@ function changeFilterValue(event) {
               sWidth: '110px'
             }]
     });
-    oTable.fnReloadAjax(filtertype.value + "/" + encodeURIComponent(filtervalue.value) + "/json/");
+    oTable.fnReloadAjax("/gstat/summary/"+filtertype.value + "/" + encodeURIComponent(filtervalue.value) + "/json/");
     var value = $('#filtervalue :selected').val();
     //alert($('#sites_or_status').text());
     if (value=="" || value=="-1" || value=="ALL") $('#sites_or_status').text('Sites');
     else $('#sites_or_status').text('Monitoring Status');
 }
-
