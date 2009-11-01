@@ -6,7 +6,7 @@ from django.utils import html
 from topology.models import Entity
 from topology.models import Entityrelationship
 from glue.models import *
-from summary.utils import *
+from core.utils import *
 
 def main(request, type='GRID', value=None, output=None):
 
