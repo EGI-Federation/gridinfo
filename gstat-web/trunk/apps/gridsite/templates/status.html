@@ -119,13 +119,13 @@
   <div id="middle-right-board" class="board" >
     <h2>Viewing Graphs</h2>
     <script>
-    {% if status_list %}
-      {% for check in status_list|first %}
-        var datasources = DataSources("{{ check.check }}");
-        var link = '/gstat/rrd/Nagios/{{ check.hostname}}/{{ check.check}}/'+datasources+'/';
+    {% if status_list %}{% for check in status_list %} 
+      {% if forloop.first %}
+        var datasources = DataSources("{{ check.check }}")[0];
+        var link = '/gstat/rrd/Nagios/{{ check.hostname }}/{{ check.check }}/'+datasources+'/';
         document.write('<iframe name="graphframe" src="'+link+'" frameborder="no" height="280px" width="100%" scrolling="no"></iframe>');
-      {% endfor %} 
-    {% endif %}
+      {% endif %}
+    {% endfor %}{% endif %}
     </script>
   </div>
   <div class="clear"/>  
