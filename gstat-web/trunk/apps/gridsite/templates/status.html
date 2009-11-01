@@ -105,7 +105,7 @@
               <script>
                 var datasources = DataSources("{{ check.check }}");
                 for (datasource in datasources) {
-                    var link = '<a target="graphframe" href="/rrd/Nagios/{{ check.hostname }}/{{ check.check }}/'+datasources[datasource]+'/">&nbsp;'+datasources[datasource]+'</a>'
+                    var link = '<a target="graphframe" href="/gstat/rrd/Nagios/{{ check.hostname }}/{{ check.check }}/'+datasources[datasource]+'/">&nbsp;'+datasources[datasource]+'</a>'
                     document.write('<li><span class="datasource">'+link+'</span></li>');
                 }
               </script>
@@ -120,7 +120,7 @@
     <h2>Viewing Graphs</h2>
     <script>
         var datasources = DataSources("{{ status_list|first }}.{{ check }}");
-        var link = '/rrd/Nagios/{{ status_list|first }}.{{ hostname}}/{{ status_list|first }}.{{ check}}/'+datasources+'/';
+        var link = '/gstat/rrd/Nagios/{{ status_list|first }}.{{ hostname}}/{{ status_list|first }}.{{ check}}/'+datasources+'/';
         document.write('<iframe name="graphframe" src="'+link+'" frameborder="no" height="280px" width="100%" scrolling="no"></iframe>');
     </script>
   </div>
