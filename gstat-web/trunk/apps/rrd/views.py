@@ -168,9 +168,9 @@ def nagios_level(request, host_name, check_name, data_source, start_time):
     graph_cmd += \
         ' DEF:var1="%s":%s:AVERAGE' %(rrd_file, datasource) +\
         ' AREA:var1#EACC00:""' +\
-        ' GPRINT:var1:NOW:"%3.4lf %s%% LAST"' +\
-        ' GPRINT:var1:MAX:"%3.4lf %s%% MAX"' +\
-        ' GPRINT:var1:AVG:"%3.4lf %s%% AVERAGE \n"' 
+        ' GPRINT:var1:LAST:"NOW\:%3.2lf %s%%"' +\
+        ' GPRINT:var1:MAX:"MAX\:%3.2lf %s%%"' +\
+        ' GPRINT:var1:AVERAGE:"AVG\:%3.2lf %s%%\\n"' 
 
     return graph_render(graph_cmd)
 
