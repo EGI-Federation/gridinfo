@@ -29,7 +29,7 @@ var TableToolsInit = {
 	},
 	"sPrintMessage": "",
 	"sTitle": "",
-	"sSwfPath": "/media/core/swf/ZeroClipboard.swf",
+	"sSwfPath": "/media/core/scripts/img/ZeroClipboard.swf",
 	"iButtonHeight": 30,
 	"iButtonWidth": 30,
 	"_iNextId": 1 /* Internal useage - but needs to be global */
