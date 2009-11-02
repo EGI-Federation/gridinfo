@@ -31,7 +31,6 @@ setup(name='gstat-web',
                 'tools/snapshot'],
       data_files = [
         ('/etc/gstat', ['config/gstat.ini']),
-        ('', ['LICENSE']),
         ('/etc/nagios/gstat', ['config/bdii-commands.cfg','config/bdii-services.cfg']),
         ('/etc/httpd/conf.d', ['apache/gstat.conf']),
         ('/etc/cron.d', ['config/gstat-update', 'config/configure-nagios']),

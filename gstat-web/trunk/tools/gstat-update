@@ -6,7 +6,7 @@ if [ -f /etc/gstat/ref-bdii.conf ] ; then
    
    /usr/bin/snapshot -h ${BDII_HOST} -p ${BDII_PORT} -b ${BDII_BIND} > /var/log/gstat/snapshot.stdout 2>/var/log/gstat/snapshot.stderr 
       
-   if [ ! "x${GSTAT_PROD}" -eq "x" ]; then
+   if [ ! "x${GSTAT_PROD}" = "x" ]; then
        /usr/bin/import-prod-bdii >/var/log/gstat/prod.stdout 2>/var/log/gstat/prod.stderr 
    fi
    
