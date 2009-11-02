@@ -434,6 +434,6 @@ if __name__ == "__main__":
    
             # Check that the info in the GlueSiteOtherInfo field is correct
             check_site_other_info(entry)
-#   gsutils.do_output(my_errors,config)   
+   gsutils.do_output(my_errors,config)   
    gsutils.do_exit(my_errors)   
    
