@@ -23,8 +23,8 @@ include media/summary/scripts/*
 include media/summary/scripts/img/*
 include apache/*
 include apps/manage.py
-include apps/core/templates/*.html
-include apps/geo/templates/*.html
+include apps/core/templates/*
+include apps/geo/templates/*
 include apps/gridsite/templates/*.html
 include apps/ldapbrowser/templates/*.html
 include apps/rrd/templates/*.html
