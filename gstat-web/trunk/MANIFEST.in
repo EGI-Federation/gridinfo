@@ -1,9 +1,11 @@
 include config/*
 include media/core/css/*
+include media/core/css/img/*
 include media/core/icon/*
 include media/core/images/*
 include media/core/img/*
 include media/core/scripts/*
+include media/core/scripts/img/*
 include media/core/swf/*
 include media/core/ZeroClipboard/*
 include media/geo/css/*
