@@ -103,7 +103,6 @@ function init(){
 	/*********************************/
 //    var vector = new OpenLayers.Layer.Vector("Editable Vectors");
 //    map.addControl(new OpenLayers.Control.EditingToolbar(vector));
-    //map.zoomToMaxExtent();
     if (!map.getCenter()) map.setCenter(new OpenLayers.LonLat(5, 15), 2);
 }
 
@@ -118,10 +117,11 @@ function onPopupClose(evt) {
 function onFeatureSelect(event) {
     var feature = event.feature;
     var selectedFeature = feature;
+    var msg = "<h2>" + feature.attributes.name + "</h2>" +
+            '<a href="/gstat/site/' + feature.attributes.description + '">Summary View</a>';
     var popup = new OpenLayers.Popup.FramedCloud("chicken", 
         feature.geometry.getBounds().getCenterLonLat(),
-        new OpenLayers.Size(100,100),
-        "<h2>"+feature.attributes.name + "</h2>" + feature.attributes.description,
+        new OpenLayers.Size(100,100), msg,
         null, true, onPopupClose
     );
     popup.panMapIfOutOfView = false;
