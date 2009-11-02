@@ -7,15 +7,15 @@ from core.utils import countCPUsInSite, countStoragesInSite
 import random
 from geo import countryInfo
 
-known_types = {'grids': 'GRID',
-               'rocs': 'EGEE_ROC',
-               'tiers': 'WLCG_TIER',
-               'countries': 'Country'}
+known_types = ['GRID',
+               'EGEE_ROC',
+               'WLCG_TIER',
+               'Country']
 
-predicates  = {'grids': 'SiteGrid',
-               'rocs': 'SiteEgeeRoc',
-               'tiers': 'SiteWlcgTier',
-               'countries': 'SiteCountry'}
+predicates  = {'GRID': 'SiteGrid',
+               'EGEE_ROC': 'SiteEgeeRoc',
+               'WLCG_TIER': 'SiteWlcgTier',
+               'Country': 'SiteCountry'}
 
 # Stable view
 def index(request):
@@ -91,10 +91,10 @@ def kml(request, type='', value=''):
     if (type in known_types):
         # Get the entities for your type
         if (value == 'ALL'):
-            entities = Entity.objects.filter(type = known_types[type])
+            entities = Entity.objects.filter(type = type)
         else:
             entities = Entity.objects.filter(uniqueid__iexact = value, 
-                                             type=known_types[type])
+                                             type = type)
         # Find the related entities
         related_sites = []
         for entity in entities:
@@ -143,11 +143,11 @@ def overlay(request, type=''):
                     usedsize     = 0
                     for site in site_list:
                         (logicalcpus_, physicalcpus_) = countCPUsInSite(site)
-                        (totalsize_, usedsize_)       = countStoragesInSite(site)
+                        (totalonlinesize_, usedonlinesize_, totalnearlinesize_, usednearlinesize_)       = countStoragesInSite(site)
                         logicalcpus  += logicalcpus_
                         physicalcpus += physicalcpus_
-                        totalsize    += totalsize_
-                        usedsize     += usedsize_
+                        totalsize    += totalonlinesize_ + totalnearlinesize_
+                        usedsize     += usedonlinesize_ + usednearlinesize_
                     totalsize = int(totalsize / 1024) # TB
                     usedsize = int(usedsize / 1024) # TB
                     html = "<span style='font-size:xx-small;><tt>"
