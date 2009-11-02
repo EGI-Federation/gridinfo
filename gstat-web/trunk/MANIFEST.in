@@ -28,6 +28,7 @@ include apps/geo/templates/*
 include apps/gridsite/templates/*.html
 include apps/ldapbrowser/templates/*.html
 include apps/rrd/templates/*.html
+include apps/bdii/templates/*.html
 include apps/stats/templates/*.html
 include apps/summary/templates/*.html
 
