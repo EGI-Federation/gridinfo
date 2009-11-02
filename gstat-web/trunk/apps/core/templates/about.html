@@ -6,15 +6,15 @@
 <div style="float: right; width: 150px; margin-left: 10px;">
   <p style="text-align: center;"><strong>Developers</strong></p>
   <div style="text-align: center;">
-    <img src="/gstat/media/core/img/JoannaHuang.jpg" />
+    <img src="/media/core/img/JoannaHuang.jpg" />
     <p style="text-align: center;"><a href="https://twiki.cern.ch/twiki//bin/view/Main/JoannaHuang">Joanna Huang</a></p>
   </div>
   <div style="text-align: center;">
-    <img src="/gstat/media/core/img/LaurenceField.jpg" />
+    <img src="/media/core/img/LaurenceField.jpg" />
     <p style="text-align: center;"><a href="https://twiki.cern.ch/twiki//bin/view/Main/LaurenceField">Laurence Field</a></p>
   </div>
   <div style="text-align: center;">
-    <img src="/gstat/media/core/img/DavidHorat.jpg" />
+    <img src="/media/core/img/DavidHorat.jpg" />
     <p style="text-align: center;"><a href="http://cern.ch/horat">David Horat</a></p>
   </div>
 </div>
@@ -27,6 +27,6 @@
   
   <h3>High-Level System Architecture</h3>
   <p>The GStat architecture is split into four main areas; core, validation, monitoring and visualization. At the core of the system is a database where the data model defines the interface between the different areas. GStat core is responsible for extracting information from the information system and maintaining the entity cache. GStat visualization uses this information for the structure of displays and GStat validation conducts various validation tests on the information content. This mechanism has been designed so that it can be also be executed on the command line and as such can be used by site administrators and automated testing suites. GStat monitoring uses the entity cache to configure the monitoring framework which leverages the Nagios framework. The results of the validation tests and stored in the database and the Nagios database is used for the monitoring results. GStat visualization uses the all this information to present various views based on different used cases. The architecture of GStat is shown in the figure below.</p>
-  <img src="/gstat/media/core/img/architecture.jpg" />
+  <img src="/media/core/img/architecture.jpg" />
 </div>
 {% endblock %}
