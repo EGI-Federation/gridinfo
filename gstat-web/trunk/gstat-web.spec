@@ -42,11 +42,13 @@ mv %{buildroot}/usr/share/gstat/manage.py %{buildroot}/usr/share/gstat/manage
 sed -i 's/manage.py/manage/' INSTALLED_FILES
 chmod +x %{buildroot}/usr/share/gstat/manage
 chmod +x %{buildroot}/usr/share/gstat/gstat.wsgi
+mkdir -p  %{buildroot}/var/log/gstat/
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root)
+/var/log/gstat
 
 %changelog -f ChangeLog
