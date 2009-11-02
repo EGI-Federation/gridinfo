@@ -56,5 +56,6 @@ setup(name='gstat-web',
                     'ldapbrowser': ['templates/*.html'],
                     'rrd': ['templates/*.html'],
                     'stats': ['templates/*.html'],
+                    'bdii': ['templates/*.html'],
                     'summary': ['templates/*.html']},
 )
