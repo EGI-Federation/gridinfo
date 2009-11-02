@@ -86,7 +86,7 @@ def main(request, type=None, output=None):
             title = "Site BDII View"
             breadcrumbs_list = [{'name':'Top BDII View', 'url':'/gstat/bdii/top/'}]
             thead=["Hostname", "Instances", "Freshness", "Services"]
-        return render_to_response('single_table.html', {'summary_active': 1,
+        return render_to_response('single_table_bdii.html', {'summary_active': 1,
                                                         'breadcrumbs_list': breadcrumbs_list,
                                                         'title' : title,
                                                         'thead': thead})
