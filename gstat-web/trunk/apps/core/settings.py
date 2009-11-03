@@ -110,7 +110,7 @@ INSTALLED_APPS = (
 #    'django_extensions',
     #'debug_toolbar'
     'core',
-    'bdii',
+    'service',
     'stats',
     'glue',
     'topology',

@@ -7,46 +7,13 @@
 {% block css-add %}
 <link rel="stylesheet" type="text/css" href="/media/core/css/dataTables.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/TableTools.css" />
-<link rel="stylesheet" type="text/css" href="/media/core/css/percentbar_style.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/nagios.css" />
 {% endblock %}
 
 {% block scripts-add %}
 <script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.dataTables.js"></script>
-<script type="text/javascript" src="/media/core/js/TableTools.js"></script>
-<script type="text/javascript" src="/media/core/ZeroClipboard/ZeroClipboard.js"></script>
-<script type="text/javascript" src="/media/core/scripts/percentbar_progress.js" ></script>
 <script type="text/javascript" charset="utf-8">
-
-$.fn.dataTableExt.oApi.fnReloadAjax = function ( oSettings, sNewSource, fnCallback )
-{
-if ( typeof sNewSource != 'undefined' )
-{
-oSettings.sAjaxSource = sNewSource;
-}
-this.fnClearTable( this );
-this.oApi._fnProcessingDisplay( oSettings, true );
-var that = this;
-
-$.getJSON( oSettings.sAjaxSource, null, function(json) {
-/* Got the data - add it to the table */
-for ( var i=0 ; i<json.aaData.length ; i++ )
-				     {
-				     that.oApi._fnAddData( oSettings, json.aaData[i] );
-				     }
-				     
-				     oSettings.aiDisplay = oSettings.aiDisplayMaster.slice();
-				     that.fnDraw( that );
-				     that.oApi._fnProcessingDisplay( oSettings, false );
-				     
-				     /* Callback user function - for event handlers etc */
-				     if ( typeof fnCallback == 'function' )
-				     {
-				     fnCallback( oSettings );
-				     }
-				     } );
-}
 
 $(document).ready(function() {
         // dataTable script initialization using jQuery selectors
@@ -57,20 +24,26 @@ $(document).ready(function() {
         "sDom": 'T<"clear">lfrtip',
 	"aoColumns": [
             { "fnRender": function(oObj) {
-	    var link = '<a href="/gstat/service/'+oObj.aData[0]+'/">'+oObj.aData[0]+'</a>';
+	    var link = '<a href="/gstat/service/{{type}}/' + oObj.aData[0]+'">'+oObj.aData[0]+'</a>';
+             return link;
+             },
+             "bUseRendered": false
+            },
+            { "fnRender": function(oObj) {
+	    var link = '<a href="/gstat/service/{{type}}/' + oObj.aData[1]+'">'+oObj.aData[1]+'</a>';
              return link;
              },
              "bUseRendered": false
             },
 null, 
         { "fnRender": function(oObj) {
-            var status = '<span class="NagiosStatus_'+oObj.aData[2]+'">'+oObj.aData[2]+'</span>';
+            var status = '<span class="NagiosStatus_'+oObj.aData[3]+'">'+oObj.aData[3]+'</span>';
 	    return status;
 	    },
          "bUseRendered": false,
          "sType": "status" }, 
         { "fnRender": function(oObj) {
-            var status = '<span class="NagiosStatus_'+oObj.aData[3]+'">'+oObj.aData[3]+'</span>';
+            var status = '<span class="NagiosStatus_'+oObj.aData[4]+'">'+oObj.aData[4]+'</span>';
 	    return status;
 	    },
          "bUseRendered": false,
@@ -83,19 +56,6 @@ null,
 $('#content-main a').attr({"target":"_self"});      // here you can set up default targets for all heperlinks in content section
 
     
-function changeFilterValue(event) {
-    filtertype = document.getElementById('filtertype');
-    filtervalue = document.getElementById('filtervalue');
-        
-    /* Example call to load a new file */
-    var oTable;
-    $(document).ready(function() {
-        var oTable = $('#single_table').dataTable();
-        oTable.fnReloadAjax( filtertype.value + "/" + filtervalue.value + "/json" );
-    });
-}
-
-
 
 </script>
 {% endblock %}
