@@ -20,7 +20,7 @@
 <script type="text/javascript" src="/media/summary/scripts/percentbar_progress.js" ></script>
 <script>
     $(document).ready(function() { 
-        $("#myTable").tablesorter({sortList:[], widgets: ['zebra']}); 
+        //$("#myTable").tablesorter({sortList:[], widgets: ['zebra']}); 
         $('#tabs_container').tabs();
     });  
 </script>
@@ -154,19 +154,19 @@
         <tbody>           
           {% ifnotequal count_dict.ce 0 %}
           <tr> 
-            <td><a href="/gstat/site/{{ site.name }}/ce/">CE</a></td> 
+            <td>CE<!-- <a href="/gstat/site/{{ site.name }}/ce/">CE</a> --></td> 
             <td>{{ count_dict.ce }}</td> 
           </tr> 
           {% endifnotequal %}
           {% ifnotequal count_dict.se 0 %}
           <tr> 
-            <td><a href="/gstat/site/{{ site.name }}/se/">SE</a></td> 
+            <td>SE<!-- <a href="/gstat/site/{{ site.name }}/se/">SE</a> --></td> 
             <td>{{ count_dict.se }}</td> 
           </tr> 
           {% endifnotequal %}          
           {% ifnotequal count_dict.service 0 %}
           <tr> 
-            <td><a href="/gstat/site/{{ site.name }}/service/">Service</a></td> 
+            <td>Service<!-- <a href="/gstat/site/{{ site.name }}/service/">Service</a> --></td> 
             <td>{{ count_dict.service }}</td> 
           </tr> 
           {% endifnotequal %}      
@@ -261,23 +261,26 @@
 	<div id="tabs_container">
 	  <ul>
 	  {% for vo in vo_list %}
-	    <li><a href="#fragment-{{ forloop.counter }}"><span>{{ vo.uniqueid }}</span></a></li>
+	    <li><a href="#fragment-{{ forloop.counter }}"><span>{{ vo.voname }}</span></a></li>
 	  {% endfor %}
 	  </ul>
 	  {% for vo in vo_list %}
 	  <div id="fragment-{{ forloop.counter }}">
 
-	    <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
+	    <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0" style="width:230px;"> 
 	      <thead> 
 	        <tr> 
 	          <th colspan="3" align="center">Grid Jobs</th>
-	          <th colspan="4" align="center">Online Storage Usage</th>
+<!--
+ 	          <th colspan="4" align="center">Online Storage Usage</th>
 	          <th colspan="4" align="center">Nearline Storage Usage</th>
+-->	          
 	        </tr> 
 	        <tr>
 	          <th>Total</th> 
 	          <th>Running</th>
 	          <th>Waiting</th>
+<!--	          
 	          <th>Total</th>
 	          <th>Used</th> 
 	          <th>Reserved</th> 
@@ -286,28 +289,32 @@
 	          <th>Used</th> 
 	          <th>Reserved</th> 
 	          <th>Free</th> 
+-->	          
 	        </tr> 
 	      </thead> 
 	      <tbody>    
 	        <tr> 
+	          <td>{{ vo.totaljobs }}</td> 
+	          <td>{{ vo.runningjobs }}</td>
+	          <td>{{ vo.waitingjobs }}</td>
+<!--	
 	          <td></td> 
 	          <td></td>
 	          <td></td>
 	          <td></td> 
 	          <td></td>
 	          <td></td>
-	          <td></td> 
 	          <td></td>
 	          <td></td>
-	          <td></td>
-	          <td></td>
+-->	          
 	        </tr>
 	        <tr> 
 	          <td colspan="3">
-	            <a href="/gstat/site/{{ site.name }}/graphs/job/{{ vo.uniqueid }}/">
-	              <img src="/gstat/rrd/VO/{{ site.name }}/{{ vo.uniqueid }}/job/e-3h/small/"/>
+	            <a href="/gstat/site/{{ site.name }}/graphs/job/{{ vo.voname }}/">
+	              <img src="/gstat/rrd/VO/{{ site.name }}/{{ vo.voname }}/job/e-3h/small/"/>
 	            </a>
 	          </td>
+<!--	         
 	          <td colspan="4">
 	            <a href="/gstat/site/{{ site.name }}/graphs/nearline/">
 	              <img src="/gstat/rrd/Site/{{ site.name }}/nearline/e-3h/small/"/>
@@ -318,6 +325,7 @@
 	              <img src="/gstat/rrd/Site/{{ site.name }}/nearline/e-3h/small/"/>
 	            </a>
 	          </td>
+-->	
 	        </tr> 
 	      </tbody> 
 	    </table>    
