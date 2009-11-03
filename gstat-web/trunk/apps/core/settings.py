@@ -116,7 +116,6 @@ INSTALLED_APPS = (
     'topology',
     'summary',
     'gridsite',
-    'newserializers',
     'geo',
     'ldapbrowser',
     'rrd',
