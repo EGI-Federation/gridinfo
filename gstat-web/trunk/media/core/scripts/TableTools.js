@@ -1,6 +1,6 @@
 /*
  * File:        TableTools.js
- * Version:     1.0.2
+ * Version:     1.0.4 dev
  * CVS:         $Id$
  * Description: Copy, save and print functions for DataTables
  * Author:      Allan Jardine (www.sprymedia.co.uk)
@@ -27,11 +27,13 @@ var TableToolsInit = {
 		"bCopy": true,
 		"bPrint": true
 	},
+	"bIncHiddenColumns": false,
 	"sPrintMessage": "",
 	"sTitle": "",
-	"sSwfPath": "/media/core/scripts/img/ZeroClipboard.swf",
+	"sSwfPath": "img/ZeroClipboard.swf",
 	"iButtonHeight": 30,
 	"iButtonWidth": 30,
+	"sCsvBoundary": "'",
 	"_iNextId": 1 /* Internal useage - but needs to be global */
 };
 
@@ -136,7 +138,7 @@ function TableTools ( oInit )
 		} );
 		
 		clip.addEventListener('mouseDown', function(client) {
-			clip.setText( fnGetDataTablesData(",") );
+			clip.setText( fnGetDataTablesData(",", TableToolsInit.sCsvBoundary) );
 		} );
 		
 		fnGlue( clip, nButton, "ToolTables_CSV_"+_iId, "Save as CSV" );
@@ -280,7 +282,7 @@ function TableTools ( oInit )
 			document.body.appendChild( nInfo );
 			
 			/* Add a message at the top of the page */
-			if ( _oSettings.sPrintMessage != "" )
+			if ( _oSettings.sPrintMessage !== "" )
 			{
 				_nPrintMessage = document.createElement( "p" );
 				_nPrintMessage.className = "TableTools_PrintMessage";
@@ -292,7 +294,7 @@ function TableTools ( oInit )
 			_iPrintScroll = $(window).scrollTop();
 			window.scrollTo( 0, 0 );
 			
-			$(document).bind( "keypress", null, fnPrintEnd );
+			$(document).bind( "keydown", null, fnPrintEnd );
 			
 			setTimeout( function() {
 				$(nInfo).fadeOut( "normal", function() {
@@ -336,7 +338,7 @@ function TableTools ( oInit )
 			_DTSettings.oApi._fnCalculateEnd( _DTSettings );
 			_DTSettings.oApi._fnDraw( _DTSettings );
 			
-			$(document).unbind( "keypress", fnPrintEnd );
+			$(document).unbind( "keydown", fnPrintEnd );
 		}
 	}
 	
@@ -433,10 +435,21 @@ function TableTools ( oInit )
 	 */
 	function fnGetTitle( )
 	{
-		if ( _oSettings.sTitle != "" )
-			return _oSettings.sTitle;
-		else
-			return document.getElementsByTagName('title')[0].innerHTML;
+		var sTitle;
+		if ( _oSettings.sTitle !== "" ) {
+			sTitle = _oSettings.sTitle;
+		} else {
+			sTitle = document.getElementsByTagName('title')[0].innerHTML;
+		}
+		
+		/* Strip characters which the OS will object to - checking for UTF8 support in the scripting
+		 * engine
+		 */
+		if ( "\u00A1".toString().length < 4 ) {
+			return sTitle.replace(/[^a-zA-Z0-9_\u00A1-\uFFFF\.,\-_ !\(\)]/g, "");
+		} else {
+			return sTitle.replace(/[^a-zA-Z0-9_\.,\-_ !\(\)]/g, "");
+		}
 	}
 	
 	
@@ -451,31 +464,66 @@ function TableTools ( oInit )
 	function fnFindParentClass ( n, sClass )
 	{
 		if ( n.className.match(sClass) || n.nodeName == "BODY" )
+		{
 			return n;
+		}
 		else
+		{
 			return fnFindParentClass( n.parentNode, sClass );
+		}
+	}
+	
+	
+	/*
+	 * Function: fnBoundData
+	 * Purpose:  Wrap data up with a boundary string
+	 * Returns:  string: - bound data
+	 * Inputs:   string:sData - data to bound
+	 *           string:sBoundary - bounding char(s)
+	 *           regexp:regex - search for the bounding chars - constructed outside for efficincy
+	 *             in the loop
+	 */
+	function fnBoundData( sData, sBoundary, regex )
+	{
+		if ( sBoundary === "" )
+		{
+			return sData;
+		}
+		else
+		{
+			return sBoundary + sData.replace(regex, "\\"+sBoundary) + sBoundary;
+		}
 	}
 	
 	
 	/*
 	 * Function: fnGetDataTablesData
 	 * Purpose:  Get data from DataTables' internals and format it for output
-	 * Returns:  
-	 * Inputs:   
+	 * Returns:  string:sData - concatinated string of data
+	 * Inputs:   string:sSeperator - field separator (ie. ,)
+	 *           string:sBoundary - field boundary (ie. ') - optional - default: ""
 	 */
-	function fnGetDataTablesData( sSeperator )
+	function fnGetDataTablesData( sSeperator, sBoundary )
 	{
 		var i, iLen;
 		var j, jLen;
 		var sData = '';
+		var sLoopData = '';
 		var sNewline = navigator.userAgent.match(/Windows/) ? "\r\n" : "\n";
+		
+		if ( typeof sBoundary == "undefined" )
+		{
+			sBoundary = "";
+		}
+		var regex = new RegExp(sBoundary, "g"); /* Do it here for speed */
 		
 		/* Titles */
 		for ( i=0, iLen=_DTSettings.aoColumns.length ; i<iLen ; i++ )
 		{
-			if ( _DTSettings.aoColumns[i].bVisible )
+			if ( _oSettings.bIncHiddenColumns === true || _DTSettings.aoColumns[i].bVisible )
 			{
-				sData += _DTSettings.aoColumns[i].sTitle.replace(/\n/g," ").replace( /<.*?>/g, "" ) +sSeperator;
+				sLoopData = _DTSettings.aoColumns[i].sTitle.replace(/\n/g," ").replace( /<.*?>/g, "" );
+				sData += fnBoundData( sLoopData, sBoundary, regex ) + sSeperator;
 			}
 		}
 		sData = sData.slice( 0, sSeperator.length*-1 );
@@ -487,9 +535,19 @@ function TableTools ( oInit )
 			/* Columns */
 			for ( i=0, iLen=_DTSettings.aoColumns.length ; i<iLen ; i++ )
 			{
-				if ( _DTSettings.aoColumns[i].bVisible )
+				if ( _oSettings.bIncHiddenColumns === true || _DTSettings.aoColumns[i].bVisible )
 				{
-					sData += _DTSettings.aoData[ _DTSettings.aiDisplay[j] ]._aData[ i ].replace(/\n/g," ").replace( /<.*?>/g, "" ) +sSeperator;
+					/* Convert to strings (with small optimisation) */
+					var mTypeData = _DTSettings.aoData[ _DTSettings.aiDisplay[j] ]._aData[ i ];
+					if ( typeof mTypeData == "string" )
+					{
+						sLoopData = mTypeData.replace(/\n/g," ").replace( /<.*?>/g, "" );
+					}
+					else
+					{
+						sLoopData = mTypeData+"";
+					}
+					sData += fnBoundData( sLoopData, sBoundary, regex ) + sSeperator;
 				}
 			}
 			sData = sData.slice( 0, sSeperator.length*-1 );

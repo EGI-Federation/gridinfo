@@ -13,10 +13,10 @@ from django.core.serializers import serialize
 def overview(request, site_name):     
     # add exception here in case of empty queryset
     # Get the site information
-    gluesite = getGlueEntity('gluesite', uniqueids_list=[site_name])[0]
-    if not gluesite:
-        pass
-        #raise Http404
+    entity = getGlueEntity('gluesite', uniqueids_list=[site_name])
+    if not entity:
+        raise Http404
+    gluesite = entity[0]
     gluesite.sysadmincontact = str(gluesite.sysadmincontact).split(":")[-1]      
     gluesite.usersupportcontact = str(gluesite.usersupportcontact).split(":")[-1]
     gluesite.securitycontact = str(gluesite.securitycontact).split(":")[-1]
@@ -75,7 +75,8 @@ def overview(request, site_name):
     #installed_capacity['waitingjobs']     = waitingjobs
     #installed_capacity['totaljobs']       = totaljobs
     
-    vo_list = getVOsInSite(site_entity)
+    #vo_list = getVOsInSite(site_entity)
+    vo_list = countJobsInVO_Site(site_entity)
     
     return render_to_response('overview.html', {'site'               : gluesite,
                                                 'count_dict'         : count_dict,
