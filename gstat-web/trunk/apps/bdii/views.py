@@ -8,18 +8,17 @@ from django.utils import simplejson as json
 from core.utils import *
 import gsutils
 import socket
+import sys
 
-def main(request, type=None, output=None):
+def main(request, type='top', output=None):
 
     data = []
-
     nagios_status = getNagiosStatusDict()
-    if (type == None ):
-        type = 'top'
     if (type == 'top'):  
         qs = Entity.objects.filter(type='bdii_top')
     else:
         qs = Entity.objects.filter(type='bdii_site')
+
     alias = {} 
     hosts = [] 
 
