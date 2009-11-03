@@ -8,6 +8,7 @@ from glue.models import gluesubcluster
 from glue.models import gluese
 from glue.models import gluece
 from glue.models import glueservice
+from glue.models import gluevoview
 
 CPU_COUNTS_SUBCLUSTER = None
 JOB_COUNTS_CE         = None
@@ -253,36 +254,31 @@ def countStoragesInSite(site_entity):
             
     return (totalonlinesize, usedonlinesize, totalnearlinesize, usednearlinesize)
 
-#def countJobsInSiteInVO(site_entity, vo_entity):
-#    totaljobs   = 0
-#    runningjobs = 0
-#    waitingjobs = 0
+def countJobsInVO_Site(site_entity):
+    vo_jobs = []
 
-#    queue_list = getQueuesInSite(site_entity)
-#    for queue in queue_list:
-#        if vo_entity.uniqueid == queue["vo"].uniqueid:
-            
-
-#glueces = gluece.objects.filter(gluecluster_fk__in=[queue["ce"].uniqueid for queue in queue_list])
-#for object in objects:
-#    if ( not glueces.has_key(object.uniqueid) ):
-#         glueces[object.uniqueid] = object.gluecluster_fk
-
-#objects=gluevoview.objects.filter(localid=vo_entity.uniqueid, gluece_fk__in=[gluece.uniqueid for gluece in glueces])
-#for object in objects:
-#    for attribute in ['assignedjobslots', 'runningjobs', 'totaljobs', 'waitingjobs']:
-#        try:
-#            print "%s: %s, %s = %s" %(glueces[object.gluece_fk], object.localid, attribute, object.__getattribute__(attribute)) 
-#        except KeyError:
-#            print "No mapping found"
-
-
-            
-#            totaljobs   += JOB_COUNTS_CE[ce.uniqueid]['totaljobs']   
-#            runningjobs += JOB_COUNTS_CE[ce.uniqueid]['runningjobs']
-#            waitingjobs += JOB_COUNTS_CE[ce.uniqueid]['waitingjobs']
-#            
-#    return (totaljobs, runningjobs, waitingjobs)
+    queue_list = getQueuesInSite(site_entity)
+    gluece = models.get_model('glue', 'gluece')
+    glueces = gluece.objects.filter(gluecluster_fk__in=[queue["ce"].uniqueid for queue in queue_list])
+    vo_list = getVOsInSite(site_entity)
+    for vo in vo_list:
+        totaljobs   = 0
+        runningjobs = 0
+        waitingjobs = 0
+        job_dict = {}
+        gluevoview = models.get_model('glue', 'gluevoview')
+        voviews= gluevoview.objects.filter(localid=vo.uniqueid, gluece_fk__in=[gluece.uniqueid for gluece in glueces])
+        for voview in voviews:
+            totaljobs   += int(voview.totaljobs)
+            runningjobs += int(voview.runningjobs)
+            waitingjobs += int(voview.waitingjobs)
+        job_dict['voname'] = vo.uniqueid
+        job_dict['totaljobs'] = totaljobs
+        job_dict['runningjobs'] = runningjobs
+        job_dict['waitingjobs'] = waitingjobs
+        
+        vo_jobs.append(job_dict)
+    return vo_jobs
 
 # ------------------------------
 # -- Nagios related functions --
