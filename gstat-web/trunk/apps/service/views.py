@@ -27,23 +27,19 @@ def main(request, type, output=None):
             alias = get_hostname(bdii.uniqueid)
             hosts = get_hosts_from_alias(alias)
             for host in hosts:
-                if ( already_done.has_key(host) ):
-                    continue
-                else:
-                    already_done[host] = None
-
-                status = getStatus('check-bdii-freshness', host)
-                freshness = status['current_state']
-                if (type == 'top'):
-                    status = getStatus('check-bdii-sites', host)
-                    state = status['current_state']
-                else:
-                    status = getStatus('check-bdii-services', host)
-                    state = status['current_state']
+                if ( not already_done.has_key(host) ):
+                    already_done[host]=None
+                    status = getStatus('check-bdii-freshness', host)
+                    freshness = status['current_state']
+                    if (type == 'top'):
+                        status = getStatus('check-bdii-sites', host)
+                        state = status['current_state']
+                    else:
+                        status = getStatus('check-bdii-services', host)
+                        state = status['current_state']
                     
-
-                row = [ alias, host, len(hosts), freshness, state ]
-            data.append(row)
+                    row = [ alias, host, len(hosts), freshness, state ]
+                    data.append(row)
 
 
         content = '{ "aaData": %s }' % (json.dumps(data))
@@ -126,17 +122,13 @@ def get_hostname(uniqueid):
     return hostname
 
 def get_hosts_from_alias(hostname):
-    alias = {} 
+    hosts = []
     try:
         ips = socket.gethostbyname_ex(hostname)[2]
         for ip in ips:
             instance = socket.gethostbyaddr(ip)[0]
-            if ( alias.has_key(hostname)):
-                alias[hostname].append(instance)
-            else:
-                alias[hostname] = [ instance ]
+            hosts.append(instance)
     except Exception, e:
         pass
-
-    return alias
+    return hosts
     
