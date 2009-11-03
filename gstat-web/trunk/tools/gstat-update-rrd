@@ -124,7 +124,7 @@ for obj in objects:
             data = obj.__getattribute__(attr)
             if (data == "unset" or data == ""):
                 data = "0"
-            print obj_data_file, data
+            #print obj_data_file, data
             archiveData(archive_path = obj_data_file, 
                         det_data     = data)
             distinct[obj.uniqueid] = None
@@ -156,7 +156,7 @@ for obj in objects:
             data = obj.__getattribute__(attr)
             if (data == "unset" or data == ""):
                 data = "0"
-            print obj_data_file, data
+            #print obj_data_file, data
             archiveData(archive_path = obj_data_file, 
                         det_data     = data)
             distinct[obj.uniqueid] = None
@@ -198,12 +198,14 @@ for obj in objects:
         
             # Store RRD data
             data = obj.__getattribute__(attr)
+            if (attr == "waitingjobs" and data == "444444"):
+                data = "0"
             if (data == "unset" or data == ""):
                 data = "0"
-            print obj_data_file, data
+            #print obj_data_file, data
             archiveData(archive_path = obj_data_file, 
                         det_data     = data)
-            print "%s: %s, %s = %s" %(glueces[obj.gluece_fk], obj.localid, attr, obj.__getattribute__(attr)) 
+            #print "%s: %s, %s = %s" %(glueces[obj.gluece_fk], obj.localid, attr, obj.__getattribute__(attr)) 
     except KeyError:
         pass
         #print "No mapping found"
