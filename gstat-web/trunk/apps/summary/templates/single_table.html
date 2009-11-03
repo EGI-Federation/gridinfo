@@ -9,6 +9,7 @@
 <link rel="stylesheet" type="text/css" href="/media/core/css/TableTools.css" />
 <link rel="stylesheet" type="text/css" href="/media/summary/css/percentbar_style.css" />
 <link rel="stylesheet" type="text/css" href="/media/summary/css/nagios.css" />
+<style media="screen" type="text/css"> #tooltip { font-size:12px;color:#000000; } </style>
 {% endblock %}
 
 {% block scripts-add %}
@@ -17,6 +18,7 @@
 <script type="text/javascript" src="/media/core/scripts/ZeroClipboard.js"></script>
 <script type="text/javascript" src="/media/core/scripts/TableTools.js"></script>
 <script type="text/javascript" src="/media/summary/scripts/percentbar_progress.js" ></script>
+<script type="text/javascript" src="/media/core/scripts/tooltip.js" ></script>
 <script type="text/javascript" src="/media/summary/scripts/summary.js" ></script>
 <script type="text/javascript" charset="utf-8">
 $(document).ready(function() {
@@ -147,6 +149,8 @@ $(document).ready(function() {
     if (url.split("/").length == 2) $('#sites_or_status').text('Monitoring Status');
     else $('#sites_or_status').text('Sites'); 
 })
+
+
 </script>
 {% endblock %}
 
@@ -172,13 +176,13 @@ $(document).ready(function() {
         <th colspan=3 align="center">Grid Jobs</th>
       </tr>
       <tr>
-        <th>Physical</th>
-        <th>Logical</th>
-        <th>Total</th>
-        <th>Used</th>
-        <th>Total</th>
-        <th>Running</th>
-        <th>Waiting</th>
+        <th><div id="tooltip" title="header=[] body=[]">Physical</div></th>
+        <th><div id="tooltip" title="header=[] body=[]">Logical</div></th>
+        <th><div id="tooltip" title="header=[How does GStat calculate it?] body=[TotalOnlineSize + TotalNearlineSize]">Total</div></th>
+        <th><div id="tooltip" title="header=[How does GStat calculate it?] body=[(UsedOnlineSize + UsedNearlineSize) / (TotalOnlineSize + TotalNearlineSize)]">Used</div></th>
+        <th><div id="tooltip" title="header=[] body=[]">Total</div></th>
+        <th><div id="tooltip" title="header=[How does GStat calculate it?] body=[RunningJobs / LogicalCPUs]">Running</div></th>
+        <th><div id="tooltip" title="header=[How does GStat calculate it?] body=[WaitingJobs / TotalJobs]">Waiting</div></th>
       </tr>
     </thead>
     <tbody>

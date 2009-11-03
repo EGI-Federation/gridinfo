@@ -34,29 +34,29 @@ function init() {
 function defHdrStyle() {
 	dvHdr.innerHTML='<img  style="vertical-align:middle"  src="info.gif">&nbsp;&nbsp;'+dvHdr.innerHTML;
 	dvHdr.style.fontWeight='bold';
-	dvHdr.style.width='150px';
+	dvHdr.style.width='auto';
 	dvHdr.style.fontFamily='arial';
 	dvHdr.style.border='1px solid #A5CFE9';
-	dvHdr.style.padding='3';
+	dvHdr.style.padding='6px 6px 6px 6px';
 	dvHdr.style.fontSize='11';
 	dvHdr.style.color='#4B7A98';
 	dvHdr.style.background='#D5EBF9';
 	dvHdr.style.filter='alpha(opacity=85)'; // IE
-	dvHdr.style.opacity='0.85'; // FF
+	dvHdr.style.opacity='0.95'; // FF
 }
 
 function defBdyStyle() {
 	dvBdy.style.borderBottom='1px solid #A5CFE9';
 	dvBdy.style.borderLeft='1px solid #A5CFE9';
 	dvBdy.style.borderRight='1px solid #A5CFE9';
-	dvBdy.style.width='150px';
+	dvBdy.style.width='auto';
 	dvBdy.style.fontFamily='arial';
 	dvBdy.style.fontSize='11';
-	dvBdy.style.padding='3';
+	dvBdy.style.padding='6px 6px 6px 6px';
 	dvBdy.style.color='#1B4966';
 	dvBdy.style.background='#FFFFFF';
 	dvBdy.style.filter='alpha(opacity=85)'; // IE
-	dvBdy.style.opacity='0.85'; // FF
+	dvBdy.style.opacity='0.95'; // FF
 }
 
 function checkElemBO(txt) {
