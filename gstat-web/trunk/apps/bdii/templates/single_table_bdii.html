@@ -50,13 +50,35 @@ for ( var i=0 ; i<json.aaData.length ; i++ )
 }
 
 $(document).ready(function() {
-       // dataTable script initialization using jQuery selectors
-       $('#single_table').dataTable( {
-      "bProcessing": true,
-       "iDisplayLength":25,
+        // dataTable script initialization using jQuery selectors
+        $('#single_table').dataTable( {
+        "bProcessing": true,
+        "iDisplayLength":25,
         "sAjaxSource": 'json',
-        "sDom": 'T<"clear">lfrtip'
-        } );
+        "sDom": 'T<"clear">lfrtip',
+	"aoColumns": [
+            { "fnRender": function(oObj) {
+	    var link = '<a href="/gstat/service/'+oObj.aData[0]+'/">'+oObj.aData[0]+'</a>';
+             return link;
+             },
+             "bUseRendered": false
+            },
+null, 
+        { "fnRender": function(oObj) {
+            var status = '<span class="NagiosStatus_'+oObj.aData[2]+'">'+oObj.aData[2]+'</span>';
+	    return status;
+	    },
+         "bUseRendered": false,
+         "sType": "status" }, 
+        { "fnRender": function(oObj) {
+            var status = '<span class="NagiosStatus_'+oObj.aData[3]+'">'+oObj.aData[3]+'</span>';
+	    return status;
+	    },
+         "bUseRendered": false,
+         "sType": "status" } 
+
+ ] 
+        });
 });
 
 $('#content-main a').attr({"target":"_self"});      // here you can set up default targets for all heperlinks in content section
