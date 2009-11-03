@@ -226,9 +226,9 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
         ' CDEF:used=%s' %(','.join(cdef_used))
     graph_cmd += \
         ' CDEF:free=total,used,-' +\
-        ' AREA:used#EACC00FF:"Used%sSize "' %(attribute.capitalize()) +\
+        ' AREA:used#669900:"Used%sSize "' %(attribute.capitalize()) +\
         rrdgraph_cmd_gprint('used', small) +\
-        ' AREA:free#EA8F00FF:"Total%sSize":STACK' %(attribute.capitalize()) +\
+        ' AREA:free#CCFF66:"Total%sSize":STACK' %(attribute.capitalize()) +\
         rrdgraph_cmd_gprint('total', small)
 
     return graph_cmd 
@@ -287,9 +287,9 @@ def cpu_graph_cmd(uniqueids, start_time, site_name='', small=False):
         ' CDEF:physical=%s' %(','.join(cdef_physical)) +\
         ' CDEF:logical=%s' %(','.join(cdef_logical))
     graph_cmd += \
-        ' LINE2:physical#00FF00:"PhysicalCPUs"' +\
+        ' LINE3:physical#CAF100:"PhysicalCPUs"' +\
         rrdgraph_cmd_gprint('physical', small) +\
-        ' LINE2:logical#0000FF:"LogicalCPUs "' +\
+        ' LINE3:logical#4682B4:"LogicalCPUs "' +\
         rrdgraph_cmd_gprint('logical', small)      
 
     return graph_cmd 
@@ -402,11 +402,11 @@ def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
         ' CDEF:running=%s' %(','.join(cdef_running)) +\
         ' CDEF:waiting=%s' %(','.join(cdef_waiting))
     graph_cmd += \
-        ' LINE2:total#00FF00:"TotalJobs  "' +\
+        ' AREA:total#CDE9E6:"TotalJobs  "' +\
         rrdgraph_cmd_gprint('total') +\
-        ' LINE2:running#0000FF:"RunningJobs"' +\
+        ' LINE3:running#4682B4:"RunningJobs"' +\
         rrdgraph_cmd_gprint('running') +\
-        ' LINE2:waiting#EA8F00FF:"WaitingJobs"' +\
+        ' LINE3:waiting#D8BFD8:"WaitingJobs"' +\
         rrdgraph_cmd_gprint('waiting')
         
     return graph_cmd 
