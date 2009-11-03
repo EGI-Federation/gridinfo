@@ -30,7 +30,7 @@ var TableToolsInit = {
 	"bIncHiddenColumns": false,
 	"sPrintMessage": "",
 	"sTitle": "",
-	"sSwfPath": "img/ZeroClipboard.swf",
+	"sSwfPath": "/media/core/scripts/img/ZeroClipboard.swf",
 	"iButtonHeight": 30,
 	"iButtonWidth": 30,
 	"sCsvBoundary": "'",
