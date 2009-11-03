@@ -67,13 +67,15 @@ def get_sites(type=None, value=None):
                'WLCG_TIER': 'SiteWlcgTier',
                'Country': 'SiteCountry'}
     
-    if ( value == "ALL" ):
-        entities = Entity.objects.filter(type=type)
+    if ( value == "ALL"):
+        #entities = Entity.objects.filter(type=type)
+        entities = getEntitiesByType(type)
         site_list = [] 
         for entity in entities:
             site_list.extend(getSitesInGroup(predicate[type], entity))
     else:
-        entity = Entity.objects.filter(uniqueid=value, type=type)
+        #entity = Entity.objects.filter(uniqueid=value, type=type)
+        entity = getEntityByUniqueidType(value, type)
         site_list = getSitesInGroup(predicate[type], entity)
     return site_list
 
