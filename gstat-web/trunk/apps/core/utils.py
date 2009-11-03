@@ -123,7 +123,10 @@ def getEntitiesByType(type_name):
 def getEntityByUniqueidType(unique_id, type_name):
     qs_entity = Entity.objects.filter(uniqueid = unique_id, type = type_name)
     # CAUTION!, alert exception or warning if there is more than one record
-    return qs_entity[0]
+    if qs_entity:
+        return qs_entity[0]
+    else:
+        return None
 
 def getSitesInGroup(predicate_name, entity):
     # Get the list of Sites in the specified group, ex.: grid, egee roc, country, etc.
@@ -203,9 +206,9 @@ def countCPUsInSite(site_entity):
     return (logicalcpus, physicalcpus)
     
 def countJobsInSite(site_entity):
+    totaljobs   = 0
     runningjobs = 0
     waitingjobs = 0
-    totaljobs   = 0
 
     # To get numbers of runningjobs, waitingjobs, and totaljobs from gluece
     # Just once to count the job numbers in subcluster entities
@@ -219,11 +222,11 @@ def countJobsInSite(site_entity):
     for ce in ce_list:
         # To count job numbers
         if ce.uniqueid in JOB_COUNTS_CE:
+            totaljobs   += JOB_COUNTS_CE[ce.uniqueid]['totaljobs']   
             runningjobs += JOB_COUNTS_CE[ce.uniqueid]['runningjobs']
             waitingjobs += JOB_COUNTS_CE[ce.uniqueid]['waitingjobs']
-            totaljobs   += JOB_COUNTS_CE[ce.uniqueid]['totaljobs']   
             
-    return (runningjobs, waitingjobs, totaljobs) 
+    return (totaljobs, runningjobs, waitingjobs) 
 
 def countStoragesInSite(site_entity):
     totalonlinesize = 0
@@ -250,6 +253,36 @@ def countStoragesInSite(site_entity):
             
     return (totalonlinesize, usedonlinesize, totalnearlinesize, usednearlinesize)
 
+#def countJobsInSiteInVO(site_entity, vo_entity):
+#    totaljobs   = 0
+#    runningjobs = 0
+#    waitingjobs = 0
+
+#    queue_list = getQueuesInSite(site_entity)
+#    for queue in queue_list:
+#        if vo_entity.uniqueid == queue["vo"].uniqueid:
+            
+
+#glueces = gluece.objects.filter(gluecluster_fk__in=[queue["ce"].uniqueid for queue in queue_list])
+#for object in objects:
+#    if ( not glueces.has_key(object.uniqueid) ):
+#         glueces[object.uniqueid] = object.gluecluster_fk
+
+#objects=gluevoview.objects.filter(localid=vo_entity.uniqueid, gluece_fk__in=[gluece.uniqueid for gluece in glueces])
+#for object in objects:
+#    for attribute in ['assignedjobslots', 'runningjobs', 'totaljobs', 'waitingjobs']:
+#        try:
+#            print "%s: %s, %s = %s" %(glueces[object.gluece_fk], object.localid, attribute, object.__getattribute__(attribute)) 
+#        except KeyError:
+#            print "No mapping found"
+
+
+            
+#            totaljobs   += JOB_COUNTS_CE[ce.uniqueid]['totaljobs']   
+#            runningjobs += JOB_COUNTS_CE[ce.uniqueid]['runningjobs']
+#            waitingjobs += JOB_COUNTS_CE[ce.uniqueid]['waitingjobs']
+#            
+#    return (totaljobs, runningjobs, waitingjobs)
 
 # ------------------------------
 # -- Nagios related functions --
