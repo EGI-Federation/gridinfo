@@ -7,7 +7,7 @@
 var initial = -119;
 var imageWidth = 240;
 var eachPercent = (imageWidth/2)/100;
-var DIR_PATH_IMAGES = "/media/summary/scripts/img/"
+var DIR_PATH_IMAGES = "/media/core/scripts/img/"
 
 /************************************************************/
 function setText (id, percent)
