@@ -132,7 +132,7 @@ def check_ID_equals_name(site):
 def check_valid_mail_address(site, mail_servers):
    possible_e_addr = ["GlueSiteUserSupportContact", "GlueSiteSysAdminContact", "GlueSiteSecurityContact"]
    site_id= site["GlueSiteUniqueID"]
-   
+   print site_id
    for address in possible_e_addr:
       
       try:
@@ -161,14 +161,18 @@ def check_valid_mail_address(site, mail_servers):
                      
                #Check if the e-mail server exists
                if (not mail_servers.has_key(server)):
-                  if not ( dns.resolver.query(server, 'MX') == []):
-                     log.info("The e-mail server for %s exists in site: %s" %(address, site_id))
-                     mail_servers.update({server:True})
-               else:
-                  if not mail_servers[server]:
-                     details = "Incorrect email address: %s for the site: %s." %(address,site_id)
-                     log.debug(error_messages["site.email.not_answering_server"][0]+details)
-                     my_errors.log(site_id, "site.email.not_answering_server", details, site_id)   
+                  if ( len(server) > 64 ):
+                      details = "The site %s has and email service hostname %s that is too long!" %(site_id,server)
+                      my_errors.log(site_id, "site.email.not_answering_server", details, site_id)   
+                  else:
+                      if not ( dns.resolver.query(server, 'MX') == []):
+                          log.info("The e-mail server for %s exists in site: %s" %(address, site_id))
+                          mail_servers.update({server:True})
+                      else:
+                          if not mail_servers[server]:
+                              details = "Incorrect email address: %s for the site: %s." %(address,site_id)
+                              log.debug(error_messages["site.email.not_answering_server"][0]+details)
+                              my_errors.log(site_id, "site.email.not_answering_server", details, site_id)   
                      
       except TypeError, e:
          details = "Incorrect email address: %s for the site: %s." %(address,site_id)
@@ -281,11 +285,10 @@ def check_valid_url(site):
 def check_site_other_info(site):
    site_id= site["GlueSiteUniqueID"]
    error_found=False
-   
-   
+ 
    ROC_names = ['AP', 'FR', 'CERN','CE','DE', 'Italy', 'NE', 'North', 'Russia', 'SEE', 'SWE', 'UK/I']
    SERVICE_names = ["prod", "pps", "cert"]
-
+   
    #try:
    if site.has_key("GlueSiteOtherInfo"):
       
@@ -310,14 +313,14 @@ def check_site_other_info(site):
                   error_found = True
                else:                           
                   # IF there is ROC field, the value must be in the list
-                  if not (other_info["EGEE_ROC"] in ROC_names):
+                  if not (other_info["EGEE_ROC"][0] in ROC_names):
                      details = "Site: %s." %(site_id)
                      log.debug(error_messages["site.OhterInfo.incorrect_EGEE_ROC"][0]+details)
                      my_errors.log(site_id, "site.OhterInfo.incorrect_EGEE_ROC", details, site_id)
                      error_found = True
                   
                   # If there is SERVICE field, the value must be prod, pps or cert
-                  if not (other_info["EGEE_SERVICE"] in SERVICE_names):
+                  if not (other_info["EGEE_SERVICE"][0] in SERVICE_names):
                      details = "Site: %s." %(site_id)
                      log.debug(error_messages["site.OhterInfo.incorrect_EGEE_SERVICE"][0]+details)
                      my_errors.log(site_id, "site.OhterInfo.incorrect_EGEE_SERVICE", details, site_id)
@@ -330,8 +333,8 @@ def check_site_other_info(site):
                             details = "%s is not a teir %s but is no publising the attribute %s" %(site_id[0], tiers[site_id[0]], key)
                             my_errors.log(site_id[0], "site.OhterInfo.missing_WLCG", details, site_id[0])
                             error_found = True
-                    if( not tiers[site_id[0]] == other_info['WLCG_TIER']):
-                        details = "%s is a tier %s but is publising %s" %(site_id[0], tiers[site_id[0]], other_info['WLCG_TIER'])
+                    if( not tiers[site_id[0]] == other_info['WLCG_TIER'][0]):
+                        details = "%s is a tier %s but is publising %s" %(site_id[0], tiers[site_id[0]], other_info['WLCG_TIER'][0])
                         my_errors.log(site_id[0], "site.OhterInfo.missing_WLCG", details, site_id[0])
                         error_found = True
                 else:
@@ -388,7 +391,7 @@ if __name__ == "__main__":
    if ( os.path.exists(tier_file)):
       for line in open(tier_file).readlines():
             index = line.find(":")
-            tiers[line[:index]] = line[index + 1:]
+            tiers[line[:index]] = line[index + 1:].strip()
 
    # Set filter to reduced the amount of information
    filter = "'(objectclass=GlueSite)'"
