@@ -163,9 +163,9 @@ def nagios_level(request, host_name, check_name, data_source, start_time):
     datasource_colors = {"freshness": "#CBE9E6",
                          "entries":   "#CCFF66",
                          "time":      "#D8BFD8",
-                         "errors":    "#FDB6BE",
-                         "warnings":  "#FFD100",
-                         "info":      "#FFFF9C"}
+                         "errors":    "#FFBBBB",
+                         "warnings":  "#FEFFC1",
+                         "info":      "#DBDBDB"}
     
     title= "BDII: %s, Check Command: %s" %(host_name, check_name)
     label = label_names[data_source]
