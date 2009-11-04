@@ -1,0 +1,110 @@
+{%  extends "base_gstat.html" %}
+
+{% block description %}Here you can put short description what application does, authors list and whatever you can come up with.{% endblock %}
+
+{% block app-info %}{% endblock %}
+
+{% block css-add %}
+<link rel="stylesheet" type="text/css" href="/media/gridsite/css/site.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/tablesorter.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/dataTables.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/percentbar_style.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/nagios.css" />
+{% endblock %}
+
+{% block scripts-add %}
+<script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.dataTables.js"></script>
+<script type="text/javascript" src="/media/core/scripts/percentbar_progress.js" ></script>
+
+<script type="text/javascript" charset="utf-8">
+    $(document).ready(function() { 
+        $("#overviewTable").tablesorter({sortList:[], widgets: ['zebra']}); 
+        $("#osTable").tablesorter({sortList:[[0,0],[1,0]], widgets: ['zebra']}); 
+        $("#serviceTable").tablesorter({sortList:[[0,0],[1,0]], widgets: ['zebra']}); 
+    });  
+
+	function changeFilterValue(event) {
+	    filtertype = document.getElementById('filtertype');
+	    filtervalue = document.getElementById('filtervalue');
+	    window.location="/gstat/stats/" + filtertype.value + "/" + filtervalue.value;
+	}
+</script>
+
+
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content-main %}
+
+
+<div>
+  <div id="left-board" class="board">
+    <h2>Overview</h2>
+    <table id="overviewTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
+      <thead> 
+        <tr> 
+          <th>Attribute</th> 
+          <th>Value</th> 
+        </tr> 
+      </thead> 
+      <tbody> 
+        {% for row in data %}
+        <tr >
+          {% for col in row %}
+          <td >{{ col }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %} 
+      </tbody> 
+    </table> 
+  </div>
+  <div id="middle-right-board" class="board" >
+    <h2>OS Information</h2>
+    <table id="osTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
+      <thead> 
+        <tr> 
+          <th>OS Name</th> 
+          <th>OS Release</th> 
+          <th>Physical CPUs</th>
+          <th>Logical CPUs</th>
+        </tr> 
+      </thead> 
+      <tbody> 
+        {% for row in os %}
+        <tr >
+          {% for col in row %}
+          <td >{{ col }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}
+      </tbody> 
+    </table> 
+  </div>
+  <div id="middle-right-board" class="board">
+    <h2>Service Version Information</h2>
+    <table id="serviceTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
+      <thead> 
+        <tr> 
+          <th>Service</th> 
+          <th>Version</th> 
+          <th>Instances</th>
+        </tr> 
+      </thead> 
+      <tbody> 
+        {% for row in versions %}
+        <tr >
+          {% for col in row %}
+          <td >{{ col }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}      
+      </tbody> 
+    </table> 
+  </div>
+  <div class="clear"></div>
+</div>
+<div class="clear"></div>
+{% endblock %}

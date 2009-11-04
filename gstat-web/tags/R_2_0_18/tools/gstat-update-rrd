@@ -1,0 +1,213 @@
+#!/usr/bin/python
+##############################################################################
+# Copyright (c) Members of the EGEE Collaboration. 2004.
+# See http://www.eu-egee.org/partners/ for details on the copyright
+# holders.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at #
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS
+# OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+#
+# NAME :        gstat-update-rrd
+#
+# DESCRIPTION : This script updates the rrd from the snapshot database
+#
+# AUTHORS :     Laurence.Field@cern.ch
+#               Joanna@twgrid.org
+#
+# EXAMPLE :     ./gstat-update-rrd
+#
+##############################################################################
+
+import os
+import sys
+import time
+DIR = os.path.dirname(__file__)
+APPS_DIR = os.path.join(DIR, '..','apps')
+sys.path.append(APPS_DIR)
+os.environ['DJANGO_SETTINGS_MODULE']='core.settings'
+from topology.models import Entity
+from core.utils import *
+
+modulename='topology.models'
+__import__(modulename)
+module=sys.modules[modulename]
+
+data_dir='/var/cache/gstat/rrd'
+
+
+def createDir(dir_path):
+    # check if path exists. if not, create
+    if (not os.path.exists(dir_path)):
+        os.makedirs(dir_path)
+            
+def createArchive(archive_dir, archive_path, archive_type, archive_period, data_name):
+    """If archive is not present, create new RRD archive
+
+    Name of archive is: rrd/node_type/node_uniqueid/dataname.rrd
+    Historic data is kept for 1000 sample periods of:
+        5min    ~3.5 days
+        30min   ~20.8 days  
+        2hr     ~83.3 days
+        1day    1000 days
+    For each period the data is conslidated into MIN, MAX and AVG
+    """
+
+    # create archive directory if not exists
+    createDir(archive_dir)
+
+    # check if archive exists. if not, create
+    if(not os.path.exists(archive_path)):
+        create_cmd = "rrdtool create %s" % (archive_path)+\
+            " DS:%s:%s:%s:U:U" % (data_name, archive_type, archive_period*2)+\
+            " RRA:MIN:0.5:1:1000"+\
+            " RRA:MIN:0.5:6:1000"+\
+            " RRA:MIN:0.5:24:1000"+\
+            " RRA:MIN:0.5:288:1000"+\
+            " RRA:AVERAGE:0.5:1:1000"+\
+            " RRA:AVERAGE:0.5:6:1000"+\
+            " RRA:AVERAGE:0.5:24:1000"+\
+            " RRA:AVERAGE:0.5:288:1000"+\
+            " RRA:MAX:0.5:1:1000"+\
+            " RRA:MAX:0.5:6:1000"+\
+            " RRA:MAX:0.5:24:1000"+\
+            " RRA:MAX:0.5:288:1000"
+        os.system(create_cmd)
+        #print "create RRD: "+create_cmd+"\nResults: "+query_res
+
+def archiveData(archive_path, det_data):
+    """Archives data for long term storage
+
+    """
+
+    # update archive with detailed data
+    update_cmd = "rrdtool update %s N:%s" %(archive_path,det_data)
+    os.system(update_cmd)
+    #print "updated RRD: "+update_cmd+"\nResults: "+query_res
+
+
+# -----------------------------------------
+# -- GlueSE storage space size archiving --
+# -----------------------------------------
+sub_data_dir='%s/SE' %(data_dir)
+createDir(sub_data_dir)
+
+distinct = {}
+objects = getGlueEntity('gluese', all=True)
+for obj in objects:
+    if (not distinct.has_key(obj.uniqueid)):
+        obj_unique_data_dir = '%s/%s' %(sub_data_dir, str(obj.uniqueid).replace('/',''))
+        
+        for attr in ['totalonlinesize',
+                     'usedonlinesize',
+                     'totalnearlinesize',
+                     'usednearlinesize']:
+            obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, attr)
+            
+            # Create RRD file
+            createArchive(archive_dir    = obj_unique_data_dir, 
+                          archive_path   = obj_data_file, 
+                          archive_type   = 'GAUGE', 
+                          archive_period = 600, 
+                          data_name      = attr)
+        
+            # Store RRD data
+            data = obj.__getattribute__(attr)
+            if (data == "unset" or data == ""):
+                data = "0"
+            #print obj_data_file, data
+            archiveData(archive_path = obj_data_file, 
+                        det_data     = data)
+            distinct[obj.uniqueid] = None
+            
+# ------------------------------------------
+# -- GlueSubCluster CPU numbers archiving --
+# ------------------------------------------
+sub_data_dir='%s/SubCluster' %(data_dir)
+createDir(sub_data_dir)
+
+distinct = {}
+objects = getGlueEntity('gluesubcluster', all=True)
+for obj in objects:
+    if (not distinct.has_key(obj.uniqueid)):
+        obj_unique_data_dir = '%s/%s' %(sub_data_dir, str(obj.uniqueid).replace('/',''))
+        
+        for attr in ['physicalcpus',
+                     'logicalcpus']:
+            obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, attr)
+            
+            # Create RRD file
+            createArchive(archive_dir    = obj_unique_data_dir, 
+                          archive_path   = obj_data_file, 
+                          archive_type   = 'GAUGE', 
+                          archive_period = 600, 
+                          data_name      = attr)
+        
+            # Store RRD data
+            data = obj.__getattribute__(attr)
+            if (data == "unset" or data == ""):
+                data = "0"
+            #print obj_data_file, data
+            archiveData(archive_path = obj_data_file, 
+                        det_data     = data)
+            distinct[obj.uniqueid] = None
+
+
+# -------------------------------------------------
+# -- GlueVOView job numbers archiving (VO-based) --
+# -------------------------------------------------
+sub_data_dir='%s/VOView' %(data_dir)
+createDir(sub_data_dir)
+
+
+# Create GlueCE to GlueCluster mapping
+glueces = {}
+objects = getGlueEntity('gluece', all=True)
+for obj in objects:
+    if ( not glueces.has_key(obj.uniqueid) ):
+         glueces[obj.uniqueid] = obj.gluecluster_fk
+
+# We will make an assumption that localid=VO/Role
+objects = getGlueEntity('gluevoview', all=True)
+for obj in objects:
+    try:
+        obj_unique_data_dir = '%s/%s/%s' %(sub_data_dir, 
+                                           str(obj.localid).replace('/',''), 
+                                           str(glueces[obj.gluece_fk]).replace('/',''))
+    
+        for attr in ['runningjobs', 
+                     'totaljobs', 
+                     'waitingjobs']:
+            obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, attr)
+            
+            # Create RRD file
+            createArchive(archive_dir    = obj_unique_data_dir, 
+                          archive_path   = obj_data_file, 
+                          archive_type   = 'GAUGE', 
+                          archive_period = 600, 
+                          data_name      = attr)
+        
+            # Store RRD data
+            data = obj.__getattribute__(attr)
+            if (attr == "waitingjobs" and data == "444444"):
+                data = "0"
+            if (data == "unset" or data == ""):
+                data = "0"
+            #print obj_data_file, data
+            archiveData(archive_path = obj_data_file, 
+                        det_data     = data)
+            #print "%s: %s, %s = %s" %(glueces[obj.gluece_fk], obj.localid, attr, obj.__getattribute__(attr)) 
+    except KeyError:
+        pass
+        #print "No mapping found"
+
+
