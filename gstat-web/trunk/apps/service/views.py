@@ -10,14 +10,12 @@ import gsutils
 import socket
 import sys
 
-nagios_status = getNagiosStatusDict()
-
 def main(request, type, output=None):
 
     if (output == 'json'):
         data = []
         nagios_status = getNagiosStatusDict()
-        if (type == 'top'):  
+        if (type == 'topbdii'):  
             qs = Entity.objects.filter(type='bdii_top')
         else:
             qs = Entity.objects.filter(type='bdii_site')
@@ -29,13 +27,13 @@ def main(request, type, output=None):
             for host in hosts:
                 if ( not already_done.has_key(host) ):
                     already_done[host]=None
-                    status = getStatus('check-bdii-freshness', host)
+                    status = getNagiosStatus(nagios_status, 'check-bdii-freshness', host)
                     freshness = status['current_state']
-                    if (type == 'top'):
-                        status = getStatus('check-bdii-sites', host)
+                    if (type == 'topbdii'):
+                        status = getNagiosStatus(nagios_status, 'check-bdii-sites', host)
                         state = status['current_state']
                     else:
-                        status = getStatus('check-bdii-services', host)
+                        status = getNagiosStatus(nagios_status, 'check-bdii-services', host)
                         state = status['current_state']
                     
                     row = [ alias, host, len(hosts), freshness, state ]
@@ -45,15 +43,15 @@ def main(request, type, output=None):
         content = '{ "aaData": %s }' % (json.dumps(data))
         return HttpResponse(content, mimetype='application/json')  
     else:
-        if (type == 'top'):
+        if (type == 'topbdii'):
             title = "Top BDII View"
             breadcrumbs_list = [{'name':'Site BDII View',
-                                 'url':'/gstat/service/site/'}]
+                                 'url':'/gstat/service/sitebdii/'}]
             thead=["Alias", "Hostname", "Instances", "Freshness", "Sites"]
         else:
             title = "Site BDII View"
             breadcrumbs_list = [{'name':'Top BDII View',
-                                 'url':'/gstat/service/top/'}]
+                                 'url':'/gstat/service/topbdii/'}]
             thead=["Alias", "Hostname", "Instances", "Freshness", "Services"]
 
         return render_to_response('single_table_service.html',
@@ -66,69 +64,42 @@ def main(request, type, output=None):
 def service(request, type, uniqueid):
 
     hostname = get_hostname(uniqueid)
+    
+    hosts_from_alias = get_hosts_from_alias(hostname)
+    
+    hostname_list = []
+    if ( len(hosts_from_alias) > 1 ):
+        #This is and alias point to more than on reall hostname
+        hostname_list = hosts_from_alias
+    elif not ( hostname == hosts_from_alias[0]):
+        #This is an alias for a single instance
+        hostname_list = hosts_from_alias
+    else:
+        #The actual id given was a real host.
+        hostname_list.append(hostname)
+            
+    nagios_status = getNagiosStatusDict()
     status_list = []
-    if type == 'top':
-        status_list.append( getStatus('check-bdii-freshness', hostname) )
-        status_list.append( getStatus('check-bdii-sites', hostname) )
-    elif type == 'site':
-        status_list.append( getStatus('check-bdii-freshness', hostname) )
-        status_list.append( getStatus('check-bdii-services', hostname) )
-    elif type == 'ce':
-        status_list.append( getStatus('check-ce', hostname) )
-    elif type == 'se':
-        status_list.append( getStatus('check-se', hostname) )
-    elif type == 'service':
-        status_list.append( getStatus('check-service', hostname) )
+    for hostname in hostname_list:
+        if type == 'topbdii':
+            status_list.append( getNagiosStatus(nagios_status, 'check-bdii-freshness', hostname) )
+            status_list.append( getNagiosStatus(nagios_status, 'check-bdii-sites', hostname) )
+        elif type == 'sitebdii':
+            status_list.append( getNagiosStatus(nagios_status, 'check-bdii-freshness', hostname) )
+            status_list.append( getNagiosStatus(nagios_status, 'check-bdii-services', hostname) )
+        elif type == 'ce':
+            status_list.append( getNagiosStatus(nagios_status, 'check-ce', hostname) )
+        elif type == 'se':
+            status_list.append( getNagiosStatus(nagios_status, 'check-se', hostname) )
+        elif type == 'service':
+            status_list.append( getNagiosStatus(nagios_status, 'check-service', hostname) )
+        elif type == 'site':
+            status_list.append( getNagiosStatus(nagios_status, 'check-site', hostname) )
 
-    elif type == 'site':
-        status_list.append( getStatus('check-site', hostname) )
-
-    if type in ['top', 'site']:
+    if type in ['topbdii', 'sitebdii']:
         check_type = 'monitoring'
     else:
         check_type = 'validation'
 
     return render_to_response('status.html', {'status_list' : status_list,
                                               'check_type'  : check_type})
-
-def getStatus(check, hostname):
-
-    status_dict = {'hostname': hostname,
-                   'current_state': 'N/A'
-                   }
-    if ( nagios_status.has_key(hostname) ) :
-        if ( nagios_status[hostname].has_key(check) ) :
-            status_dict['check']              = check
-            current_state                     = nagios_status[hostname][check]['current_state']
-            has_been_checked                  = nagios_status[hostname][check]['has_been_checked']
-            status_dict['current_state']      = getNagiosStatusStr(current_state, has_been_checked)
-            status_dict['plugin_output']      = nagios_status[hostname][check]['plugin_output']
-            status_dict['long_plugin_output'] = nagios_status[hostname][check]['long_plugin_output']
-            status_dict['last_check']         = nagios_status[hostname][check]['last_check']
-
-    return status_dict
-
-
-def get_hostname(uniqueid):
-    hostname=uniqueid
-    index=hostname.rfind(':')
-    if (index > -1 ):
-        hostname = hostname[:index]
-    index=hostname.find(':')
-    if (index > -1 ):
-        hostname = hostname[index+3:]
-
-
-    return hostname
-
-def get_hosts_from_alias(hostname):
-    hosts = []
-    try:
-        ips = socket.gethostbyname_ex(hostname)[2]
-        for ip in ips:
-            instance = socket.gethostbyaddr(ip)[0]
-            hosts.append(instance)
-    except Exception, e:
-        pass
-    return hosts
-    

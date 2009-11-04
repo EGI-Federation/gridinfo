@@ -67,7 +67,7 @@ def get_sites(type=None, value=None):
                'WLCG_TIER': 'SiteWlcgTier',
                'Country': 'SiteCountry'}
     
-    if ( value == "ALL"):
+    if ( value == "ALL" or value == None):
         #entities = Entity.objects.filter(type=type)
         entities = getEntitiesByType(type)
         site_list = [] 

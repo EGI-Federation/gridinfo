@@ -188,11 +188,18 @@ function changeFilterValue(event) {
                 nCells[8].innerHTML = CommaFormatted(waiting_job);
 		    }
     });
+    
+    if ($("#filtervalue").children().length > 1 && $("#filtervalue :selected").val() == "-1" ) 
+        $("#filtervalue :selected").val("ALL");
+    
     oTable.fnReloadAjax("/gstat/summary/"+filtertype.value + "/" + encodeURIComponent(filtervalue.value) + "/json/");
     var value = $('#filtervalue :selected').val();
     //alert($('#sites_or_status').text());
     if (value=="" || value=="-1" || value=="ALL") $('#sites_or_status').text('Sites');
     else $('#sites_or_status').text('Monitoring Status');
+    
+    if (!event) 
+      setTimeout('changeFilterValue();',300000); //Reload Ajax every 5 minutes
 }
 
 
