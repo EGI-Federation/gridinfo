@@ -121,8 +121,12 @@
     <script>
     {% if status_list %}{% for check in status_list %} 
       {% if forloop.first %}
-        var datasources = DataSources("{{ check.check }}")[0];
-        var link = '/gstat/rrd/Nagios/{{ check.hostname }}/{{ check.check }}/'+datasources+'/';
+        try {
+            var datasources = DataSources("{{ check.check }}")[0];
+            var link = '/gstat/rrd/Nagios/{{ check.hostname }}/{{ check.check }}/'+datasources+'/';
+        } catch(err) { 
+            var link = "";
+        }
         document.write('<iframe name="graphframe" src="'+link+'" frameborder="no" height="280px" width="100%" scrolling="no"></iframe>');
       {% endif %}
     {% endfor %}{% endif %}

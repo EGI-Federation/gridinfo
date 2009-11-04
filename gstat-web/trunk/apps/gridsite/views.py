@@ -15,13 +15,14 @@ def overview(request, site_name):
     # Get the site information
     entity = getGlueEntity('gluesite', uniqueids_list=[site_name])
     if not entity:
-        raise Http404
-    gluesite = entity[0]
-    gluesite.sysadmincontact = str(gluesite.sysadmincontact).split(":")[-1]      
-    gluesite.usersupportcontact = str(gluesite.usersupportcontact).split(":")[-1]
-    gluesite.securitycontact = str(gluesite.securitycontact).split(":")[-1]
-    last_update = time.mktime(time.strptime(str(gluesite.updated_at), "%Y-%m-%d %H:%M:%S"))
-    minutes_ago = int((time.mktime(time.localtime()) - time.mktime(time.strptime(str(gluesite.updated_at), "%Y-%m-%d %H:%M:%S")))/60)
+        #raise Http404
+        gluesite = "N/A"
+    else:
+        gluesite = entity[0]
+        gluesite.sysadmincontact = str(gluesite.sysadmincontact).split(":")[-1]      
+        gluesite.usersupportcontact = str(gluesite.usersupportcontact).split(":")[-1]
+        gluesite.securitycontact = str(gluesite.securitycontact).split(":")[-1]
+        
     
     
     
@@ -32,6 +33,8 @@ def overview(request, site_name):
     ce_list       = getNodesInSite(site_entity, 'CE')
     se_list       = getNodesInSite(site_entity, 'SE')
     service_list  = getServicesInSite(site_entity)
+    last_update = time.mktime(time.strptime(str(site_entity.updated_at), "%Y-%m-%d %H:%M:%S"))
+    minutes_ago = int((time.mktime(time.localtime()) - time.mktime(time.strptime(str(site_entity.updated_at), "%Y-%m-%d %H:%M:%S")))/60)
     
     # Count the numbers of entities
     count_dict             = {}
@@ -78,7 +81,8 @@ def overview(request, site_name):
     #vo_list = getVOsInSite(site_entity)
     vo_list = countJobsInVO_Site(site_entity)
     
-    return render_to_response('overview.html', {'site'               : gluesite,
+    return render_to_response('overview.html', {'sitename'           : site_name,
+                                                'gluesite'           : gluesite,
                                                 'count_dict'         : count_dict,
                                                 'overall_status_dict': overall_status_dict,
                                                 'installed_capacity' : installed_capacity,
@@ -89,7 +93,8 @@ def overview(request, site_name):
 def status(request, site_name, type):
     site_entity = getEntityByUniqueidType(site_name, 'Site')
     if not site_entity:
-        raise Http404 
+        #raise Http404 
+        pass
     
     nodetype = 'bdii_site'
     if type == 'topbdii': nodetype = 'bdii_top'
