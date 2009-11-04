@@ -1,4 +1,5 @@
 import re
+import socket
 
 from django.db import models
 from topology.models import Entity
@@ -389,3 +390,43 @@ def getNagiosStatusStr(current_state, has_been_checked):
         #return "Unknown Status %s" % (current_state)
         return 'N/A'
 
+def getNagiosStatus(nagios_status, check, hostname):
+
+    status_dict = {'hostname': hostname,
+                   'current_state': 'N/A'
+                   }
+    if ( nagios_status.has_key(hostname) ) :
+        if ( nagios_status[hostname].has_key(check) ) :
+            status_dict['check']              = check
+            current_state                     = nagios_status[hostname][check]['current_state']
+            has_been_checked                  = nagios_status[hostname][check]['has_been_checked']
+            status_dict['current_state']      = getNagiosStatusStr(current_state, has_been_checked)
+            status_dict['plugin_output']      = nagios_status[hostname][check]['plugin_output']
+            status_dict['long_plugin_output'] = nagios_status[hostname][check]['long_plugin_output']
+            status_dict['last_check']         = nagios_status[hostname][check]['last_check']
+
+    return status_dict
+
+
+def get_hostname(uniqueid):
+    hostname=uniqueid
+    index=hostname.rfind(':')
+    if (index > -1 ):
+        hostname = hostname[:index]
+    index=hostname.find(':')
+    if (index > -1 ):
+        hostname = hostname[index+3:]
+
+
+    return hostname
+
+def get_hosts_from_alias(hostname):
+    hosts = []
+    try:
+        ips = socket.gethostbyname_ex(hostname)[2]
+        for ip in ips:
+            instance = socket.gethostbyaddr(ip)[0]
+            hosts.append(instance)
+    except Exception, e:
+        pass
+    return hosts

@@ -87,18 +87,45 @@ def overview(request, site_name):
                                                 'minutes_ago'        : minutes_ago})
     
 def status(request, site_name, type):
-    if type == 'topbdii':
-        status_list = getStatusList(site_name, '^check-bdii.+', 'bdii_top')
-    elif type == 'sitebdii':
-        status_list = getStatusList(site_name, '^check-bdii.+', 'bdii_site') 
-    elif type == 'ce':
-        status_list = getStatusList(site_name, '^check-ce$', 'bdii_site')
-    elif type == 'se':
-        status_list = getStatusList(site_name, '^check-se$', 'bdii_site')
-    elif type == 'service':
-        status_list = getStatusList(site_name, '^check-service$', 'bdii_site')
-    elif type == 'site':
-        status_list = getStatusList(site_name, '^check-site$', 'bdii_site')
+    site_entity = getEntityByUniqueidType(site_name, 'Site')
+    if not site_entity:
+        raise Http404 
+    
+    nodetype = 'bdii_site'
+    if type == 'topbdii': nodetype = 'bdii_top'
+
+    hostnames  = [node.hostname for node in getNodesInSite(site_entity, nodetype)]
+    hostname_list = []
+    for hostname in hostnames:
+        hosts_from_alias = get_hosts_from_alias(hostname)
+        if ( len(hosts_from_alias) > 1 ):
+            #This is and alias point to more than on reall hostname
+            hostname_list += hosts_from_alias
+        elif not ( hostname == hosts_from_alias[0]):
+            #This is an alias for a single instance
+            hostname_list += hosts_from_alias
+        else:
+            #The actual id given was a real host.
+            hostname_list.append(hostname)
+            
+    nagios_status = getNagiosStatusDict()         
+    status_list = []
+    for hostname in hostname_list:
+        if type == 'topbdii':
+            status_list.append( getNagiosStatus(nagios_status, 'check-bdii-freshness', hostname) )
+            status_list.append( getNagiosStatus(nagios_status, 'check-bdii-sites', hostname) )
+        elif type == 'sitebdii':
+            status_list.append( getNagiosStatus(nagios_status, 'check-bdii-freshness', hostname) )
+            status_list.append( getNagiosStatus(nagios_status, 'check-bdii-services', hostname) )
+        elif type == 'ce':
+            status_list.append( getNagiosStatus(nagios_status, 'check-ce', hostname) )
+        elif type == 'se':
+            status_list.append( getNagiosStatus(nagios_status, 'check-se', hostname) )
+        elif type == 'service':
+            status_list.append( getNagiosStatus(nagios_status, 'check-service', hostname) )
+        elif type == 'site':
+            status_list.append( getNagiosStatus(nagios_status, 'check-site', hostname) )
+    
     if type in ['topbdii', 'sitebdii']:
         check_type = 'monitoring'
     else:
@@ -108,6 +135,8 @@ def status(request, site_name, type):
                                               'status_list' : status_list,
                                               'check_type'  : check_type})
 
+
+"""
 def getStatusList(site_name, search_phrase, node_type):
     site_entity = getEntityByUniqueidType(site_name, 'Site')
     if not site_entity:
@@ -135,7 +164,7 @@ def getStatusList(site_name, search_phrase, node_type):
         except (KeyError):
             pass
     return status_list    
-
+"""
 
 # ------------------------------------
 # -- RRD graphs HTML pages function --
