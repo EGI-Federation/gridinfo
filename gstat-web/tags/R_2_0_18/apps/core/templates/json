@@ -1,6 +1,0 @@
-{
-  "options": [
-{% for key, value in options %}
-    {value: "{{ value }}", key: "{{ key }}"},{% endfor %}
-  ]
-}
