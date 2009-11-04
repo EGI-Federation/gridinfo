@@ -14,7 +14,7 @@ Requires: gstat-validation
 Requires: glite-yaim-nagios
 Requires: grid-monitoring-probes-org.bdii
 Requires: nagios >= 3.0.0
-Requires: nagios-htpasswd
+Requires: voms-htpasswd
 Requires: nagios-plugins
 Requires: nagios-plugins-ping
 Requires: nagios-plugins-dns
