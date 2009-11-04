@@ -150,12 +150,12 @@ def overlay(request, type=''):
                         usedsize     += usedonlinesize_ + usednearlinesize_
                     totalsize = int(totalsize / 1024) # TB
                     usedsize = int(usedsize / 1024) # TB
-                    html = "<span style='font-size:xx-small;><tt>"
+                    html = ""
                     html += countryInfo.countriesInEgeeEurope[country.uniqueid][2]
                     html += "<br/>s:" + str(len(site_list))
                     html += "<br/>c:" + str(physicalcpus)
                     html += "<br/>t:" + str(totalsize)
-                    html += "</tt></span>"
+                    html += ""
                     popups.append([country.uniqueid,
                                    countryInfo.countriesInEgeeEurope[country.uniqueid][0],
                                    countryInfo.countriesInEgeeEurope[country.uniqueid][1],

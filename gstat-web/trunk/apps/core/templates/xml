@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="UTF-8"?>
 <complete>
 {% for key, value in options %}
     <option value="{{ value }}">{{ key }}</option>{% endfor %}
