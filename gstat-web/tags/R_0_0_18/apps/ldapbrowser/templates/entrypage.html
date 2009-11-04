@@ -1,0 +1,32 @@
+{%extends "blank.html"%}
+
+{% block title %}{{dn}}{% endblock %}
+
+{% block css %}
+	<style type= "text/css">
+		html {
+			overflow-x: hidden;
+			overflow-y: auto;
+		}
+		tbody th {
+			font-size: 12px;
+		    text-align: left;
+		}
+		tr {
+		    background-color: #FFFFFF;
+		    font-size: 10px;
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+	<table>
+		<tr><th>Attributes</th></tr>
+		{% for row in table %}
+			<tr>
+			{% for col in row %}
+			<td>{{col}}</td>{% endfor %}
+			</tr>
+		{% endfor %}
+	</table>
+{% endblock %}
