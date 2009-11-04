@@ -1,0 +1,74 @@
+{%  extends "base_gstat.html" %}
+
+{% block description %}Here you can put short description what application does, authors list and whatever you can come up with.{% endblock %}
+
+{% block app-info %}{% endblock %}
+
+{% block css-add %}
+<link rel="stylesheet" type="text/css" href="/media/gridsite/css/site.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/tablesorter.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/jquery.treeview.css" />
+{% endblock %}
+
+{% block scripts-add %}
+<script type="text/javascript" src="/media/gridsite/scripts/site.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script>
+<script type="text/javascript">
+	$(document).ready(function(){
+		$("#tree").treeview();
+	});
+</script>
+{% endblock %}
+
+{% block breadcrumbs %}{% endblock %}
+
+{% block content-main %}
+
+
+<div>
+  <div id="left-board" class="board">
+    <h2>Site Resource Components</h2>
+    <ul id="tree" class="filetree treeview">
+      <li>
+        <span class="folder">
+          <a target="graphframe" href="/gstat/rrd/Site/{{ site_name }}/{{ attribute }}/">&nbsp;{{ site_name }}</a>
+        </span>
+        <ul>
+          <li>
+            <span class="folder">&nbsp;
+            {% ifequal attribute "cpu" %} SubCluster
+            {% else %} {% ifequal attribute "online" %} SE
+            {% else %} {% ifequal attribute "nearline" %} SE
+            {% endifequal %} {% endifequal %} {% endifequal %}
+            </span>
+            <ul>
+              {% for obj in objects %}
+              <li>
+                {% ifequal attribute "cpu" %}
+                <span class="ce">
+                  <a target="graphframe" href="/gstat/rrd/SubCluster/{{ obj.uniqueid }}/{{ attribute }}/">&nbsp;{{ obj.uniqueid }}</a>
+                {% else %}
+                <span class="se">
+                  <a target="graphframe" href="/gstat/rrd/SE/{{ obj.uniqueid }}/{{ attribute }}/">&nbsp;{{ obj.uniqueid }}</a>
+                {% endifequal %}
+                </span>
+              </li>
+              {% endfor %}
+            </ul>
+          </li>
+        </ul>
+      </li>
+    </ul>
+  </div>
+  <div id="middle-right-board" class="board" >
+    <h2>Viewing Graphs</h2>
+    <iframe name="graphframe" src="/gstat/rrd/Site/{{ site_name }}/{{ attribute }}/" frameborder="no" height="250px" width="100%" scrolling="no">
+    </iframe>
+  </div>
+  <div class="clear"/>
+</div>
+
+
+{% endblock %}
