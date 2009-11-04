@@ -25,14 +25,14 @@ python setup.py build
 
 %install
 python setup.py install --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
-chmod 777 $RPM_BUILD_ROOT/var/cache/gstat/locations
-chmod 777 $RPM_BUILD_ROOT/var/cache/gstat/wlcg-tier
+chmod 777 $RPM_BUILD_ROOT/usr/share/gstat/locations
+chmod 777 $RPM_BUILD_ROOT/usr/share/gstat/wlcg-tier
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root)
-/var/cache/gstat
+/usr/share/gstat 
 
 
