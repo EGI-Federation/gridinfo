@@ -154,11 +154,18 @@ def nagios_level(request, host_name, check_name, data_source, start_time):
                         "check-site"          : {"errors": "1", "warnings": "2", "info": "3"}}
     # mapping units
     label_names = {"freshness": "seconds",
-                  "entries": "entries",
-                  "time": "seconds",
-                  "errors": "error messages",
-                  "warnings": "warning messages",
-                  "info": "information messages"}
+                  "entries":    "entries",
+                  "time":       "seconds",
+                  "errors":     "error messages",
+                  "warnings":   "warning messages",
+                  "info":       "information messages"}
+    
+    datasource_colors = {"freshness": "#CBE9E6",
+                         "entries":   "#CCFF66",
+                         "time":      "#D8BFD8",
+                         "errors":    "#FDB6BE",
+                         "warnings":  "#FFD100",
+                         "info":      "#FFFF9C"}
     
     title= "BDII: %s, Check Command: %s" %(host_name, check_name)
     label = label_names[data_source]
@@ -167,7 +174,7 @@ def nagios_level(request, host_name, check_name, data_source, start_time):
     datasource = datasource_names[check_name][data_source]
     graph_cmd += \
         ' DEF:var1="%s":%s:AVERAGE' %(rrd_file, datasource) +\
-        ' AREA:var1#EACC00:"%s"' %(data_source.capitalize()) +\
+        ' AREA:var1%s:"%s"' %(datasource_colors[data_source], data_source.capitalize()) +\
         ' GPRINT:var1:LAST:"NOW\:%3.2lf %s"' +\
         ' GPRINT:var1:MAX:"MAX\:%3.2lf %s"' +\
         ' GPRINT:var1:AVERAGE:"AVG\:%3.2lf %s\\n"' 
