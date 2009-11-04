@@ -6,7 +6,7 @@ function execOverlay() {
 	{% for name, lon, lat, html in popups %}
 	popup = new OpenLayers.Popup("{{name}}",
 	                             new OpenLayers.LonLat({{lon}},{{lat}}),
-	                             new OpenLayers.Size(),
+	                             new OpenLayers.Size(50, 60),
 	                             "{% autoescape off %}{{html}}{% endautoescape %}",
 	                             false);
 	popup.opacity = 0.9;

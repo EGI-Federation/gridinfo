@@ -32,13 +32,12 @@ def filter(request, type=''):
             options.append([value, key])
     # If the type is known, return all values of that type
     elif (type in known_types):
-        options = [['ALL', 'all']]
+        options = [['ALL', 'ALL']]
         site_list = Entity.objects.filter(type=known_types[type]).order_by('uniqueid')
         for site in site_list:
             options.append([site.uniqueid, site.uniqueid])
 
-    response = render_to_response('xml', {'options': options})
-    response['Content-Type'] = 'text/xml'
-    response['Content-Disposition'] = 'attachment; filename=filter.xml'
-    response['Content-Description'] = 'XML Filter'
+    response = render_to_response('json', {'options': options})
+    response['Content-Type'] = 'text/json'
+    response['Content-Description'] = 'JSON Filter'
     return response

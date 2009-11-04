@@ -54,8 +54,8 @@
 	            map.addLayer(sundials);
             } else {
             	updateFullScreenLink();
-	            kmllink = document.getElementById('kmllink');
-	            kmlurl = "/gstat/geo/kml/" + filtertype.value + '/' + filtervalue.value;
+	            var kmllink = document.getElementById('kmllink');
+	            var kmlurl = "/gstat/geo/kml/" + filtertype.value + '/' + filtervalue.value;
 	            kmllink.href = kmlurl;
 	            map.removeLayer(sundials);
 	            sundials = new OpenLayers.Layer.Vector("The Grid", {
@@ -93,13 +93,13 @@
         }
         
         function updateFullScreenLink(){
-            fullscreenlink = document.getElementById('fullscreenlink');
-            filtertype = document.getElementById('filtertype');
-            filtervalue = document.getElementById('filtervalue');
-            kmlurl = "/gstat/geo/kml/" + filtertype.value + '/' + filtervalue.value;
-            overlaytype = document.getElementById('overlaytype').value;
-            overlayurl = "/gstat/geo/overlay/" + overlaytype
-            fullscreenurl = "/gstat/geo/openlayers/fullscreen"
+            var fullscreenlink = document.getElementById('fullscreenlink');
+            var filtertype = document.getElementById('filtertype');
+            var filtervalue = document.getElementById('filtervalue');
+            var kmlurl = "/gstat/geo/kml/" + filtertype.value + '/' + filtervalue.value;
+            var overlaytype = document.getElementById('overlaytype').value;
+            var overlayurl = "/gstat/geo/overlay/" + overlaytype
+            var fullscreenurl = "/gstat/geo/openlayers/fullscreen"
             		+ "?kml=" + encodeURIComponent(kmlurl) 
             		+ "&overlay=" + encodeURIComponent(overlayurl);
             fullscreenlink.href = fullscreenurl;
