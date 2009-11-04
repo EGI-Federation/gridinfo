@@ -43,31 +43,31 @@
       <tbody> 
         <tr> 
           <td>Site name</td> 
-          <td>{{ site.name }}</td> 
+          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.name }}{% endifnotequal %}</td> 
         </tr> 
         <tr> 
           <td>Description</td> 
-          <td>{{ site.description }}</td> 
+          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.description }}{% endifnotequal %}</td> 
         </tr> 
         <tr> 
           <td>Location</td> 
-          <td>{{ site.location }}</td> 
+          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.location }}{% endifnotequal %}</td> 
         </tr> 
         <tr> 
           <td>Web</td> 
-          <td><a href="{{ site.web }}">{{ site.web }}</a></td> 
+          <td>{% ifnotequal gluesite "N/A" %}<a href="{{ gluesite.web }}">{{ gluesite.web }}</a>{% endifnotequal %}</td> 
         </tr> 
         <tr> 
           <td>Sysadmin Email</td> 
-          <td><a href="mailto:{{ site.sysadmincontact }}">{{ site.sysadmincontact }}</a></td> 
+          <td>{% ifnotequal gluesite "N/A" %}<a href="mailto:{{ gluesite.sysadmincontact }}">{{ gluesite.sysadmincontact }}</a>{% endifnotequal %}</td> 
         </tr> 
         <tr> 
           <td>User-Support Email</td> 
-          <td><a href="mailto:{{ site.usersupportcontact }}">{{ site.usersupportcontact }}</a></td> 
+          <td>{% ifnotequal gluesite "N/A" %}<a href="mailto:{{ gluesite.usersupportcontact }}">{{ gluesite.usersupportcontact }}</a>{% endifnotequal %}</td> 
         </tr> 
         <tr> 
           <td>Security Email</td> 
-          <td><a href="mailto:{{ site.securitycontact }}">{{ site.securitycontact }}</a></td> 
+          <td>{% ifnotequal gluesite "N/A" %}<a href="mailto:{{ gluesite.securitycontact }}">{{ gluesite.securitycontact }}</a>{% endifnotequal %}</td> 
         </tr> 
       </tbody> 
     </table> 
@@ -86,13 +86,13 @@
         <tbody> 
           {% ifnotequal count_dict.topbdii 0 %}
           <tr> 
-            <td><a href="/gstat/site/{{ site.name }}/topbdii/">Top BDII</a></td> 
+            <td><a href="/gstat/site/{{ sitename }}/topbdii/">Top BDII</a></td> 
             <td><span class="NagiosStatus_{{ overall_status_dict.topbdii }}"> {{ overall_status_dict.topbdii }} </span></td> 
           </tr> 
           {% endifnotequal %}
           {% ifnotequal count_dict.sitebdii 0 %}
           <tr> 
-            <td><a href="/gstat/site/{{ site.name }}/sitebdii/">Site BDII</a></td> 
+            <td><a href="/gstat/site/{{ sitename }}/sitebdii/">Site BDII</a></td> 
             <td><span class="NagiosStatus_{{ overall_status_dict.sitebdii }}"> {{ overall_status_dict.sitebdii }} </span></td> 
           </tr> 
           {% endifnotequal %}
@@ -117,24 +117,24 @@
         <tbody>     
           {% ifnotequal count_dict.ce 0 %}
           <tr> 
-            <td><a href="/gstat/site/{{ site.name }}/ce/">CE</a></td> 
+            <td><a href="/gstat/site/{{ sitename }}/ce/">CE</a></td> 
             <td><span class="NagiosStatus_{{ overall_status_dict.ce }}"> {{ overall_status_dict.ce }} </span></td> 
           </tr> 
           {% endifnotequal %}
           {% ifnotequal count_dict.se 0 %}
           <tr> 
-            <td><a href="/gstat/site/{{ site.name }}/se/">SE</a></td> 
+            <td><a href="/gstat/site/{{ sitename }}/se/">SE</a></td> 
             <td><span class="NagiosStatus_{{ overall_status_dict.se }}"> {{ overall_status_dict.se }} </span></td> 
           </tr> 
           {% endifnotequal %}          
           {% ifnotequal count_dict.service 0 %}
           <tr> 
-            <td><a href="/gstat/site/{{ site.name }}/service/">Service</a></td> 
+            <td><a href="/gstat/site/{{ sitename }}/service/">Service</a></td> 
             <td><span class="NagiosStatus_{{ overall_status_dict.service }}"> {{ overall_status_dict.service }} </span></td> 
           </tr> 
           {% endifnotequal %}
           <tr> 
-            <td><a href="/gstat/site/{{ site.name }}/site/">Site</a></td> 
+            <td><a href="/gstat/site/{{ sitename }}/site/">Site</a></td> 
             <td><span class="NagiosStatus_{{ overall_status_dict.site }}"> {{ overall_status_dict.site }} </span></td> 
           </tr> 
         </tbody> 
@@ -154,19 +154,19 @@
         <tbody>           
           {% ifnotequal count_dict.ce 0 %}
           <tr> 
-            <td>CE<!-- <a href="/gstat/site/{{ site.name }}/ce/">CE</a> --></td> 
+            <td>CE<!-- <a href="/gstat/site/{{ sitename }}/ce/">CE</a> --></td> 
             <td>{{ count_dict.ce }}</td> 
           </tr> 
           {% endifnotequal %}
           {% ifnotequal count_dict.se 0 %}
           <tr> 
-            <td>SE<!-- <a href="/gstat/site/{{ site.name }}/se/">SE</a> --></td> 
+            <td>SE<!-- <a href="/gstat/site/{{ sitename }}/se/">SE</a> --></td> 
             <td>{{ count_dict.se }}</td> 
           </tr> 
           {% endifnotequal %}          
           {% ifnotequal count_dict.service 0 %}
           <tr> 
-            <td>Service<!-- <a href="/gstat/site/{{ site.name }}/service/">Service</a> --></td> 
+            <td>Service<!-- <a href="/gstat/site/{{ sitename }}/service/">Service</a> --></td> 
             <td>{{ count_dict.service }}</td> 
           </tr> 
           {% endifnotequal %}      
@@ -233,18 +233,18 @@
         </tr> 
         <tr> 
           <td colspan="2">
-            <a href="/gstat/site/{{ site.name }}/graphs/cpu/">
-              <img src="/gstat/rrd/Site/{{ site.name }}/cpu/e-3h/small/"/>
+            <a href="/gstat/site/{{ sitename }}/graphs/cpu/">
+              <img src="/gstat/rrd/Site/{{ sitename }}/cpu/e-3h/small/"/>
             </a> 
           </td>
           <td colspan="3">
-            <a href="/gstat/site/{{ site.name }}/graphs/online/">
-              <img src="/gstat/rrd/Site/{{ site.name }}/online/e-3h/small/"/>
+            <a href="/gstat/site/{{ sitename }}/graphs/online/">
+              <img src="/gstat/rrd/Site/{{ sitename }}/online/e-3h/small/"/>
             </a>
           </td>
           <td colspan="3">
-            <a href="/gstat/site/{{ site.name }}/graphs/nearline/">
-              <img src="/gstat/rrd/Site/{{ site.name }}/nearline/e-3h/small/"/>
+            <a href="/gstat/site/{{ sitename }}/graphs/nearline/">
+              <img src="/gstat/rrd/Site/{{ sitename }}/nearline/e-3h/small/"/>
             </a>
           </td>
         </tr> 
@@ -310,19 +310,19 @@
 	        </tr>
 	        <tr> 
 	          <td colspan="3">
-	            <a href="/gstat/site/{{ site.name }}/graphs/job/{{ vo.voname }}/">
-	              <img src="/gstat/rrd/VO/{{ site.name }}/{{ vo.voname }}/job/e-3h/small/"/>
+	            <a href="/gstat/site/{{ sitename }}/graphs/job/{{ vo.voname }}/">
+	              <img src="/gstat/rrd/VO/{{ sitename }}/{{ vo.voname }}/job/e-3h/small/"/>
 	            </a>
 	          </td>
 <!--	         
 	          <td colspan="4">
-	            <a href="/gstat/site/{{ site.name }}/graphs/nearline/">
-	              <img src="/gstat/rrd/Site/{{ site.name }}/nearline/e-3h/small/"/>
+	            <a href="/gstat/site/{{ sitename }}/graphs/nearline/">
+	              <img src="/gstat/rrd/Site/{{ sitename }}/nearline/e-3h/small/"/>
 	            </a>
 	          </td>
 	          <td colspan="4">
-	            <a href="/gstat/site/{{ site.name }}/graphs/nearline/">
-	              <img src="/gstat/rrd/Site/{{ site.name }}/nearline/e-3h/small/"/>
+	            <a href="/gstat/site/{{ sitename }}/graphs/nearline/">
+	              <img src="/gstat/rrd/Site/{{ sitename }}/nearline/e-3h/small/"/>
 	            </a>
 	          </td>
 -->	
