@@ -237,7 +237,7 @@ def check_coordinates(site):
 
        try:
           log.debug("Writing locations" )
-          cache_file = "/var/cache/gstat/locations"
+          cache_file = "/usr/share/gstat/locations"
           file = open(cache_file, 'w')
           for location in locations:   
              file.write("%s=%s\n" %(location, locations[location].strip()))
@@ -375,7 +375,7 @@ if __name__ == "__main__":
    my_errors=gsutils.error_logger('gstat-validate-site',error_messages)
 
    locations = {}
-   cache_file = "/var/cache/gstat/locations"
+   cache_file = "/usr/share/gstat/locations"
    log.debug("trying to open cache file")
    if ( os.path.exists(cache_file)):
       for line in open(cache_file).readlines():
@@ -383,7 +383,7 @@ if __name__ == "__main__":
             locations[line[:index]] = line[index + 1:]
 
    tiers = {}
-   tier_file = "/var/cache/gstat/wlcg-tier"
+   tier_file = "/usr/share/gstat/wlcg-tier"
    log.debug("trying to open wlcg-tier file")
    if ( os.path.exists(tier_file)):
       for line in open(tier_file).readlines():
