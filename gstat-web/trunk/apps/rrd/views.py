@@ -164,7 +164,7 @@ def nagios_level(request, host_name, check_name, data_source, start_time):
                          "entries":   "#CCFF66",
                          "time":      "#D8BFD8",
                          "errors":    "#FFBBBB",
-                         "warnings":  "#FEFFC1",
+                         "warnings":  "#F9FD9E",
                          "info":      "#DBDBDB"}
     
     title= "BDII: %s, Check Command: %s" %(host_name, check_name)
