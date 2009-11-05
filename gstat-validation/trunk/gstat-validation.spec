@@ -1,6 +1,6 @@
 Summary: Gstat Valiation Scripts
 Name: gstat-validation
-Version: 2.0.19
+Version: 2.0.20
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: EGEE
