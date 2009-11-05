@@ -276,7 +276,7 @@ def test_SubCluster_ProcessorOtherDescription(key,entry):
                        'Cores not defined', gsutils.get_site(key))
       else:
          cores = cores[index +1:]
-         if (int(cores) <= 0):
+         if (float(cores) <= 0):
             my_errors.log(gsutils.get_unique_id(key),
                           'SubCluster.OtherDescription.Benchmark',
                           'Number of Cores <= 0', gsutils.get_site(key))
@@ -306,7 +306,7 @@ def test_SubCluster_ProcessorOtherDescription(key,entry):
                                 'Benchmark negative value', gsutils.get_site(key))
 
    try:
-      LogicalCPUs = int(cores) * int(entry['GlueSubClusterPhysicalCPUs'][0])
+      LogicalCPUs = float(cores) * int(entry['GlueSubClusterPhysicalCPUs'][0])
       if ( not int(entry['GlueSubClusterLogicalCPUs'][0]) == LogicalCPUs ):
          details = "Cores * PhysicalCPUs != LogicalCPUs"
          my_errors.log(key, "gstat.value.error", details, gsutils.get_site(key))

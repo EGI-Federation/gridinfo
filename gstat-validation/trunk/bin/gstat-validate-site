@@ -132,7 +132,6 @@ def check_ID_equals_name(site):
 def check_valid_mail_address(site, mail_servers):
    possible_e_addr = ["GlueSiteUserSupportContact", "GlueSiteSysAdminContact", "GlueSiteSecurityContact"]
    site_id= site["GlueSiteUniqueID"]
-   print site_id
    for address in possible_e_addr:
       
       try:
@@ -286,7 +285,7 @@ def check_site_other_info(site):
    site_id= site["GlueSiteUniqueID"]
    error_found=False
  
-   ROC_names = ['AP', 'FR', 'CERN','CE','DE', 'Italy', 'NE', 'North', 'Russia', 'SEE', 'SWE', 'UK/I']
+   ROC_names = ['AP', 'FR', 'CERN','CE','DECH', 'Italy', 'LatinAmerica', 'NE', 'North', 'Russia', 'SEE', 'SWE', 'UK/I']
    SERVICE_names = ["prod", "pps", "cert"]
    
    #try:
