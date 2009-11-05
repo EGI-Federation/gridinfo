@@ -40,4 +40,5 @@ def filter(request, type=''):
     response = render_to_response('json', {'options': options})
     response['Content-Type'] = 'text/json'
     response['Content-Description'] = 'JSON Filter'
+    response['Pragma'] = 'no-cache'
     return response
