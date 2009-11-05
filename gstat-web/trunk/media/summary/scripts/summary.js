@@ -74,8 +74,8 @@ function changeFilterValue(event) {
     var theads = $('#single_table > thead');
     $('#TableContainer').html('<table cellpadding="0" cellspacing="1" border="0" class="display" id="single_table"><thead>'+theads.html()+'</thead><tbody></tbody><tfoot><tr><th>Total</th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr></tfoot></table>');
     var oTable = $('#single_table').dataTable({
+        "iDisplayLength": 25, 
         "bProcessing": true, 
-        "DisplayLength": 25, 
         "sDom": 'T<"clear">lfrtip',
         "aoColumns": [
             { sWidth: '50px', sClass: 'orderAction',
@@ -84,9 +84,9 @@ function changeFilterValue(event) {
                  var type = $('#filtertype :selected').val();
                  var value = $('#filtervalue :selected').val();
                  if (value=="" || value=="-1" || value=="ALL") 
-                   link = '<a href="/gstat/summary/'+type+'/'+oObj.aData[0]+'/">'+oObj.aData[0]+'</a>';
+                   link = '<a href="/gstat/summary/'+type+'/'+encodeURIComponent(oObj.aData[0])+'/">'+oObj.aData[0]+'</a>';
                  else 
-                   link = '<a href="/gstat/site/'+oObj.aData[0]+'/">'+oObj.aData[0]+'</a>';
+                   link = '<a href="/gstat/site/'+encodeURIComponent(oObj.aData[0])+'/">'+oObj.aData[0]+'</a>';
    
                  return link;
                 },
