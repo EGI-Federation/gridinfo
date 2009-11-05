@@ -133,9 +133,9 @@ if __name__ == "__main__":
                   for FK in FKs:
                      index = FK.index('=')
                      key = FK[:index]
-                     value = FK[:index]
+                     value = FK[index+1:]
                      if ( key == 'GlueSiteUniqueID'):
-                        site = value
+                        site = value.lower()
                   if ( site == None ):
                      my_errors.log(gsutils.get_unique_id(dn),'service.attribute.missing', 'The GlueService entry is missing the attribute, %s' %(attribute), gsutils.get_site(dn))
                      site = gsutils.get_site(dn)
@@ -158,6 +158,7 @@ if __name__ == "__main__":
                   sites.append(site)
             except KeyError, e:
                my_errors.log(gsutils.get_unique_id(dn),'service.attribute.missing', 'The GlueService entry is missing the attribute, %s' %(attribute), gsutils.get_site(dn))
+
           
    url = "https://goc.gridops.org/gocdbpi/public/?method=get_service_endpoint&sitename="
    goc_services = {}
@@ -168,6 +169,7 @@ if __name__ == "__main__":
       parser.parse(urllib2.urlopen(url + site))
       goc_services[site.lower()] = handler.mapping
 
+
 # Check to see if Services are published
 for site in services.keys():
    if goc_services.has_key(site):
@@ -176,7 +178,7 @@ for site in services.keys():
             try:
                services[site][host].index(service)
             except:
-               my_errors.log(host + service,'service.published', 'The Service %s on %s is not published.' %(service, host), site)
+               my_errors.log(host, 'service.published', 'The Service %s on %s is registed in the GOC but not published.' %(service, host), site)
 
 # Check to see if Services are registered
 for site in goc_services.keys():
