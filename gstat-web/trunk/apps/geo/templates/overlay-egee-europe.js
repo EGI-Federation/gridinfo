@@ -11,5 +11,5 @@ function execOverlay() {
 	                             false);
 	popup.opacity = 0.9;
 	map.addPopup(popup);
-	{% endfor %}	
+	{% endfor %}
 }
