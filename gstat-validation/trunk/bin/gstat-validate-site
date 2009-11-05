@@ -328,8 +328,8 @@ def check_site_other_info(site):
             if (tiers.has_key(site_id[0])):
                 if (other_info.has_key("WLCG_TIER")):
                     for key in ['WLCG_PARENT', 'WLCG_NAME', 'WLCG_NAMEICON']:
-                        if (other_info.has_key(key)):
-                            details = "%s is not a teir %s but is no publising the attribute %s" %(site_id[0], tiers[site_id[0]], key)
+                        if ( not other_info.has_key(key)):
+                            details = "%s is a teir %s but is not publising the attribute %s" %(site_id[0], tiers[site_id[0]], key)
                             my_errors.log(site_id[0], "site.OhterInfo.missing_WLCG", details, site_id[0])
                             error_found = True
                     if( not tiers[site_id[0]] == other_info['WLCG_TIER'][0]):
@@ -342,7 +342,7 @@ def check_site_other_info(site):
                     error_found = True
             else:
                 if (other_info.has_key("WLCG_TIER")):
-                    details = "%s is not not an official WLCG Tier!" %(site_id[0])
+                    details = "%s is not an official WLCG Tier!" %(site_id[0])
                     my_errors.log(site_id[0], "site.OhterInfo.missing_WLCG", details, site_id[0])
                     error_found = True
    
