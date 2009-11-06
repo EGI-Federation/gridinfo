@@ -175,9 +175,9 @@ def nagios_level(request, host_name, check_name, data_source, start_time):
     graph_cmd += \
         ' DEF:var1="%s":%s:AVERAGE' %(rrd_file, datasource) +\
         ' AREA:var1%s:"%s"' %(datasource_colors[data_source], data_source.capitalize()) +\
-        ' GPRINT:var1:LAST:"NOW\:%3.2lf %s"' +\
-        ' GPRINT:var1:MAX:"MAX\:%3.2lf %s"' +\
-        ' GPRINT:var1:AVERAGE:"AVG\:%3.2lf %s\\n"' 
+        ' GPRINT:var1:LAST:"NOW\:%8.2lf %s"' +\
+        ' GPRINT:var1:MAX:"MAX\:%8.2lf %s"' +\
+        ' GPRINT:var1:AVERAGE:"AVG\:%8.2lf %s\\n"' 
 
     return graph_render(graph_cmd)
 
@@ -187,8 +187,11 @@ def nagios_level(request, host_name, check_name, data_source, start_time):
 def site_storage_graph(site_name, attribute, start_time, small=False):
     """ Site-level summarized storage space"""
     site_entity = getEntityByUniqueidType(site_name, 'Site')
-    ses = getNodesInSite(site_entity, 'SE') 
-    uniqueids = [se.uniqueid for se in ses]
+    service_list = get_services([site_entity])
+    uniqueids = []
+    for service in service_list:
+        if service.type == 'SE': uniqueids.append(service.uniqueid)
+
     graph_cmd = storage_graph_cmd(uniqueids, attribute, start_time, site_name, small)
         
     return graph_cmd
@@ -215,17 +218,19 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
 
     cdef_total = []
     cdef_used = []
+    count = 0
     for uniqueid in uniqueids:
-        # need to refactor for the case of duplicated node
-        hostname = uniqueid.split('.')[0]
-        cdef_total.append('total%s' %(hostname))
-        cdef_used.append('used%s' %(hostname))
+        count += 1
+        vname_total = 't_%s' %(count)
+        vname_used  = 'u_%s' %(count)
+        cdef_total.append(vname_total)
+        cdef_used.append(vname_used)
         rrd_file_total = '%s/%s/total%ssize.rrd' %(rrd_dir, uniqueid, attribute)
         rrd_file_used = '%s/%s/used%ssize.rrd' %(rrd_dir, uniqueid, attribute)            
         graph_cmd += \
-        ' DEF:total%s="%s":total%ssize:AVERAGE' %(hostname, rrd_file_total, attribute)+\
-        ' DEF:used%s="%s":used%ssize:AVERAGE' %(hostname, rrd_file_used, attribute)
-    for i in range(len(uniqueids)-1):
+        ' DEF:%s="%s":total%ssize:AVERAGE' %(vname_total, rrd_file_total, attribute)+\
+        ' DEF:%s="%s":used%ssize:AVERAGE' %(vname_used, rrd_file_used, attribute)
+    for i in range(count-1):
         cdef_total.append('+')
         cdef_used.append('+')
     graph_cmd += \
@@ -233,7 +238,7 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
         ' CDEF:used=%s' %(','.join(cdef_used))
     graph_cmd += \
         ' CDEF:free=total,used,-' +\
-        ' AREA:used#669900:"Used%sSize "' %(attribute.capitalize()) +\
+        ' AREA:used#669900:"Used%sSize"' %(attribute.capitalize()) +\
         rrdgraph_cmd_gprint('used', small) +\
         ' AREA:free#CCFF66:"Total%sSize":STACK' %(attribute.capitalize()) +\
         rrdgraph_cmd_gprint('total', small)
@@ -246,9 +251,9 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
 def site_cpu_graph(site_name, start_time, small=False):
     """ Site-level summarized CPU number """
     site_entity = getEntityByUniqueidType(site_name, 'Site')  
-    ces = getNodesInSite(site_entity, 'CE')
-    subclusters = getSubClusterByCluster([ce.uniqueid for ce in ces])
-    uniqueids = [subcluster.uniqueid for subcluster in subclusters]
+    service_list = get_services([site_entity])
+    sub_cluster_list = get_subclusters(service_list)
+    uniqueids = [subcluster.uniqueid for subcluster in sub_cluster_list]
     graph_cmd = cpu_graph_cmd(uniqueids, start_time, site_name, small)
         
     return graph_cmd
@@ -275,19 +280,21 @@ def cpu_graph_cmd(uniqueids, start_time, site_name='', small=False):
 
     cdef_physical = []
     cdef_logical = []
+    count = 0
     for uniqueid in uniqueids:
-        # need to refactor for the case of duplicated node
         # rrdtool does not like the same variable name
         # rrdtool only allows variable names up to 19 characters
-        hostname = uniqueid.split('.')[0]
-        cdef_physical.append('phy%s' %(hostname))
-        cdef_logical.append('log%s' %(hostname))
+        count += 1
+        vname_physical = 'p_%s' %(count)
+        vname_logical  = 'l_%s' %(count)
+        cdef_physical.append(vname_physical)
+        cdef_logical.append(vname_logical)
         rrd_file_physical = '%s/%s/physicalcpus.rrd' %(rrd_dir, uniqueid)
         rrd_file_logical = '%s/%s/logicalcpus.rrd' %(rrd_dir, uniqueid)            
         graph_cmd += \
-        ' DEF:phy%s="%s":physicalcpus:AVERAGE' %(hostname, rrd_file_physical)+\
-        ' DEF:log%s="%s":logicalcpus:AVERAGE' %(hostname, rrd_file_logical)
-    for i in range(len(uniqueids)-1):
+        ' DEF:%s="%s":physicalcpus:AVERAGE' %(vname_physical, rrd_file_physical)+\
+        ' DEF:%s="%s":logicalcpus:AVERAGE' %(vname_logical, rrd_file_logical)
+    for i in range(count-1):
         cdef_physical.append('+')
         cdef_logical.append('+')
     graph_cmd += \
@@ -296,7 +303,7 @@ def cpu_graph_cmd(uniqueids, start_time, site_name='', small=False):
     graph_cmd += \
         ' LINE3:physical#CAF100:"PhysicalCPUs"' +\
         rrdgraph_cmd_gprint('physical', small) +\
-        ' LINE3:logical#4682B4:"LogicalCPUs "' +\
+        ' LINE3:logical#4682B4:"LogicalCPUs  "' +\
         rrdgraph_cmd_gprint('logical', small)      
 
     return graph_cmd 
@@ -325,7 +332,7 @@ def site_job_graph(site_name, start_time, small=False):
 def cluster_job_graph(ce, start_time):
     """ Cluster-level Jobs number """
     ce_entity = getEntityByUniqueidType(ce, 'CE')
-    vo_list = getVOsInCE(ce_entity)
+    vo_list = get_vos([ce_entity])
     queue_dict = {}
     for vo_entity in vo_list:
         vo = vo_entity.uniqueid
@@ -383,9 +390,6 @@ def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
     for vo in queue_dict.keys():
         clusters = queue_dict[vo]
         for cluster in clusters:
-            # need to refactor for the case of duplicated node, 
-            # rrdtool does not like the same variable name, 
-            # and it only allows variable names up to 19 characters
             queue_count += 1
             vname_total   = 't_%s' %(queue_count)
             vname_running = 'r_%s' %(queue_count)
@@ -397,24 +401,24 @@ def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
             rrd_file_running = '%s/%s/%s/runningjobs.rrd' %(rrd_dir, vo, cluster)
             rrd_file_waiting = '%s/%s/%s/waitingjobs.rrd' %(rrd_dir, vo, cluster)
             graph_cmd += \
-            ' DEF:%s="%s":totaljobs:AVERAGE'   %(vname_total, rrd_file_total)+\
-            ' DEF:%s="%s":runningjobs:AVERAGE' %(vname_running, rrd_file_running)+\
+            ' DEF:%s="%s":totaljobs:AVERAGE'   %(vname_total,   rrd_file_total) +\
+            ' DEF:%s="%s":runningjobs:AVERAGE' %(vname_running, rrd_file_running) +\
             ' DEF:%s="%s":waitingjobs:AVERAGE' %(vname_waiting, rrd_file_waiting)
     for i in range(queue_count-1):
         cdef_total.append('+')
         cdef_running.append('+')
         cdef_waiting.append('+')
     graph_cmd += \
-        ' CDEF:total=%s' %(','.join(cdef_total)) +\
+        ' CDEF:total=%s'   %(','.join(cdef_total)) +\
         ' CDEF:running=%s' %(','.join(cdef_running)) +\
         ' CDEF:waiting=%s' %(','.join(cdef_waiting))
     graph_cmd += \
-        ' AREA:total#CDE9E6:"TotalJobs  "' +\
-        rrdgraph_cmd_gprint('total') +\
+        ' AREA:total#CDE9E6:"TotalJobs    "' +\
+        rrdgraph_cmd_gprint('total', small) +\
         ' LINE3:running#4682B4:"RunningJobs"' +\
-        rrdgraph_cmd_gprint('running') +\
-        ' LINE3:waiting#D8BFD8:"WaitingJobs"' +\
-        rrdgraph_cmd_gprint('waiting')
+        rrdgraph_cmd_gprint('running', small) +\
+        ' LINE3:waiting#D8BFD8:"WaitingJobs "' +\
+        rrdgraph_cmd_gprint('waiting', small)
         
     return graph_cmd 
 

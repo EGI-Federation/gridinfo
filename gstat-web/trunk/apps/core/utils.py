@@ -4,16 +4,13 @@ import socket
 from django.db import models
 from topology.models import Entity
 from topology.models import Entityrelationship
-from glue.models import gluesite
-from glue.models import gluesubcluster
-from glue.models import gluese
-from glue.models import gluece
-from glue.models import glueservice
-from glue.models import gluevoview
+from glue.models import *
 
+"""
 CPU_COUNTS_SUBCLUSTER = None
 JOB_COUNTS_CE         = None
 SPACE_COUNTS_SE       = None
+"""
 
 # ---------------------------------------
 # -- Glue data model related functions --
@@ -29,15 +26,47 @@ def getGlueEntity(model_name, uniqueids_list=[], all=False):
         return objects
     except:
         # need to re-factor
-        pass
+        return None
 
+
+
+def get_subclusters(service_list):
+    """ get glue subcluster entities from glue database """
+    uniqueids = [service.uniqueid for service in service_list]
+    clusters = Entity.objects.filter(type = 'CE', uniqueid__in = uniqueids)
+    uniqueids = [cluster.uniqueid for cluster in clusters]
+    sub_clusters = gluesubcluster.objects.filter(gluecluster_fk__in = uniqueids)
+    return sub_clusters
+
+
+def get_ses(service_list):
+    """ get glue se entities from glue database """
+    uniqueids = [service.uniqueid for service in service_list]
+    ses = Entity.objects.filter(type = 'SE', uniqueid__in = uniqueids)
+    uniqueids = [se.uniqueid for se in ses]
+    se_list = gluese.objects.filter(uniqueid__in = uniqueids)
+    return se_list
+
+def get_vo_view(service_list):
+    """ get glue voview entities from glue database """
+    uniqueids = [service.uniqueid for service in service_list]
+    clusters = Entity.objects.filter(type = 'CE', uniqueid__in = uniqueids)
+    uniqueids = [cluster.uniqueid for cluster in clusters]
+    CEs = gluece.objects.filter(gluecluster_fk__in = uniqueids)
+    uniqueids = [ce.uniqueid for ce in CEs]
+    VO_views = gluevoview.objects.filter(gluece_fk__in = uniqueids)
+
+    return VO_views
+
+"""
 def getSubClusterByCluster(cluster_uniqueids_list=[]):
     try:
         objects = gluesubcluster.objects.filter(gluecluster_fk__in=cluster_uniqueids_list)
         return objects
     except:
         # need to re-factor
-        pass  
+        return None
+
 
 def getCPUNumbersFromGlueSubCluster():
     # To get a list of gluesubcluster and then count the cpu numbers
@@ -46,11 +75,11 @@ def getCPUNumbersFromGlueSubCluster():
     for subcluster in qs_subcluster:
         if subcluster.uniqueid not in cpu_counts_subcluster:
             cpu_counts_subcluster[subcluster.uniqueid] = {
-                'logicalcpus' : int(subcluster.logicalcpus),
-                'physicalcpus': int(subcluster.physicalcpus)}
+                'logicalcpus' : convertToInteger(subcluster.logicalcpus),
+                'physicalcpus': convertToInteger(subcluster.physicalcpus)}
         else:
-            cpu_counts_subcluster[subcluster.uniqueid]['logicalcpus']  += int(subcluster.logicalcpus)
-            cpu_counts_subcluster[subcluster.uniqueid]['physicalcpus'] += int(subcluster.physicalcpus)
+            cpu_counts_subcluster[subcluster.uniqueid]['logicalcpus']  += convertToInteger(subcluster.logicalcpus)
+            cpu_counts_subcluster[subcluster.uniqueid]['physicalcpus'] += convertToInteger(subcluster.physicalcpus)
     
     return cpu_counts_subcluster
 
@@ -59,26 +88,17 @@ def getStorageSpacesFromGlueSE():
     space_counts_se = {}
     qs_se = gluese.objects.filter()
     for se in qs_se:
-        try:
-            int(se.totalonlinesize)
-            int(se.totalnearlinesize)
-            int(se.usedonlinesize)
-            int(se.usednearlinesize)
-        except (ValueError), error:
-            pass
-            #print "The value is 'unset' or empty character."
+        if se.uniqueid not in space_counts_se:
+            space_counts_se[se.uniqueid] = {
+                'totalonlinesize'   : convertToInteger(se.totalonlinesize),
+                'usedonlinesize'    : convertToInteger(se.usedonlinesize),
+                'totalnearlinesize' : convertToInteger(se.totalnearlinesize),
+                'usednearlinesize'  : convertToInteger(se.usednearlinesize)}
         else:
-            if se.uniqueid not in space_counts_se:
-                space_counts_se[se.uniqueid] = {
-                    'totalonlinesize'   : int(se.totalonlinesize),
-                    'usedonlinesize'    : int(se.usedonlinesize),
-                    'totalnearlinesize' : int(se.totalnearlinesize),
-                    'usednearlinesize'  : int(se.usednearlinesize)}
-            else:
-                space_counts_se[se.uniqueid]['totalonlinesize']   += int(se.totalonlinesize)
-                space_counts_se[se.uniqueid]['usedonlinesize']    += int(se.usedonlinesize)
-                space_counts_se[se.uniqueid]['totalnearlinesize'] += int(se.totalnearlinesize)
-                space_counts_se[se.uniqueid]['usednearlinesize']  += int(se.usednearlinesize)
+            space_counts_se[se.uniqueid]['totalonlinesize']   += convertToInteger(se.totalonlinesize)
+            space_counts_se[se.uniqueid]['usedonlinesize']    += convertToInteger(se.usedonlinesize)
+            space_counts_se[se.uniqueid]['totalnearlinesize'] += convertToInteger(se.totalnearlinesize)
+            space_counts_se[se.uniqueid]['usednearlinesize']  += convertToInteger(se.usednearlinesize)
 
     return space_counts_se
 
@@ -88,24 +108,31 @@ def getJobNumbersFromGlueCE():
     qs_ce = gluece.objects.filter()
     for ce in qs_ce:
         if ce.hostingcluster not in job_counts_ce:
-            if int(ce.waitingjobs) != 444444:
-                waiting_jobs = int(ce.waitingjobs)     
+            if convertToInteger(ce.waitingjobs) != 444444:
+                waiting_jobs = convertToInteger(ce.waitingjobs)     
             else:
                 waiting_jobs = 0
             job_counts_ce[ce.hostingcluster] = {
-                'runningjobs' : int(ce.runningjobs),
+                'runningjobs' : convertToInteger(ce.runningjobs),
                 'waitingjobs' : waiting_jobs,
-                'totaljobs'   : int(ce.totaljobs)}
+                'totaljobs'   : convertToInteger(ce.totaljobs)}
         else:
-            if int(ce.waitingjobs) != 444444:
-                waiting_jobs = int(ce.waitingjobs)     
+            if convertToInteger(ce.waitingjobs) != 444444:
+                waiting_jobs = convertToInteger(ce.waitingjobs)     
             else:
                 waiting_jobs = 0
-            job_counts_ce[ce.hostingcluster]['runningjobs'] += int(ce.runningjobs)
+            job_counts_ce[ce.hostingcluster]['runningjobs'] += convertToInteger(ce.runningjobs)
             job_counts_ce[ce.hostingcluster]['waitingjobs'] += waiting_jobs
-            job_counts_ce[ce.hostingcluster]['totaljobs']   += int(ce.totaljobs)
+            job_counts_ce[ce.hostingcluster]['totaljobs']   += convertToInteger(ce.totaljobs)
             
     return job_counts_ce
+"""
+
+def convertToInteger(number):
+    try:
+        return int(number)
+    except (ValueError), error:
+        return 0
 
 #def getGlueServiceByUniqueidType(unique_id, type_name):
 #    qs_service = glueservice.objects.filter(uniqueid = unique_id, type = type_name)
@@ -117,11 +144,13 @@ def getJobNumbersFromGlueCE():
 # -- Topology data model related functions --
 # -------------------------------------------
 
+""" reserved """
 def getEntitiesByType(type_name):
     qs_entities = Entity.objects.filter(type=type_name)
     
     return qs_entities
 
+""" reserved """
 def getEntityByUniqueidType(unique_id, type_name):
     qs_entity = Entity.objects.filter(uniqueid = unique_id, type = type_name)
     # CAUTION!, alert exception or warning if there is more than one record
@@ -130,6 +159,7 @@ def getEntityByUniqueidType(unique_id, type_name):
     else:
         return None
 
+""" reserved """
 def getSitesInGroup(predicate_name, entity):
     # Get the list of Sites in the specified group, ex.: grid, egee roc, country, etc.
     site_list = [er.subject for er in Entityrelationship.objects.filter(predicate = predicate_name, 
@@ -137,6 +167,69 @@ def getSitesInGroup(predicate_name, entity):
         
     return site_list
 
+
+def get_sites(type=None, value=None):
+    """ get site entities from topology database """
+    predicate = {'GRID'     : 'SiteGrid', 
+                 'EGEE_ROC' : 'SiteEgeeRoc', 
+                 'WLCG_TIER': 'SiteWlcgTier',
+                 'Country'  : 'SiteCountry'}
+    
+    site_list = [] 
+    if ( value == "ALL" or value == None):
+        groups = getEntitiesByType(type)
+        for group in groups:
+            site_list.extend(getSitesInGroup(predicate[type], group))
+    else:
+        group = getEntityByUniqueidType(value, type)
+        site_list = getSitesInGroup(predicate[type], group)
+    return site_list
+
+
+def get_countries(site_list):
+    """ get country entities from topology database """
+    relationships = Entityrelationship.objects.filter(predicate = 'SiteCountry', subject__in = site_list)
+    countries = []
+    for relation in relationships:
+        try:
+            countries.index(relation.object.uniqueid)
+        except:    
+            countries.append(relation.object.uniqueid)
+    return countries
+
+def get_services(site_list):
+    """ get service entities from topology database """
+    relationships = Entityrelationship.objects.filter(predicate = 'SiteService', subject__in = site_list)
+    services = []
+    for relation in relationships:
+        services.append(relation.object)
+    return services
+
+def get_vos(service_list):
+    """ get vo entities from topology database """
+    relationships = Entityrelationship.objects.filter(predicate = 'ServiceVO', subject__in = service_list)
+    vos = []
+    for relation in relationships:
+        try:
+            vos.index(relation.object)
+        except:    
+            vos.append(relation.object)
+    return vos
+
+
+def getQueuesInSite(site_entity):
+    # Get a list of dictionaries they are queues at specified site
+    # Queue: {'ce': CE entity, 'vo': VO entity}
+    service_list = get_services([site_entity])
+    ce_list = []
+    for service in service_list:
+        if service.type == 'CE': ce_list.append(service)
+    queue_list = [{'ce':er.subject, 'vo':er.object} for er in Entityrelationship.objects.filter(
+                                                    predicate   = 'ServiceVO',
+                                                    subject__in = ce_list)]
+    return queue_list
+
+"""
 def getNodesInSite(site_entity, node_type):
     # Get the list of nodes at specified site
     node_list = [er.object for er in Entityrelationship.objects.filter(predicate    = 'SiteService',
@@ -150,15 +243,6 @@ def getServicesInSite(site_entity):
                                                                           subject   = site_entity)]
     return service_list
 
-def getQueuesInSite(site_entity):
-    # Get a list of dictionaries they are queues at specified site
-    # Queue: {'ce': CE entity, 'vo': VO entity}
-    ce_list = getNodesInSite(site_entity, 'CE')
-    queue_list = [{'ce':er.subject, 'vo':er.object} for er in Entityrelationship.objects.filter(
-                                                    predicate   = 'ServiceVO',
-                                                    subject__in = ce_list)]
-    return queue_list
-
 def getVOsInCE(ce_entity):
     unsorted_vo_list = [er.object for er in Entityrelationship.objects.filter(predicate = 'ServiceVO',
                                                                               subject   = ce_entity)]
@@ -166,6 +250,7 @@ def getVOsInCE(ce_entity):
     sorted_vo_list = sortObjectsByAttr(unsorted_vo_list, 'uniqueid')
     
     return sorted_vo_list
+
 
 def getVOsInSite(site_entity):
     # Get a list of supported VOs at specified site
@@ -178,6 +263,7 @@ def getVOsInSite(site_entity):
     
     return distinct_sorted_vo_list
 
+
 def sortObjectsByAttr(object_list, attribute):
     unsorted_list = object_list
     sorted_list = [(obj.__getattribute__(attribute), obj) for obj in unsorted_list]
@@ -185,7 +271,108 @@ def sortObjectsByAttr(object_list, attribute):
     result_list = [obj for (attribute, obj) in sorted_list]
     
     return result_list
+"""
 
+
+# ---------------------------------------------------------
+# -- Installed Capacity and Statistics related functions --
+# ---------------------------------------------------------
+
+def get_installed_capacity_cpu(sub_clusters_list):
+    """ calculate cpu numbers in glue subcluster entities """
+    physical_cpus = 0
+    logical_cpus = 0
+    for sub_cluster in sub_clusters_list:
+        logical_cpus += int(sub_cluster.logicalcpus)
+        physical_cpus += int(sub_cluster.physicalcpus)
+
+    return [physical_cpus, logical_cpus]
+
+
+def get_installed_capacity_storage(se_list):
+    """ calculate storage space in glue se entities """
+    total_online = 0
+    used_online = 0
+    total_nearline = 0
+    used_nearline = 0 
+
+    for se in se_list:
+        try:
+            total_online += int(se.totalonlinesize)
+            used_online += int(se.usedonlinesize)
+            total_nearline += int(se.totalnearlinesize) 
+            used_nearline += int(se.usednearlinesize) 
+        except ValueError:
+            pass
+    return [ total_online, used_online, total_nearline, used_nearline ]
+
+def get_installed_capacity_per_os(sub_clusters_list):
+    """ calculate cpu numbers in glue subcluster entities by os version """
+    os = {}
+    for sub_cluster in sub_clusters_list:
+        os_name = sub_cluster.operatingsystemname
+        index = sub_cluster.operatingsystemrelease.find(".")
+        if (index > -1) :
+            os_release = sub_cluster.operatingsystemrelease[:index]
+        else:
+            os_release = "?"
+
+        if ( not os.has_key(os_name)):
+            os[os_name] = {}
+        if ( not os[os_name].has_key(os_release)):
+            os[os_name][os_release] = [0, 0]
+
+        os[os_name][os_release][0] += int(sub_cluster.physicalcpus)    
+        os[os_name][os_release][1] += int(sub_cluster.logicalcpus)
+
+    data = []
+    keys = os.keys()
+    keys.sort()
+    for  name in keys:
+        for release in os[name]:
+            data.append([name, release, os[name][release][0], os[name][release][1]])
+
+    return data
+
+
+def get_job_stats(vo_view_list):
+    """ calculate job numbers in glue voview entities """
+    total_jobs = 0
+    running_jobs = 0
+    waiting_jobs = 0
+    for voview in vo_view_list:
+        total_jobs += int(voview.totaljobs)
+        running_jobs += int(voview.runningjobs)
+        if ( not int(voview.waitingjobs) == 444444):
+            waiting_jobs += int(voview.waitingjobs)
+    return  [ total_jobs, running_jobs, waiting_jobs ]
+
+def get_service_versions(service_list):
+    """ get service version information from glue service entities """
+    uniqueids = [service.uniqueid for service in service_list]
+    glue_service_list = glueservice.objects.filter(uniqueid__in = uniqueids)
+
+    services = {}
+    for service in glue_service_list:
+        type = service.type.lower()
+        version = service.version
+        if ( not services.has_key(type)):
+            services[type] = {}
+        if ( not services[type].has_key(version)):
+            services[type][version] = 0
+
+        services[type][version] += 1    
+
+    data = []
+    keys = services.keys()
+    keys.sort()
+    for  type in keys:
+        for version in services[type]:
+            data.append([type, version, services[type][version] ])
+
+    return data
+
+"""
 def countCPUsInSite(site_entity):
     logicalcpus  = 0
     physicalcpus = 0
@@ -270,9 +457,9 @@ def countJobsInVO_Site(site_entity):
         gluevoview = models.get_model('glue', 'gluevoview')
         voviews= gluevoview.objects.filter(localid=vo.uniqueid, gluece_fk__in=[gluece.uniqueid for gluece in glueces])
         for voview in voviews:
-            totaljobs   += int(voview.totaljobs)
-            runningjobs += int(voview.runningjobs)
-            waitingjobs += int(voview.waitingjobs)
+            totaljobs   += convertToInteger(voview.totaljobs)
+            runningjobs += convertToInteger(voview.runningjobs)
+            waitingjobs += convertToInteger(voview.waitingjobs)
         job_dict['voname'] = vo.uniqueid
         job_dict['totaljobs'] = totaljobs
         job_dict['runningjobs'] = runningjobs
@@ -280,7 +467,7 @@ def countJobsInVO_Site(site_entity):
         
         vo_jobs.append(job_dict)
     return vo_jobs
-
+"""
 # ------------------------------
 # -- Nagios related functions --
 # ------------------------------
@@ -333,10 +520,10 @@ def getNagiosStatusDict():
         has_been_checked   = __GetDirective(hostdef, "has_been_checked")
         
         status_dict[host_name]                     = {}
-        status_dict[host_name]['current_state']    = int(current_state)
+        status_dict[host_name]['current_state']    = convertToInteger(current_state)
         status_dict[host_name]['plugin_output']    = plugin_output
         status_dict[host_name]['last_check']       = last_check
-        status_dict[host_name]['has_been_checked'] = int(has_been_checked)
+        status_dict[host_name]['has_been_checked'] = convertToInteger(has_been_checked)
 
         for servicedef in services:
             if (__GetDirective(servicedef, "host_name") == host_name):
@@ -348,11 +535,11 @@ def getNagiosStatusDict():
                 has_been_checked    = __GetDirective(servicedef, "has_been_checked")
                 
                 status_dict[host_name][service_description]                       = {}
-                status_dict[host_name][service_description]['current_state']      = int(current_state)
+                status_dict[host_name][service_description]['current_state']      = convertToInteger(current_state)
                 status_dict[host_name][service_description]['plugin_output']      = plugin_output
                 status_dict[host_name][service_description]['long_plugin_output'] = long_plugin_output
                 status_dict[host_name][service_description]['last_check']         = last_check
-                status_dict[host_name][service_description]['has_been_checked']   = int(has_been_checked)
+                status_dict[host_name][service_description]['has_been_checked']   = convertToInteger(has_been_checked)
     
     return status_dict
 

@@ -8,11 +8,10 @@ import gsutils
 import socket
 import re
 import time
-from django.core.serializers import serialize
    
 def overview(request, site_name):     
-    # add exception here in case of empty queryset
-    # Get the site information
+
+    # Get the site information from glue database
     entity = getGlueEntity('gluesite', uniqueids_list=[site_name])
     if not entity:
         #raise Http404
@@ -22,17 +21,19 @@ def overview(request, site_name):
         gluesite.sysadmincontact = str(gluesite.sysadmincontact).split(":")[-1]      
         gluesite.usersupportcontact = str(gluesite.usersupportcontact).split(":")[-1]
         gluesite.securitycontact = str(gluesite.securitycontact).split(":")[-1]
-        
-    
-    
-    
-    # Get all the service and entity at site
+
+    # Get all the service and entity at site from topology database
     site_entity = getEntityByUniqueidType(site_name, 'Site')
-    topbdii_list  = getNodesInSite(site_entity, 'bdii_top')
-    sitebdii_list = getNodesInSite(site_entity, 'bdii_site')
-    ce_list       = getNodesInSite(site_entity, 'CE')
-    se_list       = getNodesInSite(site_entity, 'SE')
-    service_list  = getServicesInSite(site_entity)
+    service_list = get_services([site_entity])
+    topbdii_list  = []
+    sitebdii_list = []
+    ce_list       = []
+    se_list       = []
+    for service in service_list:
+        if service.type == 'bdii_top':  topbdii_list.append(service)
+        if service.type == 'bdii_site': sitebdii_list.append(service)
+        if service.type == 'CE':        ce_list.append(service)
+        if service.type == 'SE':        se_list.append(service)
     last_update = time.mktime(time.strptime(str(site_entity.updated_at), "%Y-%m-%d %H:%M:%S"))
     minutes_ago = int((time.mktime(time.localtime()) - time.mktime(time.strptime(str(site_entity.updated_at), "%Y-%m-%d %H:%M:%S")))/60)
     
@@ -65,28 +66,35 @@ def overview(request, site_name):
 
     # Count the CPU and Jobs numbers in all CEs and the storage space in all SEs at site
     installed_capacity = {}
-    (logicalcpus, physicalcpus)             = countCPUsInSite(site_entity)
-    installed_capacity['physicalcpus']      = physicalcpus
-    installed_capacity['logicalcpus']       = logicalcpus
-    (totalonlinesize, usedonlinesize, totalnearlinesize, usednearlinesize) = countStoragesInSite(site_entity)
-    installed_capacity['totalonlinesize']   = totalonlinesize
-    installed_capacity['usedonlinesize']    = usedonlinesize
-    installed_capacity['totalnearlinesize'] = totalnearlinesize
-    installed_capacity['usednearlinesize']  = usednearlinesize
-    #(totaljobs, runningjobs, waitingjobs) = countJobsInSite(site_entity)
-    #installed_capacity['runningjobs']     = runningjobs
-    #installed_capacity['waitingjobs']     = waitingjobs
-    #installed_capacity['totaljobs']       = totaljobs
+    sub_cluster_list = get_subclusters(service_list)
+    physical_cpu, logical_cpu = get_installed_capacity_cpu(sub_cluster_list)
+    installed_capacity['physicalcpus']      = physical_cpu
+    installed_capacity['logicalcpus']       = logical_cpu
     
-    #vo_list = getVOsInSite(site_entity)
-    vo_list = countJobsInVO_Site(site_entity)
+    se_list = get_ses(service_list)
+    total_online, used_online, total_nearline, used_nearline = get_installed_capacity_storage(se_list)
+    installed_capacity['totalonlinesize']   = total_online
+    installed_capacity['usedonlinesize']    = used_online
+    installed_capacity['totalnearlinesize'] = total_nearline
+    installed_capacity['usednearlinesize']  = used_nearline
+    
+    vo_jobs = []
+    vo_view_list = get_vo_view(service_list)
+    for vo_view in vo_view_list:
+        job_dict = {}
+        total_jobs, running_jobs, waiting_jobs = get_job_stats([vo_view])   
+        job_dict['voname']      = vo_view.localid
+        job_dict['totaljobs']   = total_jobs
+        job_dict['runningjobs'] = running_jobs
+        job_dict['waitingjobs'] = waiting_jobs
+        vo_jobs.append(job_dict)
     
     return render_to_response('overview.html', {'sitename'           : site_name,
                                                 'gluesite'           : gluesite,
                                                 'count_dict'         : count_dict,
                                                 'overall_status_dict': overall_status_dict,
                                                 'installed_capacity' : installed_capacity,
-                                                'vo_list'            : vo_list,
+                                                'vo_jobs'            : vo_jobs,
                                                 'last_update'        : last_update,
                                                 'minutes_ago'        : minutes_ago})
     
@@ -95,11 +103,14 @@ def status(request, site_name, type):
     if not site_entity:
         #raise Http404 
         pass
-    
+
+    service_list = get_services([site_entity])
     nodetype = 'bdii_site'
     if type == 'topbdii': nodetype = 'bdii_top'
-
-    hostnames  = [node.hostname for node in getNodesInSite(site_entity, nodetype)]
+    bdii_list  = []
+    for service in service_list:
+        if service.type == nodetype:  bdii_list.append(service)
+    hostnames  = [bdii.hostname for bdii in bdii_list]
     hostname_list = []
     for hostname in hostnames:
         hosts_from_alias = get_hosts_from_alias(hostname)
@@ -176,21 +187,26 @@ def getStatusList(site_name, search_phrase, node_type):
 # ------------------------------------
 def site_graphs(request, site_name, attribute):
     site_entity = getEntityByUniqueidType(site_name, 'Site')
+    service_list = get_services([site_entity])
+    sub_cluster_list = get_subclusters(service_list)
+    se_list = get_ses(service_list)
+    
     if attribute == 'cpu':
-        ce_list  = getNodesInSite(site_entity, 'CE')
-        objects = getSubClusterByCluster(cluster_uniqueids_list=[ce.uniqueid for ce in ce_list])
+        objects = sub_cluster_list
     elif attribute in ['online','nearline']:
-        se_list = getNodesInSite(site_entity, 'SE')
-        objects = getGlueEntity(model_name='gluese', uniqueids_list=[se.uniqueid for se in se_list])
-        
-
+        objects = se_list
+    
     return render_to_response('site_graphs.html', {'site_name': site_name,
-                                              'objects'  : objects,
-                                              'attribute': attribute}) 
+                                                   'objects'  : objects,
+                                                   'attribute': attribute}) 
 
 def vo_graphs(request, site_name, attribute, vo_name):
     site_entity = getEntityByUniqueidType(site_name, 'Site')
-    objects = getNodesInSite(site_entity, 'CE')
+    service_list = get_services([site_entity])
+    ce_list = []
+    for service in service_list:
+        if service.type == 'CE': ce_list.append(service)
+    objects = ce_list
         
 
     return render_to_response('vo_graphs.html', {'site_name': site_name,
