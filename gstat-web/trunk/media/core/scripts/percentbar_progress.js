@@ -21,11 +21,11 @@ function display ( total, used )
     if (total != 0) percentage = parseInt(used * 100 / total);
     else            percentage = 0;
 
-  	if (percentage < 80) color = "1";
-  	if (percentage >= 80 && percentage < 90) color = "2";
-  	if (percentage >= 90 && percentage < 95) color = "3";
-  	if (percentage >= 95) color = "4";
-  	if (percentage < 0 || percentage > 100) color = "5";
+    if      (percentage < 0)   color = "2"; //yellow
+    else if (percentage < 80)  color = "1"; //green
+    else if (percentage < 90)  color = "2"; //yellow
+    else if (percentage < 101) color = "4"; //red
+    else                       color = "2"; //yellow
 
     var percentageWidth = 0;
     if (percentage < 0 || percentage > 100) percentageWidth = eachPercent * 100;
@@ -39,17 +39,38 @@ function display ( total, used )
         '<span>'+percentage+'%</span>');
 }
 
-function display_string( total, used )
+function display_string( total, used, type)
 {	
     if (total != 0) percentage = parseInt(used * 100 / total);
     else            percentage = 0;
 
-  	if (percentage < 80) color = "1";
-  	if (percentage >= 80 && percentage < 90) color = "2";
-  	if (percentage >= 90 && percentage < 95) color = "3";
-  	if (percentage >= 95) color = "4"; 
-  	if (percentage < 0 || percentage > 100) color = "5";
-
+    if (type == "usedonline") {
+        if      (percentage < 0)   color = "2"; //yellow
+        else if (percentage < 80)  color = "1"; //green
+        else if (percentage < 90)  color = "2"; //yellow
+        else if (percentage < 101) color = "4"; //red
+        else                       color = "2"; //yellow
+    } else if (type == "runningjobs") {
+        if      (percentage < 0)   color = "2"; //yellow
+        else if (percentage < 10)  color = "4"; //red
+        else if (percentage < 20)  color = "2"; //yellow
+        else if (percentage < 201) color = "1"; //green
+        else                       color = "2"; //yellow
+    } else if (type == "waitingjobs") {
+        if      (percentage < 0)   color = "2"; //yellow
+        else if (percentage < 80)  color = "1"; //green
+        else if (percentage < 90)  color = "2"; //yellow
+        else if (percentage < 101) color = "4"; //red
+        else                       color = "2"; //yellow
+    } else {
+        if      (percentage < 0)   color = "5"; //gray
+        else if (percentage < 80)  color = "1"; //green
+        else if (percentage < 90)  color = "2"; //yellow
+        else if (percentage < 95)  color = "3"; //orage
+        else if (percentage < 101) color = "4"; //red
+        else                       color = "5"; //gray 
+    }
+  
     var percentageWidth = 0;
     if (percentage < 0 || percentage > 100) percentageWidth = eachPercent * 100;
     else percentageWidth = eachPercent * percentage;
