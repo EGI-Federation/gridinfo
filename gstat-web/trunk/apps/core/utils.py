@@ -156,7 +156,7 @@ def get_sites(type, value="ALL"):
     else:
         groups = Entity.objects.filter(uniqueid = value, type = type)
     for group in groups:
-        relationships = Entityrelationship.objects.select_related().filter(predicate = predicate[type], object = group)
+        relationships = Entityrelationship.objects.select_related('subject').filter(predicate = predicate[type], object = group)
         for relationship in relationships:
             site_list.append(relationship.subject)
     
@@ -165,7 +165,7 @@ def get_sites(type, value="ALL"):
 
 def get_countries(site_list):
     """ get country entities from topology database """
-    relationships = Entityrelationship.objects.select_related().filter(predicate = 'SiteCountry', subject__in = site_list)
+    relationships = Entityrelationship.objects.select_related('object').filter(predicate = 'SiteCountry', subject__in = site_list)
     countries = []
     for relation in relationships:
         try:
@@ -176,7 +176,7 @@ def get_countries(site_list):
 
 def get_services(site_list):
     """ get service entities from topology database """
-    relationships = Entityrelationship.objects.select_related().filter(predicate = 'SiteService', subject__in = site_list)
+    relationships = Entityrelationship.objects.select_related('object').filter(predicate = 'SiteService', subject__in = site_list)
     services = []
     for relation in relationships:
         services.append(relation.object)
@@ -184,7 +184,7 @@ def get_services(site_list):
 
 def get_vos(service_list):
     """ get vo entities from topology database """
-    relationships = Entityrelationship.objects.select_related().filter(predicate = 'ServiceVO', subject__in = service_list)
+    relationships = Entityrelationship.objects.select_related('object').filter(predicate = 'ServiceVO', subject__in = service_list)
     vos = []
     for relation in relationships:
         try:
