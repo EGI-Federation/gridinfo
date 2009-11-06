@@ -70,6 +70,13 @@
 	                })
 	            });
 	            map.addLayer(sundials);
+			    select = new OpenLayers.Control.SelectFeature(sundials);
+			    sundials.events.on({
+			        "featureselected": onFeatureSelect,
+			        "featureunselected": onFeatureUnselect
+			    });
+			    map.addControl(select);
+			    select.activate();
             }
             return true;
         }
