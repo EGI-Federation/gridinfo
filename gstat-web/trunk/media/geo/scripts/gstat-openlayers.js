@@ -42,24 +42,6 @@ function init(){
             {'attribution': attribution} );
     map.addLayer(olwms);
 
-    // OpenAerialMap
-    var oam = new OpenLayers.Layer.WMS( "OpenStreetMap", 
-     [
-      "http://oam1.hypercube.telascience.org/tiles/",
-      "http://oam2.hypercube.telascience.org/tiles/",
-      "http://oam3.hypercube.telascience.org/tiles/"
-     ],
-         {layers: 'openaerialmap'},
-         {'attribution': attribution, buffer: 1} );
-    map.addLayer(oam);
-
-    // NASA Global Mosaic
-    var jpl_wms = new OpenLayers.Layer.WMS( "NASA Global Mosaic",
-        "http://t1.hypercube.telascience.org/cgi-bin/landsat7", 
-        {layers: "landsat7"},
-        {'attribution': attribution});
-    map.addLayer(jpl_wms);
-
     // NASA WMS
 	var NASAwms = new OpenLayers.Layer.WMS( "NASA WMS",
 		"http://wms.jpl.nasa.gov/wms.cgi?", {			
