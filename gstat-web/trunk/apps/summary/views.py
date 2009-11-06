@@ -23,10 +23,10 @@ def main(request, type='GRID', value=None, output=None):
         for group in groups:
             site_list = getSitesInGroup(predicate[type], group)
             sites_data_rows  = get_data_for_sites(site_list)
-            group_summary = [str(group.uniqueid), 0, 0, 0, 0, 0, 0, 0, 0]
+            group_summary = [str(group.uniqueid), 0, 0, 0, 0, 0, 0, 0, 0, 0]
             for row in sites_data_rows:
                 group_summary[1] += 1
-                for i in range(7):
+                for i in range(8):
                     group_summary[i + 2] += row[i + 2]
             data.append(group_summary)       
     else:
@@ -57,8 +57,6 @@ def get_data_for_sites(site_list, get_status=False):
         
         se_list = get_ses(service_list)
         total_online, used_online, total_nearline, used_nearline = get_installed_capacity_storage(se_list)
-        total_size = total_online + total_nearline
-        used_size  = used_online + used_nearline
 
         vo_view_list = get_vo_view(service_list)
         total_jobs, running_jobs, waiting_jobs = get_job_stats(vo_view_list)        
@@ -79,8 +77,9 @@ def get_data_for_sites(site_list, get_status=False):
                 site_number_or_status,
                 physical_cpu,
                 logical_cpu,  
-                total_size, 
-                used_size, 
+                total_online, 
+                used_online, 
+                total_nearline,
                 total_jobs,
                 running_jobs, 
                 waiting_jobs]

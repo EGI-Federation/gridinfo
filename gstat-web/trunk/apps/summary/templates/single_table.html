@@ -183,14 +183,15 @@ $(document).ready(function() {
         <th rowspan=2>Name</th>
         <th rowspan=2 id="sites_or_status">Sites</th>
         <th colspan=2 align="center">CPUs</th>
-        <th colspan=2 align="center">Storage Space (GB)</th>
+        <th colspan=3 align="center">Storage Space (GB)</th>
         <th colspan=3 align="center">Grid Jobs</th>
       </tr>
       <tr>
         <th><div class="tooltip" title="header=[] body=[]">Physical</div></th>
         <th><div class="tooltip" title="header=[] body=[]">Logical</div></th>
-        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[TotalOnlineSize + TotalNearlineSize]">Total</div></th>
-        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[(UsedOnlineSize + UsedNearlineSize) / (TotalOnlineSize + TotalNearlineSize)]">Used</div></th>
+        <th><div class="tooltip" title="header=[] body=[]">TotalOnline</div></th>
+        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[UsedOnlineSize / TotalOnlineSize]">UsedOnline</div></th>
+        <th><div class="tooltip" title="header=[] body=[]">TotalNearline</div></th>
         <th><div class="tooltip" title="header=[] body=[]">Total</div></th>
         <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[RunningJobs / LogicalCPUs]">Running</div></th>
         <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[WaitingJobs / TotalJobs]">Waiting</div></th>
@@ -201,6 +202,7 @@ $(document).ready(function() {
     <tfoot>
       <tr>
         <th>Total</th>
+        <th></th>
         <th></th>
         <th></th>
         <th></th>

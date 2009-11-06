@@ -72,7 +72,7 @@ function changeFilterValue(event) {
 
     var oTable;
     var theads = $('#single_table > thead');
-    $('#TableContainer').html('<table cellpadding="0" cellspacing="1" border="0" class="display" id="single_table"><thead>'+theads.html()+'</thead><tbody></tbody><tfoot><tr><th>Total</th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr></tfoot></table>');
+    $('#TableContainer').html('<table cellpadding="0" cellspacing="1" border="0" class="display" id="single_table"><thead>'+theads.html()+'</thead><tbody></tbody><tfoot><tr><th>Total</th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr></tfoot></table>');
     var oTable = $('#single_table').dataTable({
         "iDisplayLength": 25, 
         "bProcessing": true, 
@@ -112,44 +112,51 @@ function changeFilterValue(event) {
               "bUseRendered": false
             },
             { "fnRender": function(oObj) {
-                var total_space = CommaFormatted(oObj.aData[4]);
-                return total_space;
+                var total_online = CommaFormatted(oObj.aData[4]);
+                return total_online;
                 },
               "bUseRendered": false
             },
             { "fnRender": function(oObj) {
-                var used_space = display_string(oObj.aData[4], oObj.aData[5]);
-                return used_space;
+                var used_online = display_string(oObj.aData[4], oObj.aData[5], "usedonline");
+                return used_online;
                 },
               "sType": "num-html"
             },
             { "fnRender": function(oObj) {
-                var total_job = CommaFormatted(oObj.aData[6]);
+                var total_nearline = CommaFormatted(oObj.aData[6]);
+                return total_nearline;
+                },
+              "bUseRendered": false
+            },
+            { "fnRender": function(oObj) {
+                var total_job = CommaFormatted(oObj.aData[7]);
                 return total_job;
                 },
               "bUseRendered": false 
             },
             { "fnRender": function(oObj) {
-                var running_job = display_string(oObj.aData[3], oObj.aData[7]);
+                var running_job = display_string(oObj.aData[3], oObj.aData[8], "runningjobs");
                 return running_job;
                 },
               "sType": "num-html"
             },
             { "fnRender": function(oObj) {
-                var waiting_job = display_string(oObj.aData[6], oObj.aData[8]);
+                var waiting_job = display_string(oObj.aData[6], oObj.aData[9], "waitingjobs");
                 return waiting_job;
                 },
               "sType": "num-html" 
             }],
             "fnFooterCallback": function ( nRow, aaData, iStart, iEnd, aiDisplay ) {
-                var site         = 0;
-                var physical_cpu = 0;
-                var logical_cpu  = 0;
-                var total_space  = 0;
-                var used_space   = 0;
-                var total_job    = 0;
-                var running_job  = 0;
-                var waiting_job  = 0;
+                var site           = 0;
+                var physical_cpu   = 0;
+                var logical_cpu    = 0;
+                var total_online   = 0;
+                var used_online    = 0;
+                var total_nearline = 0;
+                var total_job      = 0;
+                var running_job    = 0;
+                var waiting_job    = 0;
                 
                 var calculate_site = false;
                 var value = $('#filtervalue :selected').val();
@@ -157,13 +164,14 @@ function changeFilterValue(event) {
                 
                 for ( var i=0 ; i<aaData.length ; i++ ) {
                     if (calculate_site) site += parseInt(aaData[i][1].toString().replace( /<.*?>/g, "" ));
-                    physical_cpu += aaData[i][2];
-                    logical_cpu  += aaData[i][3];
-                    total_space  += aaData[i][4];
-                    used_space   += parseInt(eval(aaData[i][5].split("title=")[1].split(" ")[0]));
-                    total_job    += aaData[i][6];
-                    running_job  += parseInt(eval(aaData[i][7].split("title=")[1].split(" ")[0]));
-                    waiting_job  += parseInt(eval(aaData[i][8].split("title=")[1].split(" ")[0]));
+                    physical_cpu   += aaData[i][2];
+                    logical_cpu    += aaData[i][3];
+                    total_online   += aaData[i][4];
+                    used_online    += parseInt(eval(aaData[i][5].split("title=")[1].split(" ")[0]));
+                    total_nearline += aaData[i][6];
+                    total_job      += aaData[i][7];
+                    running_job    += parseInt(eval(aaData[i][8].split("title=")[1].split(" ")[0]));
+                    waiting_job    += parseInt(eval(aaData[i][9].split("title=")[1].split(" ")[0]));
                 }
                 
                 /* Calculate the market share for browsers on this page */
@@ -181,11 +189,12 @@ function changeFilterValue(event) {
                 if (calculate_site) nCells[1].innerHTML = CommaFormatted(site);
                 nCells[2].innerHTML = CommaFormatted(physical_cpu);
                 nCells[3].innerHTML = CommaFormatted(logical_cpu);
-                nCells[4].innerHTML = CommaFormatted(total_space);
-                nCells[5].innerHTML = CommaFormatted(used_space);
-                nCells[6].innerHTML = CommaFormatted(total_job);
-                nCells[7].innerHTML = CommaFormatted(running_job);
-                nCells[8].innerHTML = CommaFormatted(waiting_job);
+                nCells[4].innerHTML = CommaFormatted(total_online);
+                nCells[5].innerHTML = CommaFormatted(used_online);
+                nCells[6].innerHTML = CommaFormatted(total_nearline);
+                nCells[7].innerHTML = CommaFormatted(total_job);
+                nCells[8].innerHTML = CommaFormatted(running_job);
+                nCells[9].innerHTML = CommaFormatted(waiting_job);
 		    }
     });
     

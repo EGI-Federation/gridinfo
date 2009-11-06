@@ -80,14 +80,33 @@ def overview(request, site_name):
     
     vo_jobs = []
     vo_view_list = get_vo_view(service_list)
+    job_dict = {}
     for vo_view in vo_view_list:
-        job_dict = {}
         total_jobs, running_jobs, waiting_jobs = get_job_stats([vo_view])   
-        job_dict['voname']      = vo_view.localid
-        job_dict['totaljobs']   = total_jobs
-        job_dict['runningjobs'] = running_jobs
-        job_dict['waitingjobs'] = waiting_jobs
-        vo_jobs.append(job_dict)
+        if vo_view.localid not in job_dict.keys():
+            job_dict[vo_view.localid] = {}
+            job_dict[vo_view.localid]['voname']      = vo_view.localid
+            job_dict[vo_view.localid]['totaljobs']   = total_jobs
+            job_dict[vo_view.localid]['runningjobs'] = running_jobs
+            job_dict[vo_view.localid]['waitingjobs'] = waiting_jobs
+        else:
+            job_dict[vo_view.localid]['totaljobs']   += total_jobs
+            job_dict[vo_view.localid]['runningjobs'] += running_jobs
+            job_dict[vo_view.localid]['waitingjobs'] += waiting_jobs  
+            
+        #job_dict = {}    
+        #job_dict['voname']      = vo_view.localid
+        #job_dict['totaljobs']   = total_jobs
+        #job_dict['runningjobs'] = running_jobs
+        #job_dict['runningjobs'] = running_jobs
+    for voname in job_dict.keys():
+        vo_jobs.append(job_dict[voname])
+    
+    # sorting list of dictionaries
+    sort_on = "voname"
+    sorted_list = [(dict_[sort_on], dict_) for dict_ in vo_jobs]
+    sorted_list.sort()
+    vo_jobs = [dict_ for (key, dict_) in sorted_list]
     
     return render_to_response('overview.html', {'sitename'           : site_name,
                                                 'gluesite'           : gluesite,
