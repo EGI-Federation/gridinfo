@@ -29,6 +29,7 @@ def getGlueEntity(model_name, uniqueids_list=[], all=False):
         return None
 
 
+
 def get_subclusters(service_list):
     """ get glue subcluster entities from glue database """
     uniqueids = [service.uniqueid for service in service_list]
@@ -142,6 +143,30 @@ def convertToInteger(number):
 # -------------------------------------------
 # -- Topology data model related functions --
 # -------------------------------------------
+
+""" reserved """
+def getEntitiesByType(type_name):
+    qs_entities = Entity.objects.filter(type=type_name)
+    
+    return qs_entities
+
+""" reserved """
+def getEntityByUniqueidType(unique_id, type_name):
+    qs_entity = Entity.objects.filter(uniqueid = unique_id, type = type_name)
+    # CAUTION!, alert exception or warning if there is more than one record
+    if qs_entity:
+        return qs_entity[0]
+    else:
+        return None
+
+""" reserved """
+def getSitesInGroup(predicate_name, entity):
+    # Get the list of Sites in the specified group, ex.: grid, egee roc, country, etc.
+    site_list = [er.subject for er in Entityrelationship.objects.filter(predicate = predicate_name, 
+                                                                        object = entity)]
+        
+    return site_list
+
 
 def get_sites(type, value="ALL"):
     """ get site entities from topology database """
@@ -260,8 +285,8 @@ def get_installed_capacity_cpu(sub_clusters_list):
     physical_cpus = 0
     logical_cpus = 0
     for sub_cluster in sub_clusters_list:
-        logical_cpus += int(sub_cluster.logicalcpus)
-        physical_cpus += int(sub_cluster.physicalcpus)
+        logical_cpus += convertToInteger(sub_cluster.logicalcpus)
+        physical_cpus += convertToInteger(sub_cluster.physicalcpus)
 
     return [physical_cpus, logical_cpus]
 
@@ -274,13 +299,11 @@ def get_installed_capacity_storage(se_list):
     used_nearline = 0 
 
     for se in se_list:
-        try:
-            total_online += int(se.totalonlinesize)
-            used_online += int(se.usedonlinesize)
-            total_nearline += int(se.totalnearlinesize) 
-            used_nearline += int(se.usednearlinesize) 
-        except ValueError:
-            pass
+        total_online += convertToInteger(se.totalonlinesize)
+        used_online += convertToInteger(se.usedonlinesize)
+        total_nearline += convertToInteger(se.totalnearlinesize) 
+        used_nearline += convertToInteger(se.usednearlinesize) 
+
     return [ total_online, used_online, total_nearline, used_nearline ]
 
 def get_installed_capacity_per_os(sub_clusters_list):
@@ -299,8 +322,8 @@ def get_installed_capacity_per_os(sub_clusters_list):
         if ( not os[os_name].has_key(os_release)):
             os[os_name][os_release] = [0, 0]
 
-        os[os_name][os_release][0] += int(sub_cluster.physicalcpus)    
-        os[os_name][os_release][1] += int(sub_cluster.logicalcpus)
+        os[os_name][os_release][0] += convertToInteger(sub_cluster.physicalcpus)    
+        os[os_name][os_release][1] += convertToInteger(sub_cluster.logicalcpus)
 
     data = []
     keys = os.keys()
@@ -318,10 +341,10 @@ def get_job_stats(vo_view_list):
     running_jobs = 0
     waiting_jobs = 0
     for voview in vo_view_list:
-        total_jobs += int(voview.totaljobs)
-        running_jobs += int(voview.runningjobs)
-        if ( not int(voview.waitingjobs) == 444444):
-            waiting_jobs += int(voview.waitingjobs)
+        total_jobs += convertToInteger(voview.totaljobs)
+        running_jobs += convertToInteger(voview.runningjobs)
+        if ( not convertToInteger(voview.waitingjobs) == 444444):
+            waiting_jobs += convertToInteger(voview.waitingjobs)
     return  [ total_jobs, running_jobs, waiting_jobs ]
 
 def get_service_versions(service_list):
