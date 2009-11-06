@@ -29,7 +29,6 @@ def getGlueEntity(model_name, uniqueids_list=[], all=False):
         return None
 
 
-
 def get_subclusters(service_list):
     """ get glue subcluster entities from glue database """
     uniqueids = [service.uniqueid for service in service_list]
@@ -144,31 +143,7 @@ def convertToInteger(number):
 # -- Topology data model related functions --
 # -------------------------------------------
 
-""" reserved """
-def getEntitiesByType(type_name):
-    qs_entities = Entity.objects.filter(type=type_name)
-    
-    return qs_entities
-
-""" reserved """
-def getEntityByUniqueidType(unique_id, type_name):
-    qs_entity = Entity.objects.filter(uniqueid = unique_id, type = type_name)
-    # CAUTION!, alert exception or warning if there is more than one record
-    if qs_entity:
-        return qs_entity[0]
-    else:
-        return None
-
-""" reserved """
-def getSitesInGroup(predicate_name, entity):
-    # Get the list of Sites in the specified group, ex.: grid, egee roc, country, etc.
-    site_list = [er.subject for er in Entityrelationship.objects.filter(predicate = predicate_name, 
-                                                                        object = entity)]
-        
-    return site_list
-
-
-def get_sites(type=None, value=None):
+def get_sites(type, value="ALL"):
     """ get site entities from topology database """
     predicate = {'GRID'     : 'SiteGrid', 
                  'EGEE_ROC' : 'SiteEgeeRoc', 
@@ -176,19 +151,21 @@ def get_sites(type=None, value=None):
                  'Country'  : 'SiteCountry'}
     
     site_list = [] 
-    if ( value == "ALL" or value == None):
-        groups = getEntitiesByType(type)
-        for group in groups:
-            site_list.extend(getSitesInGroup(predicate[type], group))
+    if ( value == "ALL"):
+        groups = Entity.objects.filter(type=type)
     else:
-        group = getEntityByUniqueidType(value, type)
-        site_list = getSitesInGroup(predicate[type], group)
+        groups = Entity.objects.filter(uniqueid = value, type = type)
+    for group in groups:
+        relationships = Entityrelationship.objects.select_related().filter(predicate = predicate[type], object = group)
+        for relationship in relationships:
+            site_list.append(relationship.subject)
+    
     return site_list
 
 
 def get_countries(site_list):
     """ get country entities from topology database """
-    relationships = Entityrelationship.objects.filter(predicate = 'SiteCountry', subject__in = site_list)
+    relationships = Entityrelationship.objects.select_related().filter(predicate = 'SiteCountry', subject__in = site_list)
     countries = []
     for relation in relationships:
         try:
@@ -199,7 +176,7 @@ def get_countries(site_list):
 
 def get_services(site_list):
     """ get service entities from topology database """
-    relationships = Entityrelationship.objects.filter(predicate = 'SiteService', subject__in = site_list)
+    relationships = Entityrelationship.objects.select_related().filter(predicate = 'SiteService', subject__in = site_list)
     services = []
     for relation in relationships:
         services.append(relation.object)
@@ -207,7 +184,7 @@ def get_services(site_list):
 
 def get_vos(service_list):
     """ get vo entities from topology database """
-    relationships = Entityrelationship.objects.filter(predicate = 'ServiceVO', subject__in = service_list)
+    relationships = Entityrelationship.objects.select_related().filter(predicate = 'ServiceVO', subject__in = service_list)
     vos = []
     for relation in relationships:
         try:
