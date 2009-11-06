@@ -1,5 +1,20 @@
 #!/bin/sh
 
+GSTAT_LOCK_FILE=${GSTAT_LOCK_FILE:-/var/lock/subsys/gstat-update}
+
+# Check status
+if [ -f "${GSTAT_LOCK_FILE}" ] ; then
+    let x=$(date +%s)-$(stat --format=%Z ${GSTAT_LOCK_FILE})
+    echo ${x}
+    if [ ${x} -gt 3600 ]; then
+        echo "Stale lock file found. Removing ..."
+        rm -f ${GSTAT_LOCK_FILE}
+    else
+        echo "gstat-update already running"
+        exit 0
+    fi
+fi
+
 if [ -f /etc/gstat/ref-bdii.conf ] ; then
    
    . /etc/gstat/ref-bdii.conf 2>&1   
@@ -16,6 +31,7 @@ if [ -f /etc/gstat/ref-bdii.conf ] ; then
  
 fi 
 
+rm -f ${GSTAT_LOCK_FILE}
 
 
 
