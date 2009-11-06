@@ -8,7 +8,7 @@ from topology.models import Entityrelationship
 from glue.models import *
 from core.utils import *
 
-def main(request, type='GRID', value=None, output=None):
+def main(request, type='GRID', value='ALL', output=None):
 
     overview = {}
 
@@ -47,8 +47,8 @@ def main(request, type='GRID', value=None, output=None):
     overview["Waiting Jobs"] = waiting_jobs
 
     data = []
-    for  type in overview:
-            data.append([type, overview[type] ])
+    for  data_type in overview:
+            data.append([data_type, overview[data_type] ])
 
     versions = get_service_versions(service_list)
 
@@ -57,6 +57,8 @@ def main(request, type='GRID', value=None, output=None):
     return render_to_response('stats.html', {'stats_active': 1,
                                              'breadcrumbs_list': breadcrumbs_list,
                                              'filters_enabled': True,
+                                             'type' :  type,
+                                             'value' :  value,
                                              'data': data,
                                              'versions': versions,
                                              'os': os})
