@@ -23,12 +23,24 @@
         $("#overviewTable").tablesorter({sortList:[], widgets: ['zebra']}); 
         $("#osTable").tablesorter({sortList:[[0,0],[1,0]], widgets: ['zebra']}); 
         $("#serviceTable").tablesorter({sortList:[[0,0],[1,0]], widgets: ['zebra']}); 
-    });  
+    filtertype = document.getElementById('filtertype')
+    filtertype.value = "{{ type }}";
+    try {
+        loadJSONDoc("/gstat/core/filter/" + "{{ type }}");
+    }
+    catch(e) {
+        var msg = (typeof e == "string") ? e : ((e.message) ? e.message : "Unknown Error");
+        alert("Unable to get JSON data:\n" + msg);
+        return;
+    }
+    filtervalue = document.getElementById('filtervalue')
+    filtervalue.value = "{{ value }}";
+});  
 
-	function changeFilterValue(event) {
-	    filtertype = document.getElementById('filtertype');
-	    filtervalue = document.getElementById('filtervalue');
-	    window.location="/gstat/stats/" + filtertype.value + "/" + filtervalue.value;
+    function changeFilterValue(event) {
+        filtertype = document.getElementById('filtertype');
+        filtervalue = document.getElementById('filtervalue');
+    window.location='/gstat/stats/' + filtertype.value + '/' + filtervalue.value;
 	}
 </script>
 
