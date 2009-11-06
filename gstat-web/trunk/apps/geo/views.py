@@ -3,7 +3,7 @@ from django.utils import html
 from django.shortcuts import render_to_response
 from topology.models import Entity, Entityrelationship
 from glue.models import gluesite
-from core.utils import countCPUsInSite, countStoragesInSite
+from core.utils import get_services, get_subclusters, get_installed_capacity_cpu,get_ses, get_installed_capacity_storage
 import random
 from geo import countryInfo
 
@@ -140,14 +140,17 @@ def overlay(request, type=''):
                     logicalcpus  = 0
                     physicalcpus = 0
                     totalsize    = 0
-                    usedsize     = 0
+                    usedsize     = 0 
                     for site in site_list:
-                        (logicalcpus_, physicalcpus_) = countCPUsInSite(site)
-                        (totalonlinesize_, usedonlinesize_, totalnearlinesize_, usednearlinesize_)       = countStoragesInSite(site)
-                        logicalcpus  += logicalcpus_
-                        physicalcpus += physicalcpus_
-                        totalsize    += totalonlinesize_ + totalnearlinesize_
-                        usedsize     += usedonlinesize_ + usednearlinesize_
+                        service_list = get_services([site])
+                        sub_cluster_list = get_subclusters(service_list)
+                        physical_cpu, logical_cpu = get_installed_capacity_cpu(sub_cluster_list)
+                        physicalcpus += physical_cpu
+                        logicalcpus  += logical_cpu
+                        se_list = get_ses(service_list)
+                        total_online, used_online, total_nearline, used_nearline = get_installed_capacity_storage(se_list)
+                        totalsize    += total_online + total_nearline
+                        usedsize     += used_online + used_nearline
                     totalsize = int(totalsize / 1024) # TB
                     usedsize = int(usedsize / 1024) # TB
                     html = ""

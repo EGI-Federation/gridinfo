@@ -29,17 +29,18 @@ function ErrorsToTable(str) {
     document.write("</table>");
 }
 
-function TimeFormat(ms) {   
-    var d = new Date(parseInt(ms) * 1000);
-    var curr_date = d.getUTCDate();
-    var curr_month = d.getUTCMonth();
-    curr_month++;
-    var curr_year = d.getUTCFullYear();
-    var curr_hour = d.getUTCHours();
-    var curr_min = d.getUTCMinutes();
-    var curr_sec = d.getUTCSeconds();
-    
-    document.write(curr_month+"-"+curr_date+"-"+curr_year+" "+curr_hour+":"+curr_min+":"+curr_sec+" UTC");
+function TimeFormat(ms) {
+    if (ms != undefined) {
+	    var d = new Date(parseInt(ms) * 1000);
+	    var curr_date = d.getUTCDate();
+	    var curr_month = d.getUTCMonth();
+	    curr_month++;
+	    var curr_year = d.getUTCFullYear();
+	    var curr_hour = d.getUTCHours();
+	    var curr_min = d.getUTCMinutes();
+	    var curr_sec = d.getUTCSeconds();
+	    document.write(curr_month+"-"+curr_date+"-"+curr_year+" "+curr_hour+":"+curr_min+":"+curr_sec+" UTC");
+    }
 }
 
 function DataSources(check_name) {

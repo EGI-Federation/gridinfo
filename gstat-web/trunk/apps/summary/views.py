@@ -9,15 +9,13 @@ from topology.models import Entity
 from topology.models import Entityrelationship
 from core.utils import *
 
-def main(request, type=None, value=None, output=None):
+def main(request, type='GRID', value=None, output=None):
     predicate = {'GRID'     : 'SiteGrid', 
                  'EGEE_ROC' : 'SiteEgeeRoc', 
                  'WLCG_TIER': 'SiteWlcgTier',
-                 'Country'   : 'SiteCountry'}
+                 'Country'  : 'SiteCountry'}
 
     data = []
-    if (type == None):
-        type = 'GRID'
     
     if (value == "ALL" or value == None):
         # group list, ex: list of grid, list of roc, list of country
@@ -52,25 +50,35 @@ def get_data_for_sites(site_list, get_status=False):
     for site in site_list:
         # Get installed capacities for site 
         site_name = str(site.uniqueid)
-        (logical_cpus, physical_cpus) = countCPUsInSite(site)
-        (totalonlinesize, usedonlinesize, totalnearlinesize, usednearlinesize) = countStoragesInSite(site)
-        total_size = totalonlinesize + totalnearlinesize
-        used_size  = usedonlinesize + usednearlinesize
-        (total_jobs, running_jobs, waiting_jobs) = countJobsInSite(site)
+        
+        service_list = get_services([site])
+        sub_cluster_list = get_subclusters(service_list)
+        physical_cpu, logical_cpu = get_installed_capacity_cpu(sub_cluster_list)
+        
+        se_list = get_ses(service_list)
+        total_online, used_online, total_nearline, used_nearline = get_installed_capacity_storage(se_list)
+        total_size = total_online + total_nearline
+        used_size  = used_online + used_nearline
+
+        vo_view_list = get_vo_view(service_list)
+        total_jobs, running_jobs, waiting_jobs = get_job_stats(vo_view_list)        
+        
         site_number_or_status = 0
         if get_status:
             if not nagios_status: nagios_status = getNagiosStatusDict()
-            topbdii_list  = getNodesInSite(site, 'bdii_top')
-            sitebdii_list = getNodesInSite(site, 'bdii_site')
+            topbdii_list  = []
+            sitebdii_list = []
+            for service in service_list:
+                if service.type == 'bdii_top':  topbdii_list.append(service)
+                if service.type == 'bdii_site': sitebdii_list.append(service)       
             hostnames = [bdii.hostname for bdii in topbdii_list+sitebdii_list]
             (status, has_been_checked) = getNodesOverallStatus(nagios_status, hostnames, '^check-.+')
             site_number_or_status = getNagiosStatusStr(status, has_been_checked)
-
-        
+            
         row = [ site_name,
                 site_number_or_status,
-                physical_cpus,
-                logical_cpus,  
+                physical_cpu,
+                logical_cpu,  
                 total_size, 
                 used_size, 
                 total_jobs,

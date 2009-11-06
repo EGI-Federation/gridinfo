@@ -183,7 +183,7 @@
         </thead> 
         <tbody>    
           <tr> 
-            <td><script>TimeFormat({{ last_update }});</script> ({{ minutes_ago }} minutes ago)</td>
+            <td><script>TimeFormat({{ last_update }});</script> <!--({{ minutes_ago }} minutes ago)--></td>
           </tr> 
         </tbody>
       </table>
@@ -260,11 +260,11 @@
 
 	<div id="tabs_container">
 	  <ul>
-	  {% for vo in vo_list %}
+	  {% for vo in vo_jobs %}
 	    <li><a href="#fragment-{{ forloop.counter }}"><span>{{ vo.voname }}</span></a></li>
 	  {% endfor %}
 	  </ul>
-	  {% for vo in vo_list %}
+	  {% for vo in vo_jobs %}
 	  <div id="fragment-{{ forloop.counter }}">
 
 	    <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0" style="width:230px;"> 
