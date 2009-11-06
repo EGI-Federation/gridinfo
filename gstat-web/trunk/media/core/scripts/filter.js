@@ -1,16 +1,21 @@
 function loadJSONDoc(url) {
-	$.getJSON(url,
-	  function(data){
-	    clearList('filtervalue');
-	    var select = document.getElementById('filtervalue');
-	    appendToSelect(select, '-1', document.createTextNode('Select a value'));
-        $.each(data.options, function(i,option){
-          if (option != null) {
-            appendToSelect(select, option.value, document.createTextNode(option.key));
-          }
-        });
-      }
-    );
+	$.ajax({
+	    type: 'GET',
+	    url: url,
+	    dataType: 'json',
+	    success: function(data){
+		    clearList('filtervalue');
+		    var select = document.getElementById('filtervalue');
+		    appendToSelect(select, '-1', document.createTextNode('Select a value'));
+	        $.each(data.options, function(i,option){
+	          if (option != null) {
+	            appendToSelect(select, option.value, document.createTextNode(option.key));
+	          }
+	        });
+	    },
+	    data: {},
+	    async: false
+	});
 }
 
 // Invoked by "filtertype" select element change
@@ -20,7 +25,7 @@ function changeFilterType(evt) {
     evt = (evt) ? evt : ((window.event) ? window.event : null);
     if (evt) {
         // equalize W3C/IE models to get event target reference
-        var elem = (evt.target) ? evt.target : ((evt.srcElement) ? evt.srcElement : null);
+        var elem = document.getElementById('filtertype');
         if (elem[elem.selectedIndex].value == 'none') {
         	changeFilterValue(evt);
         } else {
