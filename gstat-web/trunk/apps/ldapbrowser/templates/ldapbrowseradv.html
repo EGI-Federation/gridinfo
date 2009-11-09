@@ -1,5 +1,7 @@
 {%extends "base_gstat.html"%}
 
+{% block title %}GStat 2.0 - LDAP Browser{% endblock %}
+
 {% block css-add %}
 	<link rel="stylesheet" href="/media/ldapbrowser/css/ldapbrowser.css" type="text/css" />
 {% endblock %}
@@ -11,9 +13,9 @@
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/yuiloader/yuiloader-min.js"></script>
 <script type="text/javascript"> 
 	var loader = new YAHOO.util.YUILoader({ 
-	    require: ["datatable", "treeview"], 
+	    require: ["datatable", "treeview", "panel"], 
 	    loadOptional: true,
-	    //onSuccess: function() {YAHOO.util.Event.onDOMReady(buildTree, true);}, 
+	    onSuccess: function() {YAHOO.util.Event.onDOMReady(layout, true);}, 
 	    timeout: 10000,
 	    combine: true 
 	}); 
@@ -118,6 +120,15 @@ function buildTree() {
 		}
 	}
 </script>
+
+<!-- layout.js -->
+<script type="text/javascript">
+function layout() {
+	var panel1 = new YAHOO.widget.Panel("center1", { width:"320px", visible:true, constraintoviewport:true } ); 
+	panel1.render(); 
+};
+</script>
+
 {% endblock %}
 
 {% block content-main %}
@@ -132,17 +143,20 @@ function buildTree() {
 	</div>
 	</form>
 
-	<object id="entry">
-	</object>
+	<div id="center1">
+		<table class="bd" width="100%">	
+		<tr>
+			<th>LDAP Tree</th>
+		</tr>
+		<tr>
+			<td valign="top">
+				<div id="tree"></div>
+			</td>
+		</tr>
+		</table>
+	</div>
 
-	<table width="100%">	
-	<tr>
-		<th>LDAP Tree</th>
-	</tr>
-	<tr>
-		<td valign="top">
-			<div id="tree"></div>
-		</td>
-	</tr>
-	</table>
+    <div id="right1">
+		<object id="entry"></object>
+	</div>
 {% endblock %}
