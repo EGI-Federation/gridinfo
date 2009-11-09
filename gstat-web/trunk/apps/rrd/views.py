@@ -226,17 +226,24 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
         count += 1
         vname_total = 't_%s' %(count)
         vname_used  = 'u_%s' %(count)
-        cdef_total.append(vname_total)
-        cdef_used.append(vname_used)
+        if len(uniqueids) == 1:
+            cdef_total.append(vname_total)
+            cdef_used.append(vname_used)
+        else:
+            cdef_total += [vname_total, 'UN', '0', vname_total, 'IF']
+            cdef_used += [vname_used, 'UN', '0', vname_used, 'IF']
+        if count != 1:
+            cdef_total.append('+')
+            cdef_used.append('+')
         rrd_file = '%s/%s/%s.rrd' %(rrd_dir, uniqueid, attribute)
-        #rrd_file_total = '%s/%s/total%ssize.rrd' %(rrd_dir, uniqueid, attribute)
-        #rrd_file_used = '%s/%s/used%ssize.rrd' %(rrd_dir, uniqueid, attribute)            
+#        rrd_file_total = '%s/%s/total%ssize.rrd' %(rrd_dir, uniqueid, attribute)
+#        rrd_file_used = '%s/%s/used%ssize.rrd' %(rrd_dir, uniqueid, attribute)            
         graph_cmd += \
         ' DEF:%s="%s":%s:AVERAGE' %(vname_total, rrd_file, datasources[attribute][0])+\
         ' DEF:%s="%s":%s:AVERAGE' %(vname_used, rrd_file, datasources[attribute][1])
-    for i in range(count-1):
-        cdef_total.append('+')
-        cdef_used.append('+')
+#    for i in range(count-1):
+#        cdef_total.append('+')
+#        cdef_used.append('+')
     graph_cmd += \
         ' CDEF:total=%s' %(','.join(cdef_total)) +\
         ' CDEF:used=%s' %(','.join(cdef_used))
@@ -293,17 +300,26 @@ def cpu_graph_cmd(uniqueids, start_time, site_name='', small=False):
         count += 1
         vname_physical = 'p_%s' %(count)
         vname_logical  = 'l_%s' %(count)
-        cdef_physical.append(vname_physical)
-        cdef_logical.append(vname_logical)
+        if len(uniqueids) == 1:
+            cdef_physical.append(vname_physical)
+            cdef_logical.append(vname_logical)
+        else:
+            cdef_physical += [vname_physical, 'UN', '0', vname_physical, 'IF']
+            cdef_logical += [vname_logical, 'UN', '0', vname_logical, 'IF']
+        if count != 1:
+            cdef_physical.append('+')
+            cdef_logical.append('+')
+#        cdef_physical.append(vname_physical)
+#        cdef_logical.append(vname_logical)
         rrd_file = '%s/%s/%s.rrd' %(rrd_dir, uniqueid, 'cpu')
         #rrd_file_physical = '%s/%s/physicalcpus.rrd' %(rrd_dir, uniqueid)
         #rrd_file_logical = '%s/%s/logicalcpus.rrd' %(rrd_dir, uniqueid)            
         graph_cmd += \
         ' DEF:%s="%s":%s:AVERAGE' %(vname_physical, rrd_file, datasources['cpu'][0])+\
         ' DEF:%s="%s":%s:AVERAGE' %(vname_logical, rrd_file, datasources['cpu'][1])
-    for i in range(count-1):
-        cdef_physical.append('+')
-        cdef_logical.append('+')
+#    for i in range(count-1):
+#        cdef_physical.append('+')
+#        cdef_logical.append('+')
     graph_cmd += \
         ' CDEF:physical=%s' %(','.join(cdef_physical)) +\
         ' CDEF:logical=%s' %(','.join(cdef_logical))
@@ -395,17 +411,29 @@ def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
     cdef_total = []
     cdef_running = []
     cdef_waiting = []
-    queue_count = 0
+    count = 0
     for vo in queue_dict.keys():
         clusters = queue_dict[vo]
         for cluster in clusters:
-            queue_count += 1
-            vname_total   = 't_%s' %(queue_count)
-            vname_running = 'r_%s' %(queue_count)
-            vname_waiting = 'w_%s' %(queue_count)
-            cdef_total.append(vname_total)
-            cdef_running.append(vname_running)
-            cdef_waiting.append(vname_waiting)
+            count += 1
+            vname_total   = 't_%s' %(count)
+            vname_running = 'r_%s' %(count)
+            vname_waiting = 'w_%s' %(count)
+            if len(clusters) == 1: 
+                cdef_total.append(vname_total)
+                cdef_running.append(vname_running)
+                cdef_waiting.append(vname_waiting)
+            else:
+                cdef_total += [vname_total, 'UN', '0', vname_total, 'IF']
+                cdef_running += [vname_running, 'UN', '0', vname_running, 'IF']
+                cdef_waiting += [vname_waiting, 'UN', '0', vname_waiting, 'IF']
+            if count != 1:
+                cdef_total.append('+')
+                cdef_running.append('+')
+                cdef_waiting.append('+')
+#            cdef_total.append(vname_total)
+#            cdef_running.append(vname_running)
+#            cdef_waiting.append(vname_waiting)
             rrd_file = '%s/%s/%s/%s.rrd'   %(rrd_dir, vo, cluster, 'job')
             #rrd_file_total   = '%s/%s/%s/totaljobs.rrd'   %(rrd_dir, vo, cluster)
             #rrd_file_running = '%s/%s/%s/runningjobs.rrd' %(rrd_dir, vo, cluster)
@@ -414,10 +442,10 @@ def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
             ' DEF:%s="%s":%s:AVERAGE' %(vname_total,   rrd_file, datasources['job'][0]) +\
             ' DEF:%s="%s":%s:AVERAGE' %(vname_running, rrd_file, datasources['job'][1]) +\
             ' DEF:%s="%s":%s:AVERAGE' %(vname_waiting, rrd_file, datasources['job'][2])
-    for i in range(queue_count-1):
-        cdef_total.append('+')
-        cdef_running.append('+')
-        cdef_waiting.append('+')
+#    for i in range(count-1):
+#        cdef_total.append('+')
+#        cdef_running.append('+')
+#        cdef_waiting.append('+')
     graph_cmd += \
         ' CDEF:total=%s'   %(','.join(cdef_total)) +\
         ' CDEF:running=%s' %(','.join(cdef_running)) +\
