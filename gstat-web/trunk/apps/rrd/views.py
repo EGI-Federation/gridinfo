@@ -216,6 +216,9 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
     label = "GB"
     graph_cmd = rrdgraph_cmd_options(start_time, title, label, small)
 
+    datasources = {'online':   ['totalonlinesize', 'usedonlinesize'],
+                   'nearline': ['totalnearlinesize', 'usednearlinesize']}
+
     cdef_total = []
     cdef_used = []
     count = 0
@@ -225,11 +228,12 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
         vname_used  = 'u_%s' %(count)
         cdef_total.append(vname_total)
         cdef_used.append(vname_used)
-        rrd_file_total = '%s/%s/total%ssize.rrd' %(rrd_dir, uniqueid, attribute)
-        rrd_file_used = '%s/%s/used%ssize.rrd' %(rrd_dir, uniqueid, attribute)            
+        rrd_file = '%s/%s/%s.rrd' %(rrd_dir, uniqueid, attribute)
+        #rrd_file_total = '%s/%s/total%ssize.rrd' %(rrd_dir, uniqueid, attribute)
+        #rrd_file_used = '%s/%s/used%ssize.rrd' %(rrd_dir, uniqueid, attribute)            
         graph_cmd += \
-        ' DEF:%s="%s":total%ssize:AVERAGE' %(vname_total, rrd_file_total, attribute)+\
-        ' DEF:%s="%s":used%ssize:AVERAGE' %(vname_used, rrd_file_used, attribute)
+        ' DEF:%s="%s":%s:AVERAGE' %(vname_total, rrd_file, datasources[attribute][0])+\
+        ' DEF:%s="%s":%s:AVERAGE' %(vname_used, rrd_file, datasources[attribute][1])
     for i in range(count-1):
         cdef_total.append('+')
         cdef_used.append('+')
@@ -278,6 +282,8 @@ def cpu_graph_cmd(uniqueids, start_time, site_name='', small=False):
     label = "CPU"  
     graph_cmd = rrdgraph_cmd_options(start_time, title, label, small)
 
+    datasources = {'cpu':   ['physicalcpus', 'logicalcpus']}
+
     cdef_physical = []
     cdef_logical = []
     count = 0
@@ -289,11 +295,12 @@ def cpu_graph_cmd(uniqueids, start_time, site_name='', small=False):
         vname_logical  = 'l_%s' %(count)
         cdef_physical.append(vname_physical)
         cdef_logical.append(vname_logical)
-        rrd_file_physical = '%s/%s/physicalcpus.rrd' %(rrd_dir, uniqueid)
-        rrd_file_logical = '%s/%s/logicalcpus.rrd' %(rrd_dir, uniqueid)            
+        rrd_file = '%s/%s/%s.rrd' %(rrd_dir, uniqueid, 'cpu')
+        #rrd_file_physical = '%s/%s/physicalcpus.rrd' %(rrd_dir, uniqueid)
+        #rrd_file_logical = '%s/%s/logicalcpus.rrd' %(rrd_dir, uniqueid)            
         graph_cmd += \
-        ' DEF:%s="%s":physicalcpus:AVERAGE' %(vname_physical, rrd_file_physical)+\
-        ' DEF:%s="%s":logicalcpus:AVERAGE' %(vname_logical, rrd_file_logical)
+        ' DEF:%s="%s":%s:AVERAGE' %(vname_physical, rrd_file, datasources['cpu'][0])+\
+        ' DEF:%s="%s":%s:AVERAGE' %(vname_logical, rrd_file, datasources['cpu'][1])
     for i in range(count-1):
         cdef_physical.append('+')
         cdef_logical.append('+')
@@ -383,6 +390,8 @@ def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
     label = "Jobs"
     graph_cmd = rrdgraph_cmd_options(start_time, title, label, small)
 
+    datasources = {'job':   ['totaljobs', 'runningjobs', 'waitingjobs']}
+
     cdef_total = []
     cdef_running = []
     cdef_waiting = []
@@ -397,13 +406,14 @@ def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
             cdef_total.append(vname_total)
             cdef_running.append(vname_running)
             cdef_waiting.append(vname_waiting)
-            rrd_file_total   = '%s/%s/%s/totaljobs.rrd'   %(rrd_dir, vo, cluster)
-            rrd_file_running = '%s/%s/%s/runningjobs.rrd' %(rrd_dir, vo, cluster)
-            rrd_file_waiting = '%s/%s/%s/waitingjobs.rrd' %(rrd_dir, vo, cluster)
+            rrd_file = '%s/%s/%s/%s.rrd'   %(rrd_dir, vo, cluster, 'job')
+            #rrd_file_total   = '%s/%s/%s/totaljobs.rrd'   %(rrd_dir, vo, cluster)
+            #rrd_file_running = '%s/%s/%s/runningjobs.rrd' %(rrd_dir, vo, cluster)
+            #rrd_file_waiting = '%s/%s/%s/waitingjobs.rrd' %(rrd_dir, vo, cluster)
             graph_cmd += \
-            ' DEF:%s="%s":totaljobs:AVERAGE'   %(vname_total,   rrd_file_total) +\
-            ' DEF:%s="%s":runningjobs:AVERAGE' %(vname_running, rrd_file_running) +\
-            ' DEF:%s="%s":waitingjobs:AVERAGE' %(vname_waiting, rrd_file_waiting)
+            ' DEF:%s="%s":%s:AVERAGE' %(vname_total,   rrd_file, datasources['job'][0]) +\
+            ' DEF:%s="%s":%s:AVERAGE' %(vname_running, rrd_file, datasources['job'][1]) +\
+            ' DEF:%s="%s":%s:AVERAGE' %(vname_waiting, rrd_file, datasources['job'][2])
     for i in range(queue_count-1):
         cdef_total.append('+')
         cdef_running.append('+')
