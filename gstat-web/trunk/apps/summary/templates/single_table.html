@@ -13,7 +13,6 @@
 {% endblock %}
 
 {% block scripts-add %}
-<script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.dataTables.js"></script>
 <script type="text/javascript" src="/media/core/scripts/ZeroClipboard.js"></script>
 <script type="text/javascript" src="/media/core/scripts/TableTools.js"></script>
@@ -27,27 +26,42 @@ $(document).ready(function() {
     if (url.split("/").length == 2) $('#sites_or_status').text('Monitoring Status');
     else $('#sites_or_status').text('Sites'); 
     
-    var type = "";
-    var value = "";
-    var url = document.URL;
-    if (url.split("/gstat/summary/")[1].length == 0) {
-      type = "GRID";
-      value = "ALL";
-    } else {
-      if (url[url.length-1] == '/') url = url.slice(0,length-1);
-      if (url.split("/gstat/summary/")[1].split("/").length == 1) {
-        type = url.split("/gstat/summary/")[1].split("/");
-        value = "ALL";
-      } else if (url.split("/gstat/summary/")[1].split("/").length == 2){
-        type = url.split("/gstat/summary/")[1].split("/")[0];
-        value = url.split("/gstat/summary/")[1].split("/")[1];
-      } 
+    //var type = "";
+    //var value = "";
+    //var url = document.URL;
+    //if (url.split("/gstat/summary/")[1].length == 0) {
+    //  type = "GRID";
+    //  value = "ALL";
+    //} else {
+    //  if (url[url.length-1] == '/') url = url.slice(0,length-1);
+    //  if (url.split("/gstat/summary/")[1].split("/").length == 1) {
+    //    type = url.split("/gstat/summary/")[1].split("/");
+    //    value = "ALL";
+    //  } else if (url.split("/gstat/summary/")[1].split("/").length == 2){
+    //    type = url.split("/gstat/summary/")[1].split("/")[0];
+    //    value = url.split("/gstat/summary/")[1].split("/")[1];
+    //  } 
+    //}
+    
+    filtertype = document.getElementById('filtertype')
+    filtertype.value = "{{ type }}";
+    try {
+        loadJSONDoc("/gstat/core/filter/" + "{{ type }}");
     }
+    catch(e) {
+        var msg = (typeof e == "string") ? e : ((e.message) ? e.message : "Unknown Error");
+        alert("Unable to get JSON data:\n" + msg);
+        return;
+    }
+    filtervalue = document.getElementById('filtervalue')
+    filtervalue.value = "{{ value }}";
+
     
-    $("#filtertype :selected").val(decodeURIComponent(type));
-    $("#filtervalue :selected").val(decodeURIComponent(value));
-    changeFilterValue();
     
+    //$("#filtertype :selected").val(decodeURIComponent(type));
+    //$("#filtervalue :selected").val(decodeURIComponent(value));
+    loadTable();
+
 /*    $('#single_table').dataTable({
         "bProcessing": true, 
         "iDisplayLength": 25, 
@@ -160,6 +174,7 @@ $(document).ready(function() {
     });
 */    
 })
+
 
 
 </script>
