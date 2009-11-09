@@ -223,6 +223,9 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
     cdef_used = []
     count = 0
     for uniqueid in uniqueids:
+        rrd_file = '%s/%s/%s.rrd' %(rrd_dir, uniqueid, attribute)
+        if(not os.path.exists(rrd_file)):
+            continue
         count += 1
         vname_total = 't_%s' %(count)
         vname_used  = 'u_%s' %(count)
@@ -235,7 +238,7 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
         if count != 1:
             cdef_total.append('+')
             cdef_used.append('+')
-        rrd_file = '%s/%s/%s.rrd' %(rrd_dir, uniqueid, attribute)
+        
 #        rrd_file_total = '%s/%s/total%ssize.rrd' %(rrd_dir, uniqueid, attribute)
 #        rrd_file_used = '%s/%s/used%ssize.rrd' %(rrd_dir, uniqueid, attribute)            
         graph_cmd += \
@@ -297,6 +300,9 @@ def cpu_graph_cmd(uniqueids, start_time, site_name='', small=False):
     for uniqueid in uniqueids:
         # rrdtool does not like the same variable name
         # rrdtool only allows variable names up to 19 characters
+        rrd_file = '%s/%s/%s.rrd' %(rrd_dir, uniqueid, 'cpu')
+        if(not os.path.exists(rrd_file)):
+            continue
         count += 1
         vname_physical = 'p_%s' %(count)
         vname_logical  = 'l_%s' %(count)
@@ -311,7 +317,7 @@ def cpu_graph_cmd(uniqueids, start_time, site_name='', small=False):
             cdef_logical.append('+')
 #        cdef_physical.append(vname_physical)
 #        cdef_logical.append(vname_logical)
-        rrd_file = '%s/%s/%s.rrd' %(rrd_dir, uniqueid, 'cpu')
+        
         #rrd_file_physical = '%s/%s/physicalcpus.rrd' %(rrd_dir, uniqueid)
         #rrd_file_logical = '%s/%s/logicalcpus.rrd' %(rrd_dir, uniqueid)            
         graph_cmd += \
@@ -415,6 +421,9 @@ def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
     for vo in queue_dict.keys():
         clusters = queue_dict[vo]
         for cluster in clusters:
+            rrd_file = '%s/%s/%s/%s.rrd'   %(rrd_dir, vo, cluster, 'job')
+            if(not os.path.exists(rrd_file)):
+                continue
             count += 1
             vname_total   = 't_%s' %(count)
             vname_running = 'r_%s' %(count)
@@ -434,7 +443,7 @@ def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
 #            cdef_total.append(vname_total)
 #            cdef_running.append(vname_running)
 #            cdef_waiting.append(vname_waiting)
-            rrd_file = '%s/%s/%s/%s.rrd'   %(rrd_dir, vo, cluster, 'job')
+            
             #rrd_file_total   = '%s/%s/%s/totaljobs.rrd'   %(rrd_dir, vo, cluster)
             #rrd_file_running = '%s/%s/%s/runningjobs.rrd' %(rrd_dir, vo, cluster)
             #rrd_file_waiting = '%s/%s/%s/waitingjobs.rrd' %(rrd_dir, vo, cluster)
