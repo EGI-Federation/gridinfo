@@ -50,7 +50,7 @@ def createDir(dir_path):
     if (not os.path.exists(dir_path)):
         os.makedirs(dir_path)
             
-def createArchive(archive_dir, archive_path, archive_type, archive_period, data_name):
+def createArchive(archive_dir, archive_path, archive_type, archive_period, data_names):
     """If archive is not present, create new RRD archive
 
     Name of archive is: rrd/node_type/node_uniqueid/dataname.rrd
@@ -67,8 +67,11 @@ def createArchive(archive_dir, archive_path, archive_type, archive_period, data_
 
     # check if archive exists. if not, create
     if(not os.path.exists(archive_path)):
-        create_cmd = "rrdtool create %s" % (archive_path)+\
-            " DS:%s:%s:%s:U:U" % (data_name, archive_type, archive_period*2)+\
+        create_cmd = "rrdtool create %s" % (archive_path)
+        for data_name in data_names:
+            create_cmd += \
+            " DS:%s:%s:%s:U:U" % (data_name, archive_type, archive_period*2)
+        create_cmd += \
             " RRA:AVERAGE:0.5:1:1000"+\
             " RRA:AVERAGE:0.5:6:1000"+\
             " RRA:AVERAGE:0.5:24:1000"+\
@@ -77,13 +80,17 @@ def createArchive(archive_dir, archive_path, archive_type, archive_period, data_
         os.system(create_cmd)
         #print "create RRD: "+create_cmd+"\nResults: "+query_res
 
-def archiveData(archive_path, det_data):
+def archiveData(archive_path, data_list):
     """Archives data for long term storage
 
     """
 
     # update archive with detailed data
-    update_cmd = "rrdtool update %s N:%s" %(archive_path,det_data)
+    # CAUTION! make sure how many datasources they have in their database, 
+    # and in what order these were defined
+    update_cmd = "rrdtool update %s N" %(archive_path)
+    for data in data_list:
+        update_cmd += ":%s" %(data)
     os.system(update_cmd)
     #print "updated RRD: "+update_cmd+"\nResults: "+query_res
 
@@ -100,26 +107,29 @@ for obj in objects:
     if (not distinct.has_key(obj.uniqueid)):
         obj_unique_data_dir = '%s/%s' %(sub_data_dir, str(obj.uniqueid).replace('/',''))
         
-        for attr in ['totalonlinesize',
-                     'usedonlinesize',
-                     'totalnearlinesize',
-                     'usednearlinesize']:
-            obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, attr)
+        datasources = {'online':   ['totalonlinesize', 'usedonlinesize'],
+                       'nearline': ['totalnearlinesize', 'usednearlinesize']}
+        
+        for key in datasources.keys():
+            obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, key)
             
             # Create RRD file
             createArchive(archive_dir    = obj_unique_data_dir, 
                           archive_path   = obj_data_file, 
                           archive_type   = 'GAUGE', 
                           archive_period = 600, 
-                          data_name      = attr)
+                          data_names     = datasources[key])
         
             # Store RRD data
-            data = obj.__getattribute__(attr)
-            if (data == "unset" or data == ""):
-                data = "0"
+            data_list = []
+            for attr in datasources[key]:
+                data = obj.__getattribute__(attr)
+                if (data == "unset" or data == ""):
+                    data = "0"
+                data_list.append(data)
             #print obj_data_file, data
             archiveData(archive_path = obj_data_file, 
-                        det_data     = data)
+                        data_list    = data_list)
             distinct[obj.uniqueid] = None
             
 # ------------------------------------------
@@ -134,24 +144,28 @@ for obj in objects:
     if (not distinct.has_key(obj.uniqueid)):
         obj_unique_data_dir = '%s/%s' %(sub_data_dir, str(obj.uniqueid).replace('/',''))
         
-        for attr in ['physicalcpus',
-                     'logicalcpus']:
-            obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, attr)
+        datasources = {'cpu':   ['physicalcpus', 'logicalcpus']}
+        
+        for key in datasources.keys():
+            obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, key)
             
             # Create RRD file
             createArchive(archive_dir    = obj_unique_data_dir, 
                           archive_path   = obj_data_file, 
                           archive_type   = 'GAUGE', 
                           archive_period = 600, 
-                          data_name      = attr)
+                          data_names     = datasources[key])
         
             # Store RRD data
-            data = obj.__getattribute__(attr)
-            if (data == "unset" or data == ""):
-                data = "0"
+            data_list = []
+            for attr in datasources[key]:
+                data = obj.__getattribute__(attr)
+                if (data == "unset" or data == ""):
+                    data = "0"
+                data_list.append(data)
             #print obj_data_file, data
             archiveData(archive_path = obj_data_file, 
-                        det_data     = data)
+                        data_list    = data_list)            
             distinct[obj.uniqueid] = None
 
 
@@ -176,28 +190,31 @@ for obj in objects:
         obj_unique_data_dir = '%s/%s/%s' %(sub_data_dir, 
                                            str(obj.localid).replace('/',''), 
                                            str(glueces[obj.gluece_fk]).replace('/',''))
-    
-        for attr in ['runningjobs', 
-                     'totaljobs', 
-                     'waitingjobs']:
-            obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, attr)
+        
+        datasources = {'job':   ['totaljobs', 'runningjobs', 'waitingjobs']}
+        
+        for key in datasources.keys():
+            obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, key)
             
             # Create RRD file
             createArchive(archive_dir    = obj_unique_data_dir, 
                           archive_path   = obj_data_file, 
                           archive_type   = 'GAUGE', 
                           archive_period = 600, 
-                          data_name      = attr)
+                          data_names     = datasources[key])
         
             # Store RRD data
-            data = obj.__getattribute__(attr)
-            if (attr == "waitingjobs" and data == "444444"):
-                data = "0"
-            if (data == "unset" or data == ""):
-                data = "0"
+            data_list = []
+            for attr in datasources[key]:
+                data = obj.__getattribute__(attr)
+                if (attr == "waitingjobs" and data == "444444"):
+                    data = "0"
+                if (data == "unset" or data == ""):
+                    data = "0"
+                data_list.append(data)
             #print obj_data_file, data
             archiveData(archive_path = obj_data_file, 
-                        det_data     = data)
+                        data_list    = data_list)
             #print "%s: %s, %s = %s" %(glueces[obj.gluece_fk], obj.localid, attr, obj.__getattribute__(attr)) 
     except KeyError:
         pass
