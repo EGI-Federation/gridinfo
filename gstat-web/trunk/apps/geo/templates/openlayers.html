@@ -1,5 +1,7 @@
 {%extends "base_gstat.html"%}
 
+{% block title %}GStat 2.0 - Geo View{% endblock %}
+
 {% block breadcrumbs %}<a href="/gstat/">Home</a> :: <a href="/gstat/geo">Geo</a>{% endblock %}
 
 {% block css-add %}
@@ -114,25 +116,21 @@
     </script>
     <script type="text/javascript">
     /*<![CDATA[*/
+        function changeURL(event) {
+            var filtertype = document.getElementById('filtertype');
+            var filtervalue = document.getElementById('filtervalue');
+            var value = event.value.substring(1, event.value.length);
+            var slashpos = value.search("/");
+            filtertype.value = value.substring(0, slashpos);
+            changeFilterType(event);
+            filtervalue.value = value.substring(slashpos+1, value.length);
+            changeFilterValue(event);        
+        }
         // Address handler
         $.address.init(function(event) {
-            var filtertype = document.getElementById('filtertype');
-            var filtervalue = document.getElementById('filtervalue');
-            var value = event.value.substring(1, event.value.length);
-            var slashpos = value.search("/");
-            filtertype.value = value.substring(0, slashpos);
-            changeFilterType(event);
-            filtervalue.value = value.substring(slashpos+1, value.length);
-            changeFilterValue(event);
+            if (event.value != '/') changeURL(event);
         }).change(function(event) {
-            var filtertype = document.getElementById('filtertype');
-            var filtervalue = document.getElementById('filtervalue');
-            var value = event.value.substring(1, event.value.length);
-            var slashpos = value.search("/");
-            filtertype.value = value.substring(0, slashpos);
-            changeFilterType(event);
-            filtervalue.value = value.substring(slashpos+1, value.length);
-            changeFilterValue(event);
+			if (event.value != '/') changeURL(event);
         });
     /*]]>*/      
     </script>
