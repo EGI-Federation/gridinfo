@@ -69,7 +69,14 @@ jQuery.fn.dataTableExt.oSort['status-desc'] = function(a,b) {
 function changeFilterValue(event) {
     filtertype = document.getElementById('filtertype');
     filtervalue = document.getElementById('filtervalue');
+    window.location.href = '/gstat/summary/' + filtertype.value + '/' + filtervalue.value;
+}
 
+
+function loadTable(event) {
+    filtertype = document.getElementById('filtertype');
+    filtervalue = document.getElementById('filtervalue');
+    
     var oTable;
     var theads = $('#single_table > thead');
     $('#TableContainer').html('<table cellpadding="0" cellspacing="1" border="0" class="display" id="single_table"><thead>'+theads.html()+'</thead><tbody></tbody><tfoot><tr><th>Total</th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr></tfoot></table>');
@@ -208,7 +215,11 @@ function changeFilterValue(event) {
     else $('#sites_or_status').text('Monitoring Status');
     
     if (!event) 
-      setTimeout('changeFilterValue();',300000); //Reload Ajax every 5 minutes
+      setTimeout('loadTable();',300000); //Reload Ajax every 5 minutes
+    //else
+    //  $(document).ready(function() {window.location.href = '/gstat/summary/'+ filtertype.value + '/' + filtervalue.value;return true;});
+
+
 }
 
 

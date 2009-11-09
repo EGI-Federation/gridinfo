@@ -9,7 +9,7 @@ from topology.models import Entity
 from topology.models import Entityrelationship
 from core.utils import *
 
-def main(request, type='GRID', value=None, output=None):
+def main(request, type='GRID', value='ALL', output=None):
     predicate = {'GRID'     : 'SiteGrid', 
                  'EGEE_ROC' : 'SiteEgeeRoc', 
                  'WLCG_TIER': 'SiteWlcgTier',
@@ -17,7 +17,7 @@ def main(request, type='GRID', value=None, output=None):
 
     data = []
     
-    if (value == "ALL" or value == None):
+    if (value == "ALL"):
         # group list, ex: list of grid, list of roc, list of country
         groups = getEntitiesByType(type)
         for group in groups:
@@ -43,6 +43,8 @@ def main(request, type='GRID', value=None, output=None):
 
         return render_to_response('single_table.html', {'summary_active'  : 1,
                                                         'breadcrumbs_list': breadcrumbs_list,
+                                                        'type'            : type,
+                                                        'value'           : value,
                                                         'filters_enabled' : True})
 def get_data_for_sites(site_list, get_status=False):
     data = []
