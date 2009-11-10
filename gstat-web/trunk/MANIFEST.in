@@ -33,4 +33,6 @@ include apps/rrd/templates/*.html
 include apps/service/templates/*.html
 include apps/stats/templates/*.html
 include apps/summary/templates/*.html
+include tools/packer/*
+include tools/packer/base2/*
 
