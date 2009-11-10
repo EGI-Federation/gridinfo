@@ -39,7 +39,6 @@ python setup.py build
 
 %install
 python setup.py install --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
-echo $RPM_BUILD_ROOT
 tools/packer/minification.sh $RPM_BUILD_ROOT/usr/
 mv %{buildroot}/usr/share/gstat/manage.py %{buildroot}/usr/share/gstat/manage
 sed -i 's/manage.py/manage/' INSTALLED_FILES
