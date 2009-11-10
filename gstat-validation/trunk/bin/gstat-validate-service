@@ -14,8 +14,8 @@ error_messages= {
    }
 
 #Define the service types
-service_types = { 'org.glite.wms.WMProxy' : 'WMS', 'SRM' : 'SRM', 'CE': 'CE'}
-goc_service_types = { 'WMS' : 'org.glite.wms.WMProxy', 'SRM' : 'SRM', 'CE' : 'CE' }
+service_types = { 'org.glite.wms.WMProxy' : 'WMS', 'SRM' : 'SRM', 'CE': 'CE', 'org.glite.ce.CREAM' : 'CE' }
+goc_service_types = { 'WMS' : 'org.glite.wms.WMProxy', 'SRM' : 'SRM', 'CE' : 'CE', 'CREAM-CE' : 'CE'}
    
 # Create and XML parser for the GOC DB
 class GOCHandler(xml.sax.handler.ContentHandler):
@@ -168,8 +168,14 @@ if __name__ == "__main__":
       parser.setContentHandler(handler)
       parser.parse(urllib2.urlopen(url + site))
       goc_services[site.lower()] = handler.mapping
-
-
+      for site in goc_services:
+         for host in goc_services[site]:
+            try:
+               index = goc_services[site][host].index('CREAM-CE')
+               goc_services[site][host][index]= 'CE'
+            except ValueError:
+               pass
+         
 # Check to see if Services are published
 for site in services.keys():
    if goc_services.has_key(site):
@@ -189,7 +195,6 @@ for site in goc_services.keys():
                goc_services[site][host].index(service)
             except:
                my_errors.log(service + "_" + host,'service.published', 'The Service %s on %s is not registered in the GOC DB.' %(service, host), site)
-
 gsutils.do_output(my_errors,config)   
 gsutils.do_exit(my_errors)   
             
