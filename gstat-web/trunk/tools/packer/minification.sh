@@ -51,6 +51,7 @@ SRC=${1%/}
 ORIGSIZE=`du -s -b $SRC |awk '{print $1}'`
 echo "Original directory size: $ORIGSIZE"
 
+
 # Minification process
 echo -n "Minification process started..."
 for File in `find $SRC -iname *.js`; do
