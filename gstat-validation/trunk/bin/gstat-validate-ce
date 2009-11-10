@@ -276,10 +276,17 @@ def test_SubCluster_ProcessorOtherDescription(key,entry):
                        'Cores not defined', gsutils.get_site(key))
       else:
          cores = cores[index +1:]
-         if (float(cores) <= 0):
+         try:
+            if (float(cores) <= 0):
+               my_errors.log(gsutils.get_unique_id(key),
+                             'SubCluster.OtherDescription.Benchmark',
+                             'Number of Cores <= 0', gsutils.get_site(key))
+         except ValueError:
+            description = 'Cores is set to value %s' % (cores) 
             my_errors.log(gsutils.get_unique_id(key),
-                          'SubCluster.OtherDescription.Benchmark',
-                          'Number of Cores <= 0', gsutils.get_site(key))
+                       'SubCluster.OtherDescription.Cores',
+                       description, gsutils.get_site(key))
+
          if ( benchmark ):
             index  = benchmark.find('=')
          if ( not index > -1 ):
