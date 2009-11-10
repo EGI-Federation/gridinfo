@@ -318,7 +318,7 @@ def test_SubCluster_ProcessorOtherDescription(key,entry):
          details = "Cores * PhysicalCPUs != LogicalCPUs"
          my_errors.log(key, "gstat.value.error", details, gsutils.get_site(key))
    except Exception, e:
-      details = "Could not calculate Logical CPUs %s" %str(e)
+      details = "Could not calculate Logical CPUs as a value was incorrect"
       my_errors.log(key, "gstat.value.error", details, gsutils.get_site(key))
 
 def test_ACBR(key,entry,attribute,type):
