@@ -61,7 +61,7 @@ for File in `find $SRC -iname *.js`; do
 done
 echo -n "......"
 for File in `find $SRC -iname *.css`; do
-  php csspack.php $File > $File
+  php csspack.php $File
 done
 echo "end!"
 
