@@ -30,6 +30,8 @@ function quit {
 PATH='/usr/local/bin:/usr/bin:/bin'
 VERSION='0.3'
 STARTTIME=`date +%s`
+ORIGINALDIR=`pwd`
+cd `dirname $0`
 
 # Welcome message
 echo "Welcome to Minification v$VERSION by David Horat"
@@ -71,6 +73,7 @@ PERSIZE=$[$DIFSIZE * 100 / $ORIGSIZE]
 echo "Improved overall: $PERSIZE%"
 
 # Bye messages
+cd $ORIGINALDIR
 RUNTIME=$[`date +%s` - $STARTTIME]
 echo "Runtime: $RUNTIME seconds"
 echo "Finished!"
