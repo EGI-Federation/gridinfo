@@ -60,8 +60,9 @@ for File in `find $SRC -iname *.js`; do
   php pack.php $File -esp > $File
 done
 echo -n "......"
-# No CSS minification at the moment
-#find $SRC -iname *.css -exec java -jar $YUIJAR --type css -o {} {} \;
+for File in `find $SRC -iname *.css`; do
+  php csspack.php $File > $File
+done
 echo "end!"
 
 # Final directory size and statistics
