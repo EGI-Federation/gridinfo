@@ -179,11 +179,6 @@ def test_SE_Architecture(key,entry):
       my_errors.log(gsutils.get_unique_id(key),'SE.Architecture.Value', 'Value %s is not an allowed value.' %
                     ( entry['GlueSEArchitecture'][0] ), gsutils.get_site(key) )
 
-   if (entry['GlueSEArchitecture'][0] not in
-            ("disk", "other")):
-      my_errors.log(gsutils.get_unique_id(key),'SE.Architecture.Value', 'Value %s is disk or other - probably wrong.' %
-                    ( entry['GlueSEArchitecture'][0] ), gsutils.get_site(key) )
-
 def test_SE_ForeignKey(key,entry):
    logging.debug("Testing SE for %s" %(entry['GlueForeignKey'][0]) )
 
