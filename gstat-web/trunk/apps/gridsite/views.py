@@ -34,8 +34,11 @@ def overview(request, site_name):
         if service.type == 'bdii_site': sitebdii_list.append(service)
         if service.type == 'CE':        ce_list.append(service)
         if service.type == 'SE':        se_list.append(service)
-    last_update = time.mktime(time.strptime(str(site_entity.updated_at), "%Y-%m-%d %H:%M:%S"))
-    minutes_ago = int((time.mktime(time.localtime()) - time.mktime(time.strptime(str(site_entity.updated_at), "%Y-%m-%d %H:%M:%S")))/60)
+    last_update = 0
+    minutes_ago = 0
+    if site_entity:
+        last_update = time.mktime(time.strptime(str(site_entity.updated_at), "%Y-%m-%d %H:%M:%S"))
+        minutes_ago = int((time.mktime(time.localtime()) - time.mktime(time.strptime(str(site_entity.updated_at), "%Y-%m-%d %H:%M:%S")))/60)
     
     # Count the numbers of entities
     count_dict             = {}

@@ -183,8 +183,61 @@ for obj in objects:
     if ( not glueces.has_key(obj.uniqueid) ):
          glueces[obj.uniqueid] = obj.gluecluster_fk
 
+
 # We will make an assumption that localid=VO/Role
 objects = getGlueEntity('gluevoview', all=True)
+
+datasources = {'job':   ['totaljobs', 'runningjobs', 'waitingjobs']}
+jobs = {}
+for obj in objects:
+    key = (str(obj.localid), str(glueces[obj.gluece_fk]))
+    if key not in jobs.keys():
+        jobs[key] = {}
+        for attr in datasources['job']:
+            data = obj.__getattribute__(attr)
+            if (attr == "waitingjobs" and data == "444444"):
+                data = "0"
+            if (data == "unset" or data == ""):
+                data = "0"
+            jobs[key][attr] = convertToInteger(data)
+    else:
+        for attr in datasources['job']:
+            data = obj.__getattribute__(attr)
+            if (attr == "waitingjobs" and data == "444444"):
+                data = "0"
+            if (data == "unset" or data == ""):
+                data = "0"
+            jobs[key][attr] += convertToInteger(data)        
+        
+for jobskey in jobs.keys():
+    try:
+        obj_unique_data_dir = '%s/%s/%s' %(sub_data_dir, 
+                                           str(jobskey[0]).replace('/',''), 
+                                           str(jobskey[1]).replace('/',''))
+        for key in datasources.keys():
+            obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, key)
+            
+            # Create RRD file
+            createArchive(archive_dir    = obj_unique_data_dir, 
+                          archive_path   = obj_data_file, 
+                          archive_type   = 'GAUGE', 
+                          archive_period = 600, 
+                          data_names     = datasources[key])
+        
+            # Store RRD data
+            data_list = []
+            for attr in datasources[key]:
+                data = jobs[jobskey][attr]
+                data_list.append(data)
+            #print obj_data_file, data
+            archiveData(archive_path = obj_data_file, 
+                        data_list    = data_list)   
+    except KeyError:
+        pass
+        #print "No mapping found"
+
+
+"""
 for obj in objects:
     try:
         obj_unique_data_dir = '%s/%s/%s' %(sub_data_dir, 
@@ -219,5 +272,5 @@ for obj in objects:
     except KeyError:
         pass
         #print "No mapping found"
-
+"""
 
