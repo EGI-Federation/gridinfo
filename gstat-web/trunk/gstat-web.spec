@@ -10,6 +10,7 @@ Prefix: %{_prefix}
 BuildArchitectures: noarch
 Vendor: Laurence Field <Laurence.Field@cern.ch>, David Horat <David.Horat@cern.ch>, Joanna Huang <joanna@twgrid.org>
 Url: https://svnweb.cern.ch/trac/gridinfo/wiki#GStat
+BuildRequires: php
 Requires: gstat-validation
 Requires: glite-yaim-nagios
 Requires: grid-monitoring-probes-org.bdii
@@ -38,11 +39,14 @@ python setup.py build
 
 %install
 python setup.py install --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
+echo $RPM_BUILD_ROOT
+tools/packer/minification.sh $RPM_BUILD_ROOT/usr/
 mv %{buildroot}/usr/share/gstat/manage.py %{buildroot}/usr/share/gstat/manage
 sed -i 's/manage.py/manage/' INSTALLED_FILES
 chmod +x %{buildroot}/usr/share/gstat/manage
 chmod +x %{buildroot}/usr/share/gstat/gstat.wsgi
 mkdir -p  %{buildroot}/var/log/gstat/
+
 
 %clean
 rm -rf $RPM_BUILD_ROOT

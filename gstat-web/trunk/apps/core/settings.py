@@ -94,7 +94,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-#    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = 'core.urls'
@@ -107,8 +107,6 @@ INSTALLED_APPS = (
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.sites',
-#    'django_extensions',
-    #'debug_toolbar'
     'core',
     'service',
     'stats',
@@ -119,16 +117,7 @@ INSTALLED_APPS = (
     'geo',
     'ldapbrowser',
     'rrd',
+    'debug_toolbar',
 )
 
 # Various apps available
-#DEBUG_TOOLBAR_PANELS = (
-#    'debug_toolbar.panels.version.VersionDebugPanel',
-#    'debug_toolbar.panels.timer.TimerDebugPanel',
-#    'debug_toolbar.panels.headers.HeaderDebugPanel',
-#    'debug_toolbar.panels.request_vars.RequestVarsDebugPanel',
-#    'debug_toolbar.panels.sql.SQLDebugPanel',
-#    'debug_toolbar.panels.cache.CacheDebugPanel',
-#    'debug_toolbar.panels.logger.LoggingPanel',
-#)
-
