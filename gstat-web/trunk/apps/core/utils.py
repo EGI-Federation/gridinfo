@@ -226,6 +226,7 @@ def getQueuesInSite(site_entity):
     ce_list = []
     for service in service_list:
         if service.type == 'CE': ce_list.append(service)
+    
     queue_list = [{'ce':er.subject, 'vo':er.object} for er in Entityrelationship.objects.filter(
                                                     predicate   = 'ServiceVO',
                                                     subject__in = ce_list)]
