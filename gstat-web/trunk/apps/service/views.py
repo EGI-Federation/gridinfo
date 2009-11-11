@@ -10,6 +10,9 @@ import gsutils
 import socket
 import sys
 
+nagios_status = getNagiosStatusDict()
+
+
 def main(request, type, output=None):
 
     if (output == 'json'):
@@ -79,7 +82,6 @@ def service(request, type, uniqueid):
         #The actual id given was a real host.
         hostname_list.append(hostname)
             
-    nagios_status = getNagiosStatusDict()
     status_list = []
     for hostname in hostname_list:
         if type == 'topbdii':
