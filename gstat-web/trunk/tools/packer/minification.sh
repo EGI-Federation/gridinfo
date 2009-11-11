@@ -57,7 +57,7 @@ echo "Original directory size: $ORIGSIZE"
 # Minification process
 echo -n "Minification process started..."
 for File in `find $SRC -iname *.js`; do
-  php pack.php $File > tmp.out 2> /dev/null
+  php pack.php $File -esp > tmp.out 2> /dev/null
   cp -f tmp.out $File
 done
 echo -n "......"
