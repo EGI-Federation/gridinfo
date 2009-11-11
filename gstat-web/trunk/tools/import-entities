@@ -265,19 +265,13 @@ for object in objects:
             vos[vo] = obj
         store_relationship(services[object.uniqueid], vos[vo], "ServiceVO")
 
-
 # Delete old objects
 if ( 'ttl' in config): 
     deadline = start_time - ( int(config['ttl']) * 3600 * 24 )
-    deadline = datetime.fromtimestamp(time.time())
-
-    tables={ 'Entity' : None,
-             'Entityrelationship' : None,
-             }
-    
-    # Process the rest of tables
+    deadline = datetime.fromtimestamp(deadline)
+    tables=[ 'Entity', 'Entityrelationship' ]
     for table_name in tables:
         inst = getattr(module, table_name)
         oldies = inst.objects.filter(updated_at__lt = deadline)
         for row in oldies:
-            row.delete()            
+            row.delete()    
