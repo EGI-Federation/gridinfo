@@ -1,0 +1,277 @@
+#!/usr/bin/python
+##############################################################################
+# Copyright (c) Members of the EGEE Collaboration. 2004.
+# See http://www.eu-egee.org/partners/ for details on the copyright
+# holders.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at #
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS
+# OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+#
+# NAME :        import-entites
+
+# DESCRIPTION : This creates a topology model from the snapshot DB.
+#
+# AUTHORS :     Laurence.Field@cern.ch
+#               David.Horat@cern.ch
+#
+#
+##############################################################################
+
+import os
+import re
+import sys
+import getopt
+import string
+import logging
+import time
+from datetime import datetime
+
+DIR = os.path.dirname(__file__)
+APPS_DIR = os.path.join(DIR, '..','apps')
+sys.path.append(APPS_DIR)
+os.environ['DJANGO_SETTINGS_MODULE']='core.settings'
+from topology.models import Entity
+from topology.models import Entityrelationship
+from glue.models import glueservice
+from glue.models import gluecluster
+from glue.models import gluese
+from glue.models import gluece
+from glue.models import gluesite
+from glue.models import gluemultivalued
+
+modulename='topology.models'
+__import__(modulename)
+module=sys.modules[modulename]
+
+# Funtion to print out the usage to the log
+def usage():
+    sys.stderr.write('Usage: %s [OPTIONS]\n' % (sys.argv[0]))
+    sys.stderr.write('''
+
+Options:
+-t --ttl       Remove entries older than the ttl from the topology [day]
+
+''')
+    
+# Parse input parameters using getopt and assign to config hash
+config={}
+config['debug'] = 0
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "t:d:h", ["ttl","help"])
+except getopt.GetoptError:
+    sys.stderr.write("Error: Invalid option specified.\n")
+    usage()
+    sys.exit(2)
+for o, a in opts:
+    if o in ("-h", "--help"):
+        usage()
+        sys.exit(0)
+    if o in ("-t", "--ttl"):
+        config['ttl'] = a
+
+if ( 'ttl' in config ):
+    try:
+        int(config['ttl'])
+    except:
+        sys.stderr.write("ttl should be the number of whole days.\n")
+        sys.exit(1)
+
+def store_entity(entity_id, entity_type, entity_hostname=None):
+    (subject, created) = Entity.objects.get_or_create(uniqueid=entity_id,
+                                                      type=entity_type, 
+                                                      hostname=entity_hostname,
+                                                      )
+    subject.save()
+    return subject
+
+def store_relationship(sub, obj, pred):
+    (ent_rel, created) = Entityrelationship.objects.get_or_create(subject=sub, 
+                                                             object=obj, 
+                                                             predicate=pred,
+                                                             )
+    ent_rel.save() 
+
+def get_hostname(UniqueID):
+    hostname=UniqueID
+    hostname=re.sub("^.*://","",hostname)
+    hostname=re.sub(":.*","",hostname)
+    hostname=re.sub("_[^_]*$","",hostname)
+    hostname=re.sub("^.*_","",hostname)
+    hostname=re.sub("/.*","",hostname)
+    return hostname
+
+start_time = time.time()
+
+# Dictionary of site unique ids and objects
+sites = {}
+
+# Get and store GlueSite Objects
+objects = gluesite.objects.all()
+for object in objects:
+    unique_id = object.name
+    type = "Site"
+    sub = store_entity(unique_id, type)
+    sites[unique_id] = sub
+
+    #Store country locations and relationships
+    location = object.location
+    country = location.split(',')[-1].strip()
+    type="Country"
+    obj = store_entity(country, type)
+    store_relationship(sub, obj, "SiteCountry")
+
+# Dictionary of service unique ids and objects
+services = {}    
+errors = {}
+
+# Get and store GlueService Objects
+objects = glueservice.objects.all()
+for object in objects:
+    unique_id = object.uniqueid
+    type = object.type
+    if ( type == 'bdii_site' or type == 'bdii_top'):
+        unique_id = object.endpoint
+    hostname=get_hostname(unique_id)
+    obj = store_entity(unique_id, type, hostname)
+    services[unique_id] = obj
+    
+    # Store Site Service relationship
+    if ( sites.has_key(object.gluesite_fk)):
+        #sub = store_entity(unique_id, "Site")
+        #sites[object.gluesite_fk] = sub
+        store_relationship(sites[object.gluesite_fk], obj, "SiteService")
+    else:
+        if( not errors.has_key(object.gluesite_fk)):
+            sys.stderr.write("Warning: No site found for for %s\n" % object.gluesite_fk)
+            errors[object.gluesite_fk] = None
+
+# Get and store GlueCluster Objects
+objects = gluecluster.objects.all()
+for object in objects:
+    unique_id = object.uniqueid
+    type = "CE"
+    hostname=get_hostname(unique_id)
+    obj = store_entity(unique_id, type, hostname)
+    services[unique_id] = obj
+    
+    # Store Site Service relationship
+    if ( sites.has_key(object.gluesite_fk)):
+        #sub = store_entity(unique_id, "Site")
+        #sites[object.gluesite_fk] = sub
+        store_relationship(sites[object.gluesite_fk], obj, "SiteService")
+    else:
+        if( not errors.has_key(object.gluesite_fk)):
+            sys.stderr.write("Warning: No site found for for %s\n" % object.gluesite_fk)
+            errors[object.gluesite_fk] = None
+
+# Get and store GlueSE Objects
+objects = gluese.objects.all()
+for object in objects:
+    unique_id = object.uniqueid
+    type = "SE"
+    hostname=get_hostname(unique_id)
+    obj = store_entity(unique_id, type, hostname)
+    services[unique_id] = obj
+    if ( sites.has_key(object.gluesite_fk)):
+        #sub = store_entity(unique_id, "Site")
+        #sites[object.gluesite_fk] = sub
+        store_relationship(sites[object.gluesite_fk], obj, "SiteService")
+    else:
+        if( not errors.has_key(object.gluesite_fk)):
+            sys.stderr.write("Warning: No site found for for %s\n" % object.gluesite_fk)
+            errors[object.gluesite_fk] = None
+
+# Get and store GlueSite objects and relationships
+objects=gluemultivalued.objects.filter(attribute='GlueSiteOtherInfo')
+for object in objects:
+    if ( not sites.has_key(object.uniqueid) ):
+        if( not errors.has_key(object.uniqueid)):
+            sys.stderr.write("Warning: No site found for for %s\n" % object.uniqueid)
+            errors[object.uniqueid] = None
+        continue
+    index=object.value.find("=")
+    if ( index > -1 ):
+        key=object.value[:index]
+        value=object.value[index + 1:]
+        if ( key == 'EGEE_ROC'):
+            obj = store_entity(value, key)
+            store_relationship(sites[object.uniqueid], obj, "SiteEgeeRoc")
+        if ( key == 'EGEE_SERVICE'):
+            obj = store_entity(value, key)
+            store_relationship(sites[object.uniqueid], obj, "SiteEgeeService")
+        if ( key == 'GRID'):
+            obj = store_entity(value, key)
+            store_relationship(sites[object.uniqueid], obj, "SiteGrid")
+        if ( key == 'WLCG_TIER'):
+            obj = store_entity(value, key)
+            store_relationship(sites[object.uniqueid], obj, "SiteWlcgTier")
+        if ( key == 'WLCG_PARENT'):
+            obj = store_entity(value, key)
+            store_relationship(sites[object.uniqueid], obj, "SiteWlcgParent")
+
+# Create CE to Cluster mapping
+glueces = {}
+objects = gluece.objects.all()
+for object in objects:
+    if ( not glueces.has_key(object.uniqueid) ):
+         glueces[object.uniqueid] = object.gluecluster_fk
+# Dictionary of VOs and objects 
+vos = {}
+clusters = {}
+errors={}
+objects=gluemultivalued.objects.filter(attribute='GlueCEAccessControlBaseRule')
+for object in objects:
+    if ( object.value[:3] == "VO:" ):
+        vo = object.value[3:]
+        if ( not vos.has_key(vo) ):
+            obj = store_entity(vo, 'VO')
+            vos[vo] = obj
+        try:
+            cluster = glueces[object.uniqueid]
+            if (clusters.has_key(cluster)):
+                try:
+                    clusters[cluster].index(vo)
+                except ValueError, e:
+                    store_relationship(services[cluster], vos[vo], "ServiceVO")
+                    clusters[cluster].append(vo)
+            else:
+                try: 
+                    store_relationship(services[cluster], vos[vo], "ServiceVO")
+                    clusters[cluster] = [vo]
+                except KeyError, e:
+                    if ( not errors.has_key(cluster)):
+                        sys.stderr.write("Warning: No service entry found for %s\n" % cluster)
+                        errors[cluster] = None
+        except KeyError, e:
+            if ( not errors.has_key(object.uniqueid)):
+                sys.stderr.write("Warning: No cluster found for for %s\n" % object.uniqueid)
+                errors[object.uniqueid] = None
+objects=gluemultivalued.objects.filter(attribute='GlueServiceAccessControlBaseRule')
+for object in objects:
+    if ( object.value[:3] == "VO:" ):
+        vo = object.value[3:]
+        if ( not vos.has_key(vo) ):
+            obj = store_entity(vo, 'VO')
+            vos[vo] = obj
+        store_relationship(services[object.uniqueid], vos[vo], "ServiceVO")
+
+# Delete old objects
+if ( 'ttl' in config): 
+    deadline = start_time - ( int(config['ttl']) * 3600 * 24 )
+    deadline = datetime.fromtimestamp(deadline)
+    tables=[ 'Entity', 'Entityrelationship' ]
+    for table_name in tables:
+        inst = getattr(module, table_name)
+        oldies = inst.objects.filter(updated_at__lt = deadline)
+        for row in oldies:
+            row.delete()    

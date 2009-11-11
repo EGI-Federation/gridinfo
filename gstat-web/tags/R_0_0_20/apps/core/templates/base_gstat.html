@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}GStat 2.0{% endblock %}
+{% block app-name %}GStat 2.0{% endblock %}
+{% block belt-darken-text %}<p> | <a href="https://gus.fzk.de/pages/ticket.php">GGUS</a> | <a href="/gstat/about">About</a> | </p>{% endblock %}
+{% block icon %}<link rel="icon" type="image/png" href="/media/core/icon/gstat-icon.png" />{% endblock %}
+
+{% block menu %}
+<div id="menu">
+    <ul>
+        <li><a{% if geo_active %} class="active"{% endif %} href="/gstat/geo">Geo View</a></li>
+        <li><a{% if ldapbrowser_active %} class="active"{% endif %} href="/gstat/ldap">LDAP View</a></li>
+        <li><a{% if summary_active %} class="active"{% endif %} href="/gstat/summary">Site Views</a></li>
+        <li><a{% if service_active %} class="active"{% endif %} href="/gstat/service/topbdii">Service View</a></li>
+        <li><a{% if stats_active %} class="active"{% endif %} href="/gstat/stats/GRID/WLCG">Stats</a></li>
+
+    </ul>
+</div>
+{% endblock %}
+
+{% block footer-text %}
+	<a href="http://cern.ch/">
+		<img src="/media/core/img/CERN_Logo_footer.gif" />
+	</a>
+	<a href="http://www.twgrid.org/">
+		<img src="/media/core/img/TWGrid_Logo_footer.jpg" />
+	</a>
+{% endblock %}
