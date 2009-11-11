@@ -41,7 +41,8 @@ def main(request, type, output=None):
 
 
         content = '{ "aaData": %s }' % (json.dumps(data))
-        return HttpResponse(content, mimetype='application/json')  
+#        return HttpResponse(content, mimetype='application/json')  
+        return render_to_response('single_table_service.html')  
     else:
         if (type == 'topbdii'):
             title = "Top BDII View"
