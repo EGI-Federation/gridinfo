@@ -20,7 +20,7 @@ def get_files(directory, install_base):
 media_files = get_files("media", "share/gstat")
 
 setup(name='gstat-web',
-      version='0.0.19',
+      version='0.0.20',
       py_modules=['gsutils'],
       package_dir = {'': 'apps'},
       scripts =['tools/configure-nagios',
