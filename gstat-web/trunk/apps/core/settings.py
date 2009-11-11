@@ -94,7 +94,7 @@ MIDDLEWARE_CLASSES = (
     'django.middleware.common.CommonMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
-#    'debug_toolbar.middleware.DebugToolbarMiddleware',
+    'debug_toolbar.middleware.DebugToolbarMiddleware',
 )
 
 ROOT_URLCONF = 'core.urls'
@@ -117,7 +117,7 @@ INSTALLED_APPS = (
     'geo',
     'ldapbrowser',
     'rrd',
-#    'debug_toolbar',
+    'debug_toolbar',
 )
 
 # Various apps available
