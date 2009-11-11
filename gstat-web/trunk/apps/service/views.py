@@ -10,9 +10,6 @@ import gsutils
 import socket
 import sys
 
-nagios_status = getNagiosStatusDict()
-
-
 def main(request, type, output=None):
 
     if (output == 'json'):
@@ -44,8 +41,7 @@ def main(request, type, output=None):
 
 
         content = '{ "aaData": %s }' % (json.dumps(data))
-#        return HttpResponse(content, mimetype='application/json')  
-        return render_to_response('single_table_service.html')  
+        return HttpResponse(content, mimetype='application/json')  
     else:
         if (type == 'topbdii'):
             title = "Top BDII View"
@@ -82,6 +78,7 @@ def service(request, type, uniqueid):
         #The actual id given was a real host.
         hostname_list.append(hostname)
             
+    nagios_status = getNagiosStatusDict()
     status_list = []
     for hostname in hostname_list:
         if type == 'topbdii':
