@@ -3,10 +3,11 @@ from django.http import HttpResponseRedirect
 from topology.models import Entity
 import os
 
-known_types = {'GRID': 'GRID',
-               'EGEE_ROC': 'EGEE_ROC',
-               'WLCG_TIER': 'WLCG_TIER',
-               'Country': 'Country'}
+known_types = ['Country',
+               'EGEE_ROC',
+               'GRID',
+               'VO',
+               'WLCG_TIER']
 
 def initial(request):
     file = 'firstRun'
@@ -33,7 +34,7 @@ def filter(request, type=''):
     # If the type is known, return all values of that type
     elif (type in known_types):
         options = [['ALL', 'ALL']]
-        site_list = Entity.objects.filter(type=known_types[type]).order_by('uniqueid')
+        site_list = Entity.objects.filter(type=type).order_by('uniqueid')
         for site in site_list:
             options.append([site.uniqueid, site.uniqueid])
 
