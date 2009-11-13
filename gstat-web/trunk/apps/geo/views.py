@@ -7,15 +7,15 @@ from core.utils import get_services, get_subclusters, get_installed_capacity_cpu
 import random
 from geo import countryInfo
 
-known_types = ['GRID',
+known_types = ['Country',
                'EGEE_ROC',
-               'WLCG_TIER',
-               'Country']
+               'GRID',
+               'WLCG_TIER']
 
-predicates  = {'GRID': 'SiteGrid',
+predicates  = {'Country': 'SiteCountry',
                'EGEE_ROC': 'SiteEgeeRoc',
-               'WLCG_TIER': 'SiteWlcgTier',
-               'Country': 'SiteCountry'}
+               'GRID': 'SiteGrid',
+               'WLCG_TIER': 'SiteWlcgTier'}
 
 # Stable view
 def index(request):
@@ -88,14 +88,14 @@ def kml(request, type='', value=''):
     sites = []
     if (type == ''):
         sites = gluesite.objects.all();
-    if (type in known_types):
+    elif (type in known_types):
         # Get the entities for your type
         if (value == 'ALL'):
             entities = Entity.objects.filter(type = type)
         else:
             entities = Entity.objects.filter(uniqueid__iexact = value, 
                                              type = type)
-        # Find the related entities
+        # Find the related sites
         related_sites = []
         for entity in entities:
             more = [er.subject for er in Entityrelationship.objects.filter(
@@ -107,6 +107,34 @@ def kml(request, type='', value=''):
         for related_site in related_sites:
             more = gluesite.objects.filter(uniqueid__iexact = related_site.uniqueid)
             sites.extend(more)
+    elif (type == 'VO'):
+        # Get the entities for your type
+        if (value == 'ALL'):
+            entities = Entity.objects.filter(type = type)
+        else:
+            entities = Entity.objects.filter(uniqueid__iexact = value, 
+                                             type = type)
+        # Find the related services
+        related_services = []
+        for entity in entities:
+            more = [er.subject for er in Entityrelationship.objects.filter(
+                                            predicate = 'ServiceVO',
+                                            object = entity)]
+            related_services.extend(more)
+
+        
+        # Find the related sites
+        related_sites = []
+        for service in related_services:
+            more = [er.subject for er in Entityrelationship.objects.filter(
+                                            predicate = 'SiteService',
+                                            object = service)]
+            related_sites.extend(more)
+        
+        # Get the equivalent GLUE site for each entity
+        for related_site in related_sites:
+            more = gluesite.objects.filter(uniqueid__iexact = related_site.uniqueid)
+            sites.extend(more)            
     
     sites_list = []
     for site in sites:
