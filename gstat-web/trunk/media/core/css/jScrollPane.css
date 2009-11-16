@@ -62,7 +62,7 @@ a.jScrollArrowDown {
 	background: url(/media/core/css/img/jscrollpane_track.gif) repeat-y;
 }
 .jScrollPaneDrag {
-	background: url(/media/core/css/img/jscrollpane_drag_middle.gif) no-repeat 0 50%;
+	background: url(/media/core/css/img/jscrollpane_drag_middle.gif) repeat-y 0 50%;
 }
 .jScrollPaneDragTop {
 	background: url(/media/core/css/img/jscrollpane_drag_top.gif) no-repeat;
