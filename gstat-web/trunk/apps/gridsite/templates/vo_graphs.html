@@ -8,6 +8,7 @@
 <link rel="stylesheet" type="text/css" href="/media/gridsite/css/site.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/tablesorter.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/jquery.treeview.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/jScrollPane.css" />
 {% endblock %}
 
 {% block scripts-add %}
@@ -15,9 +16,12 @@
 <script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.mousewheel.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jScrollPane.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
 		$("#tree").treeview();
+		$("#scroll-pane").jScrollPane({showArrows:true, scrollbarWidth: 17});
 	});
 </script>
 {% endblock %}
@@ -30,6 +34,7 @@
 <div>
   <div id="left-board" class="board">
     <h2>VO Resource Subgroups at {{ site_name }}</h2>
+    <div id="scroll-pane" style="overflow: visible; height: 350px;">
     <ul id="tree" class="filetree treeview">
       <li>
         <span class="vo">
@@ -61,6 +66,7 @@
         </ul>
       </li>
     </ul>
+    </div>
   </div>
   <div id="middle-right-board" class="board" >
     <h2>Viewing Graphs</h2>

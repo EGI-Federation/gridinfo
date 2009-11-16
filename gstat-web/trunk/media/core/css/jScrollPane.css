@@ -1,0 +1,91 @@
+.jScrollPaneContainer {
+	position: relative;
+	overflow: hidden;
+	z-index: 1;
+}
+
+.jScrollPaneTrack {
+	position: absolute;
+	cursor: pointer;
+	right: 0;
+	top: 0;
+	height: 100%;
+	background: #ddd;
+}
+.jScrollPaneDrag {
+	position: absolute;
+	background: #ADD8E6;
+	cursor: pointer;
+	overflow: hidden;
+}
+.jScrollPaneDragTop {
+	position: absolute;
+	top: 0;
+	left: 0;
+	overflow: hidden;
+}
+.jScrollPaneDragBottom {
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	overflow: hidden;
+}
+a.jScrollArrowUp {
+	display: block;
+	position: absolute;
+	z-index: 1;
+	top: 0;
+	right: 0;
+	text-indent: -2000px;
+	overflow: hidden;
+	height: 17px;
+
+}
+
+a.jScrollArrowDown {
+	display: block;
+	position: absolute;
+	z-index: 1;
+	bottom: 0;
+	right: 0;
+	text-indent: -2000px;
+	overflow: hidden;
+	height: 17px;
+}
+
+
+
+
+
+
+.jScrollPaneTrack {
+	background: url(/media/core/css/img/jscrollpane_track.gif) repeat-y;
+}
+.jScrollPaneDrag {
+	background: url(/media/core/css/img/jscrollpane_drag_middle.gif) no-repeat 0 50%;
+}
+.jScrollPaneDragTop {
+	background: url(/media/core/css/img/jscrollpane_drag_top.gif) no-repeat;
+	height: 4px;
+}
+.jScrollPaneDragBottom {
+	background: url(/media/core/css/img/jscrollpane_drag_bottom.gif) no-repeat;
+	height: 4px;
+}
+a.jScrollArrowUp {
+	height: 17px;
+	background: url(/media/core/css/img/jscrollpane_arrow_up.gif) no-repeat 0 0;
+}
+a.jScrollArrowUp:hover {
+	background-position: 0 -20px;
+}
+a.jScrollArrowDown {
+	height: 17px;
+	background: url(/media/core/css/img/jscrollpane_arrow_down.gif) no-repeat 0 0;
+}
+a.jScrollArrowDown:hover {
+	background-position: 0 -20px;
+}
+a.jScrollActiveArrowButton, a.jScrollActiveArrowButton:hover {
+	background-position: 0 -40px;
+}

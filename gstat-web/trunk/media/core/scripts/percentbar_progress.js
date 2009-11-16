@@ -50,6 +50,12 @@ function display_string( total, used, type)
         else if (percentage < 90)  color = "2"; //yellow
         else if (percentage < 101) color = "4"; //red
         else                       color = "2"; //yellow
+    } else if (type == "usednearline") {
+        if      (percentage < 0)   color = "2"; //yellow
+        else if (percentage < 80)  color = "1"; //green
+        else if (percentage < 90)  color = "2"; //yellow
+        else if (percentage < 101) color = "4"; //red
+        else                       color = "2"; //yellow
     } else if (type == "runningjobs") {
         if      (percentage < 0)   color = "2"; //yellow
         else if (percentage < 10)  color = "4"; //red
@@ -70,16 +76,19 @@ function display_string( total, used, type)
         else if (percentage < 101) color = "4"; //red
         else                       color = "5"; //gray 
     }
-  
+
+    var initial = -60;
+    var imageWidth = 120;
+    var eachPercent = (imageWidth/2)/100;
     var percentageWidth = 0;
     if (percentage < 0 || percentage > 100) percentageWidth = eachPercent * 100;
     else percentageWidth = eachPercent * percentage;
     var actualWidth = initial + percentageWidth;
     var content = '<img ' +
-        'src="'+DIR_PATH_IMAGES+'percentImage.png" ' + 
+        'src="'+DIR_PATH_IMAGES+'percentImage_small.png" ' + 
         'alt="'+percentage+'%" ' + 
         'title="'+used+'" ' + 
-        'class="percentImage'+color+'" ' +
+        'class="percentImage'+color+'_small" ' +
         'style="background-position: '+actualWidth+'px 0px;"/> ' +
         '<span class="PercentageStatus'+color+'">'+percentage+'%</span>';
     return content;

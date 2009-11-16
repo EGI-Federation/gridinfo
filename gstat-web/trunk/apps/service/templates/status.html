@@ -9,6 +9,7 @@
 <link rel="stylesheet" type="text/css" href="/media/core/css/tablesorter.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/jquery.treeview.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/nagios.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/jScrollPane.css" />
 {% endblock %}
 
 {% block scripts-add %}
@@ -16,8 +17,13 @@
 <script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.mousewheel.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jScrollPane.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
+	    if(typeof($("#scroll-pane"))!='undefined') {
+	        $("#scroll-pane").jScrollPane({showArrows:true, scrollbarWidth: 17});
+	    }
 	    if(typeof($("#tree"))!='undefined') {
 		    $("#tree").treeview();
 		}
@@ -83,6 +89,7 @@
     {% else %}
     <h2>BDII Validation Checks</h2>
     {% endifequal %}  
+    <div id="scroll-pane" style="overflow: visible; height: 350px;">
     <ul id="tree" class="filetree treeview">
       {% for check in status_list %}
         {% ifchanged check.hostname %}
@@ -115,6 +122,7 @@
         </ul>
       </li>
     </ul>
+    </div>
   </div>
   <div id="middle-right-board" class="board" >
     <h2>Viewing Graphs</h2>
