@@ -79,7 +79,7 @@ function loadTable(event) {
     
     var oTable;
     var theads = $('#single_table > thead');
-    $('#TableContainer').html('<table cellpadding="0" cellspacing="1" border="0" class="display" id="single_table"><thead>'+theads.html()+'</thead><tbody></tbody><tfoot><tr><th>Total</th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr></tfoot></table>');
+    $('#TableContainer').html('<table cellpadding="0" cellspacing="1" border="0" class="display" id="single_table"><thead>'+theads.html()+'</thead><tbody></tbody><tfoot><tr><th>Total</th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr></tfoot></table>');
     var oTable = $('#single_table').dataTable({
         "iDisplayLength": 25, 
         "bProcessing": true, 
@@ -110,48 +110,63 @@ function loadTable(event) {
                 var physical_cpu = CommaFormatted(oObj.aData[2]);
                 return physical_cpu
                 },
-              "bUseRendered": false
+              "bUseRendered": false,
+              "bSearchable": false
             },
             { "fnRender": function(oObj) {
                 var logical_cpu = CommaFormatted(oObj.aData[3]);
                 return logical_cpu
                 },
-              "bUseRendered": false
+              "bUseRendered": false,
+              "bSearchable": false
             },
             { "fnRender": function(oObj) {
                 var total_online = CommaFormatted(oObj.aData[4]);
                 return total_online;
                 },
-              "bUseRendered": false
+              "bUseRendered": false,
+              "bSearchable": false
             },
             { "fnRender": function(oObj) {
                 var used_online = display_string(oObj.aData[4], oObj.aData[5], "usedonline");
                 return used_online;
                 },
+              "bSearchable": false,
               "sType": "num-html"
             },
             { "fnRender": function(oObj) {
                 var total_nearline = CommaFormatted(oObj.aData[6]);
                 return total_nearline;
                 },
-              "bUseRendered": false
+              "bUseRendered": false,
+              "bSearchable": false
             },
             { "fnRender": function(oObj) {
-                var total_job = CommaFormatted(oObj.aData[7]);
-                return total_job;
+                var used_nearline = display_string(oObj.aData[6], oObj.aData[7], "usednearline");
+                return used_nearline;
                 },
-              "bUseRendered": false 
-            },
-            { "fnRender": function(oObj) {
-                var running_job = display_string(oObj.aData[3], oObj.aData[8], "runningjobs");
-                return running_job;
-                },
+              "bSearchable": false,
               "sType": "num-html"
             },
             { "fnRender": function(oObj) {
-                var waiting_job = display_string(oObj.aData[6], oObj.aData[9], "waitingjobs");
+                var total_job = CommaFormatted(oObj.aData[8]);
+                return total_job;
+                },
+              "bUseRendered": false,
+              "bSearchable": false
+            },
+            { "fnRender": function(oObj) {
+                var running_job = display_string(oObj.aData[3], oObj.aData[9], "runningjobs");
+                return running_job;
+                },
+              "bSearchable": false,
+              "sType": "num-html"
+            },
+            { "fnRender": function(oObj) {
+                var waiting_job = display_string(oObj.aData[8], oObj.aData[10], "waitingjobs");
                 return waiting_job;
                 },
+              "bSearchable": false,
               "sType": "num-html" 
             }],
             "fnFooterCallback": function ( nRow, aaData, iStart, iEnd, aiDisplay ) {
@@ -161,6 +176,7 @@ function loadTable(event) {
                 var total_online   = 0;
                 var used_online    = 0;
                 var total_nearline = 0;
+                var used_nearline  = 0;
                 var total_job      = 0;
                 var running_job    = 0;
                 var waiting_job    = 0;
@@ -176,9 +192,10 @@ function loadTable(event) {
                     total_online   += aaData[i][4];
                     used_online    += parseInt(eval(aaData[i][5].split("title=")[1].split(" ")[0]));
                     total_nearline += aaData[i][6];
-                    total_job      += aaData[i][7];
-                    running_job    += parseInt(eval(aaData[i][8].split("title=")[1].split(" ")[0]));
-                    waiting_job    += parseInt(eval(aaData[i][9].split("title=")[1].split(" ")[0]));
+                    used_nearline  += parseInt(eval(aaData[i][7].split("title=")[1].split(" ")[0]));
+                    total_job      += aaData[i][8];
+                    running_job    += parseInt(eval(aaData[i][9].split("title=")[1].split(" ")[0]));
+                    waiting_job    += parseInt(eval(aaData[i][10].split("title=")[1].split(" ")[0]));
                 }
                 
                 /* Calculate the market share for browsers on this page */
@@ -199,9 +216,10 @@ function loadTable(event) {
                 nCells[4].innerHTML = CommaFormatted(total_online);
                 nCells[5].innerHTML = CommaFormatted(used_online);
                 nCells[6].innerHTML = CommaFormatted(total_nearline);
-                nCells[7].innerHTML = CommaFormatted(total_job);
-                nCells[8].innerHTML = CommaFormatted(running_job);
-                nCells[9].innerHTML = CommaFormatted(waiting_job);
+                nCells[7].innerHTML = CommaFormatted(used_nearline);
+                nCells[8].innerHTML = CommaFormatted(total_job);
+                nCells[9].innerHTML = CommaFormatted(running_job);
+                nCells[10].innerHTML = CommaFormatted(waiting_job);
 		    }
     });
     

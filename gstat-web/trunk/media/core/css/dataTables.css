@@ -122,10 +122,7 @@ table.display thead th.sorting_asc,  table.display thead th.sorting_desc{
 table.display tfoot th {
     background-color: #C7D1D6;
 	padding: 3px 10px;
-	border-top: 1px solid #222222;
-	border-right:1px solid #FFFFFF;
-	border-bottom:1px solid #FFFFFF;
-	border-left:1px solid #FFFFFF;
+	border:1px solid #FFFFFF;
 	font-weight: bold;
 }
 

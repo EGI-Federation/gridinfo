@@ -33,7 +33,7 @@ var TableToolsInit = {
 	"sSwfPath": "/media/core/scripts/img/ZeroClipboard.swf",
 	"iButtonHeight": 30,
 	"iButtonWidth": 30,
-	"sCsvBoundary": "'",
+	"sCsvBoundary": "",
 	"_iNextId": 1 /* Internal useage - but needs to be global */
 };
 
