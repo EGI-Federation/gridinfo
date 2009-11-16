@@ -1,7 +1,7 @@
 from django.shortcuts import get_object_or_404, render_to_response
 from django.http import HttpResponse
 from core.utils import *
-import os 
+import os, time
 
 
 # -----------------------------------
@@ -233,8 +233,8 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
             cdef_total.append(vname_total)
             cdef_used.append(vname_used)
         else:
-            cdef_total += [vname_total, 'UN', '0', vname_total, 'IF']
-            cdef_used += [vname_used, 'UN', '0', vname_used, 'IF']
+            cdef_total += ['TIME', str(int(time.time())-600), 'GT', vname_total, vname_total, 'UN', '0', vname_total, 'IF', 'IF']
+            cdef_used += ['TIME', str(int(time.time())-600), 'GT', vname_used, vname_used, 'UN', '0', vname_used, 'IF', 'IF']
         if count != 1:
             cdef_total.append('+')
             cdef_used.append('+')
@@ -256,6 +256,8 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
         rrdgraph_cmd_gprint('used', small) +\
         ' AREA:free#CCFF66:"Total%sSize":STACK' %(attribute.capitalize()) +\
         rrdgraph_cmd_gprint('total', small)
+    graph_cmd += \
+        ' LINE2:total#CCFF66:""'
 
     return graph_cmd 
 
@@ -310,8 +312,8 @@ def cpu_graph_cmd(uniqueids, start_time, site_name='', small=False):
             cdef_physical.append(vname_physical)
             cdef_logical.append(vname_logical)
         else:
-            cdef_physical += [vname_physical, 'UN', '0', vname_physical, 'IF']
-            cdef_logical += [vname_logical, 'UN', '0', vname_logical, 'IF']
+            cdef_physical += ['TIME', str(int(time.time())-600), 'GT', vname_physical, vname_physical, 'UN', '0', vname_physical, 'IF', 'IF']
+            cdef_logical += ['TIME', str(int(time.time())-600), 'GT', vname_logical, vname_logical, 'UN', '0', vname_logical, 'IF', 'IF']
         if count != 1:
             cdef_physical.append('+')
             cdef_logical.append('+')
@@ -433,9 +435,9 @@ def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
                 cdef_running.append(vname_running)
                 cdef_waiting.append(vname_waiting)
             else:
-                cdef_total += [vname_total, 'UN', '0', vname_total, 'IF']
-                cdef_running += [vname_running, 'UN', '0', vname_running, 'IF']
-                cdef_waiting += [vname_waiting, 'UN', '0', vname_waiting, 'IF']
+                cdef_total += ['TIME', str(int(time.time())-600), 'GT', vname_total, vname_total, 'UN', '0', vname_total, 'IF', 'IF']
+                cdef_running += ['TIME', str(int(time.time())-600), 'GT', vname_running, vname_running, 'UN', '0', vname_running, 'IF', 'IF']
+                cdef_waiting += ['TIME', str(int(time.time())-600), 'GT', vname_waiting, vname_waiting, 'UN', '0', vname_waiting, 'IF', 'IF']
             if count != 1:
                 cdef_total.append('+')
                 cdef_running.append('+')
