@@ -51,7 +51,12 @@ a.bold {
 /**
  * Positioning
  */
-
+.corner-all {
+	-moz-border-radius-bottomleft:4px;
+	-moz-border-radius-bottomright:4px;
+	-moz-border-radius-topleft:4px;
+	-moz-border-radius-topright:4px;
+}
 #top-board {
 	width:99%;
 }
