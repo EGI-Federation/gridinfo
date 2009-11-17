@@ -233,8 +233,10 @@ def process_tuple(dn,tuple,table_name,multivalues):
                 gluemultivalued.uniqueid = tuple['UniqueID']
                 gluemultivalued.attribute = attribute
                 gluemultivalued.value = value
-                if ( 'LocalID' in tuple ):
-                    gluemultivalued.localid = tuple['LocalID']
+                if ( tuple.has_key('GlueVOViewLocalID') ):
+                    gluemultivalued.localid = tuple['GlueVOViewLocalID']
+                if ( tuple.has_key('GlueSALocalID') ):
+                    gluemultivalued.localid = tuple['GlueSALocalID']
                 try:
                     gluemultivalued.save()
                 except Exception, e:
