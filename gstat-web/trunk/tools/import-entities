@@ -231,8 +231,14 @@ clusters = {}
 errors={}
 objects=gluemultivalued.objects.filter(attribute='GlueCEAccessControlBaseRule')
 for object in objects:
+    vo = None
     if ( object.value[:3] == "VO:" ):
         vo = object.value[3:]
+    if ( object.value[:3] == "VOMS:" ):
+        vo = object.value[5:]
+        index = vo.find("\\")
+        vo = vo[:index]
+    if ( not vo == None ):
         if ( not vos.has_key(vo) ):
             obj = store_entity(vo, 'VO')
             vos[vo] = obj
