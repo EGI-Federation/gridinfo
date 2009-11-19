@@ -2,8 +2,6 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.utils import html
-from topology.models import Entity
-from topology.models import Entityrelationship
 from django.utils import simplejson as json
 from core.utils import *
 import gsutils
@@ -14,11 +12,11 @@ def main(request, type, output=None):
 
     if (output == 'json'):
         data = []
-        nagios_status = getNagiosStatusDict()
-        if (type == 'topbdii'):  
-            qs = Entity.objects.filter(type='bdii_top')
+        nagios_status = get_nagios_status_dict()
+        if (type == 'topbdii'):           
+            qs = get_groups(type='bdii_top')
         else:
-            qs = Entity.objects.filter(type='bdii_site')
+            qs = get_groups(type='bdii_site')
 
         already_done = {}
         for bdii in qs:
@@ -27,13 +25,13 @@ def main(request, type, output=None):
             for host in hosts:
                 if ( not already_done.has_key(host) ):
                     already_done[host]=None
-                    status = getNagiosStatus(nagios_status, 'check-bdii-freshness', host)
+                    status = get_nagios_status(nagios_status, 'check-bdii-freshness', host)
                     freshness = status['current_state']
                     if (type == 'topbdii'):
-                        status = getNagiosStatus(nagios_status, 'check-bdii-sites', host)
+                        status = get_nagios_status(nagios_status, 'check-bdii-sites', host)
                         state = status['current_state']
                     else:
-                        status = getNagiosStatus(nagios_status, 'check-bdii-services', host)
+                        status = get_nagios_status(nagios_status, 'check-bdii-services', host)
                         state = status['current_state']
                     
                     row = [ alias, host, len(hosts), freshness, state ]
@@ -78,28 +76,32 @@ def service(request, type, uniqueid):
         #The actual id given was a real host.
         hostname_list.append(hostname)
             
-    nagios_status = getNagiosStatusDict()
+    nagios_status = get_nagios_status_dict()
     status_list = []
     for hostname in hostname_list:
         if type == 'topbdii':
-            status_list.append( getNagiosStatus(nagios_status, 'check-bdii-freshness', hostname) )
-            status_list.append( getNagiosStatus(nagios_status, 'check-bdii-sites', hostname) )
+            status_list.append( get_nagios_status(nagios_status, 'check-bdii-freshness', hostname) )
+            status_list.append( get_nagios_status(nagios_status, 'check-bdii-sites', hostname) )
         elif type == 'sitebdii':
-            status_list.append( getNagiosStatus(nagios_status, 'check-bdii-freshness', hostname) )
-            status_list.append( getNagiosStatus(nagios_status, 'check-bdii-services', hostname) )
+            status_list.append( get_nagios_status(nagios_status, 'check-bdii-freshness', hostname) )
+            status_list.append( get_nagios_status(nagios_status, 'check-bdii-services', hostname) )
         elif type == 'ce':
-            status_list.append( getNagiosStatus(nagios_status, 'check-ce', hostname) )
+            status_list.append( get_nagios_status(nagios_status, 'check-ce', hostname) )
         elif type == 'se':
-            status_list.append( getNagiosStatus(nagios_status, 'check-se', hostname) )
+            status_list.append( get_nagios_status(nagios_status, 'check-se', hostname) )
         elif type == 'service':
-            status_list.append( getNagiosStatus(nagios_status, 'check-service', hostname) )
+            status_list.append( get_nagios_status(nagios_status, 'check-service', hostname) )
         elif type == 'site':
-            status_list.append( getNagiosStatus(nagios_status, 'check-site', hostname) )
+            status_list.append( get_nagios_status(nagios_status, 'check-site', hostname) )
 
-    if type in ['topbdii', 'sitebdii']:
-        check_type = 'monitoring'
-    else:
-        check_type = 'validation'
+    unsorted_list = status_list
+    sorted_list = [(dict['hostname'], dict) for dict in unsorted_list]
+    sorted_list.sort()
+    result_list = [dict for (hostname, dict) in sorted_list]
+    status_list = result_list
+
+    if type in ['topbdii', 'sitebdii']:  check_type = 'monitoring'
+    else:                                check_type = 'validation'
 
     return render_to_response('status.html', {'status_list' : status_list,
                                               'check_type'  : check_type})

@@ -6,31 +6,19 @@ from topology.models import Entity
 from topology.models import Entityrelationship
 from glue.models import *
 
-"""
-CPU_COUNTS_SUBCLUSTER = None
-JOB_COUNTS_CE         = None
-SPACE_COUNTS_SE       = None
-"""
-
 # ---------------------------------------
 # -- Glue data model related functions --
 # ---------------------------------------
-    
-def getGlueEntity(model_name, uniqueids_list=[], all=False):
-    try:
-        model = models.get_model('glue', model_name)
-        if all:
-            objects = model.objects.all()
-        else:
-            objects = model.objects.filter(uniqueid__in=uniqueids_list)
-        return objects
-    except:
-        # need to re-factor
+
+def get_unique_gluesite(site_name):
+    """ get glue site entities from glue database """
+    site = gluesite.objects.filter(uniqueid=site_name)
+    if site:
+        return site[0]
+    else:
         return None
 
-
-
-def get_subclusters(service_list):
+def get_gluesubclusters(service_list):
     """ get glue subcluster entities from glue database """
     uniqueids = [service.uniqueid for service in service_list]
     clusters = Entity.objects.filter(type = 'CE', uniqueid__in = uniqueids)
@@ -39,7 +27,7 @@ def get_subclusters(service_list):
     return sub_clusters
 
 
-def get_ses(service_list):
+def get_glueses(service_list):
     """ get glue se entities from glue database """
     uniqueids = [service.uniqueid for service in service_list]
     ses = Entity.objects.filter(type = 'SE', uniqueid__in = uniqueids)
@@ -47,7 +35,7 @@ def get_ses(service_list):
     se_list = gluese.objects.filter(uniqueid__in = uniqueids)
     return se_list
 
-def get_vo_view(service_list):
+def get_gluevoview(service_list):
     """ get glue voview entities from glue database """
     uniqueids = [service.uniqueid for service in service_list]
     clusters = Entity.objects.filter(type = 'CE', uniqueid__in = uniqueids)
@@ -58,115 +46,24 @@ def get_vo_view(service_list):
 
     return VO_views
 
-"""
-def getSubClusterByCluster(cluster_uniqueids_list=[]):
-    try:
-        objects = gluesubcluster.objects.filter(gluecluster_fk__in=cluster_uniqueids_list)
-        return objects
-    except:
-        # need to re-factor
-        return None
-
-
-def getCPUNumbersFromGlueSubCluster():
-    # To get a list of gluesubcluster and then count the cpu numbers
-    cpu_counts_subcluster = {}
-    qs_subcluster = gluesubcluster.objects.filter()
-    for subcluster in qs_subcluster:
-        if subcluster.uniqueid not in cpu_counts_subcluster:
-            cpu_counts_subcluster[subcluster.uniqueid] = {
-                'logicalcpus' : convertToInteger(subcluster.logicalcpus),
-                'physicalcpus': convertToInteger(subcluster.physicalcpus)}
-        else:
-            cpu_counts_subcluster[subcluster.uniqueid]['logicalcpus']  += convertToInteger(subcluster.logicalcpus)
-            cpu_counts_subcluster[subcluster.uniqueid]['physicalcpus'] += convertToInteger(subcluster.physicalcpus)
-    
-    return cpu_counts_subcluster
-
-def getStorageSpacesFromGlueSE():
-    # To get a list of gluese and then count the storage spaces
-    space_counts_se = {}
-    qs_se = gluese.objects.filter()
-    for se in qs_se:
-        if se.uniqueid not in space_counts_se:
-            space_counts_se[se.uniqueid] = {
-                'totalonlinesize'   : convertToInteger(se.totalonlinesize),
-                'usedonlinesize'    : convertToInteger(se.usedonlinesize),
-                'totalnearlinesize' : convertToInteger(se.totalnearlinesize),
-                'usednearlinesize'  : convertToInteger(se.usednearlinesize)}
-        else:
-            space_counts_se[se.uniqueid]['totalonlinesize']   += convertToInteger(se.totalonlinesize)
-            space_counts_se[se.uniqueid]['usedonlinesize']    += convertToInteger(se.usedonlinesize)
-            space_counts_se[se.uniqueid]['totalnearlinesize'] += convertToInteger(se.totalnearlinesize)
-            space_counts_se[se.uniqueid]['usednearlinesize']  += convertToInteger(se.usednearlinesize)
-
-    return space_counts_se
-
-def getJobNumbersFromGlueCE():
-    # To get a list of gluece and then count the number of jobs
-    job_counts_ce = {}
-    qs_ce = gluece.objects.filter()
-    for ce in qs_ce:
-        if ce.hostingcluster not in job_counts_ce:
-            if convertToInteger(ce.waitingjobs) != 444444:
-                waiting_jobs = convertToInteger(ce.waitingjobs)     
-            else:
-                waiting_jobs = 0
-            job_counts_ce[ce.hostingcluster] = {
-                'runningjobs' : convertToInteger(ce.runningjobs),
-                'waitingjobs' : waiting_jobs,
-                'totaljobs'   : convertToInteger(ce.totaljobs)}
-        else:
-            if convertToInteger(ce.waitingjobs) != 444444:
-                waiting_jobs = convertToInteger(ce.waitingjobs)     
-            else:
-                waiting_jobs = 0
-            job_counts_ce[ce.hostingcluster]['runningjobs'] += convertToInteger(ce.runningjobs)
-            job_counts_ce[ce.hostingcluster]['waitingjobs'] += waiting_jobs
-            job_counts_ce[ce.hostingcluster]['totaljobs']   += convertToInteger(ce.totaljobs)
-            
-    return job_counts_ce
-"""
-
-def convertToInteger(number):
-    try:
-        return int(number)
-    except (ValueError), error:
-        return 0
-
-#def getGlueServiceByUniqueidType(unique_id, type_name):
-#    qs_service = glueservice.objects.filter(uniqueid = unique_id, type = type_name)
-#    # CAUTION!, alert exception or warning if there is more than one record
-#    return qs_service[0]
-
-
 # -------------------------------------------
 # -- Topology data model related functions --
 # -------------------------------------------
 
-""" reserved """
-def getEntitiesByType(type_name):
-    qs_entities = Entity.objects.filter(type=type_name)
-    
-    return qs_entities
-
-""" reserved """
-def getEntityByUniqueidType(unique_id, type_name):
-    qs_entity = Entity.objects.filter(uniqueid = unique_id, type = type_name)
+def get_unique_entity(unique_id, type_name):
+    """ get unique entity from topology database """
+    qs_entity = Entity.objects.filter(uniqueid=unique_id, type=type_name)
     # CAUTION!, alert exception or warning if there is more than one record
     if qs_entity:
         return qs_entity[0]
     else:
         return None
 
-""" reserved """
-def getSitesInGroup(predicate_name, entity):
-    # Get the list of Sites in the specified group, ex.: grid, egee roc, country, etc.
-    site_list = [er.subject for er in Entityrelationship.objects.filter(predicate = predicate_name, 
-                                                                        object = entity)]
-        
-    return site_list
-
+def get_groups(type):
+    """ get entities by type from topology database """
+    groups = Entity.objects.filter(type=type)
+    
+    return groups
 
 def get_sites(type, value="ALL"):
     """ get site entities from topology database """
@@ -219,64 +116,6 @@ def get_vos(service_list):
     return vos
 
 
-def getQueuesInSite(site_entity):
-    # Get a list of dictionaries they are queues at specified site
-    # Queue: {'ce': CE entity, 'vo': VO entity}
-    service_list = get_services([site_entity])
-    ce_list = []
-    for service in service_list:
-        if service.type == 'CE': ce_list.append(service)
-    
-    queue_list = [{'ce':er.subject, 'vo':er.object} for er in Entityrelationship.objects.filter(
-                                                    predicate   = 'ServiceVO',
-                                                    subject__in = ce_list)]
-    return queue_list
-
-"""
-def getNodesInSite(site_entity, node_type):
-    # Get the list of nodes at specified site
-    node_list = [er.object for er in Entityrelationship.objects.filter(predicate    = 'SiteService',
-                                                                       subject      = site_entity,
-                                                                       object__type = node_type)]
-    return node_list
-
-def getServicesInSite(site_entity):
-    # Get the list of all services at specified site
-    service_list = [er.object for er in Entityrelationship.objects.filter(predicate = 'SiteService',
-                                                                          subject   = site_entity)]
-    return service_list
-
-def getVOsInCE(ce_entity):
-    unsorted_vo_list = [er.object for er in Entityrelationship.objects.filter(predicate = 'ServiceVO',
-                                                                              subject   = ce_entity)]
-    # sorting list of object
-    sorted_vo_list = sortObjectsByAttr(unsorted_vo_list, 'uniqueid')
-    
-    return sorted_vo_list
-
-
-def getVOsInSite(site_entity):
-    # Get a list of supported VOs at specified site
-    queue_list = getQueuesInSite(site_entity)
-    vo_list = [queue['vo'] for queue in queue_list]
-    # remove duplicates
-    distinct_vo_list = {}.fromkeys(vo_list).keys()
-    # sorting list of object
-    distinct_sorted_vo_list = sortObjectsByAttr(distinct_vo_list, 'uniqueid')
-    
-    return distinct_sorted_vo_list
-
-
-def sortObjectsByAttr(object_list, attribute):
-    unsorted_list = object_list
-    sorted_list = [(obj.__getattribute__(attribute), obj) for obj in unsorted_list]
-    sorted_list.sort()
-    result_list = [obj for (attribute, obj) in sorted_list]
-    
-    return result_list
-"""
-
-
 # ---------------------------------------------------------
 # -- Installed Capacity and Statistics related functions --
 # ---------------------------------------------------------
@@ -286,11 +125,10 @@ def get_installed_capacity_cpu(sub_clusters_list):
     physical_cpus = 0
     logical_cpus = 0
     for sub_cluster in sub_clusters_list:
-        logical_cpus += convertToInteger(sub_cluster.logicalcpus)
-        physical_cpus += convertToInteger(sub_cluster.physicalcpus)
+        logical_cpus += convert_to_integer(sub_cluster.logicalcpus)
+        physical_cpus += convert_to_integer(sub_cluster.physicalcpus)
 
     return [physical_cpus, logical_cpus]
-
 
 def get_installed_capacity_storage(se_list):
     """ calculate storage space in glue se entities """
@@ -300,10 +138,10 @@ def get_installed_capacity_storage(se_list):
     used_nearline = 0 
 
     for se in se_list:
-        total_online += convertToInteger(se.totalonlinesize)
-        used_online += convertToInteger(se.usedonlinesize)
-        total_nearline += convertToInteger(se.totalnearlinesize) 
-        used_nearline += convertToInteger(se.usednearlinesize) 
+        total_online += convert_to_integer(se.totalonlinesize)
+        used_online += convert_to_integer(se.usedonlinesize)
+        total_nearline += convert_to_integer(se.totalnearlinesize) 
+        used_nearline += convert_to_integer(se.usednearlinesize) 
 
     return [ total_online, used_online, total_nearline, used_nearline ]
 
@@ -323,8 +161,8 @@ def get_installed_capacity_per_os(sub_clusters_list):
         if ( not os[os_name].has_key(os_release)):
             os[os_name][os_release] = [0, 0]
 
-        os[os_name][os_release][0] += convertToInteger(sub_cluster.physicalcpus)    
-        os[os_name][os_release][1] += convertToInteger(sub_cluster.logicalcpus)
+        os[os_name][os_release][0] += convert_to_integer(sub_cluster.physicalcpus)    
+        os[os_name][os_release][1] += convert_to_integer(sub_cluster.logicalcpus)
 
     data = []
     keys = os.keys()
@@ -335,17 +173,16 @@ def get_installed_capacity_per_os(sub_clusters_list):
 
     return data
 
-
 def get_job_stats(vo_view_list):
     """ calculate job numbers in glue voview entities """
     total_jobs = 0
     running_jobs = 0
     waiting_jobs = 0
     for voview in vo_view_list:
-        total_jobs += convertToInteger(voview.totaljobs)
-        running_jobs += convertToInteger(voview.runningjobs)
-        if ( not convertToInteger(voview.waitingjobs) == 444444):
-            waiting_jobs += convertToInteger(voview.waitingjobs)
+        total_jobs += convert_to_integer(voview.totaljobs)
+        running_jobs += convert_to_integer(voview.runningjobs)
+        if ( not convert_to_integer(voview.waitingjobs) == 444444):
+            waiting_jobs += convert_to_integer(voview.waitingjobs)
     return  [ total_jobs, running_jobs, waiting_jobs ]
 
 def get_service_versions(service_list):
@@ -373,109 +210,13 @@ def get_service_versions(service_list):
 
     return data
 
-"""
-def countCPUsInSite(site_entity):
-    logicalcpus  = 0
-    physicalcpus = 0
-
-    # To get numbers of logic and physical cpus from gluesubcluster
-    # Just once to count the cpu numbers in subcluster entities
-    global CPU_COUNTS_SUBCLUSTER
-    if not CPU_COUNTS_SUBCLUSTER:
-        CPU_COUNTS_SUBCLUSTER = getCPUNumbersFromGlueSubCluster()
-    
-    # Get the list of CE entities at specified site
-    ce_list = getNodesInSite(site_entity, 'CE')
-
-    for ce in ce_list:
-        # To count the CPU numbers
-        if ce.uniqueid in CPU_COUNTS_SUBCLUSTER:
-            logicalcpus  += CPU_COUNTS_SUBCLUSTER[ce.uniqueid]['logicalcpus']
-            physicalcpus += CPU_COUNTS_SUBCLUSTER[ce.uniqueid]['physicalcpus']
-            
-    return (logicalcpus, physicalcpus)
-    
-def countJobsInSite(site_entity):
-    totaljobs   = 0
-    runningjobs = 0
-    waitingjobs = 0
-
-    # To get numbers of runningjobs, waitingjobs, and totaljobs from gluece
-    # Just once to count the job numbers in subcluster entities
-    global JOB_COUNTS_CE
-    if not JOB_COUNTS_CE:
-        JOB_COUNTS_CE = getJobNumbersFromGlueCE()
-    
-    # Get the list of CE entities at specified site
-    ce_list = getNodesInSite(site_entity, 'CE')
-
-    for ce in ce_list:
-        # To count job numbers
-        if ce.uniqueid in JOB_COUNTS_CE:
-            totaljobs   += JOB_COUNTS_CE[ce.uniqueid]['totaljobs']   
-            runningjobs += JOB_COUNTS_CE[ce.uniqueid]['runningjobs']
-            waitingjobs += JOB_COUNTS_CE[ce.uniqueid]['waitingjobs']
-            
-    return (totaljobs, runningjobs, waitingjobs) 
-
-def countStoragesInSite(site_entity):
-    totalonlinesize = 0
-    usedonlinesize  = 0
-    totalnearlinesize = 0
-    usednearlinesize  = 0
-    
-    # To get storage spaces from gluese
-    # Just once to count the storage spaces in se entities
-    global SPACE_COUNTS_SE
-    if not SPACE_COUNTS_SE:
-        SPACE_COUNTS_SE = getStorageSpacesFromGlueSE()
-
-    # Get the list of SE entities at specified site
-    se_list = getNodesInSite(site_entity, 'SE')
-            
-    # To count the storage space
-    for se in se_list:
-        if se.uniqueid in SPACE_COUNTS_SE:
-            totalonlinesize   += SPACE_COUNTS_SE[se.uniqueid]['totalonlinesize']
-            usedonlinesize    += SPACE_COUNTS_SE[se.uniqueid]['usedonlinesize']
-            totalnearlinesize += SPACE_COUNTS_SE[se.uniqueid]['totalnearlinesize']
-            usednearlinesize  += SPACE_COUNTS_SE[se.uniqueid]['usednearlinesize']
-            
-    return (totalonlinesize, usedonlinesize, totalnearlinesize, usednearlinesize)
-
-def countJobsInVO_Site(site_entity):
-    vo_jobs = []
-
-    queue_list = getQueuesInSite(site_entity)
-    gluece = models.get_model('glue', 'gluece')
-    glueces = gluece.objects.filter(gluecluster_fk__in=[queue["ce"].uniqueid for queue in queue_list])
-    vo_list = getVOsInSite(site_entity)
-    for vo in vo_list:
-        totaljobs   = 0
-        runningjobs = 0
-        waitingjobs = 0
-        job_dict = {}
-        gluevoview = models.get_model('glue', 'gluevoview')
-        voviews= gluevoview.objects.filter(localid=vo.uniqueid, gluece_fk__in=[gluece.uniqueid for gluece in glueces])
-        for voview in voviews:
-            totaljobs   += convertToInteger(voview.totaljobs)
-            runningjobs += convertToInteger(voview.runningjobs)
-            waitingjobs += convertToInteger(voview.waitingjobs)
-        job_dict['voname'] = vo.uniqueid
-        job_dict['totaljobs'] = totaljobs
-        job_dict['runningjobs'] = runningjobs
-        job_dict['waitingjobs'] = waitingjobs
-        
-        vo_jobs.append(job_dict)
-    return vo_jobs
-"""
 # ------------------------------
 # -- Nagios related functions --
 # ------------------------------
 
-def getNagiosStatusDict():
+def get_nagios_status_dict():
     """ This takes the nagios realtime status data and outputs as a dictionary object. """
-    def __GetDefinitions(filename, obj):
+    def __getDefinitions(filename, obj):
         """ Parse the status.dat file and extract matching object definitions """
         try:
             file = open(filename)
@@ -489,7 +230,7 @@ def getNagiosStatusDict():
         finds = pat.findall(content)
         return finds
     
-    def __GetDirective(item, directive):
+    def __getDirective(item, directive):
         """ parse an object definition, return the directives """
         #pat = re.compile(' '+directive+'[\s= ]*([\S, ]*)\n')
         pat = re.compile(' '+directive+'[=]*([\S, ]*)\n')
@@ -511,41 +252,41 @@ def getNagiosStatusDict():
     # parse the nagios realtime status data and generate a dictionary
     
     # each host
-    hosts = __GetDefinitions(status_file, hosttoken)
-    services = __GetDefinitions(status_file, servicetoken)
+    hosts = __getDefinitions(status_file, hosttoken)
+    services = __getDefinitions(status_file, servicetoken)
     for hostdef in hosts:
-        host_name          = __GetDirective(hostdef, "host_name")
-        current_state      = __GetDirective(hostdef, "current_state")
-        plugin_output      = __GetDirective(hostdef, "plugin_output")
-        last_check         = __GetDirective(hostdef, "last_check")
-        has_been_checked   = __GetDirective(hostdef, "has_been_checked")
+        host_name          = __getDirective(hostdef, "host_name")
+        current_state      = __getDirective(hostdef, "current_state")
+        plugin_output      = __getDirective(hostdef, "plugin_output")
+        last_check         = __getDirective(hostdef, "last_check")
+        has_been_checked   = __getDirective(hostdef, "has_been_checked")
         
         status_dict[host_name]                     = {}
-        status_dict[host_name]['current_state']    = convertToInteger(current_state)
+        status_dict[host_name]['current_state']    = convert_to_integer(current_state)
         status_dict[host_name]['plugin_output']    = plugin_output
         status_dict[host_name]['last_check']       = last_check
-        status_dict[host_name]['has_been_checked'] = convertToInteger(has_been_checked)
+        status_dict[host_name]['has_been_checked'] = convert_to_integer(has_been_checked)
 
         for servicedef in services:
-            if (__GetDirective(servicedef, "host_name") == host_name):
-                service_description = __GetDirective(servicedef, "service_description")
-                current_state       = __GetDirective(servicedef, "current_state")
-                plugin_output       = __GetDirective(servicedef, "plugin_output")
-                long_plugin_output  = __GetDirective(servicedef, "long_plugin_output")
-                last_check          = __GetDirective(servicedef, "last_check")
-                has_been_checked    = __GetDirective(servicedef, "has_been_checked")
+            if (__getDirective(servicedef, "host_name") == host_name):
+                service_description = __getDirective(servicedef, "service_description")
+                current_state       = __getDirective(servicedef, "current_state")
+                plugin_output       = __getDirective(servicedef, "plugin_output")
+                long_plugin_output  = __getDirective(servicedef, "long_plugin_output")
+                last_check          = __getDirective(servicedef, "last_check")
+                has_been_checked    = __getDirective(servicedef, "has_been_checked")
                 
                 status_dict[host_name][service_description]                       = {}
-                status_dict[host_name][service_description]['current_state']      = convertToInteger(current_state)
+                status_dict[host_name][service_description]['current_state']      = convert_to_integer(current_state)
                 status_dict[host_name][service_description]['plugin_output']      = plugin_output
                 status_dict[host_name][service_description]['long_plugin_output'] = long_plugin_output
                 status_dict[host_name][service_description]['last_check']         = last_check
-                status_dict[host_name][service_description]['has_been_checked']   = convertToInteger(has_been_checked)
+                status_dict[host_name][service_description]['has_been_checked']   = convert_to_integer(has_been_checked)
     
     return status_dict
 
 
-def getNodesOverallStatus(status_dict, hostname_list, check_name_phrase):
+def get_hosts_overall_nagios_status(status_dict, hostname_list, check_name_phrase):
     overall_status = -1
     has_been_checked = 1
     for hostname in hostname_list:
@@ -562,39 +303,34 @@ def getNodesOverallStatus(status_dict, hostname_list, check_name_phrase):
     
     return (overall_status, has_been_checked)
 
-def getNagiosStatusStr(current_state, has_been_checked):
+def get_nagios_status_str(current_state, has_been_checked):
     if (current_state == 0):
-        if (has_been_checked == 0):
-            return 'PENDING'
-        else:
-            return 'OK'
-    elif (current_state == 1):
-        return 'WARNING'
-    elif (current_state == 2):
-        return 'CRITICAL'
-    elif (current_state == 3):
-        return 'UNKNOWN'
-    else:
-        #return "Unknown Status %s" % (current_state)
-        return 'N/A'
+        if (has_been_checked == 0): return 'PENDING'
+        else:                       return 'OK'
+    elif (current_state == 1):      return 'WARNING'
+    elif (current_state == 2):      return 'CRITICAL'
+    elif (current_state == 3):      return 'UNKNOWN'
+    else:                           return 'N/A'
 
-def getNagiosStatus(nagios_status, check, hostname):
+def get_nagios_status(nagios_status, check, hostname):
 
     status_dict = {'hostname': hostname,
-                   'current_state': 'N/A'
-                   }
+                   'current_state': 'N/A'}
     if ( nagios_status.has_key(hostname) ) :
         if ( nagios_status[hostname].has_key(check) ) :
             status_dict['check']              = check
             current_state                     = nagios_status[hostname][check]['current_state']
             has_been_checked                  = nagios_status[hostname][check]['has_been_checked']
-            status_dict['current_state']      = getNagiosStatusStr(current_state, has_been_checked)
+            status_dict['current_state']      = get_nagios_status_str(current_state, has_been_checked)
             status_dict['plugin_output']      = nagios_status[hostname][check]['plugin_output']
             status_dict['long_plugin_output'] = nagios_status[hostname][check]['long_plugin_output']
             status_dict['last_check']         = nagios_status[hostname][check]['last_check']
 
     return status_dict
 
+# -----------------------------
+# -- Miscellaneous functions --
+# -----------------------------
 
 def get_hostname(uniqueid):
     hostname=uniqueid
@@ -618,3 +354,17 @@ def get_hosts_from_alias(hostname):
     except Exception, e:
         pass
     return hosts
+
+def convert_to_integer(number):
+    try:
+        return int(number)
+    except (ValueError), error:
+        return 0
+
+def sort_objects_by_attr(object_list, attribute):
+    unsorted_list = object_list
+    sorted_list = [(obj.__getattribute__(attribute), obj) for obj in unsorted_list]
+    sorted_list.sort()
+    result_list = [obj for (attribute, obj) in sorted_list]
+    
+    return result_list

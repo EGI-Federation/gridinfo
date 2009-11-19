@@ -74,7 +74,6 @@ def rrdgraph_cmd_gprint(variable_name, small=False):
         
     return graph_cmd
 
-
 # ----------------------------------
 # -- Graphs viewing page function --
 # ----------------------------------
@@ -122,7 +121,7 @@ def entity_level(request, entity_type, uniqueid, attribute, start_time):
 def vo_level(request, site_name, vo, attribute, start_time, small=False):
     """ VO-level summarized graph """
     if attribute == 'job':
-        graph_cmd = voview_job_graph(site_name, vo, start_time, small)
+        graph_cmd = vo_job_graph(site_name, vo, start_time, small)
         
     return graph_render(graph_cmd)
 
@@ -170,7 +169,7 @@ def nagios_level(request, host_name, check_name, data_source, start_time):
     title= "BDII: %s, Check Command: %s" %(host_name, check_name)
     label = label_names[data_source]
     graph_cmd = rrdgraph_cmd_options(start_time, title, label)
-    rrd_file = '%s/%s/%s.rrd' %(rrd_dir, host_name, check_name)
+    rrd_file = '%s/%s/%s.rrd' %(rrd_dir, str(host_name).replace('/',''), check_name)
     datasource = datasource_names[check_name][data_source]
     graph_cmd += \
         ' DEF:var1="%s":%s:AVERAGE' %(rrd_file, datasource) +\
@@ -186,7 +185,7 @@ def nagios_level(request, host_name, check_name, data_source, start_time):
 # --------------------------------------
 def site_storage_graph(site_name, attribute, start_time, small=False):
     """ Site-level summarized storage space"""
-    site_entity = getEntityByUniqueidType(site_name, 'Site')
+    site_entity = get_unique_entity(site_name, 'Site')
     service_list = get_services([site_entity])
     uniqueids = []
     for service in service_list:
@@ -223,7 +222,7 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
     cdef_used = []
     count = 0
     for uniqueid in uniqueids:
-        rrd_file = '%s/%s/%s.rrd' %(rrd_dir, uniqueid, attribute)
+        rrd_file = '%s/%s/%s.rrd' %(rrd_dir, str(uniqueid).replace('/',''), attribute)
         if(not os.path.exists(rrd_file)):
             continue
         count += 1
@@ -238,15 +237,10 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
         if count != 1:
             cdef_total.append('+')
             cdef_used.append('+')
-        
-#        rrd_file_total = '%s/%s/total%ssize.rrd' %(rrd_dir, uniqueid, attribute)
-#        rrd_file_used = '%s/%s/used%ssize.rrd' %(rrd_dir, uniqueid, attribute)            
+       
         graph_cmd += \
         ' DEF:%s="%s":%s:AVERAGE' %(vname_total, rrd_file, datasources[attribute][0])+\
         ' DEF:%s="%s":%s:AVERAGE' %(vname_used, rrd_file, datasources[attribute][1])
-#    for i in range(count-1):
-#        cdef_total.append('+')
-#        cdef_used.append('+')
     graph_cmd += \
         ' CDEF:total=%s' %(','.join(cdef_total)) +\
         ' CDEF:used=%s' %(','.join(cdef_used))
@@ -266,9 +260,9 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
 # -----------------------------------
 def site_cpu_graph(site_name, start_time, small=False):
     """ Site-level summarized CPU number """
-    site_entity = getEntityByUniqueidType(site_name, 'Site')  
+    site_entity = get_unique_entity(site_name, 'Site')  
     service_list = get_services([site_entity])
-    sub_cluster_list = get_subclusters(service_list)
+    sub_cluster_list = get_gluesubclusters(service_list)
     uniqueids = [subcluster.uniqueid for subcluster in sub_cluster_list]
     graph_cmd = cpu_graph_cmd(uniqueids, start_time, site_name, small)
         
@@ -302,7 +296,7 @@ def cpu_graph_cmd(uniqueids, start_time, site_name='', small=False):
     for uniqueid in uniqueids:
         # rrdtool does not like the same variable name
         # rrdtool only allows variable names up to 19 characters
-        rrd_file = '%s/%s/%s.rrd' %(rrd_dir, uniqueid, 'cpu')
+        rrd_file = '%s/%s/%s.rrd' %(rrd_dir, str(uniqueid).replace('/',''), 'cpu')
         if(not os.path.exists(rrd_file)):
             continue
         count += 1
@@ -317,17 +311,10 @@ def cpu_graph_cmd(uniqueids, start_time, site_name='', small=False):
         if count != 1:
             cdef_physical.append('+')
             cdef_logical.append('+')
-#        cdef_physical.append(vname_physical)
-#        cdef_logical.append(vname_logical)
-        
-        #rrd_file_physical = '%s/%s/physicalcpus.rrd' %(rrd_dir, uniqueid)
-        #rrd_file_logical = '%s/%s/logicalcpus.rrd' %(rrd_dir, uniqueid)            
+    
         graph_cmd += \
         ' DEF:%s="%s":%s:AVERAGE' %(vname_physical, rrd_file, datasources['cpu'][0])+\
         ' DEF:%s="%s":%s:AVERAGE' %(vname_logical, rrd_file, datasources['cpu'][1])
-#    for i in range(count-1):
-#        cdef_physical.append('+')
-#        cdef_logical.append('+')
     graph_cmd += \
         ' CDEF:physical=%s' %(','.join(cdef_physical)) +\
         ' CDEF:logical=%s' %(','.join(cdef_logical))
@@ -345,52 +332,56 @@ def cpu_graph_cmd(uniqueids, start_time, site_name='', small=False):
 
 def site_job_graph(site_name, start_time, small=False):
     """ Site-level Jobs number """
-    site_entity = getEntityByUniqueidType(site_name, 'Site')
-    queue_list = getQueuesInSite(site_entity)
+    site_entity = get_unique_entity(site_name, 'Site')
+    service_list = get_services([site_entity])
+    ce_list = []
+    for service in service_list:
+        if service.type == 'CE': ce_list.append(service)
     queue_dict = {}
-    for queue in queue_list:
-        vo = queue["vo"].uniqueid
-        ce = queue["ce"].uniqueid
-        if vo not in queue_dict:
-            queue_dict[vo] = [ce]
-        else:
-            queue_dict[vo].append(ce)
+    for ce in ce_list:
+        vos = get_vos([ce])
+        for vo in vos:
+            if vo.uniqueid not in queue_dict:
+                queue_dict[vo.uniqueid] = []
+            queue_dict[vo.uniqueid].append(ce.uniqueid)           
 
     graph_cmd = job_graph_cmd('site', queue_dict, start_time, site_name, small)
         
     return graph_cmd
 
-def cluster_job_graph(ce, start_time):
+def cluster_job_graph(ce_uniqueid, start_time):
     """ Cluster-level Jobs number """
-    ce_entity = getEntityByUniqueidType(ce, 'CE')
+    ce_entity = get_unique_entity(ce_uniqueid, 'CE')
     vo_list = get_vos([ce_entity])
     queue_dict = {}
-    for vo_entity in vo_list:
-        vo = vo_entity.uniqueid
-        if vo not in queue_dict:
-            queue_dict[vo] = [ce]
+    for vo in vo_list:
+        if vo.uniqueid not in queue_dict:
+            queue_dict[vo.uniqueid] = [ce_uniqueid]
             
     graph_cmd = job_graph_cmd('cluster', queue_dict, start_time)
         
     return graph_cmd
 
-def voview_job_graph(site_name, vo, start_time, small=False):
+def vo_job_graph(site_name, vo_uniqueid, start_time, small=False):
     """ VO-level Jobs number """
-    site_entity = getEntityByUniqueidType(site_name, 'Site')
-    queue_list = getQueuesInSite(site_entity)
-    queue_dict = {vo:[]}
-    for queue in queue_list:
-        ce = queue["ce"].uniqueid
-        if vo == queue["vo"].uniqueid:
-            queue_dict[vo].append(ce)
+    site_entity = get_unique_entity(site_name, 'Site')
+    service_list = get_services([site_entity])
+    ce_list = []
+    for service in service_list:
+        if service.type == 'CE': ce_list.append(service)
+    queue_dict = {vo_uniqueid:[]}
+    for ce in ce_list:
+        vos = get_vos([ce])
+        if vo_uniqueid in [vo.uniqueid for vo in vos]:
+            queue_dict[vo_uniqueid].append(ce.uniqueid)
             
     graph_cmd = job_graph_cmd('vo', queue_dict, start_time, small=small)
         
     return graph_cmd
 
-def queue_job_graph(vo, ce, start_time):
+def queue_job_graph(vo_uniqueid, ce_uniqueid, start_time):
     """ Queue-level Jobs number """
-    queue_dict = {vo: [ce]}
+    queue_dict = {vo_uniqueid: [ce_uniqueid]}
     graph_cmd = job_graph_cmd('queue', queue_dict, start_time)
         
     return graph_cmd
@@ -400,7 +391,7 @@ def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
     if queue_dict == {}:
         # need to refactor for the empty result
         return 'N/A'
-    rrd_dir = '/var/cache/gstat/rrd/VOView'
+    rrd_dir = '/var/cache/gstat/rrd/VO'
 
     if level == 'site': # site-level
         title = "Job Number (Site: %s)" %(site_name)
@@ -414,7 +405,7 @@ def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
     label = "Jobs"
     graph_cmd = rrdgraph_cmd_options(start_time, title, label, small)
 
-    datasources = {'job':   ['totaljobs', 'runningjobs', 'waitingjobs']}
+    datasources = {'job':  ['totaljobs', 'runningjobs', 'waitingjobs']}
 
     cdef_total = []
     cdef_running = []
@@ -423,7 +414,7 @@ def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
     for vo in queue_dict.keys():
         clusters = queue_dict[vo]
         for cluster in clusters:
-            rrd_file = '%s/%s/%s/%s.rrd'   %(rrd_dir, vo, cluster, 'job')
+            rrd_file = '%s/%s/%s/%s.rrd' %(rrd_dir, str(vo).replace('/',''), str(cluster).replace('/',''), 'job')
             if(not os.path.exists(rrd_file)):
                 continue
             count += 1
@@ -435,28 +426,17 @@ def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
                 cdef_running.append(vname_running)
                 cdef_waiting.append(vname_waiting)
             else:
-                cdef_total += ['TIME', str(int(time.time())-600), 'GT', vname_total, vname_total, 'UN', '0', vname_total, 'IF', 'IF']
+                cdef_total   += ['TIME', str(int(time.time())-600), 'GT', vname_total,   vname_total,   'UN', '0', vname_total,   'IF', 'IF']
                 cdef_running += ['TIME', str(int(time.time())-600), 'GT', vname_running, vname_running, 'UN', '0', vname_running, 'IF', 'IF']
                 cdef_waiting += ['TIME', str(int(time.time())-600), 'GT', vname_waiting, vname_waiting, 'UN', '0', vname_waiting, 'IF', 'IF']
             if count != 1:
                 cdef_total.append('+')
                 cdef_running.append('+')
                 cdef_waiting.append('+')
-#            cdef_total.append(vname_total)
-#            cdef_running.append(vname_running)
-#            cdef_waiting.append(vname_waiting)
-            
-            #rrd_file_total   = '%s/%s/%s/totaljobs.rrd'   %(rrd_dir, vo, cluster)
-            #rrd_file_running = '%s/%s/%s/runningjobs.rrd' %(rrd_dir, vo, cluster)
-            #rrd_file_waiting = '%s/%s/%s/waitingjobs.rrd' %(rrd_dir, vo, cluster)
             graph_cmd += \
             ' DEF:%s="%s":%s:AVERAGE' %(vname_total,   rrd_file, datasources['job'][0]) +\
             ' DEF:%s="%s":%s:AVERAGE' %(vname_running, rrd_file, datasources['job'][1]) +\
             ' DEF:%s="%s":%s:AVERAGE' %(vname_waiting, rrd_file, datasources['job'][2])
-#    for i in range(count-1):
-#        cdef_total.append('+')
-#        cdef_running.append('+')
-#        cdef_waiting.append('+')
     graph_cmd += \
         ' CDEF:total=%s'   %(','.join(cdef_total)) +\
         ' CDEF:running=%s' %(','.join(cdef_running)) +\
@@ -476,12 +456,12 @@ def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
 # ----------------------------------------
 def attribute_graph_cmd(entity_type, uniqueid, attribute, start_time):
     rrd_dir = '/var/cache/gstat/rrd/%s' %(entity_type)
-    rrd_file = '%s/%s/%s.rrd' %(rrd_dir, uniqueid, attribute)
+    rrd_file = '%s/%s/%s.rrd' %(rrd_dir, str(uniqueid).replace('/',''), attribute)
     
     title = "%s (%s)" %(attribute, uniqueid)
     if   entity_type == 'SE':         label = 'GB'
     elif entity_type == 'SubCluster': label = 'CPU'
-    elif entity_type == 'VOView':     lable = 'Jobs'
+    elif entity_type == 'VO':         lable = 'Jobs'
     graph_cmd = rrdgraph_cmd_options(start_time, title, label, small=False)
     graph_cmd += \
         ' DEF:attr="%s":%s:AVERAGE' %(rrd_file, attribute) +\

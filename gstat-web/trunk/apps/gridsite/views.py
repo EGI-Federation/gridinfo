@@ -12,18 +12,18 @@ import time
 def overview(request, site_name):     
 
     # Get the site information from glue database
-    entity = getGlueEntity('gluesite', uniqueids_list=[site_name])
-    if not entity:
+    site = get_unique_gluesite(site_name)
+    if not site:
         #raise Http404
         gluesite = "N/A"
     else:
-        gluesite = entity[0]
+        gluesite = site
         gluesite.sysadmincontact = str(gluesite.sysadmincontact).split(":")[-1]      
         gluesite.usersupportcontact = str(gluesite.usersupportcontact).split(":")[-1]
         gluesite.securitycontact = str(gluesite.securitycontact).split(":")[-1]
 
     # Get all the service and entity at site from topology database
-    site_entity = getEntityByUniqueidType(site_name, 'Site')
+    site_entity = get_unique_entity(site_name, 'Site')
     service_list = get_services([site_entity])
     topbdii_list  = []
     sitebdii_list = []
@@ -49,32 +49,32 @@ def overview(request, site_name):
     count_dict['service']  = len(service_list)
     
     # Get the overall monitoring and validation results
-    nagios_status = getNagiosStatusDict()
+    nagios_status = get_nagios_status_dict()
     overall_status_dict             = {}
     hostnames = [topbdii.hostname for topbdii in topbdii_list]
-    (status, has_been_checked)      = getNodesOverallStatus(nagios_status, hostnames, '^check-bdii.+')
-    overall_status_dict['topbdii']  = getNagiosStatusStr(status, has_been_checked)
+    (status, has_been_checked)      = get_hosts_overall_nagios_status(nagios_status, hostnames, '^check-bdii.+')
+    overall_status_dict['topbdii']  = get_nagios_status_str(status, has_been_checked)
     hostnames = [sitebdii.hostname for sitebdii in sitebdii_list]
-    (status, has_been_checked)      = getNodesOverallStatus(nagios_status, hostnames, '^check-bdii.+')
-    overall_status_dict['sitebdii'] = getNagiosStatusStr(status, has_been_checked)
-    (status, has_been_checked)      = getNodesOverallStatus(nagios_status, hostnames, '^check-ce$')
-    overall_status_dict['ce']       = getNagiosStatusStr(status, has_been_checked)
-    (status, has_been_checked)      = getNodesOverallStatus(nagios_status, hostnames, '^check-se$')
-    overall_status_dict['se']       = getNagiosStatusStr(status, has_been_checked)
-    (status, has_been_checked)      = getNodesOverallStatus(nagios_status, hostnames, '^check-service$')
-    overall_status_dict['service']  = getNagiosStatusStr(status, has_been_checked)
-    (status, has_been_checked)      = getNodesOverallStatus(nagios_status, hostnames, '^check-site$')
-    overall_status_dict['site']     = getNagiosStatusStr(status, has_been_checked)
+    (status, has_been_checked)      = get_hosts_overall_nagios_status(nagios_status, hostnames, '^check-bdii.+')
+    overall_status_dict['sitebdii'] = get_nagios_status_str(status, has_been_checked)
+    (status, has_been_checked)      = get_hosts_overall_nagios_status(nagios_status, hostnames, '^check-ce$')
+    overall_status_dict['ce']       = get_nagios_status_str(status, has_been_checked)
+    (status, has_been_checked)      = get_hosts_overall_nagios_status(nagios_status, hostnames, '^check-se$')
+    overall_status_dict['se']       = get_nagios_status_str(status, has_been_checked)
+    (status, has_been_checked)      = get_hosts_overall_nagios_status(nagios_status, hostnames, '^check-service$')
+    overall_status_dict['service']  = get_nagios_status_str(status, has_been_checked)
+    (status, has_been_checked)      = get_hosts_overall_nagios_status(nagios_status, hostnames, '^check-site$')
+    overall_status_dict['site']     = get_nagios_status_str(status, has_been_checked)
 
 
     # Count the CPU and Jobs numbers in all CEs and the storage space in all SEs at site
     installed_capacity = {}
-    sub_cluster_list = get_subclusters(service_list)
+    sub_cluster_list = get_gluesubclusters(service_list)
     physical_cpu, logical_cpu = get_installed_capacity_cpu(sub_cluster_list)
     installed_capacity['physicalcpus']      = physical_cpu
     installed_capacity['logicalcpus']       = logical_cpu
     
-    se_list = get_ses(service_list)
+    se_list = get_glueses(service_list)
     total_online, used_online, total_nearline, used_nearline = get_installed_capacity_storage(se_list)
     installed_capacity['totalonlinesize']   = total_online
     installed_capacity['usedonlinesize']    = used_online
@@ -82,7 +82,7 @@ def overview(request, site_name):
     installed_capacity['usednearlinesize']  = used_nearline
     
     vo_jobs = []
-    vo_view_list = get_vo_view(service_list)
+    vo_view_list = get_gluevoview(service_list)
     job_dict = {}
     for vo_view in vo_view_list:
         total_jobs, running_jobs, waiting_jobs = get_job_stats([vo_view])   
@@ -121,7 +121,7 @@ def overview(request, site_name):
                                                 'minutes_ago'        : minutes_ago})
     
 def status(request, site_name, type):
-    site_entity = getEntityByUniqueidType(site_name, 'Site')
+    site_entity = get_unique_entity(site_name, 'Site')
     if not site_entity:
         #raise Http404 
         pass
@@ -146,89 +146,70 @@ def status(request, site_name, type):
             #The actual id given was a real host.
             hostname_list.append(hostname)
             
-    nagios_status = getNagiosStatusDict()         
+    nagios_status = get_nagios_status_dict()         
     status_list = []
     for hostname in hostname_list:
         if type == 'topbdii':
-            status_list.append( getNagiosStatus(nagios_status, 'check-bdii-freshness', hostname) )
-            status_list.append( getNagiosStatus(nagios_status, 'check-bdii-sites', hostname) )
+            status_list.append( get_nagios_status(nagios_status, 'check-bdii-freshness', hostname) )
+            status_list.append( get_nagios_status(nagios_status, 'check-bdii-sites', hostname) )
         elif type == 'sitebdii':
-            status_list.append( getNagiosStatus(nagios_status, 'check-bdii-freshness', hostname) )
-            status_list.append( getNagiosStatus(nagios_status, 'check-bdii-services', hostname) )
+            status_list.append( get_nagios_status(nagios_status, 'check-bdii-freshness', hostname) )
+            status_list.append( get_nagios_status(nagios_status, 'check-bdii-services', hostname) )
         elif type == 'ce':
-            status_list.append( getNagiosStatus(nagios_status, 'check-ce', hostname) )
+            status_list.append( get_nagios_status(nagios_status, 'check-ce', hostname) )
         elif type == 'se':
-            status_list.append( getNagiosStatus(nagios_status, 'check-se', hostname) )
+            status_list.append( get_nagios_status(nagios_status, 'check-se', hostname) )
         elif type == 'service':
-            status_list.append( getNagiosStatus(nagios_status, 'check-service', hostname) )
+            status_list.append( get_nagios_status(nagios_status, 'check-service', hostname) )
         elif type == 'site':
-            status_list.append( getNagiosStatus(nagios_status, 'check-site', hostname) )
-    
-    if type in ['topbdii', 'sitebdii']:
-        check_type = 'monitoring'
-    else:
-        check_type = 'validation'
+            status_list.append( get_nagios_status(nagios_status, 'check-site', hostname) )
+
+    unsorted_list = status_list
+    sorted_list = [(dict['hostname'], dict) for dict in unsorted_list]
+    sorted_list.sort()
+    result_list = [dict for (hostname, dict) in sorted_list]
+    status_list = result_list
+
+    if type in ['topbdii', 'sitebdii']: check_type = 'monitoring'
+    else:                               check_type = 'validation'
 
     return render_to_response('status.html', {'site_name'   : site_name,
                                               'status_list' : status_list,
                                               'check_type'  : check_type})
 
 
-"""
-def getStatusList(site_name, search_phrase, node_type):
-    site_entity = getEntityByUniqueidType(site_name, 'Site')
-    if not site_entity:
-        raise Http404 
 
-    hostname_list  = [node.hostname for node in getNodesInSite(site_entity, node_type)]
-    nagios_status = getNagiosStatusDict()
-    status_list = []
-    
-    for hostname in hostname_list:
-        try:
-            for check in nagios_status[hostname].keys():
-                status_dict = {}
-                if re.compile(search_phrase).match(check):
-                    status_dict['hostname']           = hostname
-                    status_dict['check']              = check
-                    current_state                     = nagios_status[hostname][check]['current_state']
-                    has_been_checked                  = nagios_status[hostname][check]['has_been_checked']
-                    status_dict['current_state']      = getNagiosStatusStr(current_state, has_been_checked)
-                    status_dict['plugin_output']      = nagios_status[hostname][check]['plugin_output']
-                    status_dict['long_plugin_output'] = nagios_status[hostname][check]['long_plugin_output']
-                    status_dict['last_check']         = nagios_status[hostname][check]['last_check']
-                if status_dict:
-                    status_list.append(status_dict)
-        except (KeyError):
-            pass
-    return status_list    
-"""
 
 # ------------------------------------
 # -- RRD graphs HTML pages function --
 # ------------------------------------
 def site_graphs(request, site_name, attribute):
-    site_entity = getEntityByUniqueidType(site_name, 'Site')
+    site_entity = get_unique_entity(site_name, 'Site')
     service_list = get_services([site_entity])
-    sub_cluster_list = get_subclusters(service_list)
-    se_list = get_ses(service_list)
+    sub_cluster_list = get_gluesubclusters(service_list)
+    se_list = get_glueses(service_list)
     
     if attribute == 'cpu':
-        objects = sub_cluster_list
+        objects = sort_objects_by_attr(sub_cluster_list, 'uniqueid')
     elif attribute in ['online','nearline']:
-        objects = se_list
+        objects = sort_objects_by_attr(se_list, 'uniqueid')
     
     return render_to_response('site_graphs.html', {'site_name': site_name,
                                                    'objects'  : objects,
                                                    'attribute': attribute}) 
 
 def vo_graphs(request, site_name, attribute, vo_name):
-    site_entity = getEntityByUniqueidType(site_name, 'Site')
+    site_entity = get_unique_entity(site_name, 'Site')
     service_list = get_services([site_entity])
     ce_list = []
     for service in service_list:
         if service.type == 'CE': ce_list.append(service)
-    objects = ce_list
+    support_ce_list = []
+    for ce in ce_list:
+        vos = get_vos([ce])
+        if vo_name in [vo.uniqueid for vo in vos]:
+            support_ce_list.append(ce)
+    objects = sort_objects_by_attr(support_ce_list, 'uniqueid')
         
 
     return render_to_response('vo_graphs.html', {'site_name': site_name,
