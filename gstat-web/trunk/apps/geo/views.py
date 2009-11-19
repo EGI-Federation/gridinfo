@@ -3,7 +3,7 @@ from django.utils import html
 from django.shortcuts import render_to_response
 from topology.models import Entity, Entityrelationship
 from glue.models import gluesite
-from core.utils import get_services, get_subclusters, get_installed_capacity_cpu,get_ses, get_installed_capacity_storage
+from core.utils import get_services, get_gluesubclusters, get_installed_capacity_cpu,get_glueses, get_installed_capacity_storage
 import random
 from geo import countryInfo
 
@@ -171,11 +171,11 @@ def overlay(request, type=''):
                     usedsize     = 0 
                     for site in site_list:
                         service_list = get_services([site])
-                        sub_cluster_list = get_subclusters(service_list)
+                        sub_cluster_list = get_gluesubclusters(service_list)
                         physical_cpu, logical_cpu = get_installed_capacity_cpu(sub_cluster_list)
                         physicalcpus += physical_cpu
                         logicalcpus  += logical_cpu
-                        se_list = get_ses(service_list)
+                        se_list = get_glueses(service_list)
                         total_online, used_online, total_nearline, used_nearline = get_installed_capacity_storage(se_list)
                         totalsize    += total_online + total_nearline
                         usedsize     += used_online + used_nearline

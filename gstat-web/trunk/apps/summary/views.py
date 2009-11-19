@@ -19,9 +19,9 @@ def main(request, type='GRID', value='ALL', output=None):
     
     if (value == "ALL"):
         # group list, ex: list of grid, list of roc, list of country
-        groups = getEntitiesByType(type)
+        groups = get_groups(type=type)
         for group in groups:
-            site_list = getSitesInGroup(predicate[type], group)
+            site_list = get_sites(type=type, value=group.uniqueid)
             sites_data_rows  = get_data_for_sites(site_list)
             group_summary = [str(group.uniqueid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             for row in sites_data_rows:
@@ -31,8 +31,7 @@ def main(request, type='GRID', value='ALL', output=None):
             data.append(group_summary)       
     else:
         # site list
-        group = getEntityByUniqueidType(value, type)
-        site_list = getSitesInGroup(predicate[type], group)
+        site_list = get_sites(type, value)
         data = get_data_for_sites(site_list, get_status=True)
 
     if (output == 'json'):
@@ -54,26 +53,26 @@ def get_data_for_sites(site_list, get_status=False):
         site_name = str(site.uniqueid)
         
         service_list = get_services([site])
-        sub_cluster_list = get_subclusters(service_list)
+        sub_cluster_list = get_gluesubclusters(service_list)
         physical_cpu, logical_cpu = get_installed_capacity_cpu(sub_cluster_list)
         
-        se_list = get_ses(service_list)
+        se_list = get_glueses(service_list)
         total_online, used_online, total_nearline, used_nearline = get_installed_capacity_storage(se_list)
 
-        vo_view_list = get_vo_view(service_list)
+        vo_view_list = get_gluevoview(service_list)
         total_jobs, running_jobs, waiting_jobs = get_job_stats(vo_view_list)        
         
         site_number_or_status = 0
         if get_status:
-            if not nagios_status: nagios_status = getNagiosStatusDict()
+            if not nagios_status: nagios_status = get_nagios_status_dict()
             topbdii_list  = []
             sitebdii_list = []
             for service in service_list:
                 if service.type == 'bdii_top':  topbdii_list.append(service)
                 if service.type == 'bdii_site': sitebdii_list.append(service)       
             hostnames = [bdii.hostname for bdii in topbdii_list+sitebdii_list]
-            (status, has_been_checked) = getNodesOverallStatus(nagios_status, hostnames, '^check-.+')
-            site_number_or_status = getNagiosStatusStr(status, has_been_checked)
+            (status, has_been_checked) = get_hosts_overall_nagios_status(nagios_status, hostnames, '^check-.+')
+            site_number_or_status = get_nagios_status_str(status, has_been_checked)
             
         row = [ site_name,
                 site_number_or_status,
