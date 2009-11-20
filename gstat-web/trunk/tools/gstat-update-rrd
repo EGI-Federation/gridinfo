@@ -54,7 +54,7 @@ log.addHandler(hdlr)
 log.setLevel(2)
 
 # Welcome
-log.info('Welcome to the snapshot script')
+log.info('Welcome to the gstat-update-rrd script')
 log.info('Processing started ...')
 
 data_dir='/var/cache/gstat/rrd'
