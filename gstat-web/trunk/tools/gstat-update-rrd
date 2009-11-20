@@ -37,7 +37,7 @@ DIR = os.path.dirname(__file__)
 APPS_DIR = os.path.join(DIR, '..','apps')
 sys.path.append(APPS_DIR)
 os.environ['DJANGO_SETTINGS_MODULE']='core.settings'
-from topology.models import Entity
+from glue.models import gluece, gluese, gluesubcluster, gluevoview
 from core.utils import *
 
 modulename='topology.models'
@@ -117,7 +117,7 @@ sub_data_dir='%s/SE' %(data_dir)
 createDir(sub_data_dir)
 
 distinct = {}
-objects = getGlueEntity('gluese', all=True)
+objects = gluese.objects.all()
 for obj in objects:
     if (not distinct.has_key(obj.uniqueid)):
         obj_unique_data_dir = '%s/%s' %(sub_data_dir, str(obj.uniqueid).replace('/',''))
@@ -154,7 +154,8 @@ sub_data_dir='%s/SubCluster' %(data_dir)
 createDir(sub_data_dir)
 
 distinct = {}
-objects = getGlueEntity('gluesubcluster', all=True)
+objects = gluesubcluster.objects.all()
+
 for obj in objects:
     if (not distinct.has_key(obj.uniqueid)):
         obj_unique_data_dir = '%s/%s' %(sub_data_dir, str(obj.uniqueid).replace('/',''))
@@ -240,7 +241,7 @@ for view in objects:
         value = view.__getattribute__(attr)
         if (attr == "waitingjobs" and value == "444444"): value = "0"
         if (value == "unset" or value == ""):             value = "0"
-        data[cluster][vo][datasources['job'].index(attr)] += convertToInteger(value)    
+        data[cluster][vo][datasources['job'].index(attr)] += convert_to_integer(value)    
         
 for cluster in data.keys():
     for vo in data[cluster].keys():
@@ -292,7 +293,7 @@ for obj in objects:
                     data = "0"
                 if (data == "unset" or data == ""):
                     data = "0"
-                jobs[key][attr] = convertToInteger(data)
+                jobs[key][attr] = convert_to_integer(data)
         else:
             for attr in datasources['job']:
                 data = obj.__getattribute__(attr)
@@ -300,7 +301,7 @@ for obj in objects:
                     data = "0"
                 if (data == "unset" or data == ""):
                     data = "0"
-                jobs[key][attr] += convertToInteger(data)       
+                jobs[key][attr] += convert_to_integer(data)       
     except KeyError:
         pass
         
