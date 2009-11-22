@@ -234,7 +234,7 @@ for object in objects:
     vo = None
     if ( object.value[:3] == "VO:" ):
         vo = object.value[3:]
-    if ( object.value[:3] == "VOMS:" ):
+    if ( object.value[:5] == "VOMS:" ):
         vo = object.value[5:]
         index = vo.find("\\")
         vo = vo[:index]

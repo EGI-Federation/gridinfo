@@ -289,7 +289,11 @@ def get_nagios_status_dict():
 def get_hosts_overall_nagios_status(status_dict, hostname_list, check_name_phrase):
     overall_status = -1
     has_been_checked = 1
+    real_hostname_list = []
     for hostname in hostname_list:
+        alias = get_hostname(hostname)
+        real_hostname_list += get_hosts_from_alias(alias)
+    for hostname in real_hostname_list:
         try:
             for key in status_dict[hostname].keys(): 
                 if re.compile(check_name_phrase).match(key):
