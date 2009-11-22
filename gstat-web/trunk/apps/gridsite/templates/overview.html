@@ -43,31 +43,31 @@
       <tbody> 
         <tr> 
           <td>Site name</td> 
-          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.name }}{% endifnotequal %}</td> 
+          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.name }}{% else %}N/A{% endifnotequal %}</td> 
         </tr> 
         <tr> 
           <td>Description</td> 
-          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.description }}{% endifnotequal %}</td> 
+          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.description }}{% else %}N/A{% endifnotequal %}</td> 
         </tr> 
         <tr> 
           <td>Location</td> 
-          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.location }}{% endifnotequal %}</td> 
+          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.location }}{% else %}N/A{% endifnotequal %}</td> 
         </tr> 
         <tr> 
           <td>Web</td> 
-          <td>{% ifnotequal gluesite "N/A" %}<a href="{{ gluesite.web }}">{{ gluesite.web }}</a>{% endifnotequal %}</td> 
+          <td>{% ifnotequal gluesite "N/A" %}<a href="{{ gluesite.web }}">{{ gluesite.web }}</a>{% else %}N/A{% endifnotequal %}</td> 
         </tr> 
         <tr> 
           <td>Sysadmin Email</td> 
-          <td>{% ifnotequal gluesite "N/A" %}<a href="mailto:{{ gluesite.sysadmincontact }}">{{ gluesite.sysadmincontact }}</a>{% endifnotequal %}</td> 
+          <td>{% ifnotequal gluesite "N/A" %}<a href="mailto:{{ gluesite.sysadmincontact }}">{{ gluesite.sysadmincontact }}</a>{% else %}N/A{% endifnotequal %}</td> 
         </tr> 
         <tr> 
           <td>User-Support Email</td> 
-          <td>{% ifnotequal gluesite "N/A" %}<a href="mailto:{{ gluesite.usersupportcontact }}">{{ gluesite.usersupportcontact }}</a>{% endifnotequal %}</td> 
+          <td>{% ifnotequal gluesite "N/A" %}<a href="mailto:{{ gluesite.usersupportcontact }}">{{ gluesite.usersupportcontact }}</a>{% else %}N/A{% endifnotequal %}</td> 
         </tr> 
         <tr> 
           <td>Security Email</td> 
-          <td>{% ifnotequal gluesite "N/A" %}<a href="mailto:{{ gluesite.securitycontact }}">{{ gluesite.securitycontact }}</a>{% endifnotequal %}</td> 
+          <td>{% ifnotequal gluesite "N/A" %}<a href="mailto:{{ gluesite.securitycontact }}">{{ gluesite.securitycontact }}</a>{% else %}N/A{% endifnotequal %}</td> 
         </tr> 
       </tbody> 
     </table> 
@@ -84,13 +84,19 @@
           </tr> 
         </thead> 
         <tbody> 
-          {% ifnotequal count_dict.topbdii 0 %}
+          {% ifequal overall_status_dict.topbdii "N/A"%}{% ifequal overall_status_dict.sitebdii "N/A"%}
+          <tr> 
+            <td>N/A</td> 
+            <td>N/A</td> 
+          </tr> 
+          {% endifequal %}{% endifequal %}
+          {% ifnotequal overall_status_dict.topbdii "N/A" %}
           <tr> 
             <td><a href="/gstat/site/{{ sitename }}/topbdii/">Top BDII</a></td> 
             <td><span class="NagiosStatus_{{ overall_status_dict.topbdii }}"> {{ overall_status_dict.topbdii }} </span></td> 
           </tr> 
           {% endifnotequal %}
-          {% ifnotequal count_dict.sitebdii 0 %}
+          {% ifnotequal overall_status_dict.sitebdii "N/A" %}
           <tr> 
             <td><a href="/gstat/site/{{ sitename }}/sitebdii/">Site BDII</a></td> 
             <td><span class="NagiosStatus_{{ overall_status_dict.sitebdii }}"> {{ overall_status_dict.sitebdii }} </span></td> 
@@ -101,7 +107,7 @@
     </div>
     
     <div class="board">
-      <h2>Information Content Validation</h2>
+      <h2>Information Content Validation in Site BDII</h2>
       <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
         <thead> 
           <tr> 
@@ -114,29 +120,37 @@
 -->
           </tr> 
         </thead> 
-        <tbody>     
-          {% ifnotequal count_dict.ce 0 %}
+        <tbody>    
+          {% ifequal overall_status_dict.ce "N/A"%}{% ifequal overall_status_dict.se "N/A"%}{% ifequal overall_status_dict.service "N/A"%}{% ifequal overall_status_dict.site "N/A"%}
+          <tr> 
+            <td>N/A</td> 
+            <td>N/A</td> 
+          </tr> 
+          {% endifequal %}{% endifequal %}{% endifequal %}{% endifequal %}
+          {% ifnotequal overall_status_dict.ce "N/A" %}
           <tr> 
             <td><a href="/gstat/site/{{ sitename }}/ce/">CE</a></td> 
             <td><span class="NagiosStatus_{{ overall_status_dict.ce }}"> {{ overall_status_dict.ce }} </span></td> 
           </tr> 
           {% endifnotequal %}
-          {% ifnotequal count_dict.se 0 %}
+          {% ifnotequal overall_status_dict.se "N/A" %}
           <tr> 
             <td><a href="/gstat/site/{{ sitename }}/se/">SE</a></td> 
             <td><span class="NagiosStatus_{{ overall_status_dict.se }}"> {{ overall_status_dict.se }} </span></td> 
           </tr> 
           {% endifnotequal %}          
-          {% ifnotequal count_dict.service 0 %}
+          {% ifnotequal overall_status_dict.service "N/A" %}
           <tr> 
             <td><a href="/gstat/site/{{ sitename }}/service/">Service</a></td> 
             <td><span class="NagiosStatus_{{ overall_status_dict.service }}"> {{ overall_status_dict.service }} </span></td> 
           </tr> 
           {% endifnotequal %}
+          {% ifnotequal overall_status_dict.site "N/A" %}
           <tr> 
             <td><a href="/gstat/site/{{ sitename }}/site/">Site</a></td> 
             <td><span class="NagiosStatus_{{ overall_status_dict.site }}"> {{ overall_status_dict.site }} </span></td> 
           </tr> 
+          {% endifnotequal %}
         </tbody> 
       </table>        
     </div>			
@@ -151,7 +165,13 @@
             <th>Entity Number</th> 
           </tr> 
         </thead> 
-        <tbody>           
+        <tbody> 
+          {% ifequal count_dict.ce 0 %}{% ifequal count_dict.se 0 %}{% ifequal count_dict.service 0 %}
+          <tr> 
+            <td>N/A</td> 
+            <td>N/A</td> 
+          </tr> 
+          {% endifequal %}{% endifequal %}{% endifequal %}
           {% ifnotequal count_dict.ce 0 %}
           <tr> 
             <td>CE<!-- <a href="/gstat/site/{{ sitename }}/ce/">CE</a> --></td> 
@@ -220,32 +240,62 @@
           <td>{{ installed_capacity.usedonlinesize }} GB</td> 
           <td>
             <script>
-            display({{ installed_capacity.totalonlinesize }}, {{ installed_capacity.usedonlinesize }});
+            display('{{ installed_capacity.totalonlinesize }}', '{{ installed_capacity.usedonlinesize }}');
             </script>
           </td>
           <td>{{ installed_capacity.totalnearlinesize }} GB</td> 
           <td>{{ installed_capacity.usednearlinesize }} GB</td> 
           <td>
             <script>
-            display({{ installed_capacity.totalnearlinesize }}, {{ installed_capacity.usednearlinesize }});
+            display('{{ installed_capacity.totalnearlinesize }}', '{{ installed_capacity.usednearlinesize }}');
             </script>
           </td>
         </tr> 
         <tr> 
-          <td colspan="2">
-            <a href="/gstat/site/{{ sitename }}/graphs/cpu/">
-              <img src="/gstat/rrd/Site/{{ sitename }}/cpu/e-3h/small/"/>
-            </a> 
+          <td id="cpu" colspan="2">
+            <script type="text/javascript">
+              $.get("/gstat/rrd/Site/{{ sitename }}/cpu/e-3h/small/", {}, function(r) {
+                if (r != 'N/A') {
+                  $('#cpu').append(
+                    $('<a></a>').attr({'href':'/gstat/site/{{ sitename }}/graphs/cpu/'}).append(
+                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ sitename }}/cpu/e-3h/small/'})
+                    )
+                  );
+                } else {
+                  $('#cpu').append("N/A");
+                }
+              });
+            </script>
           </td>
-          <td colspan="3">
-            <a href="/gstat/site/{{ sitename }}/graphs/online/">
-              <img src="/gstat/rrd/Site/{{ sitename }}/online/e-3h/small/"/>
-            </a>
+          <td id="online" colspan="3">
+            <script type="text/javascript">
+              $.get("/gstat/rrd/Site/{{ sitename }}/online/e-3h/small/", {}, function(r) {
+                if (r != 'N/A') {
+                  $('#online').append(
+                    $('<a></a>').attr({'href':'/gstat/site/{{ sitename }}/graphs/online/'}).append(
+                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ sitename }}/online/e-3h/small/'})
+                    )
+                  );
+                } else {
+                  $('#online').append("N/A");
+                }
+              });
+            </script>
           </td>
-          <td colspan="3">
-            <a href="/gstat/site/{{ sitename }}/graphs/nearline/">
-              <img src="/gstat/rrd/Site/{{ sitename }}/nearline/e-3h/small/"/>
-            </a>
+          <td id="nearline" colspan="3">
+            <script type="text/javascript">
+              $.get("/gstat/rrd/Site/{{ sitename }}/nearline/e-3h/small/", {}, function(r) {
+                if (r != 'N/A') {
+                  $('#nearline').append(
+                    $('<a></a>').attr({'href':'/gstat/site/{{ sitename }}/graphs/nearline/'}).append(
+                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ sitename }}/nearline/e-3h/small/'})
+                    )
+                  );
+                } else {
+                  $('#nearline').append("N/A");
+                }
+              });
+            </script>
           </td>
         </tr> 
       </tbody> 
@@ -259,6 +309,9 @@
 
 
 	<div id="tabs_container">
+	{% if not vo_jobs %}
+	  N/A
+	{% else %}
 	  <ul>
 	  {% for vo in vo_jobs %}
 	    <li><a href="#fragment-{{ forloop.counter }}"><span>{{ vo.voname }}</span></a></li>
@@ -333,6 +386,7 @@
 	  </div>
 	  {% endfor %}
 	</div>
+	{% endif %}
   </div>
 </div>
 <div class="clear"></div>

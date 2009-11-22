@@ -70,16 +70,27 @@ def overview(request, site_name):
     # Count the CPU and Jobs numbers in all CEs and the storage space in all SEs at site
     installed_capacity = {}
     sub_cluster_list = get_gluesubclusters(service_list)
-    physical_cpu, logical_cpu = get_installed_capacity_cpu(sub_cluster_list)
-    installed_capacity['physicalcpus']      = physical_cpu
-    installed_capacity['logicalcpus']       = logical_cpu
+    if sub_cluster_list:
+        physical_cpu, logical_cpu = get_installed_capacity_cpu(sub_cluster_list)
+
+    else:
+        physical_cpu = "N/A"
+        logical_cpu  = "N/A"
+    installed_capacity['physicalcpus'] = physical_cpu
+    installed_capacity['logicalcpus']  = logical_cpu
     
     se_list = get_glueses(service_list)
-    total_online, used_online, total_nearline, used_nearline = get_installed_capacity_storage(se_list)
+    if se_list:
+        total_online, used_online, total_nearline, used_nearline = get_installed_capacity_storage(se_list)
+    else:
+        total_online   = "N/A"
+        used_online    = "N/A"
+        total_nearline = "N/A"
+        used_nearline  = "N/A"
     installed_capacity['totalonlinesize']   = total_online
     installed_capacity['usedonlinesize']    = used_online
     installed_capacity['totalnearlinesize'] = total_nearline
-    installed_capacity['usednearlinesize']  = used_nearline
+    installed_capacity['usednearlinesize']  = used_nearline        
     
     vo_jobs = []
     vo_view_list = get_gluevoview(service_list)
