@@ -39,7 +39,7 @@ error_messages = {
    "CE.Attribute.Exist": ["Mandatory attribute does not exist in the GlueCE entry.","ERROR"],
    "CE.Attribute.OptionalExist": ["Optional attribute does not exist in the Glue CE entry.","WARNING"],
    "CE.UniqueID.Unique": ["GlueCEUniqueID is not unique","ERROR"],
-   "CE.PolicyAssignedJobSlots.Value": ["GlueCEPolicyAssignedJobSlots has negative or null value","ERROR"],
+   "CE.PolicyAssignedJobSlots.Value": ["GlueCEPolicyAssignedJobSlots has negative or null value","WARNING"],
    "CE.Status.Value": ["GlueCEStatus has unknown value","ERROR"],
    "CE.GlueCluster.Exist": ["This CE does not have any GlueCluster associated","ERROR"],
    "CE.AccessControlBaseRule.Value": ["ACBR has an invalid format","ERROR"],
