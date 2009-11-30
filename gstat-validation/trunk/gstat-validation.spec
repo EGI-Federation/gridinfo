@@ -1,6 +1,6 @@
 Summary: Gstat Valiation Scripts
 Name: gstat-validation
-Version: 2.0.22
+Version: 2.0.23
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: EGEE
@@ -36,6 +36,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/gstat 
 
 %changelog
+* Mon Nov 30 2009 Steve Traylen <steve.traylen@cern.ch>  - 2.0.23-1
 - Apply patch from Paul Millar @ DESY.
   Accepts a dCache as a prefix to GlueSACapability values.
   More relaxed about accepting cms as well as VO:cms. Can't
