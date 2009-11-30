@@ -195,7 +195,7 @@ def test_SE_SA(key,entry):
          if (oc == "GlueSA" and ldif[k].has_key('GlueChunkKey')):
             ldif[k]['GlueChunkKey'][0].find(entry['GlueSEUniqueID'][0])
             return
-      my_errors.log(gsutils.get_unique_id(key),'SE.GlueSA.Exist', '', gsutils.get_site(key))
+   my_errors.log(gsutils.get_unique_id(key),'SE.GlueSA.Exist', '', gsutils.get_site(key))
 
 # Validation of the GlueSA object
 def test_glue_SA(key,entry):
@@ -265,6 +265,7 @@ def test_SA_Capability(key,entry):
    off=0
    for val in entry['GlueSACapability']:
       if ( val != "stage" and val != "scratch" and
+           val[0:6] != "dCache" and  ## FIXME: instead of "dCache" try with value of GlueSEImplementationName
            val.find("InstalledOnlineCapacity") == -1 and
            val.find("InstalledNearlineCapacity") == -1):
          
@@ -338,12 +339,14 @@ def test_glue_VOInfo(key,entry):
       my_errors.log(gsutils.get_unique_id(key),'VOInfo.LocalID.Exist',
                     'GlueVOInfoLocalID does not exist in the entry', gsutils.get_site(key))
 
-   # Test for unique GlueVOInfoLocalID value within an SA
-   logging.debug("Testing VOInfo for univocity of GlueVOInfoLocalID")
-   if (entry.has_key('GlueVOInfoLocalID') and
-                    VOInfoId.count(entry['GlueVOInfoLocalID'][0]) > 1):
-      my_errors.log(gsutils.get_unique_id(key),'VOInfo.LocalID.Unique',
-                    'GlueVOInfoLocalID is not unique within SE', gsutils.get_site(key))
+   ## FIXME: the following test is broken.  The test asserts that the GlueVOInfoLocalID is
+   ##        unique within the SE object.  However, the VOInfo.LocalID is required to be
+   ##        unique within the parent object (the SA).
+   #logging.debug("Testing VOInfo for univocity of GlueVOInfoLocalID")
+   #if (entry.has_key('GlueVOInfoLocalID') and
+   #                 VOInfoId.count(entry['GlueVOInfoLocalID'][0]) > 1):
+   #   my_errors.log(gsutils.get_unique_id(key),'VOInfo.LocalID.Unique',
+   #                 'GlueVOInfoLocalID is not unique within SE', gsutils.get_site(key))
 
    # Test for univocity of GlueVOInfoPath
    logging.debug("Testing VOInfo for univocity of GlueVOInfoPath")
@@ -369,7 +372,7 @@ def test_glue_VOInfo(key,entry):
          except ValueError:
            my_errors.log(gsutils.get_unique_id(key),'VOInfo.ChunkKey',
                                   'GlueSALocalID not set', gsutils.get_site(key))
-     if ( sacount > 0 ) :
+     if ( sacount > 1 ) :
         my_errors.log(gsutils.get_unique_id(key),'VOInfo.ChunkKey',
                           'GlueSALocalID not unique', gsutils.get_site(key))
 
@@ -603,10 +606,15 @@ def test_Size(key,entry,attribute,type,error):
 def test_ACBR(key,entry,attribute,type):
    logging.debug("Testing %s for %s" %(type,entry[attribute][0]))
 
-   for val in entry[attribute]:
-      if ( val[0] != "/" and val[:3] != "VO:" and val[:6] != "VOMS:/" ):
-         my_errors.log(gsutils.get_unique_id(key),type+'.AccessControlBaseRule',
-                          val+' ACBR has an invalid format', gsutils.get_site(key))
+   ##
+   ##  FIXME:  the following test is not applicable due to existing
+   ##          bugs in clients.  See:
+   ##               https://savannah.cern.ch/bugs/?57919
+   ##               https://savannah.cern.ch/bugs/?57827
+   # for val in entry[attribute]:
+   #   if ( val[0] != "/" and val[:3] != "VO:" and val[:6] != "VOMS:/" ):
+   #      my_errors.log(gsutils.get_unique_id(key),type+'.AccessControlBaseRule',
+   #                       val+' ACBR has an invalid format', gsutils.get_site(key))
 
 
 
@@ -640,7 +648,7 @@ if __name__ == "__main__":
    my_errors=gsutils.error_logger('gstat-validate-se',error_messages)
 
    # Set filter to reduced the amount of information 
-   filter = "'(|(objectclass=GlueSE)(objectclass=GlueSA)(objectclass=VOInfo)(objectClass=GlueSEAccessProtocol)(objectClass=GlueSEControlProtocol)(&(objectClass=GlueService)(GlueServiceType=SRM)))'"
+   filter = "'(|(objectclass=GlueSE)(objectclass=GlueSA)(objectclass=GlueVOInfo)(objectClass=GlueSEAccessProtocol)(objectClass=GlueSEControlProtocol)(&(objectClass=GlueService)(GlueServiceType=SRM)))'"
    ldifSRM=[]
 
    # LDIF Data Structure Dict Dict List; ldif[dn][attribute][value1,value2]
