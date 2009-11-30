@@ -1,0 +1,393 @@
+#!/usr/bin/python
+##############################################################################
+# Copyright (c) Members of the EGEE Collaboration. 2004.
+# See http://www.eu-egee.org/partners/ for details on the copyright
+# holders.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at #
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS
+# OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+#
+# NAME :        gstat-validate-ce
+#
+# DESCRIPTION : Sanity checks for CE, Cluster, SubCluster 
+#
+# AUTHORS :     Flavia.Donno@cern.ch
+#
+# CREATION DATE: 18 February 2009
+#
+# MODIFICATON DATE:
+#
+# NOTES :
+#
+##############################################################################
+import sys
+import logging
+import gsutils
+
+error_messages = {
+       "gstat.value.error": ["A value is incorrrect","ERROR"],
+   "CE.Attribute.Exist": ["Mandatory attribute does not exist in the GlueCE entry.","ERROR"],
+   "CE.Attribute.OptionalExist": ["Optional attribute does not exist in the Glue CE entry.","WARNING"],
+   "CE.UniqueID.Unique": ["GlueCEUniqueID is not unique","ERROR"],
+   "CE.PolicyAssignedJobSlots.Value": ["GlueCEPolicyAssignedJobSlots has negative or null value","WARNING"],
+   "CE.Status.Value": ["GlueCEStatus has unknown value","ERROR"],
+   "CE.GlueCluster.Exist": ["This CE does not have any GlueCluster associated","ERROR"],
+   "CE.AccessControlBaseRule.Value": ["ACBR has an invalid format","ERROR"],
+   "CE.Capability.Exist": ["CE Share or CPUScalingReferenceSI00 entries missing","WARNING"],
+   "CE.Capability.Value": ["CE Capability Value not correct","ERROR"],
+   "Cluster.ForeignKey.Value": ["GlueForeignKey does not contain GlueSiteUniqueID","ERROR"],
+   "Cluster.UniqueID.Exist": ["GlueClusterUniqueID does not exist in the entry","ERROR"],
+   "Cluster.UniqueID.Unique": ["GlueClusterUniqueID is not unique","ERROR"],
+   "SubCluster.Attribute.Exist": ["Mandatory attribute does not exist in the GlueSubCluster entry.","ERROR"],
+   "SubCluster.Attribute.OptionalExist": ["Optional attribute does not exist in the Glue SubCluster entry.","WARNING"],
+   "SubCluster.UniqueID.Unique": ["GlueSubClusterUniqueID is not unique","ERROR"],
+   "SubCluster.CPU.Value": ["GlueSubCluster CPU value not valid","ERROR"],
+   "SubCluster.OtherDescription.Cores": ["The Cores format is wrong","ERROR"],
+   "SubCluster.OtherDescription.Benchmark": ["The Benchmark format is wrong","ERROR"]
+}
+
+def test_glue_initID(ldif,attr):
+   IdList = [ldif[k][attr][0] for k in ldif.keys() if ldif[k].has_key(attr)]
+   return IdList
+
+# Validation of the GlueCE object
+def test_glue_CE(key,entry):
+   logging.debug("Testing CE entry")
+
+   # Test for existence of attributes
+   for attribute in ("GlueCEUniqueID", "GlueCEHostingCluster", 
+                     "GlueCEPolicyAssignedJobSlots",
+                     "GlueCEStateStatus" ):
+      if ( not entry.has_key(attribute)):
+         my_errors.log(gsutils.get_unique_id(key),'CE.Attribute.Exist', 'Glue attribute %s does not exist.'
+                       % (attribute), gsutils.get_site(key))
+
+   # Test that GlueCEUniqueID is unique.
+   if ( entry.has_key('GlueCEUniqueID' )):
+      if ( CEId.count(entry['GlueCEUniqueID'][0]) > 1 ):
+         my_errors.log(gsutils.get_unique_id(key),'CE.UniqueID.Unique', "", gsutils.get_site(key))
+
+   # Test that GlueCEPolicyAssignedJobSlots is greater than 0
+   if entry.has_key('GlueCEPolicyAssignedJobSlots'):
+      if ( int(entry['GlueCEPolicyAssignedJobSlots'][0]) <= 0 ):
+         my_errors.log(gsutils.get_unique_id(key),'CE.PolicyAssignedJobSlots.Value', "", gsutils.get_site(key))
+
+   # Test that GlueCEStatus is set to one of the allowed statuses
+   if (entry.has_key('GlueCEStateStatus')):
+      test_CE_Status(key,entry)
+ 
+   # GlueCEAccessControlBaseRule should be set; check value format
+   if entry.has_key('GlueCEAccessControlBaseRule'):
+      test_ACBR(key,entry,"GlueCEAccessControlBaseRule","CE")
+
+   # Test that GlueCE has a GlueCluster associated
+   if entry.has_key('GlueCEUniqueID'):
+       pass
+      #LF: Commenting out as it creates too many errors
+      # test_CE_Cluster(key,entry)
+
+   # GlueCECapability must be set to one of the allowed values
+   if entry.has_key('GlueCECapability'):
+      test_CE_Capability(key,entry)
+   else:
+      my_errors.log(gsutils.get_unique_id(key),'CE.Attribute.OptionalExist', 'GlueCECapability does not exist in the entry', gsutils.get_site(key))
+
+def test_CE_Status(key,entry):
+   logging.debug("Testing SE for %s" %(entry['GlueCEStateStatus'][0]))
+
+   if (entry['GlueCEStateStatus'][0] not in
+            ("Production", "Closed", "Draining", "Queueing")):
+            my_errors.log(gsutils.get_unique_id(key),'CE.Status.Value', 'Value %s is not an allowed value.'
+                       % (entry['GlueCEStateStatus'][0]), gsutils.get_site(key))
+
+def test_CE_Cluster(key,entry):
+   logging.debug("Testing CE for existence of the associated Cluster")
+
+   if entry.has_key('GlueCEHostingCluster'):
+      for k in ldif.keys():
+         for oc in ldif[k]['objectClass']:
+            if (oc == "GlueCluster" and ldif[k].has_key('GlueForeignKey')
+                                    and ldif[k].has_key('GlueClusterUniqueID')):
+               if (ldif[k]['GlueForeignKey'][0].find(entry['GlueCEUniqueID'][0]) and entry['GlueCEHostingCluster'][0] == ldif[k]['GlueClusterUniqueID'][0]):
+                  return
+         my_errors.log(gsutils.get_unique_id(key),'CE.GlueCluster.Exist', '', gsutils.get_site(key))
+
+def test_CE_Capability(key,entry):
+   logging.debug("Testing CE for %s" %(entry['GlueCECapability'][0]) )
+   scale=0
+   share=0
+   for val in entry['GlueCECapability']:
+      if ( val.find("CPUScalingReferenceSI00") == -1 and
+           val.find("Share") == -1):
+         my_errors.log(gsutils.get_unique_id(key),'CE.Capability.Exist', '', gsutils.get_site(key))
+      if ( val.find("CPUScalingReferenceSI00") >= 0 or 
+           val.find("Share") >= 0 ):
+         if val.find("CPUScalingReferenceSI00") >= 0 :
+            scale=1
+            try:
+              index=val.index("=")
+              siz=val[index+1:]
+              try:
+                int(siz)
+                if ( int(siz) <= 0 ):
+                   my_errors.log(gsutils.get_unique_id(key),'CE.Capability.Value', 'CPUScalingReferenceSI00 <= 0', gsutils.get_site(key))
+              except ValueError:
+                 my_errors.log(gsutils.get_unique_id(key),'CE.Capability.Value', 'CPUScalingReferenceSI00 is not an integer', gsutils.get_site(key))
+            except ValueError:
+               my_errors.log(gsutils.get_unique_id(key),'CE.Capability.Value', 'CPUScalingReferenceSI00 not set', gsutils.get_site(key))
+
+         if val.find("Share") >= 0 :
+            share=1
+            try:
+              index=val.index(":")
+              siz=val[index+1:]
+
+              try:
+                int(siz)
+                if ( int(siz) < 1 or int(siz) > 100 ):
+                   my_errors.log(gsutils.get_unique_id(key),'CE.Capability.Value', 'Share < 1 or > 100', gsutils.get_site(key))
+              except ValueError:
+                 my_errors.log(gsutils.get_unique_id(key),'CE.Capability.Value', 'Share is not an integer', gsutils.get_site(key))
+            except ValueError:
+               my_errors.log(gsutils.get_unique_id(key),'CE.Capability.Value', 'Share not set', gsutils.get_site(key))
+
+   if scale == 0:
+      my_errors.log(gsutils.get_unique_id(key),'CE.Capability.Exist', 'CPUScalingReferenceSI00 attribute non existing', gsutils.get_site(key))
+  
+
+# Validation of the GlueCluster object
+def test_glue_Cluster(key,entry):
+   logging.debug("Testing Cluster entry")
+
+   if not entry.has_key('GlueClusterUniqueID'):
+      my_errors.log(gsutils.get_unique_id(key),'Cluster.UniqueID.Exist', '', gsutils.get_site(key))
+
+   # Test that the GlueClusterUniqueID is unique
+   if (entry.has_key('GlueClusterUniqueID') and
+                    ClusterId.count(entry['GlueClusterUniqueID'][0]) > 1):
+      my_errors.log(gsutils.get_unique_id(key),'Cluster.UniqueID.Unique', '', gsutils.get_site(key))
+
+   # Test that object has references
+   # to the Computing Elements or queues that it manages,
+   # and to the site it is part of.
+   if entry.has_key('GlueForeignKey'):
+      test_Cluster_ForeignKey(key,entry)
+
+def test_Cluster_ForeignKey(key,entry):
+   logging.debug("Testing Cluster for %s" %(entry['GlueForeignKey'][0]) )
+
+   sitecount=0
+   cecount=0
+   for fk in entry['GlueForeignKey']:
+      if fk.find('GlueSiteUniqueID') != -1 :
+         sitecount=+1
+      if fk.find('GlueCEUniqueID') != -1 :
+         cecount=+1
+
+   if (sitecount == 0):
+         my_errors.log(gsutils.get_unique_id(key),'Cluster.ForeignKey.Value', '', gsutils.get_site(key))
+
+   if (cecount == 0):
+         my_errors.log(gsutils.get_unique_id(key),'Cluster.ForeignKey.Value', 'Cluster object is missing GlueCEUniqueID ForeignKey', gsutils.get_site(key))
+
+
+# Validation of the GlueSubCluster object
+def test_glue_SubCluster(key,entry):
+   logging.debug("Testing SubCluster entry")
+
+   # Test for existence of mandatory attributes
+   for attribute in ("GlueSubClusterUniqueID", "GlueSubClusterPhysicalCPUs",
+                     "GlueSubClusterLogicalCPUs","GlueHostBenchmarkSI00",
+                     "GlueHostProcessorOtherDescription","GlueChunkKey",
+                     "GlueHostArchitectureSMPSize" ):
+
+      if ( not entry.has_key(attribute)):
+         my_errors.log(gsutils.get_unique_id(key),'SubCluster.Attribute.Exist', 'Glue attribute %s does not exist.'
+                       % (attribute), gsutils.get_site(key))
+
+   # Test for existence of optional attributes
+   for attribute in ("GlueHostProcessorClockSpeed","GlueHostProcessorModel",
+                     "GlueHostProcessorVendor"):
+      if ( not entry.has_key(attribute)):
+         my_errors.log(gsutils.get_unique_id(key),'SubCluster.Attribute.OptionalExist', 'Glue optional attribute %s does not exist.'
+                       % (attribute), gsutils.get_site(key))
+
+   # Test for unique GlueSubClusterUniqueID value
+   logging.debug("Testing SubCluster for univocity of GlueSubClusterUniqueID")
+   if (entry.has_key('GlueSubClusterUniqueID') and
+                    SubClusterId.count(entry['GlueSubClusterUniqueID'][0]) > 1):
+      my_errors.log(gsutils.get_unique_id(key),'SubCluster.UniqueID.Unique',
+                    'GlueSubClusterUniqueID is not unique', gsutils.get_site(key))
+
+   # Test for Logical and Physical CPU and SMPSize entries
+   logging.debug("Testing SubCluster for PhysicalCPUs,LogicalCPUs,SMPSize > 0")
+
+   attributes = [
+       'GlueSubClusterPhysicalCPUs',
+       'GlueSubClusterLogicalCPUs',
+       'GlueHostArchitectureSMPSize',
+       ]
+   
+   for attribute in attributes:
+       try:
+           if (entry.has_key(attribute) ):
+               int(entry[attribute][0])
+               if ( int(entry[attribute][0]) < 0):
+                   details = "%s is < 0" %(attribute)
+                   my_errors.log(gsutils.get_unique_id(key),
+                                 'SubCluster.CPU.Value',details,
+                                 gsutils.get_site(key))
+       except TypeError, e:
+           details = "%s must be a valid integer" % (attribute)
+           my_errors.log(key, "gstat.value.error", details, gsutils.get_site(key))
+   
+  # GlueHostProcessorOtherDescription should be set; check value format
+   if entry.has_key('GlueHostProcessorOtherDescription'):
+      test_SubCluster_ProcessorOtherDescription(key,entry)
+
+
+def test_SubCluster_ProcessorOtherDescription(key,entry):
+   logging.debug("Testing SubCluster for ProcessorOtherDescription")
+   
+   cores = 0
+   benchmark = None
+
+   if (entry.has_key('GlueHostProcessorOtherDescription')): 
+      index  = entry['GlueHostProcessorOtherDescription'][0].find(',')
+      if ( index > -1 ):
+         cores = entry['GlueHostProcessorOtherDescription'][0][:index]
+         benchmark = entry['GlueHostProcessorOtherDescription'][0][index +1:]
+      else:
+         cores = entry['GlueHostProcessorOtherDescription'][0]
+      index  = cores.find('=')
+      if ( not index > -1 ):
+         my_errors.log(gsutils.get_unique_id(key),
+                       'SubCluster.OtherDescription.Cores',
+                       'Cores not defined', gsutils.get_site(key))
+      else:
+         cores = cores[index +1:]
+         try:
+            if (float(cores) <= 0):
+               my_errors.log(gsutils.get_unique_id(key),
+                             'SubCluster.OtherDescription.Benchmark',
+                             'Number of Cores <= 0', gsutils.get_site(key))
+         except ValueError:
+            description = 'Cores is set to value %s' % (cores) 
+            my_errors.log(gsutils.get_unique_id(key),
+                       'SubCluster.OtherDescription.Cores',
+                       description, gsutils.get_site(key))
+
+         if ( benchmark ):
+            index  = benchmark.find('=')
+         if ( not index > -1 ):
+            my_errors.log(gsutils.get_unique_id(key),
+                          'SubCluster.OtherDescription.Benchmark',
+                          'Benchmark not defined correctly', gsutils.get_site(key))
+         elif( not benchmark == None):
+            value = benchmark[index+1:]
+            index = value.find("HEP-SPEC06")
+            if ( not index > -1 ):
+               my_errors.log(gsutils.get_unique_id(key),
+                             'SubCluster.OtherDescription.Benchmark',
+                             'Benchmark type unknown', gsutils.get_site(key))
+            else:
+               try:
+                  value = float(value[:index-1])
+               except:
+                  my_errors.log(gsutils.get_unique_id(key),
+                                'SubCluster.OtherDescription.Benchmark',
+                                'Benchmark not defined correctly', gsutils.get_site(key))
+               if (value <= 0):
+                  my_errors.log(gsutils.get_unique_id(key),
+                                'SubCluster.OtherDescription.Benchmark',
+                                'Benchmark negative value', gsutils.get_site(key))
+
+   try:
+      LogicalCPUs = float(cores) * int(entry['GlueSubClusterPhysicalCPUs'][0])
+      if ( not int(entry['GlueSubClusterLogicalCPUs'][0]) == LogicalCPUs ):
+         details = "Cores * PhysicalCPUs != LogicalCPUs"
+         my_errors.log(key, "gstat.value.error", details, gsutils.get_site(key))
+   except Exception, e:
+      details = "Could not calculate Logical CPUs as a value was incorrect"
+      my_errors.log(key, "gstat.value.error", details, gsutils.get_site(key))
+
+def test_ACBR(key,entry,attribute,type):
+   logging.debug("Testing %s for %s" %(type,entry[attribute][0]))
+
+   for val in entry[attribute]:
+      if ( val[0] != "/" and val[:3] != "VO:" and val[:6] != "VOMS:/" ):
+         my_errors.log(gsutils.get_unique_id(key),
+                         type+'.AccessControlBaseRule.Value',
+                         val+' ACBR has an invalid format', gsutils.get_site(key))
+
+
+   #
+   #  Main
+   #
+
+if __name__ == "__main__":
+
+   global my_errors
+   global CEId
+   global ClusterId
+   global SubClusterId
+
+   config = gsutils.parse_options()
+
+   log = logging.getLogger('glite-validate-ce')
+   hdlr = logging.StreamHandler(sys.stderr)
+   formatter = logging.Formatter('[%(levelname)s]: %(message)s')
+   hdlr.setFormatter(formatter)
+   log.addHandler(hdlr)
+   log.setLevel(config['debug'])
+
+   # Initialize error logger.
+   my_errors=gsutils.error_logger('gstat-validate-ce',error_messages)
+
+   # Set filter to reduced the amount of information 
+   filter = "'(|(objectclass=GlueSite)(objectclass=GlueCE)(objectclass=GlueSubCluster)(objectclass=GlueCluster))'"
+
+   # LDIF Data Structure Dict Dict List; ldif[dn][attribute][value1,value2]
+   if config.has_key('file'):
+      ldif = gsutils.read_ldif(config['file'])
+   if config.has_key('host'):
+      ldif = gsutils.read_ldif(config['host'], config['port'], config['bind'], filter)
+   logging.info("Found %s entries" %(len(ldif)) )
+   
+   # Create CE list of IDs to check for univocity
+   CEId = ([ldif[k]['GlueCEUniqueID'][0] for k in ldif.keys() 
+                                         if ldif[k].has_key('GlueCEUniqueID')])
+
+   # Create SubCluster list of IDs to check for univocity
+   SubClusterId = ([ldif[k]['GlueSubClusterUniqueID'][0] for k in ldif.keys()
+                                 if ldif[k].has_key('GlueSubClusterUniqueID')])
+
+   # Create Cluster list of IDs to check for univocity
+   ClusterId = ([ldif[k]['GlueClusterUniqueID'][0] for k in ldif.keys()
+                                  if ldif[k].has_key('GlueClusterUniqueID')])
+
+   # Iterate through LDIF entries and test.
+   for key in ldif.keys():
+      for objectClass in ldif[key]['objectClass']:
+         if ( objectClass == "GlueCE" ):
+            test_glue_CE(key,ldif[key])
+         if ( objectClass == "GlueSubCluster" ):
+            test_glue_SubCluster(key,ldif[key])
+         if ( objectClass == "GlueCluster" ):
+            test_glue_Cluster(key,ldif[key])
+
+
+
+   gsutils.do_output(my_errors,config)   
+   gsutils.do_exit(my_errors)   
+
