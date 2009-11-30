@@ -35,4 +35,14 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 /usr/share/gstat 
 
-
+%changelog
+- Apply patch from Paul Millar @ DESY.
+  Accepts a dCache as a prefix to GlueSACapability values.
+  More relaxed about accepting cms as well as VO:cms. Can't
+  be fixed till glite-sd-query is fixed.
+  https://savannah.cern.ch/bugs/?59690
+  https://savannah.cern.ch/bugs/?59699
+- Correct spelling mistakes in validte-site.
+  https://savannah.cern.ch/bugs/?59698
+- Drop requirement of WLCG_ICON
+  https://savannah.cern.ch/bugs/?59713
