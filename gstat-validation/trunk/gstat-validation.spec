@@ -1,6 +1,6 @@
 Summary: Gstat Valiation Scripts
 Name: gstat-validation
-Version: 2.0.24
+Version: 2.0.25
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: EGEE
@@ -36,6 +36,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/gstat 
 
 %changelog
+* Tue Dec 1 2009 Steve Traylen <steve.traylen@cern.ch>  - 2.0.25-1
+- Don't ask.
 * Tue Dec 1 2009 Steve Traylen <steve.traylen@cern.ch>  - 2.0.24-1
 - Allow a rounding error for cores * physicals = logicals
   https://savannah.cern.ch/bugs/?59619
