@@ -36,6 +36,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/gstat 
 
 %changelog
+- Allow a rounding error for cores * physicals = logicals
+  https://savannah.cern.ch/bugs/?59619
 * Mon Nov 30 2009 Steve Traylen <steve.traylen@cern.ch>  - 2.0.23-1
 - Apply patch from Paul Millar @ DESY.
   Accepts a dCache as a prefix to GlueSACapability values.
