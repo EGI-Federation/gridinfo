@@ -313,7 +313,7 @@ def test_SubCluster_ProcessorOtherDescription(key,entry):
                                 'Benchmark negative value', gsutils.get_site(key))
 
    try:
-      LogicalCPUs = float(cores) * int(entry['GlueSubClusterPhysicalCPUs'][0])
+      LogicalCPUs = round(float(cores) * int(entry['GlueSubClusterPhysicalCPUs'][0])) 
       if ( not int(entry['GlueSubClusterLogicalCPUs'][0]) == LogicalCPUs ):
          details = "Cores * PhysicalCPUs != LogicalCPUs"
          my_errors.log(key, "gstat.value.error", details, gsutils.get_site(key))
