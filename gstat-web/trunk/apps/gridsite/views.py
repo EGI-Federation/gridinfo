@@ -74,60 +74,76 @@ def overview(request, site_name):
         physical_cpu, logical_cpu = get_installed_capacity_cpu(sub_cluster_list)
 
     else:
-        physical_cpu = "N/A"
-        logical_cpu  = "N/A"
+        physical_cpu, logical_cpu = "N/A", "N/A"
     installed_capacity['physicalcpus'] = physical_cpu
     installed_capacity['logicalcpus']  = logical_cpu
     
     se_list = get_glueses(service_list)
     if se_list:
-        total_online, used_online, total_nearline, used_nearline = get_installed_capacity_storage(se_list)
+        totalonlinesize, usedonlinesize, totalnearlinesize, usednearlinesize = get_installed_capacity_storage(se_list)
     else:
-        total_online   = "N/A"
-        used_online    = "N/A"
-        total_nearline = "N/A"
-        used_nearline  = "N/A"
-    installed_capacity['totalonlinesize']   = total_online
-    installed_capacity['usedonlinesize']    = used_online
-    installed_capacity['totalnearlinesize'] = total_nearline
-    installed_capacity['usednearlinesize']  = used_nearline        
+        totalonlinesize, usedonlinesize, totalnearlinesize, usednearlinesize = "N/A", "N/A", "N/A", "N/A"
+
+    installed_capacity['totalonlinesize']   = totalonlinesize
+    installed_capacity['usedonlinesize']    = usedonlinesize
+    installed_capacity['totalnearlinesize'] = totalnearlinesize
+    installed_capacity['usednearlinesize']  = usednearlinesize        
     
-    vo_jobs = []
-    vo_view_list = get_gluevoview(service_list)
-    job_dict = {}
-    for vo_view in vo_view_list:
-        total_jobs, running_jobs, waiting_jobs = get_job_stats([vo_view])   
-        if vo_view.localid not in job_dict.keys():
-            job_dict[vo_view.localid] = {}
-            job_dict[vo_view.localid]['voname']      = vo_view.localid
-            job_dict[vo_view.localid]['totaljobs']   = total_jobs
-            job_dict[vo_view.localid]['runningjobs'] = running_jobs
-            job_dict[vo_view.localid]['waitingjobs'] = waiting_jobs
+    resource_dict = {}
+    attributes = ["totaljobs", "runningjobs", "waitingjobs"]
+    voview_list = get_gluevoviews(service_list)
+    vo_to_voview_mapping = get_vo_to_voview_mapping(voview_list)
+    for voview in voview_list:
+        try:
+            voname = vo_to_voview_mapping[voview.glueceuniqueid][voview.localid]
+        except KeyError, e:
+            continue
+        stats = get_voview_job_stats([voview])   
+        if voname not in resource_dict.keys():
+            resource_dict[voname] = {}
+            resource_dict[voname]['voname'] = voname
+            for attr in attributes:
+                resource_dict[voname][attr] = 0
+        for attr in attributes:
+            resource_dict[voname][attr] += stats[attributes.index(attr)]                 
+    
+    
+    attributes = ["totalonlinesize", "usedonlinesize", "totalnearlinesize", "usednearlinesize"]
+    sa_list = get_gluesas(service_list)
+    vo_to_sa_mapping = get_vo_to_sa_mapping(sa_list)
+    for sa in sa_list:
+        try:
+            voname = vo_to_sa_mapping[sa.gluese_fk][sa.localid]
+        except KeyError, e:
+            continue
+        stats = get_sa_storage_stats([sa])   
+        if voname not in resource_dict.keys():
+            resource_dict[voname] = {}
+            resource_dict[voname]['voname'] = voname
+            for attr in attributes:
+                resource_dict[voname][attr] = 0
         else:
-            job_dict[vo_view.localid]['totaljobs']   += total_jobs
-            job_dict[vo_view.localid]['runningjobs'] += running_jobs
-            job_dict[vo_view.localid]['waitingjobs'] += waiting_jobs  
-            
-        #job_dict = {}    
-        #job_dict['voname']      = vo_view.localid
-        #job_dict['totaljobs']   = total_jobs
-        #job_dict['runningjobs'] = running_jobs
-        #job_dict['runningjobs'] = running_jobs
-    for voname in job_dict.keys():
-        vo_jobs.append(job_dict[voname])
+            for attr in attributes:
+                resource_dict[voname][attr] = 0
+        for attr in attributes:
+            resource_dict[voname][attr] += stats[attributes.index(attr)]     
+    
+    vo_resources = []
+    for voname in resource_dict.keys():
+        vo_resources.append(resource_dict[voname])
     
     # sorting list of dictionaries
     sort_on = "voname"
-    sorted_list = [(dict_[sort_on], dict_) for dict_ in vo_jobs]
+    sorted_list = [(dict_[sort_on], dict_) for dict_ in vo_resources]
     sorted_list.sort()
-    vo_jobs = [dict_ for (key, dict_) in sorted_list]
+    vo_resources = [dict_ for (key, dict_) in sorted_list]
     
     return render_to_response('overview.html', {'sitename'           : site_name,
                                                 'gluesite'           : gluesite,
                                                 'count_dict'         : count_dict,
                                                 'overall_status_dict': overall_status_dict,
                                                 'installed_capacity' : installed_capacity,
-                                                'vo_jobs'            : vo_jobs,
+                                                'vo_resources'       : vo_resources,
                                                 'last_update'        : last_update,
                                                 'minutes_ago'        : minutes_ago})
     
@@ -212,15 +228,20 @@ def site_graphs(request, site_name, attribute):
 def vo_graphs(request, site_name, attribute, vo_name):
     site_entity = get_unique_entity(site_name, 'Site')
     service_list = get_services([site_entity])
-    ce_list = []
+    object_list = []
+
     for service in service_list:
-        if service.type == 'CE': ce_list.append(service)
-    support_ce_list = []
-    for ce in ce_list:
-        vos = get_vos([ce])
+        if attribute == 'job':
+            if service.type == 'CE': object_list.append(service)
+        elif attribute in ['online','nearline']:
+            if service.type == 'SE': object_list.append(service)     
+
+    support_object_list = []
+    for object in object_list:
+        vos = get_vos([object])
         if vo_name in [vo.uniqueid for vo in vos]:
-            support_ce_list.append(ce)
-    objects = sort_objects_by_attr(support_ce_list, 'uniqueid')
+            support_object_list.append(object)
+    objects = sort_objects_by_attr(support_object_list, 'uniqueid')
         
 
     return render_to_response('vo_graphs.html', {'site_name': site_name,

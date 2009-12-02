@@ -37,8 +37,8 @@ def main(request, type='GRID', value='ALL', output=None):
     overview["Total Nearline"] = total_nearline
     overview["Used Nearline"] = used_nearline
 
-    vo_view_list = get_gluevoview(service_list)
-    total_jobs, running_jobs, waiting_jobs = get_job_stats(vo_view_list)
+    vo_view_list = get_gluevoviews(service_list)
+    total_jobs, running_jobs, waiting_jobs = get_voview_job_stats(vo_view_list)
     overview["Total Jobs"] = total_jobs
     overview["Running Jobs"] = running_jobs
     overview["Waiting Jobs"] = waiting_jobs

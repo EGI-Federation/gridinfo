@@ -20,8 +20,12 @@ def get_unique_gluesite(site_name):
 
 def get_gluesubclusters(service_list):
     """ get glue subcluster entities from glue database """
-    uniqueids = [service.uniqueid for service in service_list]
-    clusters = Entity.objects.filter(type = 'CE', uniqueid__in = uniqueids)
+    #uniqueids = [service.uniqueid for service in service_list]
+    #clusters = Entity.objects.filter(type = 'CE', uniqueid__in = uniqueids)
+    ce_list = []
+    for service in service_list:
+        if service.type == 'CE': ce_list.append(service)
+    clusters = ce_list
     uniqueids = [cluster.uniqueid for cluster in clusters]
     sub_clusters = gluesubcluster.objects.filter(gluecluster_fk__in = uniqueids)
     return sub_clusters
@@ -29,22 +33,100 @@ def get_gluesubclusters(service_list):
 
 def get_glueses(service_list):
     """ get glue se entities from glue database """
-    uniqueids = [service.uniqueid for service in service_list]
-    ses = Entity.objects.filter(type = 'SE', uniqueid__in = uniqueids)
+    #uniqueids = [service.uniqueid for service in service_list]
+    #ses = Entity.objects.filter(type = 'SE', uniqueid__in = uniqueids)
+    se_list = []
+    for service in service_list:
+        if service.type == 'SE': se_list.append(service)
+    ses = se_list
     uniqueids = [se.uniqueid for se in ses]
     se_list = gluese.objects.filter(uniqueid__in = uniqueids)
     return se_list
 
-def get_gluevoview(service_list):
+def get_gluevoviews(service_list):
     """ get glue voview entities from glue database """
-    uniqueids = [service.uniqueid for service in service_list]
-    clusters = Entity.objects.filter(type = 'CE', uniqueid__in = uniqueids)
+    #uniqueids = [service.uniqueid for service in service_list]
+    #clusters = Entity.objects.filter(type = 'CE', uniqueid__in = uniqueids)
+    ce_list = []
+    for service in service_list:
+        if service.type == 'CE': ce_list.append(service)
+    clusters = ce_list
     uniqueids = [cluster.uniqueid for cluster in clusters]
-    CEs = gluece.objects.filter(gluecluster_fk__in = uniqueids)
-    uniqueids = [ce.uniqueid for ce in CEs]
-    VO_views = gluevoview.objects.filter(gluece_fk__in = uniqueids)
+    ces = gluece.objects.filter(gluecluster_fk__in = uniqueids)
+    uniqueids = [ce.uniqueid for ce in ces]
+    voviews = gluevoview.objects.filter(gluece_fk__in = uniqueids)
 
-    return VO_views
+    return voviews
+
+def get_gluesas(service_list):
+    """ get glue voview entities from glue database """
+    #uniqueids = [service.uniqueid for service in service_list]
+    #ses = Entity.objects.filter(type = 'SE', uniqueid__in = uniqueids)
+    se_list = []
+    for service in service_list:
+        if service.type == 'SE': se_list.append(service)
+    ses = se_list
+    uniqueids = [se.uniqueid for se in ses]
+    sas = gluesa.objects.filter(gluese_fk__in = uniqueids)
+
+    return sas
+
+def get_vo_to_voview_mapping(voview_list=None):
+    # Create VO to VOView Mapping
+    vo_to_voview_mapping = {}
+    if voview_list:
+        gluece_uniqueids = [voview.gluece_fk for voview in voview_list]
+        objects = gluemultivalued.objects.filter(attribute='GlueCEAccessControlBaseRule', uniqueid__in=gluece_uniqueids)
+    else:
+        objects = gluemultivalued.objects.filter(attribute='GlueCEAccessControlBaseRule')
+    for object in objects:
+        if ( object.localid == "" ):
+            continue
+        if ( object.value[:3] == "VO:" ):
+            vo = object.value[3:]
+        elif ( object.value[:5] == "VOMS:" ):
+            vo = object.value[5:]
+            vo = vo.split('/')[1]
+            
+        if vo.strip() == '': continue
+            
+        if ( not vo_to_voview_mapping.has_key(object.uniqueid) ):
+            vo_to_voview_mapping[object.uniqueid] = {}
+        vo_to_voview_mapping[object.uniqueid][object.localid] = vo
+    
+    return vo_to_voview_mapping
+
+def get_vo_to_sa_mapping(sa_list=None):
+    # Create VO to SA Mapping
+    vo_to_sa_mapping = {}
+    
+    if sa_list:
+        gluese_uniqueids = [sa.gluese_fk for sa in sa_list]
+        objects = gluemultivalued.objects.filter(attribute='GlueSAAccessControlBaseRule', uniqueid__in=gluese_uniqueids)
+    else:
+        objects = gluemultivalued.objects.filter(attribute='GlueSAAccessControlBaseRule') 
+    
+    for object in objects:
+        # extract the vo name
+        if ( object.value[:3] == "VO:" ):
+            if len(object.value.split('/')) > 1:
+                continue
+            vo = object.value[3:]
+        elif ( object.value[:5] == "VOMS:" ):
+            vo = object.value[5:]
+            vo = vo.split('/')[1]
+        else:
+            if len(object.value.split('/')) > 1:
+                continue
+            vo = object.value
+        
+        if vo.strip() == '': continue
+        
+        if ( not vo_to_sa_mapping.has_key(object.uniqueid) ):
+            vo_to_sa_mapping[object.uniqueid] = {}
+        vo_to_sa_mapping[object.uniqueid][object.localid] = vo
+
+    return vo_to_sa_mapping
 
 # -------------------------------------------
 # -- Topology data model related functions --
@@ -96,9 +178,12 @@ def get_countries(site_list):
             countries.append(relation.object.uniqueid)
     return countries
 
-def get_services(site_list):
+def get_services(site_list, service_type=None):
     """ get service entities from topology database """
-    relationships = Entityrelationship.objects.select_related('object').filter(predicate = 'SiteService', subject__in = site_list)
+    if service_type:
+        relationships = Entityrelationship.objects.select_related('object').filter(predicate = 'SiteService', subject__in = site_list, object__type=service_type)
+    else:
+        relationships = Entityrelationship.objects.select_related('object').filter(predicate = 'SiteService', subject__in = site_list)
     services = []
     for relation in relationships:
         services.append(relation.object)
@@ -173,17 +258,27 @@ def get_installed_capacity_per_os(sub_clusters_list):
 
     return data
 
-def get_job_stats(vo_view_list):
+def get_voview_job_stats(voview_list):
     """ calculate job numbers in glue voview entities """
-    total_jobs = 0
-    running_jobs = 0
-    waiting_jobs = 0
-    for voview in vo_view_list:
-        total_jobs += convert_to_integer(voview.totaljobs)
-        running_jobs += convert_to_integer(voview.runningjobs)
-        if ( not convert_to_integer(voview.waitingjobs) == 444444):
-            waiting_jobs += convert_to_integer(voview.waitingjobs)
-    return  [ total_jobs, running_jobs, waiting_jobs ]
+    attributes = ["totaljobs", "runningjobs", "waitingjobs"]
+    stats = [0, 0, 0]
+    for voview in voview_list:
+        for attr in attributes:
+            value = voview.__getattribute__(attr)
+            if (attr == "waitingjobs" and value == "444444"): value="0"
+            stats[attributes.index(attr)] += convert_to_integer(value)
+    return  stats    
+
+def get_sa_storage_stats(sa_list):
+    """ calculate storage space in glue sa entities """
+    attributes = ["totalonlinesize", "usedonlinesize", "totalnearlinesize", "usednearlinesize"]
+    stats = [0, 0, 0, 0]
+    for sa in sa_list:
+        for attr in attributes:
+            value = sa.__getattribute__(attr)
+            if (value != "999999"): 
+                stats[attributes.index(attr)] += convert_to_integer(value)
+    return  stats
 
 def get_service_versions(service_list):
     """ get service version information from glue service entities """

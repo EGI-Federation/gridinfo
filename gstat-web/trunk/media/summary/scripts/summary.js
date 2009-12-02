@@ -67,15 +67,15 @@ jQuery.fn.dataTableExt.oSort['status-desc'] = function(a,b) {
 };
 
 function changeFilterValue(event) {
-    filtertype = document.getElementById('filtertype');
-    filtervalue = document.getElementById('filtervalue');
-    window.location.href = '/gstat/summary/' + filtertype.value + '/' + filtervalue.value;
+    filtertype = document.getElementById('filtertype').value;
+    filtervalue = document.getElementById('filtervalue').value;
+    window.location.href = '/gstat/summary/' + filtertype + '/' + filtervalue;
 }
 
 
 function loadTable(event) {
-    filtertype = document.getElementById('filtertype');
-    filtervalue = document.getElementById('filtervalue');
+    filtertype = document.getElementById('filtertype').value;
+    filtervalue = document.getElementById('filtervalue').value;
     
     var oTable;
     var theads = $('#single_table > thead');
@@ -91,9 +91,9 @@ function loadTable(event) {
                  var type = $('#filtertype :selected').val();
                  var value = $('#filtervalue :selected').val();
                  if (value=="" || value=="-1" || value=="ALL") 
-                   link = '<a href="/gstat/summary/'+type+'/'+encodeURIComponent(oObj.aData[0])+'/">'+oObj.aData[0]+'</a>';
+                   link = '<a href="/gstat/summary/'+type+'/'+oObj.aData[0]+'/">'+oObj.aData[0]+'</a>';
                  else 
-                   link = '<a href="/gstat/site/'+encodeURIComponent(oObj.aData[0])+'/">'+oObj.aData[0]+'</a>';
+                   link = '<a href="/gstat/site/'+oObj.aData[0]+'/">'+oObj.aData[0]+'</a>';
    
                  return link;
                 },
@@ -226,7 +226,7 @@ function loadTable(event) {
     if ($("#filtervalue").children().length > 1 && $("#filtervalue :selected").val() == "-1" ) 
         $("#filtervalue :selected").val("ALL");
     
-    oTable.fnReloadAjax("/gstat/summary/"+filtertype.value + "/" + encodeURIComponent(filtervalue.value) + "/json/");
+    oTable.fnReloadAjax("/gstat/summary/"+filtertype+"/"+filtervalue+"/json/");
     var value = $('#filtervalue :selected').val();
     //alert($('#sites_or_status').text());
     if (value=="" || value=="-1" || value=="ALL") $('#sites_or_status').text('Sites');
@@ -235,7 +235,7 @@ function loadTable(event) {
     if (!event) 
       setTimeout('loadTable();',300000); //Reload Ajax every 5 minutes
     //else
-    //  $(document).ready(function() {window.location.href = '/gstat/summary/'+ filtertype.value + '/' + filtervalue.value;return true;});
+    //  $(document).ready(function() {window.location.href = '/gstat/summary/'+ filtertype + '/' + filtervalue;return true;});
 
 
 }

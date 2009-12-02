@@ -59,8 +59,8 @@ def get_data_for_sites(site_list, get_status=False):
         se_list = get_glueses(service_list)
         total_online, used_online, total_nearline, used_nearline = get_installed_capacity_storage(se_list)
 
-        vo_view_list = get_gluevoview(service_list)
-        total_jobs, running_jobs, waiting_jobs = get_job_stats(vo_view_list)        
+        vo_view_list = get_gluevoviews(service_list)
+        total_jobs, running_jobs, waiting_jobs = get_voview_job_stats(vo_view_list)        
         
         site_number_or_status = 0
         if get_status:
