@@ -116,22 +116,34 @@ def entity_level(request, entity_type, uniqueid, attribute, start_time):
     return graph_render(graph_cmd)
 
 # --------------------------------
-# -- VO-level graphing function --
+# -- VO-Site-level graphing function --
 # --------------------------------
-def vo_level(request, site_name, vo, attribute, start_time, small=False):
-    """ VO-level summarized graph """
+def vo_site_level(request, site_name, vo, attribute, start_time, small=False):
+    """ VO-Site-level summarized graph """
     if attribute == 'job':
         graph_cmd = vo_job_graph(site_name, vo, start_time, small)
+    elif attribute in ['online', 'nearline']:
+        graph_cmd = vo_storage_graph(site_name, vo, attribute, start_time, small)
         
     return graph_render(graph_cmd)
 
 # -----------------------------------
-# -- Queue-level graphing function --
+# -- VO-Cluster-level graphing function --
 # -----------------------------------
-def queue_level(request, vo, ce, attribute, start_time):
-    """ Queue-level summarized graph """
+def vo_cluster_level(request, vo, cluster, attribute, start_time):
+    """ Vo-Cluster-level summarized graph """
     if attribute == 'job':
-        graph_cmd = queue_job_graph(vo, ce, start_time)
+        graph_cmd = vo_cluster_job_graph(vo, cluster, start_time)
+        
+    return graph_render(graph_cmd)
+
+# -----------------------------------
+# -- VO-SE-level graphing function --
+# -----------------------------------
+def vo_se_level(request, vo, se, attribute, start_time):
+    """ Vo-SE-level summarized graph """
+    if attribute in ['online', 'nearline']:
+        graph_cmd = vo_se_storage_graph(vo, se, attribute, start_time)
         
     return graph_render(graph_cmd)
 
@@ -186,11 +198,8 @@ def nagios_level(request, host_name, check_name, data_source, start_time):
 def site_storage_graph(site_name, attribute, start_time, small=False):
     """ Site-level summarized storage space"""
     site_entity = get_unique_entity(site_name, 'Site')
-    service_list = get_services([site_entity])
-    uniqueids = []
-    for service in service_list:
-        if service.type == 'SE': uniqueids.append(service.uniqueid)
-
+    service_list = get_services([site_entity], service_type="SE")
+    uniqueids = [service.uniqueid for service in service_list]
     graph_cmd = storage_graph_cmd(uniqueids, attribute, start_time, site_name, small)
         
     return graph_cmd
@@ -333,74 +342,70 @@ def cpu_graph_cmd(uniqueids, start_time, site_name='', small=False):
 def site_job_graph(site_name, start_time, small=False):
     """ Site-level Jobs number """
     site_entity = get_unique_entity(site_name, 'Site')
-    service_list = get_services([site_entity])
-    ce_list = []
-    for service in service_list:
-        if service.type == 'CE': ce_list.append(service)
-    queue_dict = {}
-    for ce in ce_list:
-        vos = get_vos([ce])
+    service_list = get_services([site_entity], service_type="CE")
+    cluster_list = [service for service in service_list]
+    vocluster_dict = {}
+    for cluster in cluster_list:
+        vos = get_vos([cluster])
         for vo in vos:
-            if vo.uniqueid not in queue_dict:
-                queue_dict[vo.uniqueid] = []
-            queue_dict[vo.uniqueid].append(ce.uniqueid)           
+            if vo.uniqueid not in vocluster_dict:
+                vocluster_dict[vo.uniqueid] = []
+            vocluster_dict[vo.uniqueid].append(cluster.uniqueid)           
 
-    graph_cmd = job_graph_cmd('site', queue_dict, start_time, site_name, small)
+    graph_cmd = job_graph_cmd('site', vocluster_dict, start_time, site_name, small)
         
     return graph_cmd
 
-def cluster_job_graph(ce_uniqueid, start_time):
+def cluster_job_graph(cluster_uniqueid, start_time):
     """ Cluster-level Jobs number """
-    ce_entity = get_unique_entity(ce_uniqueid, 'CE')
-    vo_list = get_vos([ce_entity])
-    queue_dict = {}
+    cluster_entity = get_unique_entity(cluster_uniqueid, 'CE')
+    vo_list = get_vos([cluster_entity])
+    vocluster_dict = {}
     for vo in vo_list:
-        if vo.uniqueid not in queue_dict:
-            queue_dict[vo.uniqueid] = [ce_uniqueid]
+        if vo.uniqueid not in vocluster_dict:
+            vocluster_dict[vo.uniqueid] = [cluster_uniqueid]
             
-    graph_cmd = job_graph_cmd('cluster', queue_dict, start_time)
+    graph_cmd = job_graph_cmd('cluster', vocluster_dict, start_time)
         
     return graph_cmd
 
 def vo_job_graph(site_name, vo_uniqueid, start_time, small=False):
     """ VO-level Jobs number """
     site_entity = get_unique_entity(site_name, 'Site')
-    service_list = get_services([site_entity])
-    ce_list = []
-    for service in service_list:
-        if service.type == 'CE': ce_list.append(service)
-    queue_dict = {vo_uniqueid:[]}
-    for ce in ce_list:
-        vos = get_vos([ce])
+    service_list = get_services([site_entity], service_type="CE")
+    cluster_list = [service for service in service_list]    
+    vocluster_dict = {vo_uniqueid:[]}
+    for cluster in cluster_list:
+        vos = get_vos([cluster])
         if vo_uniqueid in [vo.uniqueid for vo in vos]:
-            queue_dict[vo_uniqueid].append(ce.uniqueid)
+            vocluster_dict[vo_uniqueid].append(cluster.uniqueid)
             
-    graph_cmd = job_graph_cmd('vo', queue_dict, start_time, small=small)
+    graph_cmd = job_graph_cmd('vo', vocluster_dict, start_time, small=small)
         
     return graph_cmd
 
-def queue_job_graph(vo_uniqueid, ce_uniqueid, start_time):
-    """ Queue-level Jobs number """
-    queue_dict = {vo_uniqueid: [ce_uniqueid]}
-    graph_cmd = job_graph_cmd('queue', queue_dict, start_time)
+def vo_cluster_job_graph(vo_uniqueid, cluster_uniqueid, start_time):
+    """ VO-Cluster-level Jobs number """
+    vocluster_dict = {vo_uniqueid: [cluster_uniqueid]}
+    graph_cmd = job_graph_cmd('vocluster', vocluster_dict, start_time)
         
     return graph_cmd
 
-def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
+def job_graph_cmd(level, vocluster_dict, start_time, site_name='', small=False):
     """ Compose RRD graph command for Jobs number """
-    if queue_dict == {}:
+    if vocluster_dict == {}:
         # need to refactor for the empty result
         return 'N/A'
     rrd_dir = '/var/cache/gstat/rrd/VO'
 
     if level == 'site': # site-level
         title = "Job Number (Site: %s)" %(site_name)
-    elif level == 'queue': # queue level
-        title="Job Number (Cluster: %s, VO: %s)" %(queue_dict.values()[0][0], queue_dict.keys()[0])
+    elif level == 'vocluster': # vo-cluster level
+        title="Job Number (GlueCluster: %s, VO: %s)" %(vocluster_dict.values()[0][0], vocluster_dict.keys()[0])
     elif level == 'cluster': # cluster-level
-        title = "Job Number (Cluster: %s)" %(queue_dict.values()[0][0])
+        title = "Job Number (GlueCluster: %s)" %(vocluster_dict.values()[0][0])
     elif level == 'vo': # vo-level
-        title = "Job Number (VO: %s)" %(queue_dict.keys()[0])
+        title = "Job Number (VO: %s)" %(vocluster_dict.keys()[0])
         
     label = "Jobs"
     graph_cmd = rrdgraph_cmd_options(start_time, title, label, small)
@@ -411,8 +416,8 @@ def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
     cdef_running = []
     cdef_waiting = []
     count = 0
-    for vo in queue_dict.keys():
-        clusters = queue_dict[vo]
+    for vo in vocluster_dict.keys():
+        clusters = vocluster_dict[vo]
         for cluster in clusters:
             rrd_file = '%s/%s/%s/%s.rrd' %(rrd_dir, str(vo).replace('/',''), str(cluster).replace('/',''), 'job')
             if(not os.path.exists(rrd_file)):
@@ -451,9 +456,94 @@ def job_graph_cmd(level, queue_dict, start_time, site_name='', small=False):
         
     return graph_cmd 
 
+
+# -----------------------------------------------
+# -- VO-based Storage Space graphing functions --
+# -----------------------------------------------
+def vo_storage_graph(site_name, vo_uniqueid, attribute, start_time, small=False):
+    """ VO-level Storage space """
+    site_entity = get_unique_entity(site_name, 'Site')
+    service_list = get_services([site_entity], service_type="SE")
+    se_list = [service for service in service_list]    
+    vose_dict = {vo_uniqueid:[]}
+    for se in se_list:
+        vos = get_vos([se])
+        if vo_uniqueid in [vo.uniqueid for vo in vos]:
+            vose_dict[vo_uniqueid].append(se.uniqueid)
+            
+    graph_cmd = vo_storage_graph_cmd('vo', vose_dict, attribute, start_time, small=small)
+        
+    return graph_cmd
+
+def vo_se_storage_graph(vo_uniqueid, se_uniqueid, attribute, start_time):
+    """ VO-SE-level Sotrage space """
+    vose_dict = {vo_uniqueid: [se_uniqueid]}
+    graph_cmd = vo_storage_graph_cmd('vose', vose_dict, attribute, start_time)
+        
+    return graph_cmd
+
+def vo_storage_graph_cmd(level, vose_dict, attribute, start_time, site_name='', small=False):
+    """ Compose RRD graph command for Storage space for VO """
+    if vose_dict == {}:
+        # need to refactor for the empty result
+        return 'N/A'
+    rrd_dir = '/var/cache/gstat/rrd/VO'
+
+    if level == 'vose': # vo-se level
+        title="%s Storage Space (GlueSE: %s, VO: %s)" %(attribute.capitalize(), vose_dict.values()[0][0], vose_dict.keys()[0])
+    elif level == 'vo': # vo-level
+        title = "%s Storage Space (VO: %s)" %(attribute.capitalize(), vose_dict.keys()[0])
+        
+    label = "GB"
+    graph_cmd = rrdgraph_cmd_options(start_time, title, label, small)
+
+    datasources = {'online':   ['totalonlinesize', 'usedonlinesize'],
+                   'nearline': ['totalnearlinesize', 'usednearlinesize']}
+
+
+    cdef_total = []
+    cdef_used = []
+    count = 0
+    for vo in vose_dict.keys():
+        ses = vose_dict[vo]
+        for se in ses:
+            rrd_file = '%s/%s/%s/%s.rrd' %(rrd_dir, str(vo).replace('/',''), str(se).replace('/',''), attribute)
+            if(not os.path.exists(rrd_file)):
+                continue
+            count += 1
+            vname_total = 't_%s' %(count)
+            vname_used  = 'u_%s' %(count)
+            if len(ses) == 1: 
+                cdef_total.append(vname_total)
+                cdef_used.append(vname_used)
+            else:
+                cdef_total += ['TIME', str(int(time.time())-600), 'GT', vname_total, vname_total, 'UN', '0', vname_total, 'IF', 'IF']
+                cdef_used  += ['TIME', str(int(time.time())-600), 'GT', vname_used,  vname_used,  'UN', '0', vname_used,  'IF', 'IF']
+            if count != 1:
+                cdef_total.append('+')
+                cdef_used.append('+')
+            graph_cmd += \
+            ' DEF:%s="%s":%s:AVERAGE' %(vname_total, rrd_file, datasources[attribute][0]) +\
+            ' DEF:%s="%s":%s:AVERAGE' %(vname_used,  rrd_file, datasources[attribute][1])
+            
+    graph_cmd += \
+        ' CDEF:total=%s' %(','.join(cdef_total)) +\
+        ' CDEF:used=%s'  %(','.join(cdef_used)) +\
+        ' CDEF:free=total,used,-' +\
+        ' AREA:used#669900:"Used%sSize"' %(attribute.capitalize()) +\
+        rrdgraph_cmd_gprint('used', small) +\
+        ' AREA:free#CCFF66:"Total%sSize":STACK' %(attribute.capitalize()) +\
+        rrdgraph_cmd_gprint('total', small)
+    graph_cmd += \
+        ' LINE2:total#CCFF66:""'            
+
+    return graph_cmd 
+
+
 # ----------------------------------------
 # -- Single attribute graphing function --
 # ----------------------------------------
+# need to be refactored
 def attribute_graph_cmd(entity_type, uniqueid, attribute, start_time):
     rrd_dir = '/var/cache/gstat/rrd/%s' %(entity_type)
     rrd_file = '%s/%s/%s.rrd' %(rrd_dir, str(uniqueid).replace('/',''), attribute)

@@ -37,7 +37,7 @@ DIR = os.path.dirname(__file__)
 APPS_DIR = os.path.join(DIR, '..','apps')
 sys.path.append(APPS_DIR)
 os.environ['DJANGO_SETTINGS_MODULE']='core.settings'
-from glue.models import gluece, gluese, gluesubcluster, gluevoview
+from glue.models import gluece, gluese, gluesubcluster, gluevoview, gluesa, gluemultivalued
 from core.utils import *
 
 modulename='topology.models'
@@ -198,8 +198,9 @@ for object in objects:
     if ( not ce_to_cluster_mapping.has_key(object.uniqueid) ):
          ce_to_cluster_mapping[object.uniqueid] = object.gluecluster_fk
 
-# Create VO to VOViewMapping
-vo_to_view_mapping = {}
+"""
+# Create VO to VOView Mapping
+vo_to_voview_mapping = {}
 objects = gluemultivalued.objects.filter(attribute='GlueCEAccessControlBaseRule')
 for object in objects:
     if ( object.localid == "" ):
@@ -207,29 +208,33 @@ for object in objects:
     
     if ( object.value[:3] == "VO:" ):
         vo = object.value[3:]
-    if ( object.value[:5] == "VOMS:" ):
+    elif ( object.value[:5] == "VOMS:" ):
         vo = object.value[5:]
-        index = vo.find("\\")
-        vo = vo[:index]
-    if ( not vo_to_view_mapping.has_key(object.uniqueid) ):
-        vo_to_view_mapping[object.uniqueid] = {}
-    vo_to_view_mapping[object.uniqueid][object.localid] = vo
+        vo = vo.split('/')[1]
+        
+    if vo.strip() == '': continue
+        
+    if ( not vo_to_voview_mapping.has_key(object.uniqueid) ):
+        vo_to_voview_mapping[object.uniqueid] = {}
+    vo_to_voview_mapping[object.uniqueid][object.localid] = vo
+"""
+vo_to_voview_mapping = get_vo_to_voview_mapping()
 
 data = {}
 datasources = {'job':   ['totaljobs', 'runningjobs', 'waitingjobs']}
 # Store Total, Running, Waiting Jobs
 objects = gluevoview.objects.all()
-for view in objects:
+for voview in objects:
     try:
-        vo = vo_to_view_mapping[view.glueceuniqueid][view.localid]
+        vo = vo_to_voview_mapping[voview.glueceuniqueid][voview.localid]
     except KeyError, e:
-        #print "Could not get vo mapping for %s %s" %(view.glueceuniqueid, view.localid)
+        #print "Could not get vo mapping for %s %s" %(voview.glueceuniqueid, voview.localid)
         continue
 
     try:
-        cluster = ce_to_cluster_mapping[str(view.glueceuniqueid)]
+        cluster = ce_to_cluster_mapping[str(voview.glueceuniqueid)]
     except KeyError, e:
-        #print "Could not get cluster mapping for %s" %(view.glueceuniqueid)
+        #print "Could not get cluster mapping for %s" %(voview.glueceuniqueid)
         continue
 
     if ( not data.has_key(cluster) ):
@@ -238,9 +243,8 @@ for view in objects:
         data[cluster][vo] = [0,0,0]
     
     for attr in datasources['job']:
-        value = view.__getattribute__(attr)
+        value = voview.__getattribute__(attr)
         if (attr == "waitingjobs" and value == "444444"): value = "0"
-        if (value == "unset" or value == ""):             value = "0"
         data[cluster][vo][datasources['job'].index(attr)] += convert_to_integer(value)    
         
 for cluster in data.keys():
@@ -268,70 +272,91 @@ for cluster in data.keys():
         except KeyError:
           pass
 
+
+# ----------------------------------------------------
+# -- GlueSA storage space size archiving (VO-based) --
+# ----------------------------------------------------
+sub_data_dir='%s/VO' %(data_dir)
+createDir(sub_data_dir)
+
 """
-# Create GlueCE to GlueCluster mapping
-glueces = {}
-objects = getGlueEntity('gluece', all=True)
-for obj in objects:
-    if ( not glueces.has_key(obj.uniqueid) ):
-         glueces[obj.uniqueid] = obj.gluecluster_fk
+# Create VO to SA Mapping
+vo_to_sa_mapping = {}
+objects = gluemultivalued.objects.filter(attribute='GlueSAAccessControlBaseRule')
+for object in objects:
+    # extract the vo name
+    if ( object.value[:3] == "VO:" ):
+        if len(object.value.split('/')) > 1:
+            continue
+        vo = object.value[3:]
+    elif ( object.value[:5] == "VOMS:" ):
+        vo = object.value[5:]
+        vo = vo.split('/')[1]
+    else:
+        if len(object.value.split('/')) > 1:
+            continue
+        vo = object.value
+    
+    if vo.strip() == '': continue
+    
+    if ( not vo_to_sa_mapping.has_key(object.uniqueid) ):
+        vo_to_sa_mapping[object.uniqueid] = {}
+    vo_to_sa_mapping[object.uniqueid][object.localid] = vo
+"""
+vo_to_sa_mapping = get_vo_to_sa_mapping()
 
-
-# We will make an assumption that localid=VO/Role
-objects = getGlueEntity('gluevoview', all=True)
-
-datasources = {'job':   ['totaljobs', 'runningjobs', 'waitingjobs']}
-jobs = {}
-for obj in objects:
+data = {}
+# A ds-name must be 1 to 19 characters long in the characters [a-zA-Z0-9_].
+# consequently, too long attribute name is not allowed.
+datasources = {'online':   ['totalonlinesize', 'usedonlinesize'],
+               'nearline': ['totalnearlinesize', 'usednearlinesize']}
+# Store Total, Used, Reserved storage space
+objects = gluesa.objects.all()
+for sa in objects:
     try:
-        key = (str(obj.localid), str(glueces[obj.gluece_fk]))
-        if key not in jobs.keys():
-            jobs[key] = {}
-            for attr in datasources['job']:
-                data = obj.__getattribute__(attr)
-                if (attr == "waitingjobs" and data == "444444"):
-                    data = "0"
-                if (data == "unset" or data == ""):
-                    data = "0"
-                jobs[key][attr] = convert_to_integer(data)
-        else:
-            for attr in datasources['job']:
-                data = obj.__getattribute__(attr)
-                if (attr == "waitingjobs" and data == "444444"):
-                    data = "0"
-                if (data == "unset" or data == ""):
-                    data = "0"
-                jobs[key][attr] += convert_to_integer(data)       
-    except KeyError:
-        pass
+        vo = vo_to_sa_mapping[sa.gluese_fk][sa.localid]
+    except KeyError, e:
+        continue
+
+    se = sa.gluese_fk
+    
+    for key in datasources.keys():
+        if ( not data.has_key(se) ):
+            data[se] = {}
+        if ( not data[se].has_key(vo) ):
+            data[se][vo] = {}
+        if ( not data[se][vo].has_key(key) ):   
+            data[se][vo][key] = [0,0]        
         
-for jobskey in jobs.keys():
-    try:
-        obj_unique_data_dir = '%s/%s/%s' %(sub_data_dir, 
-                                           str(jobskey[0]).replace('/',''), 
-                                           str(jobskey[1]).replace('/',''))
-        for key in datasources.keys():
-            obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, key)
+        for attr in datasources[key]:
+            value = sa.__getattribute__(attr)
+            if (value != "999999"): 
+                data[se][vo][key][datasources[key].index(attr)] += convert_to_integer(value)    
+        
+for se in data.keys():
+    for vo in data[se].keys():
+        try:
+            obj_unique_data_dir = '%s/%s/%s' %(sub_data_dir, 
+                                               str(vo).replace('/',''), 
+                                               str(se).replace('/',''))
             
-            # Create RRD file
-            createArchive(archive_dir    = obj_unique_data_dir, 
-                          archive_path   = obj_data_file, 
-                          archive_type   = 'GAUGE', 
-                          archive_period = 600, 
-                          data_names     = datasources[key])
-        
-            # Store RRD data
-            data_list = []
-            for attr in datasources[key]:
-                data = jobs[jobskey][attr]
-                data_list.append(data)
-            #print obj_data_file, data
-            archiveData(archive_path = obj_data_file, 
-                        data_list    = data_list)   
-    except KeyError:
-        pass
-        #print "No mapping found"
-"""
+            for key in datasources.keys():
+                obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, key)
+                
+                # Create RRD file
+                createArchive(archive_dir    = obj_unique_data_dir, 
+                              archive_path   = obj_data_file, 
+                              archive_type   = 'GAUGE', 
+                              archive_period = 600, 
+                              data_names     = datasources[key])
+            
+                # Store RRD data
+                data_list = data[se][vo][key]
+                archiveData(archive_path = obj_data_file, 
+                            data_list    = data_list)   
+            
+        except KeyError:
+          pass
 
 # Get time taken for the archiving
 log.info("Time taken: %s" % str(datetime.now() - start_time))

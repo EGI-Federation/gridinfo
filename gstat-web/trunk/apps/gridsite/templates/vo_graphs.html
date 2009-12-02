@@ -53,10 +53,10 @@
               <li>
                 {% ifequal attribute "job" %}
                 <span class="ce"> 
-                  <a target="graphframe" href="/gstat/rrd/Queue/{{ vo_name }}/{{ obj.uniqueid }}/{{ attribute }}/">&nbsp;{{ obj.uniqueid }}</a>
+                  <a target="graphframe" href="/gstat/rrd/VOCluster/{{ vo_name }}/{{ obj.uniqueid }}/{{ attribute }}/">&nbsp;{{ obj.uniqueid }}</a>
                 {% else %}
                 <span class="se">
-                  <a target="graphframe" href="/gstat/rrd/SE/{{ obj.uniqueid }}/{{ attribute }}/">&nbsp;{{ obj.uniqueid }}</a>
+                  <a target="graphframe" href="/gstat/rrd/VOSE/{{ vo_name }}/{{ obj.uniqueid }}/{{ attribute }}/">&nbsp;{{ obj.uniqueid }}</a>
                 {% endifequal %}
                 </span>
               </li>
