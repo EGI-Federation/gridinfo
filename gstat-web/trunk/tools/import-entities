@@ -53,6 +53,21 @@ modulename='topology.models'
 __import__(modulename)
 module=sys.modules[modulename]
 
+# Set the time to start
+main_start_time=datetime.now()
+
+# Set logging
+log = logging.getLogger(sys.argv[0])
+hdlr = logging.StreamHandler(sys.stderr)
+formatter = logging.Formatter('[%(levelname)s]: %(message)s')
+hdlr.setFormatter(formatter)
+log.addHandler(hdlr)
+log.setLevel(2)
+
+# Welcome
+log.info('Welcome to the import-entities script')
+log.info('Processing started ...')
+
 # Funtion to print out the usage to the log
 def usage():
     sys.stderr.write('Usage: %s [OPTIONS]\n' % (sys.argv[0]))
@@ -280,3 +295,6 @@ if ( 'ttl' in config):
         oldies = inst.objects.filter(updated_at__lt = deadline)
         for row in oldies:
             row.delete()    
+
+# Get time taken for importing entities
+log.info("Time taken: %s" % str(datetime.now() - main_start_time))
