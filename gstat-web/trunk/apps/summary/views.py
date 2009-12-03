@@ -10,10 +10,6 @@ from topology.models import Entityrelationship
 from core.utils import *
 
 def main(request, type='GRID', value='ALL', output=None):
-    predicate = {'GRID'     : 'SiteGrid', 
-                 'EGEE_ROC' : 'SiteEgeeRoc', 
-                 'WLCG_TIER': 'SiteWlcgTier',
-                 'Country'  : 'SiteCountry'}
 
     data = []
     
@@ -21,7 +17,7 @@ def main(request, type='GRID', value='ALL', output=None):
         # group list, ex: list of grid, list of roc, list of country
         groups = get_groups(type=type)
         for group in groups:
-            site_list = get_sites(type=type, value=group.uniqueid)
+            site_list = get_sites(type=type, value=group.uniqueid, groups=[group])
             sites_data_rows  = get_data_for_sites(site_list)
             group_summary = [str(group.uniqueid), 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             for row in sites_data_rows:

@@ -20,38 +20,32 @@ def get_unique_gluesite(site_name):
 
 def get_gluesubclusters(service_list):
     """ get glue subcluster entities from glue database """
-    #uniqueids = [service.uniqueid for service in service_list]
-    #clusters = Entity.objects.filter(type = 'CE', uniqueid__in = uniqueids)
-    ce_list = []
+    # get cluster uniqueid 
+    uniqueids = []
     for service in service_list:
-        if service.type == 'CE': ce_list.append(service)
-    clusters = ce_list
-    uniqueids = [cluster.uniqueid for cluster in clusters]
+        if service.type == 'CE': uniqueids.append(service.uniqueid)
+
     sub_clusters = gluesubcluster.objects.filter(gluecluster_fk__in = uniqueids)
     return sub_clusters
 
 
 def get_glueses(service_list):
     """ get glue se entities from glue database """
-    #uniqueids = [service.uniqueid for service in service_list]
-    #ses = Entity.objects.filter(type = 'SE', uniqueid__in = uniqueids)
-    se_list = []
+    #get se uniqueid
+    uniqueids = []
     for service in service_list:
-        if service.type == 'SE': se_list.append(service)
-    ses = se_list
-    uniqueids = [se.uniqueid for se in ses]
+        if service.type == 'SE': uniqueids.append(service.uniqueid)
+
     se_list = gluese.objects.filter(uniqueid__in = uniqueids)
     return se_list
 
 def get_gluevoviews(service_list):
     """ get glue voview entities from glue database """
-    #uniqueids = [service.uniqueid for service in service_list]
-    #clusters = Entity.objects.filter(type = 'CE', uniqueid__in = uniqueids)
-    ce_list = []
+    # get cluster uniqueid 
+    uniqueids = []
     for service in service_list:
-        if service.type == 'CE': ce_list.append(service)
-    clusters = ce_list
-    uniqueids = [cluster.uniqueid for cluster in clusters]
+        if service.type == 'CE': uniqueids.append(service.uniqueid)
+
     ces = gluece.objects.filter(gluecluster_fk__in = uniqueids)
     uniqueids = [ce.uniqueid for ce in ces]
     voviews = gluevoview.objects.filter(gluece_fk__in = uniqueids)
@@ -60,13 +54,11 @@ def get_gluevoviews(service_list):
 
 def get_gluesas(service_list):
     """ get glue voview entities from glue database """
-    #uniqueids = [service.uniqueid for service in service_list]
-    #ses = Entity.objects.filter(type = 'SE', uniqueid__in = uniqueids)
-    se_list = []
+    #get se uniqueid
+    uniqueids = []
     for service in service_list:
-        if service.type == 'SE': se_list.append(service)
-    ses = se_list
-    uniqueids = [se.uniqueid for se in ses]
+        if service.type == 'SE': uniqueids.append(service.uniqueid)
+
     sas = gluesa.objects.filter(gluese_fk__in = uniqueids)
 
     return sas
@@ -147,29 +139,35 @@ def get_groups(type):
     
     return groups
 
-def get_sites(type, value="ALL"):
+def get_sites(type, value="ALL", groups=None):
     """ get site entities from topology database """
     predicate = {'GRID'     : 'SiteGrid', 
                  'EGEE_ROC' : 'SiteEgeeRoc', 
                  'WLCG_TIER': 'SiteWlcgTier',
-                 'Country'  : 'SiteCountry'}
+                 'Country'  : 'SiteCountry',
+                 'VO'       : 'ServiceVO'}
     
     site_list = [] 
-    if ( value == "ALL"):
-        groups = Entity.objects.filter(type=type)
-    else:
-        groups = Entity.objects.filter(uniqueid = value, type = type)
+    if not groups:
+        if ( value == "ALL"):
+            groups = Entity.objects.filter(type=type)
+        else:
+            groups = Entity.objects.filter(type=type, uniqueid=value)
+        
     for group in groups:
-        relationships = Entityrelationship.objects.select_related('subject').filter(predicate = predicate[type], object = group)
-        for relationship in relationships:
-            site_list.append(relationship.subject)
+        relationships = Entityrelationship.objects.select_related('subject').filter(predicate=predicate[type], object=group)
+        if type == "VO":
+            relationships = Entityrelationship.objects.select_related('subject').filter(predicate='SiteService', object__in=[rlp.subject for rlp in relationships])
+        site_list += [rlp.subject for rlp in relationships]
     
+    site_list = {}.fromkeys(site_list).keys() 
+
     return site_list
 
 
 def get_countries(site_list):
     """ get country entities from topology database """
-    relationships = Entityrelationship.objects.select_related('object').filter(predicate = 'SiteCountry', subject__in = site_list)
+    relationships = Entityrelationship.objects.select_related('object').filter(predicate='SiteCountry', subject__in=site_list)
     countries = []
     for relation in relationships:
         try:
@@ -381,7 +379,7 @@ def get_nagios_status_dict():
     return status_dict
 
 
-def get_hosts_overall_nagios_status(status_dict, hostname_list, check_name_phrase):
+def get_hosts_overall_nagios_status(status_dict, hostname_list, check_name_suffix):
     overall_status = -1
     has_been_checked = 1
     real_hostname_list = []
@@ -391,7 +389,7 @@ def get_hosts_overall_nagios_status(status_dict, hostname_list, check_name_phras
     for hostname in real_hostname_list:
         try:
             for key in status_dict[hostname].keys(): 
-                if re.compile(check_name_phrase).match(key):
+                if re.compile(check_name_suffix).match(key):
                     if status_dict[hostname][key]['current_state'] > overall_status:
                         overall_status = status_dict[hostname][key]['current_state']
                     if status_dict[hostname][key]['has_been_checked'] == 0:
