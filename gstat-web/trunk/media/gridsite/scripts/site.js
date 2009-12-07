@@ -56,3 +56,7 @@ function DataSources(check_name) {
 
     return datasources[check_name];
 }
+
+function PageReload(timeout) {
+    setTimeout('location.reload(true);',timeout); //300000, reload page every 5 minutes
+}

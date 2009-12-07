@@ -101,7 +101,8 @@ def get_vo_to_voview_mapping(voview_list=None):
         elif ( object.value[:5] == "VOMS:" ):
             vo = object.value[5:]
             vo = vo.split('/')[1]
-            
+        else:
+            continue
         if vo.strip() == '': continue
             
         if ( not vo_to_voview_mapping.has_key(object.uniqueid) ):
