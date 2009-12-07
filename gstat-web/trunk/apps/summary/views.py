@@ -28,7 +28,10 @@ def main(request, type='GRID', value='ALL', output=None):
     else:
         # site list
         site_list = get_sites(type, value)
-        data = get_data_for_sites(site_list, get_status=True)
+        if type == 'VO':
+            data = get_data_for_sites(site_list, get_status=True, vo_name=value)
+        else:   
+            data = get_data_for_sites(site_list, get_status=True)
 
     if (output == 'json'):
         content = '{"aaData": %s}' % (json.dumps(data))
@@ -41,7 +44,7 @@ def main(request, type='GRID', value='ALL', output=None):
                                                         'type'            : type,
                                                         'value'           : value,
                                                         'filters_enabled' : True})
-def get_data_for_sites(site_list, get_status=False):
+def get_data_for_sites(site_list, get_status=False, vo_name=False):
     data = []
     nagios_status = {}
     for site in site_list:
@@ -52,11 +55,18 @@ def get_data_for_sites(site_list, get_status=False):
         sub_cluster_list = get_gluesubclusters(service_list)
         physical_cpu, logical_cpu = get_installed_capacity_cpu(sub_cluster_list)
         
-        se_list = get_glueses(service_list)
-        total_online, used_online, total_nearline, used_nearline = get_installed_capacity_storage(se_list)
-
-        vo_view_list = get_gluevoviews(service_list)
-        total_jobs, running_jobs, waiting_jobs = get_voview_job_stats(vo_view_list)        
+        if vo_name:
+            sa_list = get_gluesas(service_list, vo_name)
+            total_online, used_online, total_nearline, used_nearline = get_sa_storage_stats(sa_list)
+            
+            vo_view_list = get_gluevoviews(service_list, vo_name)
+            total_jobs, running_jobs, waiting_jobs = get_voview_job_stats(vo_view_list)
+        else:
+            se_list = get_glueses(service_list)
+            total_online, used_online, total_nearline, used_nearline = get_installed_capacity_storage(se_list)
+            
+            vo_view_list = get_gluevoviews(service_list)
+            total_jobs, running_jobs, waiting_jobs = get_voview_job_stats(vo_view_list)        
         
         site_number_or_status = 0
         if get_status:
