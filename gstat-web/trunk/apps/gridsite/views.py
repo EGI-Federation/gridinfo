@@ -122,7 +122,7 @@ def overview(request, site_name):
             resource_dict[voname]['voname'] = voname
             for attr in attributes:
                 resource_dict[voname][attr] = 0
-        else:
+        elif attributes[0] not in resource_dict[voname].keys():
             for attr in attributes:
                 resource_dict[voname][attr] = 0
         for attr in attributes:

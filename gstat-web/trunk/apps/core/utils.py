@@ -39,7 +39,7 @@ def get_glueses(service_list):
     se_list = gluese.objects.filter(uniqueid__in = uniqueids)
     return se_list
 
-def get_gluevoviews(service_list):
+def get_gluevoviews(service_list, vo_name=None):
     """ get glue voview entities from glue database """
     # get cluster uniqueid 
     uniqueids = []
@@ -49,10 +49,21 @@ def get_gluevoviews(service_list):
     ces = gluece.objects.filter(gluecluster_fk__in = uniqueids)
     uniqueids = [ce.uniqueid for ce in ces]
     voviews = gluevoview.objects.filter(gluece_fk__in = uniqueids)
+    if vo_name:
+        voview_list = []
+        vo_to_voview_mapping = get_vo_to_voview_mapping(voviews)
+        for voview in voviews:
+            try:
+                voname = vo_to_voview_mapping[voview.glueceuniqueid][voview.localid]
+            except KeyError, e:
+                    continue
+            if voname == vo_name:
+                voview_list.append(voview)
+        voviews = voview_list
 
     return voviews
 
-def get_gluesas(service_list):
+def get_gluesas(service_list, vo_name=None):
     """ get glue voview entities from glue database """
     #get se uniqueid
     uniqueids = []
@@ -60,7 +71,18 @@ def get_gluesas(service_list):
         if service.type == 'SE': uniqueids.append(service.uniqueid)
 
     sas = gluesa.objects.filter(gluese_fk__in = uniqueids)
-
+    if vo_name:
+        sa_list = []
+        vo_to_sa_mapping = get_vo_to_sa_mapping(sas)
+        for sa in sas:
+            try:
+                voname = vo_to_sa_mapping[sa.gluese_fk][sa.localid]
+            except KeyError, e:
+                    continue
+            if voname == vo_name:
+                sa_list.append(sa)
+        sas = sa_list
+        
     return sas
 
 def get_vo_to_voview_mapping(voview_list=None):
@@ -205,28 +227,23 @@ def get_vos(service_list):
 
 def get_installed_capacity_cpu(sub_clusters_list):
     """ calculate cpu numbers in glue subcluster entities """
-    physical_cpus = 0
-    logical_cpus = 0
+    attributes = ["physicalcpus", "logicalcpus"]
+    stats = [0, 0]
     for sub_cluster in sub_clusters_list:
-        logical_cpus += convert_to_integer(sub_cluster.logicalcpus)
-        physical_cpus += convert_to_integer(sub_cluster.physicalcpus)
-
-    return [physical_cpus, logical_cpus]
+        for attr in attributes:
+            value = sub_cluster.__getattribute__(attr)
+            stats[attributes.index(attr)] += convert_to_integer(value)
+    return  stats   
 
 def get_installed_capacity_storage(se_list):
     """ calculate storage space in glue se entities """
-    total_online = 0
-    used_online = 0
-    total_nearline = 0
-    used_nearline = 0 
-
+    attributes = ["totalonlinesize", "usedonlinesize", "totalnearlinesize", "usednearlinesize"]
+    stats = [0, 0, 0, 0]
     for se in se_list:
-        total_online += convert_to_integer(se.totalonlinesize)
-        used_online += convert_to_integer(se.usedonlinesize)
-        total_nearline += convert_to_integer(se.totalnearlinesize) 
-        used_nearline += convert_to_integer(se.usednearlinesize) 
-
-    return [ total_online, used_online, total_nearline, used_nearline ]
+        for attr in attributes:
+            value = se.__getattribute__(attr)
+            stats[attributes.index(attr)] += convert_to_integer(value)
+    return  stats        
 
 def get_installed_capacity_per_os(sub_clusters_list):
     """ calculate cpu numbers in glue subcluster entities by os version """
@@ -291,7 +308,6 @@ def get_service_versions(service_list):
             services[type] = {}
         if ( not services[type].has_key(version)):
             services[type][version] = 0
-
         services[type][version] += 1    
 
     data = []
