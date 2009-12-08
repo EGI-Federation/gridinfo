@@ -240,6 +240,7 @@ objects = gluece.objects.all()
 for object in objects:
     if ( not glueces.has_key(object.uniqueid) ):
          glueces[object.uniqueid] = object.gluecluster_fk
+
 # Dictionary of VOs and objects 
 vos = {}
 clusters = {}
@@ -276,10 +277,52 @@ for object in objects:
             if ( not errors.has_key(object.uniqueid)):
                 sys.stderr.write("Warning: No cluster found for for %s\n" % object.uniqueid)
                 errors[object.uniqueid] = None
-objects=gluemultivalued.objects.filter(attribute='GlueServiceAccessControlBaseRule')
+
+SEs = {}
+errors={}
+objects=gluemultivalued.objects.filter(attribute='GlueSAAccessControlBaseRule')
 for object in objects:
+    vo = None
     if ( object.value[:3] == "VO:" ):
         vo = object.value[3:]
+    if ( object.value[:5] == "VOMS:" ):
+        vo = object.value[5:]
+        vo = vo.split('/')[1]
+    if ( not vo == None ):
+        if ( not vos.has_key(vo) ):
+            obj = store_entity(vo, 'VO')
+            vos[vo] = obj
+        try:
+            SE = object.uniqueid
+            if (SEs.has_key(SE)):
+                try:
+                    SEs[SE].index(vo)
+                except ValueError, e:
+                    store_relationship(services[SE], vos[vo], "ServiceVO")
+                    SEs[SE].append(vo)
+            else:
+                try: 
+                    store_relationship(services[SE], vos[vo], "ServiceVO")
+                    SEs[SE] = [vo]
+                except KeyError, e:
+                    if ( not errors.has_key(SE)):
+                        sys.stderr.write("Warning: No service entry found for %s\n" % cluster)
+                        errors[SE] = None
+        except KeyError, e:
+            if ( not errors.has_key(object.uniqueid)):
+                sys.stderr.write("Warning: No SE found for for %s\n" % object.uniqueid)
+                errors[object.uniqueid] = None
+
+
+objects=gluemultivalued.objects.filter(attribute='GlueServiceAccessControlBaseRule')
+for object in objects:
+    vo = None
+    if ( object.value[:3] == "VO:" ):
+        vo = object.value[3:]
+    if ( object.value[:5] == "VOMS:" ):
+        vo = object.value[5:]
+        vo = vo.split('/')[1]
+    if ( not vo == None ):
         if ( not vos.has_key(vo) ):
             obj = store_entity(vo, 'VO')
             vos[vo] = obj
