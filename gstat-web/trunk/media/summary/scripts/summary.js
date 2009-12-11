@@ -239,26 +239,3 @@ function loadTable(event) {
 
 
 }
-
-
-function CommaFormatted(amount)
-{
-    if (amount == 0) return amount;
-    amount=amount.toString().replace(/^0+/, ''); 
-	amount += '';
-	x = amount.split('.');
-	x1 = x[0];
-	x2 = x.length > 1 ? '.' + x[1] : '';
-	var rgx = /(\d+)(\d{3})/;
-	while (rgx.test(x1)) {
-		x1 = x1.replace(rgx, '$1' + ',' + '$2');
-	}
-	return x1 + x2;
-}
-
-//To remove the comma for the variables
- function RemoveCommaFormatted(amount)
- {
-  amount= amount.replace(/,/g,"");
-  return amount;
- }

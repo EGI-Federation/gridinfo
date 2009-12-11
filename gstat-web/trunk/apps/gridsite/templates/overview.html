@@ -13,6 +13,7 @@
 {% endblock %}
 
 {% block scripts-add %}
+<script type="text/javascript" src="/media/core/scripts/utils.js"></script>
 <script type="text/javascript" src="/media/gridsite/scripts/site.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
@@ -235,17 +236,17 @@
       </thead> 
       <tbody>    
         <tr> 
-          <td>{{ installed_capacity.physicalcpus }} </td> 
-          <td>{{ installed_capacity.logicalcpus }} </td> 
-          <td>{{ installed_capacity.totalonlinesize }} GB</td> 
-          <td>{{ installed_capacity.usedonlinesize }} GB</td> 
+          <td><script type="text/javascript">document.write(CommaFormatted({{ installed_capacity.physicalcpus }})) </script></td> 
+          <td><script type="text/javascript">document.write(CommaFormatted({{ installed_capacity.logicalcpus }})) </script> </td> 
+          <td><script type="text/javascript">document.write(CommaFormatted({{ installed_capacity.totalonlinesize }})) </script> GB</td> 
+          <td><script type="text/javascript">document.write(CommaFormatted({{ installed_capacity.usedonlinesize }})) </script> GB</td> 
           <td>
             <script>
             display('{{ installed_capacity.totalonlinesize }}', '{{ installed_capacity.usedonlinesize }}');
             </script>
           </td>
-          <td>{{ installed_capacity.totalnearlinesize }} GB</td> 
-          <td>{{ installed_capacity.usednearlinesize }} GB</td> 
+          <td><script type="text/javascript">document.write(CommaFormatted({{ installed_capacity.totalnearlinesize }})) </script> GB</td> 
+          <td><script type="text/javascript">document.write(CommaFormatted({{ installed_capacity.usednearlinesize }})) </script> GB</td> 
           <td>
             <script>
             display('{{ installed_capacity.totalnearlinesize }}', '{{ installed_capacity.usednearlinesize }}');
@@ -351,16 +352,16 @@
 	      <tbody>    
 	        <tr> 
 	          {% ifnotequal vo.totaljobs None %}
-	          <td>{{ vo.totaljobs }}</td> 
-	          <td>{{ vo.runningjobs }}</td>
-	          <td>{{ vo.waitingjobs }}</td>
+	          <td><script type="text/javascript">document.write(CommaFormatted({{ vo.totaljobs }})) </script></td> 
+	          <td><script type="text/javascript">document.write(CommaFormatted({{ vo.runningjobs }})) </script></td>
+	          <td><script type="text/javascript">document.write(CommaFormatted({{ vo.waitingjobs }})) </script></td>
               {% endifnotequal %}
               
               {% ifnotequal vo.totalonlinesize None %}
-	          <td>{{ vo.totalonlinesize }} GB</td> 
-	          <td>{{ vo.usedonlinesize }} GB</td>
-	          <td>{{ vo.totalnearlinesize }} GB</td>
-	          <td>{{ vo.usednearlinesize }} GB</td>
+	          <td><script type="text/javascript">document.write(CommaFormatted({{ vo.totalonlinesize }})) </script> GB</td> 
+	          <td><script type="text/javascript">document.write(CommaFormatted({{ vo.usedonlinesize }})) </script> GB</td>
+	          <td><script type="text/javascript">document.write(CommaFormatted({{ vo.totalnearlinesize }})) </script> GB</td>
+	          <td><script type="text/javascript">document.write(CommaFormatted({{ vo.usednearlinesize }})) </script> GB</td>
               {% endifnotequal %}
 	        </tr>
 	        <tr> 
