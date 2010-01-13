@@ -111,6 +111,7 @@ INSTALLED_APPS = (
     'service',
     'stats',
     'glue',
+    'gridmap',
     'topology',
     'summary',
     'gridsite',
