@@ -115,6 +115,8 @@ function buildTree() {
 				host=selectobj.options[selectobj.selectedIndex].value;
 				buildTree();
 				YAHOO.util.Dom.get('entry').data = "/gstat/ldap/browse";
+	            var urllink = document.getElementById('urllink');
+	            urllink.href = '/gstat/ldap/site/' + selectobj.options[selectobj.selectedIndex].text;
 			}
 		}
 	}
@@ -144,6 +146,7 @@ function layout() {
  			{% endifequal %}
 		{% endfor %}
 	</select>
+	<a id='urllink' href='/gstat/ldap/site/{{ url }}'>Permalink for this host</a>
 	</div>
 	</form>
 

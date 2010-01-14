@@ -7,7 +7,7 @@ from topology.models import Entity
 import gsutils
 import string
 
-# Development view
+# Stable view
 def index(request):
     qs = Entity.objects.filter(type='bdii_top')
     hostnames = []
@@ -24,7 +24,7 @@ def index(request):
                                   , {'hostnames': hostnames,
                                      'ldapbrowser_active': 1})
 
-# Dev view
+# Stable view
 def site(request, url):
     qs = Entity.objects.filter(type='bdii_top')
     hostnames = []
@@ -45,7 +45,6 @@ def site(request, url):
                                   , {'hostnames': hostnames,
                                      'ldapbrowser_active': 1,
                                      'url': url})
-
 
 # Stable view
 def browse(request):
