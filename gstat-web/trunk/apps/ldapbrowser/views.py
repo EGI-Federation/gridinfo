@@ -24,6 +24,29 @@ def index(request):
                                   , {'hostnames': hostnames,
                                      'ldapbrowser_active': 1})
 
+# Dev view
+def site(request, url):
+    qs = Entity.objects.filter(type='bdii_top')
+    hostnames = []
+    for bdii in qs:
+        label = bdii.uniqueid[7:string.rfind(bdii.uniqueid, ':')]
+        if (url == label):
+            hostnames.append([label, bdii.uniqueid, 1])
+        else:
+            hostnames.append([label, bdii.uniqueid, 0])
+    user_agent = request.META['HTTP_USER_AGENT'];
+    if (user_agent.find('Firefox') != -1 or user_agent.find('Opera') != -1):
+        return render_to_response('ldapbrowseradv.html'
+                                  , {'hostnames': hostnames,
+                                     'ldapbrowser_active': 1,
+                                     'url': url})
+    else:
+        return render_to_response('ldapbrowser.html'
+                                  , {'hostnames': hostnames,
+                                     'ldapbrowser_active': 1,
+                                     'url': url})
+
+
 # Stable view
 def browse(request):
     # Parsing of needed attributes

@@ -13,9 +13,9 @@
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/yuiloader/yuiloader-min.js"></script>
 <script type="text/javascript"> 
 	var loader = new YAHOO.util.YUILoader({ 
-	    require: ["datatable", "treeview", "panel"], 
+	    require: ["treeview", "container"],
 	    loadOptional: true,
-	    onSuccess: function() {YAHOO.util.Event.onDOMReady(layout, true);}, 
+	    onSuccess: function() {YAHOO.util.Event.onDOMReady(layout);}, 
 	    timeout: 10000,
 	    combine: true 
 	}); 
@@ -100,7 +100,6 @@ function buildTree() {
 		}
 	}
 
-
 	if (window.addEventListener)
 		window.addEventListener("load", function(){alwayscombo.init()}, false)
 	else if (window.attachEvent)
@@ -124,8 +123,9 @@ function buildTree() {
 <!-- layout.js -->
 <script type="text/javascript">
 function layout() {
-	var panel1 = new YAHOO.widget.Panel("center1", { width:"320px", visible:true, constraintoviewport:true } ); 
-	panel1.render(); 
+	//var panel1 = new YAHOO.widget.Panel("center1", { width:"320px", visible:true, constraintoviewport:true } ); 
+	//panel1.render(); 
+    selectbox.navigate(document.getElementById('hosts'));    
 };
 </script>
 
@@ -134,10 +134,14 @@ function layout() {
 {% block content-main %}
 	<form action="">
 	<div id="visiblecombo">
-	<select size="1" onchange="selectbox.navigate(this)">
-		<option value="default" selected="selected" style="background-color: #532900; color: white;">--SELECT A TOP LEVEL BDII--</option>
-		{% for label, hostname in hostnames %}
-			<option value="{{hostname}}">{{label}}</option>
+	<select id="hosts" size="1" onchange="selectbox.navigate(this)">
+		<option value="default" style="background-color: #532900; color: white;">--SELECT A TOP LEVEL BDII--</option>
+		{% for label, hostname, sel in hostnames %}
+		    {% ifequal sel 1 %}
+ 			<option value="{{hostname}}" selected="selected">{{label}}</option>
+ 			{% else %}
+ 			<option value="{{hostname}}">{{label}}</option>
+ 			{% endifequal %}
 		{% endfor %}
 	</select>
 	</div>
