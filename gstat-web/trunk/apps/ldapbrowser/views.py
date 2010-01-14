@@ -38,13 +38,11 @@ def site(request, url):
     if (user_agent.find('Firefox') != -1 or user_agent.find('Opera') != -1):
         return render_to_response('ldapbrowseradv.html'
                                   , {'hostnames': hostnames,
-                                     'ldapbrowser_active': 1,
-                                     'url': url})
+                                     'ldapbrowser_active': 1})
     else:
         return render_to_response('ldapbrowser.html'
                                   , {'hostnames': hostnames,
-                                     'ldapbrowser_active': 1,
-                                     'url': url})
+                                     'ldapbrowser_active': 1})
 
 # Stable view
 def browse(request):
