@@ -7,56 +7,22 @@ from topology.models import Entity
 import gsutils
 import string
 
-# Stable view
-def index(request):
-    qs = Entity.objects.filter(type='bdii_top')
+def index(request, url=""):
+    query = Entity.objects.filter(type='bdii_top')
     hostnames = []
-    for bdii in qs:
+    for bdii in query:
         label = bdii.uniqueid[7:string.rfind(bdii.uniqueid, ':')]
-        hostnames.append([label, bdii.uniqueid])
-    user_agent = request.META['HTTP_USER_AGENT'];
-    if (user_agent.find('Firefox') != -1 or user_agent.find('Opera') != -1):
-        return render_to_response('ldapbrowseradv.html'
-                                  , {'hostnames': hostnames,
-                                     'ldapbrowser_active': 1})
-    else:
-        return render_to_response('ldapbrowser.html'
-                                  , {'hostnames': hostnames,
-                                     'ldapbrowser_active': 1})
+        # Select the default host to show
+        if (url == label): hostnames.append([label, bdii.uniqueid, 1])
+        else: hostnames.append([label, bdii.uniqueid, 0])
+    return render_to_response('ldapbrowser.html', {'hostnames': hostnames})
 
-# Stable view
-def site(request, url):
-    qs = Entity.objects.filter(type='bdii_top')
-    hostnames = []
-    for bdii in qs:
-        label = bdii.uniqueid[7:string.rfind(bdii.uniqueid, ':')]
-        if (url == label):
-            hostnames.append([label, bdii.uniqueid, 1])
-        else:
-            hostnames.append([label, bdii.uniqueid, 0])
-    user_agent = request.META['HTTP_USER_AGENT'];
-    if (user_agent.find('Firefox') != -1 or user_agent.find('Opera') != -1):
-        return render_to_response('ldapbrowseradv.html'
-                                  , {'hostnames': hostnames,
-                                     'ldapbrowser_active': 1})
-    else:
-        return render_to_response('ldapbrowser.html'
-                                  , {'hostnames': hostnames,
-                                     'ldapbrowser_active': 1})
-
-# Stable view
 def browse(request):
     # Parsing of needed attributes
-    if 'dn' in request.GET: 
-        dn = request.GET['dn']
-    else: 
-        return HttpResponse('')
-    
-    if 'entry' in request.GET: 
-        filter = 'base'
-    else: 
-        filter = 'one dn'
-
+    if 'dn' in request.GET: dn = request.GET['dn']
+    else: return HttpResponse('')
+    if 'entry' in request.GET: filter = 'base'
+    else: filter = 'one dn'
     if 'host' in request.GET:
         str = request.GET['host'][7:]
         [host, str] = str.split(':')
@@ -64,7 +30,7 @@ def browse(request):
     else:
         host = 'prod-bdii.cern.ch'
         port = 2170
-        
+
     # Main work
     result = gsutils.read_ldif(host, port, dn, "-s " + filter)
     if (filter == "base" ):
