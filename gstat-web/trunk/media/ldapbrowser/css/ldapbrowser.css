@@ -1,53 +1,31 @@
-/** LDAP TREE TABLE */
+/** LDAP Tree **/
 tbody th {
-	font-size: 12px;
+  font-size: 12px;
     text-align: left;
 }
 tr {
     background-color: #FFFFFF;
     font-size: 10px;
 }
-/* the style of the text label in ygTextNode (yahoo TreeView) */
-.ygtvlabel, .ygtvlabel:link, .ygtvlabel:visited, .ygtvlabel:hover { 
-	/*
-	margin-left:2px;
-	text-decoration: none;
-	*/
-	font-size: 10px;
-}
 
 
-/** SELECT TOP BDII COMBOBOX */
+/** Combobox **/
 #visiblecombo select{
-	background-color: lightyellow;
-}
-
-#visiblecombo .gobutton{
-	font-weight: bold;
-	padding: 0 3px;
-	text-decoration: none;
-}
-
-#visiblecombo .gobutton:hover{
-	background-color: #FFE242;
+  background-color: lightyellow;
 }
 
 
-/** ATTRIBUTE OBJECT */
-#entry{
-	position: fixed;
-	visibility: hidden;
-	width: 395px;
-	border-style: none;
-	border-width: 1px;
+/** Entry Page **/
+#entrypage{
+  float: right;
+  margin: auto;
 }
 
-#entry table{
-	width: 387px;
+#entrypage table{
+  width: 387px;
 }
 
-* html #entry{ /* Hide element from legacy browsers such as IE5-6? */
-	display: none;
+#ldaptree{
+  width: 500px;
 }
-
 

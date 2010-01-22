@@ -12,3 +12,7 @@
 
 /* Import patch for IE 6 Windows */
 /*\*/ @import "patch-iewin.css"; /**/
+
+html {
+  overflow-y: scroll;
+}
