@@ -328,6 +328,10 @@ def test_SubCluster_ProcessorOtherDescription(key,entry):
       details = "Could not calculate Logical CPUs as a value was incorrect"
       my_errors.log(key, "gstat.value.error", details, gsutils.get_site(key))
 
+   if entry['GlueSubClusterPhysicalCPUs'] > entry['GlueSubClusterPhysicalCPUs']:
+      details = "The number of Physical CPUs should not be greater than the number of Logical CPUs."
+      my_errors.log(key, "gstat.value.error", details, gsutils.get_site(key))
+
 def test_ACBR(key,entry,attribute,type):
    logging.debug("Testing %s for %s" %(type,entry[attribute][0]))
 
