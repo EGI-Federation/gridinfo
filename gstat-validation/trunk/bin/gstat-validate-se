@@ -62,7 +62,7 @@ error_messages = {
    "VOInfo.Exist": ["The GlueVOInfo entry does not exist in the entry","WARNING"],
    "VOInfo.Tag": ["The GlueVOTag does not exist in the entry","WARNING"],
    "VOInfo.LocalID.Exist": ["GlueVOInfoLocalID does not exist in the entry","ERROR"],
-   "VOInfo.LocalID.Unique": ["GlueVOInfoLocalID is not unique within SE","ERROR"],
+   "VOInfo.LocalID.Unique": ["GlueVOInfoLocalID is not unique within SA","ERROR"],
    "VOInfo.Path.Unique": ["Multiple GlueVOInfoPath present for this entry","ERROR"],
    "VOInfo.Path": ["There is a problem with the Path in VOInfo","ERROR"],
    "VOInfo.ChunkKey": ["GlueSALocalID not set","ERROR"],
@@ -338,15 +338,6 @@ def test_glue_VOInfo(key,entry):
    if not entry.has_key('GlueVOInfoLocalID'):
       my_errors.log(gsutils.get_unique_id(key),'VOInfo.LocalID.Exist',
                     'GlueVOInfoLocalID does not exist in the entry', gsutils.get_site(key))
-
-   ## FIXME: the following test is broken.  The test asserts that the GlueVOInfoLocalID is
-   ##        unique within the SE object.  However, the VOInfo.LocalID is required to be
-   ##        unique within the parent object (the SA).
-   #logging.debug("Testing VOInfo for univocity of GlueVOInfoLocalID")
-   #if (entry.has_key('GlueVOInfoLocalID') and
-   #                 VOInfoId.count(entry['GlueVOInfoLocalID'][0]) > 1):
-   #   my_errors.log(gsutils.get_unique_id(key),'VOInfo.LocalID.Unique',
-   #                 'GlueVOInfoLocalID is not unique within SE', gsutils.get_site(key))
 
    # Test for univocity of GlueVOInfoPath
    logging.debug("Testing VOInfo for univocity of GlueVOInfoPath")
@@ -661,6 +652,36 @@ if __name__ == "__main__":
    # Create list of IDs to check for univocity
    SEId = ([ldif[k]['GlueSEUniqueID'][0] for k in ldif.keys() 
                                          if ldif[k].has_key('GlueSEUniqueID')])
+
+   # Check that VOInfoLocalID is unique within SA
+   SE_SA_VOInfo = {}
+   for key in ldif.keys():
+      entry=ldif[key]
+      if entry.has_key('GlueVOInfo'):
+         # Extract ids from the VOInfo entry
+         vo_local_id = None
+         sa_local_id = None
+         se_unique_id = None
+         if (entry.has_key('GlueVOInfoLocalID')):
+            local_id = entry['GlueVOInfoLocalID'][0]
+         if (entry.has_key('GlueChunkKey')):
+            for line in entry['GlueChunkKey']:
+               index = line.find("=")
+               if (index > 0):
+                  attribute = line[:index]
+                  value = line[index+1:]
+                  if ( attribute == GlueSALocalID):
+                     sa_local_id = value
+                  if ( attribute == GlueSEUniqueID):
+                     se_unqiue_id = value
+         # If all ids are set, check if it is a duplicate
+         if ( vo_local_id and  sa_local_id and se_unique_id ):
+            try:
+               SE_SA_VOInfo[se_unique_id][sa_local_id][vo_local_id]
+               details = "GlueVOInfoLocalID %s is not unique withing the SA %s for the SE %s." %(vo_local_id, sa_local_id, se_unique_id)
+               my_errors.log(gsutils.get_unique_id(key),'VOInfo.LocalID.Unique', details, gsutils.get_site(key))
+            except KeyError:
+               SE_SA_VOInfo[se_unique_id][sa_local_id][vo_local_id] = None
 
    # Create a dictionary with only the GlueSEService objects
    ldifSRM={}
