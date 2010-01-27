@@ -255,6 +255,13 @@ def test_glue_SubCluster(key,entry):
    if entry.has_key('GlueHostProcessorOtherDescription'):
       test_SubCluster_ProcessorOtherDescription(key,entry)
 
+  # GlueHostApplicationSoftwareRunTimeEnvironment should not contain spaces
+   if entry.has_key('GlueHostApplicationSoftwareRunTimeEnvironment'):
+      for value in entry['GlueHostApplicationSoftwareRunTimeEnvironment']:
+         index = value.find(" ")
+         if (index > 0):
+            details = "GlueHostApplicationSoftwareRunTimeEnvironment value '%s' should not contain a space" % (value)
+            my_errors.log(key, "gstat.value.error", details, gsutils.get_site(key))
 
 def test_SubCluster_ProcessorOtherDescription(key,entry):
    logging.debug("Testing SubCluster for ProcessorOtherDescription")
