@@ -316,7 +316,7 @@ def test_SA_Path(key,entry):
             VOInfoPathFound=1
 
    if (SAPathFound == 1 and VOInfoPathFound == 1):
-      my_errors.log(gsutils.get_unique_id(key),'VOInfo.Path', 'GlueSAPath must not be published', gsutils.get_site(key), 'WARNING')
+      my_errors.log(gsutils.get_unique_id(key),'VOInfo.Path', 'GlueSAPath must not be published', gsutils.get_site(key))
       return
    if (SAPathFound == 0 and VOInfoPathFound == 0):
       my_errors.log(gsutils.get_unique_id(key),'VOInfo.Path', 'GlueSAPath must be published since there is no VOInfoPath associated', gsutils.get_site(key))
