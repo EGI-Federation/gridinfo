@@ -144,7 +144,7 @@ def check_sa(dn, entry):
    check_value(attribute,entry)
 
    attribute = "GlueSAAccessControlBaseRule" 
-   check_value(attribute,entry,"string", "multi")
+   check_value(attribute,entry,"string", "multi",level="INFO")
 
    attribute = "GlueSAStateAvailableSpace"
    value = check_value(attribute,entry,level="INFO")
