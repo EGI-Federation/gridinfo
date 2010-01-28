@@ -7,13 +7,13 @@ function showNode(node, fnLoadComplete)  {
 		    var Results =  eval("(" + Response.responseText + ")");
 		    if (Results && (Results.length > 0)) {
 		        for (var i=0, j=Results.length; i<j; i++) {
-		    		label = Results[i].substring(0, Results[i].indexOf(node.label)-1)
-		            var newNode = new YAHOO.widget.MenuNode(label, node, false);
-		            newNode.title = Results[i];
-		        }
-	        }
-		    Response.argument.fnLoadComplete();
-		},
+                    label = Results[i].substring(0, Results[i].indexOf(node.label)-1);
+		            var newNode = new YAHOO.widget.TextNode(label, node, false);
+                    newNode.title = Results[i];
+                }
+            }
+            Response.argument.fnLoadComplete();
+        },
         failure: function(Response) {
             Response.argument.fnLoadComplete();
         },
@@ -31,15 +31,15 @@ function showNode(node, fnLoadComplete)  {
 
 /** Show attributes of a concrete node */
 function showEntry(node, fnLoadComplete)  {
-	var handleSuccess = function(o){
-		var div = document.getElementById('entrypage');
-		if(o.responseText !== undefined){
-			div.innerHTML = o.responseText;
-		}
-	}
+    var handleSuccess = function(o){
+        var div = document.getElementById('entrypage');
+        if(o.responseText !== undefined){
+            div.innerHTML = o.responseText;
+        }
+    }
     var nodeLabel = encodeURI(node.title);
     var url = "/gstat/ldap/browse?host=" + selectedHost + "&entry=true&dn=" + nodeLabel;
-	var request = YAHOO.util.Connect.asyncRequest('GET', url, {success: handleSuccess});
+    var request = YAHOO.util.Connect.asyncRequest('GET', url, {success: handleSuccess});
 }
 
 /** Setup the tree when a host is selected */
@@ -55,8 +55,8 @@ function buildTree() {
 
 /** Builds a tree when a host is selected in the combobox */
 function selectHost(selectobj){
-	selectedHost = selectobj.options[selectobj.selectedIndex].value;
-	buildTree();
+    selectedHost = selectobj.options[selectobj.selectedIndex].value;
+    buildTree();
     var urllink = document.getElementById('urllink');
     urllink.href = '/gstat/ldap/site/' + selectobj.options[selectobj.selectedIndex].text;
 }
@@ -64,7 +64,7 @@ function selectHost(selectobj){
 /** Select the default host if needed */
 function init() {
     var selectobj = document.getElementById('hosts');
-	if (selectobj.options[selectobj.selectedIndex].value != "default") {
-    	selectHost(selectobj);
+    if (selectobj.options[selectobj.selectedIndex].value != "default") {
+        selectHost(selectobj);
     }
 };
