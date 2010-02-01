@@ -77,85 +77,58 @@
   
   <div id="middle-board">
     <div class="board">
-      <h2>Information System Monitoring</h2>
+      <h2>Information System Monitoring and Validation</h2>
+      {% if status_list_top %}
       <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
         <thead> 
           <tr> 
-            <th>BDII</th> 
-            <th>Current Status</th> 
+            <th>Top BDII Alias</th> 
+            <th>Hostname</th>
+            <th>Instances</th>  
+            <th>Status</th> 
           </tr> 
         </thead> 
+
+        <tbody>
+          {% for status in status_list_top %}
+          <tr> 
+            <td><a href="/gstat/site/{{ site_name }}/treeview/bdii_top/{{ status.alias }}">{{ status.alias }}</a></td> 
+            <td><a href="/gstat/site/{{ site_name }}/treeview/bdii_top/{{ status.host }}">{{ status.host }}</a></td> 
+            <td>{{ status.instance }}</td> 
+            <td><span class="NagiosStatus_{{ status.status }}"> {{ status.status }} </span></td> 
+          </tr> 
+          {% endfor %}
+        </tbody> 
+      </table>    
+      {% endif %}   
+      
+      
+      {% if status_list_site %}
+        {% if status_list_top %}<p></p>{% endif %}
+      <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
+        <thead> 
+          <tr> 
+            <th>Site BDII Alias</th> 
+            <th>Hostname</th>
+            <th>Instances</th>  
+            <th>Status</th> 
+          </tr> 
+        </thead> 
+
         <tbody> 
-          {% ifequal overall_status_dict.topbdii "N/A"%}{% ifequal overall_status_dict.sitebdii "N/A"%}
+          {% for status in status_list_site %}
           <tr> 
-            <td>N/A</td> 
-            <td>N/A</td> 
+            <td><a href="/gstat/site/{{ site_name }}/treeview/bdii_site/{{ status.alias }}">{{ status.alias }}</a></td> 
+            <td><a href="/gstat/site/{{ site_name }}/treeview/bdii_site/{{ status.host }}">{{ status.host }}</a></td> 
+            <td>{{ status.instance }}</td> 
+            <td><span class="NagiosStatus_{{ status.status }}"> {{ status.status }} </span></td> 
           </tr> 
-          {% endifequal %}{% endifequal %}
-          {% ifnotequal overall_status_dict.topbdii "N/A" %}
-          <tr> 
-            <td><a href="/gstat/site/{{ sitename }}/topbdii/">Top BDII</a></td> 
-            <td><span class="NagiosStatus_{{ overall_status_dict.topbdii }}"> {{ overall_status_dict.topbdii }} </span></td> 
-          </tr> 
-          {% endifnotequal %}
-          {% ifnotequal overall_status_dict.sitebdii "N/A" %}
-          <tr> 
-            <td><a href="/gstat/site/{{ sitename }}/sitebdii/">Site BDII</a></td> 
-            <td><span class="NagiosStatus_{{ overall_status_dict.sitebdii }}"> {{ overall_status_dict.sitebdii }} </span></td> 
-          </tr> 
-          {% endifnotequal %}
+          {% endfor %}
         </tbody> 
-      </table>         
-    </div>
-    
-    <div class="board">
-      <h2>Information Content Validation in Site BDII</h2>
-      <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
-        <thead> 
-          <tr> 
-            <th>Entity Type</th> 
-            <th>Current Status</th> 
-<!--
-            <th>Error</th>
-            <th>Warning</th>
-            <th>Info</th>
--->
-          </tr> 
-        </thead> 
-        <tbody>    
-          {% ifequal overall_status_dict.ce "N/A"%}{% ifequal overall_status_dict.se "N/A"%}{% ifequal overall_status_dict.service "N/A"%}{% ifequal overall_status_dict.site "N/A"%}
-          <tr> 
-            <td>N/A</td> 
-            <td>N/A</td> 
-          </tr> 
-          {% endifequal %}{% endifequal %}{% endifequal %}{% endifequal %}
-          {% ifnotequal overall_status_dict.ce "N/A" %}
-          <tr> 
-            <td><a href="/gstat/site/{{ sitename }}/ce/">CE</a></td> 
-            <td><span class="NagiosStatus_{{ overall_status_dict.ce }}"> {{ overall_status_dict.ce }} </span></td> 
-          </tr> 
-          {% endifnotequal %}
-          {% ifnotequal overall_status_dict.se "N/A" %}
-          <tr> 
-            <td><a href="/gstat/site/{{ sitename }}/se/">SE</a></td> 
-            <td><span class="NagiosStatus_{{ overall_status_dict.se }}"> {{ overall_status_dict.se }} </span></td> 
-          </tr> 
-          {% endifnotequal %}          
-          {% ifnotequal overall_status_dict.service "N/A" %}
-          <tr> 
-            <td><a href="/gstat/site/{{ sitename }}/service/">Service</a></td> 
-            <td><span class="NagiosStatus_{{ overall_status_dict.service }}"> {{ overall_status_dict.service }} </span></td> 
-          </tr> 
-          {% endifnotequal %}
-          {% ifnotequal overall_status_dict.site "N/A" %}
-          <tr> 
-            <td><a href="/gstat/site/{{ sitename }}/site/">Site</a></td> 
-            <td><span class="NagiosStatus_{{ overall_status_dict.site }}"> {{ overall_status_dict.site }} </span></td> 
-          </tr> 
-          {% endifnotequal %}
-        </tbody> 
-      </table>        
-    </div>			
+      </table>    
+      {% endif %}   
+        
+    </div>		
   </div>
   <div id="right-board">
     <div class="board">
@@ -163,8 +136,8 @@
       <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
         <thead> 
           <tr> 
-            <th>Resource Type</th> 
-            <th>Entity Number</th> 
+            <th>Resource</th> 
+            <th>Entities</th> 
           </tr> 
         </thead> 
         <tbody> 
@@ -176,19 +149,19 @@
           {% endifequal %}{% endifequal %}{% endifequal %}
           {% ifnotequal count_dict.ce 0 %}
           <tr> 
-            <td>CE<!-- <a href="/gstat/site/{{ sitename }}/ce/">CE</a> --></td> 
+            <td>CE<!-- <a href="/gstat/site/{{ site_name }}/ce/">CE</a> --></td> 
             <td>{{ count_dict.ce }}</td> 
           </tr> 
           {% endifnotequal %}
           {% ifnotequal count_dict.se 0 %}
           <tr> 
-            <td>SE<!-- <a href="/gstat/site/{{ sitename }}/se/">SE</a> --></td> 
+            <td>SE<!-- <a href="/gstat/site/{{ site_name }}/se/">SE</a> --></td> 
             <td>{{ count_dict.se }}</td> 
           </tr> 
           {% endifnotequal %}          
           {% ifnotequal count_dict.service 0 %}
           <tr> 
-            <td>Service<!-- <a href="/gstat/site/{{ sitename }}/service/">Service</a> --></td> 
+            <td>Service<!-- <a href="/gstat/site/{{ site_name }}/service/">Service</a> --></td> 
             <td>{{ count_dict.service }}</td> 
           </tr> 
           {% endifnotequal %}      
@@ -256,11 +229,11 @@
         <tr> 
           <td id="cpu" colspan="2">
             <script type="text/javascript">
-              $.get("/gstat/rrd/Site/{{ sitename }}/cpu/e-3h/small/", {}, function(r) {
+              $.get("/gstat/rrd/Site/{{ site_name }}/cpu/e-3h/small/", {}, function(r) {
                 if (r != 'N/A') {
                   $('#cpu').append(
-                    $('<a></a>').attr({'href':'/gstat/site/{{ sitename }}/graphs/cpu/'}).append(
-                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ sitename }}/cpu/e-3h/small/'})
+                    $('<a></a>').attr({'href':'/gstat/site/{{ site_name }}/treeview/subcluster_cpu/'}).append(
+                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/cpu/e-3h/small/'})
                     )
                   );
                 } else {
@@ -271,11 +244,11 @@
           </td>
           <td id="online" colspan="3">
             <script type="text/javascript">
-              $.get("/gstat/rrd/Site/{{ sitename }}/online/e-3h/small/", {}, function(r) {
+              $.get("/gstat/rrd/Site/{{ site_name }}/online/e-3h/small/", {}, function(r) {
                 if (r != 'N/A') {
                   $('#online').append(
-                    $('<a></a>').attr({'href':'/gstat/site/{{ sitename }}/graphs/online/'}).append(
-                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ sitename }}/online/e-3h/small/'})
+                    $('<a></a>').attr({'href':'/gstat/site/{{ site_name }}/treeview/se_online/'}).append(
+                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/online/e-3h/small/'})
                     )
                   );
                 } else {
@@ -286,11 +259,11 @@
           </td>
           <td id="nearline" colspan="3">
             <script type="text/javascript">
-              $.get("/gstat/rrd/Site/{{ sitename }}/nearline/e-3h/small/", {}, function(r) {
+              $.get("/gstat/rrd/Site/{{ site_name }}/nearline/e-3h/small/", {}, function(r) {
                 if (r != 'N/A') {
                   $('#nearline').append(
-                    $('<a></a>').attr({'href':'/gstat/site/{{ sitename }}/graphs/nearline/'}).append(
-                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ sitename }}/nearline/e-3h/small/'})
+                    $('<a></a>').attr({'href':'/gstat/site/{{ site_name }}/treeview/se_nearline/'}).append(
+                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/nearline/e-3h/small/'})
                     )
                   );
                 } else {
@@ -322,7 +295,7 @@
 	  {% for vo in vo_resources %}
 	  <div id="fragment-{{ forloop.counter }}">
 
-	    <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0" style="width:230px;"> 
+	    <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0" style="width:33%;"> 
 	      <thead> 
 	        <tr> 
 	          {% ifnotequal vo.totaljobs None %}
@@ -367,21 +340,21 @@
 	        <tr> 
 	          {% ifnotequal vo.totaljobs None %}
 	          <td colspan="3">
-	            <a href="/gstat/site/{{ sitename }}/graphs/job/{{ vo.voname }}/">
-	              <img src="/gstat/rrd/VO/{{ sitename }}/{{ vo.voname }}/job/e-3h/small/"/>
+	            <a href="/gstat/site/{{ site_name }}/treeview/vo_job/{{ vo.voname }}/">
+	              <img src="/gstat/rrd/VO/{{ site_name }}/{{ vo.voname }}/job/e-3h/small/"/>
 	            </a>
 	          </td>
               {% endifnotequal %}
               
               {% ifnotequal vo.totalonlinesize None %}
 	          <td colspan="2">
-	            <a href="/gstat/site/{{ sitename }}/graphs/online/{{ vo.voname }}/">
-	              <img src="/gstat/rrd/VO/{{ sitename }}/{{ vo.voname }}/online/e-3h/small/"/>
+	            <a href="/gstat/site/{{ site_name }}/treeview/vo_online/{{ vo.voname }}/">
+	              <img src="/gstat/rrd/VO/{{ site_name }}/{{ vo.voname }}/online/e-3h/small/"/>
 	            </a>
 	          </td>
 	          <td colspan="2">
-	            <a href="/gstat/site/{{ sitename }}/graphs/nearline/{{ vo.voname }}/">
-	              <img src="/gstat/rrd/VO/{{ sitename }}/{{ vo.voname }}/nearline/e-3h/small/"/>
+	            <a href="/gstat/site/{{ site_name }}/treeview/vo_nearline/{{ vo.voname }}/">
+	              <img src="/gstat/rrd/VO/{{ site_name }}/{{ vo.voname }}/nearline/e-3h/small/"/>
 	            </a>
 	          </td>
               {% endifnotequal %}

@@ -25,49 +25,54 @@ def overview(request, site_name):
     # Get all the service and entity at site from topology database
     site_entity = get_unique_entity(site_name, 'Site')
     service_list = get_services([site_entity])
-    topbdii_list  = []
-    sitebdii_list = []
-    ce_list       = []
-    se_list       = []
+    topbdii_list, sitebdii_list, ce_list, se_list  = [], [], [], []
     for service in service_list:
         if service.type == 'bdii_top':  topbdii_list.append(service)
         if service.type == 'bdii_site': sitebdii_list.append(service)
         if service.type == 'CE':        ce_list.append(service)
         if service.type == 'SE':        se_list.append(service)
+
+    # Get the overall monitoring and validation results
+    nagios_status = get_nagios_status_dict()
+    status_list_top = []
+    hostnames = [topbdii.hostname for topbdii in topbdii_list]
+    for hostname in hostnames:
+        hosts_from_alias = get_hosts_from_alias(hostname)
+        for host in hosts_from_alias:
+            (status, has_been_checked)   = get_host_overall_nagios_status(nagios_status, host)
+            dict = {}
+            dict['alias']    = hostname
+            dict['host']     = host
+            dict['instance'] = len(hosts_from_alias)
+            dict['status']   = get_nagios_status_str(status, has_been_checked)
+            status_list_top.append(dict)
+    status_list_site = []
+    hostnames = [sitebdii.hostname for sitebdii in sitebdii_list]
+    for hostname in hostnames:
+        hosts_from_alias = get_hosts_from_alias(hostname)
+        for host in hosts_from_alias:
+            (status, has_been_checked)   = get_host_overall_nagios_status(nagios_status, host)
+            dict = {}
+            dict['alias']    = hostname
+            dict['host']     = host
+            dict['instance'] = len(hosts_from_alias)
+            dict['status']   = get_nagios_status_str(status, has_been_checked)
+            status_list_site.append(dict)
+
+    # Count the numbers of entities
+    count_dict            = {}
+    count_dict['ce']      = len(ce_list)
+    count_dict['se']      = len(se_list)
+    count_dict['service'] = len(service_list)
+
+    # Calculate how many minutes ago the information is updated
     last_update = 0
     minutes_ago = 0
     if site_entity:
         last_update = time.mktime(time.strptime(str(site_entity.updated_at), "%Y-%m-%d %H:%M:%S"))
         minutes_ago = int((time.mktime(time.localtime()) - time.mktime(time.strptime(str(site_entity.updated_at), "%Y-%m-%d %H:%M:%S")))/60)
-    
-    # Count the numbers of entities
-    count_dict             = {}
-    count_dict['topbdii']  = len(topbdii_list)
-    count_dict['sitebdii'] = len(sitebdii_list)
-    count_dict['ce']       = len(ce_list)
-    count_dict['se']       = len(se_list)
-    count_dict['service']  = len(service_list)
-    
-    # Get the overall monitoring and validation results
-    nagios_status = get_nagios_status_dict()
-    overall_status_dict             = {}
-    hostnames = [topbdii.hostname for topbdii in topbdii_list]
-    (status, has_been_checked)      = get_hosts_overall_nagios_status(nagios_status, hostnames, '^check-bdii.+')
-    overall_status_dict['topbdii']  = get_nagios_status_str(status, has_been_checked)
-    hostnames = [sitebdii.hostname for sitebdii in sitebdii_list]
-    (status, has_been_checked)      = get_hosts_overall_nagios_status(nagios_status, hostnames, '^check-bdii.+')
-    overall_status_dict['sitebdii'] = get_nagios_status_str(status, has_been_checked)
-    (status, has_been_checked)      = get_hosts_overall_nagios_status(nagios_status, hostnames, '^check-ce$')
-    overall_status_dict['ce']       = get_nagios_status_str(status, has_been_checked)
-    (status, has_been_checked)      = get_hosts_overall_nagios_status(nagios_status, hostnames, '^check-se$')
-    overall_status_dict['se']       = get_nagios_status_str(status, has_been_checked)
-    (status, has_been_checked)      = get_hosts_overall_nagios_status(nagios_status, hostnames, '^check-service$')
-    overall_status_dict['service']  = get_nagios_status_str(status, has_been_checked)
-    (status, has_been_checked)      = get_hosts_overall_nagios_status(nagios_status, hostnames, '^check-site$')
-    overall_status_dict['site']     = get_nagios_status_str(status, has_been_checked)
 
-
-    # Count the CPU and Jobs numbers in all CEs and the storage space in all SEs at site
+    # Calculate the CPU numbers through all SubCluster
     installed_capacity = {}
     sub_cluster_list = get_gluesubclusters(service_list)
     if sub_cluster_list:
@@ -78,6 +83,7 @@ def overview(request, site_name):
     installed_capacity['physicalcpus'] = physical_cpu
     installed_capacity['logicalcpus']  = logical_cpu
     
+    # Calculate the storage space through all SE
     se_list = get_glueses(service_list)
     if se_list:
         totalonlinesize, usedonlinesize, totalnearlinesize, usednearlinesize = get_installed_capacity_storage(se_list)
@@ -89,6 +95,7 @@ def overview(request, site_name):
     installed_capacity['totalnearlinesize'] = totalnearlinesize
     installed_capacity['usednearlinesize']  = usednearlinesize        
     
+    # Calculate the jobs numbers through all VOView
     resource_dict = {}
     attributes = ["totaljobs", "runningjobs", "waitingjobs"]
     voview_list = get_gluevoviews(service_list)
@@ -107,7 +114,7 @@ def overview(request, site_name):
         for attr in attributes:
             resource_dict[voname][attr] += stats[attributes.index(attr)]                 
     
-    
+    # Calculate the shared storage space through all SA
     attributes = ["totalonlinesize", "usedonlinesize", "totalnearlinesize", "usednearlinesize"]
     sa_list = get_gluesas(service_list)
     vo_to_sa_mapping = get_vo_to_sa_mapping(sa_list)
@@ -138,113 +145,258 @@ def overview(request, site_name):
     sorted_list.sort()
     vo_resources = [dict_ for (key, dict_) in sorted_list]
     
-    return render_to_response('overview.html', {'sitename'           : site_name,
+    return render_to_response('overview.html', {'site_name'           : site_name,
                                                 'gluesite'           : gluesite,
+                                                'status_list_top'    : status_list_top,
+                                                'status_list_site'   : status_list_site,
                                                 'count_dict'         : count_dict,
-                                                'overall_status_dict': overall_status_dict,
-                                                'installed_capacity' : installed_capacity,
-                                                'vo_resources'       : vo_resources,
                                                 'last_update'        : last_update,
-                                                'minutes_ago'        : minutes_ago})
+                                                'minutes_ago'        : minutes_ago,
+                                                'installed_capacity' : installed_capacity,
+                                                'vo_resources'       : vo_resources})
     
-def status(request, site_name, type):
+def status(request, site_name, type_name, host_name, check_name):
     site_entity = get_unique_entity(site_name, 'Site')
-    if not site_entity:
-        #raise Http404 
-        pass
-
-    service_list = get_services([site_entity])
-    nodetype = 'bdii_site'
-    if type == 'topbdii': nodetype = 'bdii_top'
-    bdii_list  = []
-    for service in service_list:
-        if service.type == nodetype:  bdii_list.append(service)
-    hostnames  = [bdii.hostname for bdii in bdii_list]
-    hostname_list = []
-    for hostname in hostnames:
-        hosts_from_alias = get_hosts_from_alias(hostname)
-        if ( len(hosts_from_alias) > 1 ):
-            #This is and alias point to more than on reall hostname
-            hostname_list += hosts_from_alias
-        elif not ( hostname == hosts_from_alias[0]):
-            #This is an alias for a single instance
-            hostname_list += hosts_from_alias
-        else:
-            #The actual id given was a real host.
-            hostname_list.append(hostname)
-            
-    nagios_status = get_nagios_status_dict()         
+    
+    # Get testing results from TOP BDII    
+    nagios_status = get_nagios_status_dict()   
+    
     status_list = []
-    for hostname in hostname_list:
-        if type == 'topbdii':
-            status_list.append( get_nagios_status(nagios_status, 'check-bdii-freshness', hostname) )
-            status_list.append( get_nagios_status(nagios_status, 'check-bdii-sites', hostname) )
-        elif type == 'sitebdii':
-            status_list.append( get_nagios_status(nagios_status, 'check-bdii-freshness', hostname) )
-            status_list.append( get_nagios_status(nagios_status, 'check-bdii-services', hostname) )
-        elif type == 'ce':
-            status_list.append( get_nagios_status(nagios_status, 'check-ce', hostname) )
-        elif type == 'se':
-            status_list.append( get_nagios_status(nagios_status, 'check-se', hostname) )
-        elif type == 'service':
-            status_list.append( get_nagios_status(nagios_status, 'check-service', hostname) )
-        elif type == 'site':
-            status_list.append( get_nagios_status(nagios_status, 'check-site', hostname) )
-
+    if host_name == 'all':
+        # all checks of all BDIIs
+        hostname_list = [ bdii.hostname for bdii in get_services([site_entity], type_name) ]
+        hostname_list_all = get_hosts_from_aliases(hostname_list)  
+        for hostname in hostname_list_all:
+            for check in get_check_list(nagios_status, hostname):
+                status_list.append( get_nagios_status(nagios_status, check, hostname) )
+    else:
+        if check_name == 'all':
+            # all checks of single BDII (probably multiple instances)
+            hostname_list_all = get_hosts_from_alias(host_name)
+            for hostname in hostname_list_all:
+                for check in get_check_list(nagios_status, hostname):
+                    status_list.append( get_nagios_status(nagios_status, check, hostname) )
+        else:
+            # single check of single BDII (probably multiple instances)
+            hostname_list_all = get_hosts_from_alias(host_name)
+            for hostname in hostname_list_all:
+                status_list.append( get_nagios_status(nagios_status, check_name, hostname) )
+    
+    # Sort status list
     unsorted_list = status_list
     sorted_list = [(dict['hostname'], dict) for dict in unsorted_list]
     sorted_list.sort()
     result_list = [dict for (hostname, dict) in sorted_list]
-    status_list = result_list
+    status_list = result_list   
 
-    if type in ['topbdii', 'sitebdii']: check_type = 'monitoring'
-    else:                               check_type = 'validation'
-
-    return render_to_response('status.html', {'site_name'   : site_name,
-                                              'status_list' : status_list,
-                                              'check_type'  : check_type})
+    return render_to_response('status.html', {'status_list' : status_list})
 
 
-
-
-# ------------------------------------
-# -- RRD graphs HTML pages function --
-# ------------------------------------
-def site_graphs(request, site_name, attribute):
+def treeview(request, site_name, type, attribute=""):
+    site = get_unique_gluesite(site_name)
+    
+    # Get service list from topology database
     site_entity = get_unique_entity(site_name, 'Site')
     service_list = get_services([site_entity])
-    sub_cluster_list = get_gluesubclusters(service_list)
-    se_list = get_glueses(service_list)
-    
-    if attribute == 'cpu':
-        objects = sort_objects_by_attr(sub_cluster_list, 'uniqueid')
-    elif attribute in ['online','nearline']:
-        objects = sort_objects_by_attr(se_list, 'uniqueid')
-    
-    return render_to_response('site_graphs.html', {'site_name': site_name,
-                                                   'objects'  : objects,
-                                                   'attribute': attribute}) 
-
-def vo_graphs(request, site_name, attribute, vo_name):
-    site_entity = get_unique_entity(site_name, 'Site')
-    service_list = get_services([site_entity])
-    object_list = []
-
+    topbdii_list, sitebdii_list, ce_list, se_list, others_list  = [], [], [], [], []
     for service in service_list:
-        if attribute == 'job':
-            if service.type == 'CE': object_list.append(service)
-        elif attribute in ['online','nearline']:
-            if service.type == 'SE': object_list.append(service)     
+        if   service.type == 'bdii_top':  topbdii_list.append(service)
+        elif service.type == 'bdii_site': sitebdii_list.append(service)
+        elif service.type == 'CE':        ce_list.append(service)
+        elif service.type == 'SE':        se_list.append(service)
+        else:                             others_list.append(service)
 
-    support_object_list = []
-    for object in object_list:
-        vos = get_vos([object])
-        if vo_name in [vo.uniqueid for vo in vos]:
-            support_object_list.append(object)
-    objects = sort_objects_by_attr(support_object_list, 'uniqueid')
+    # decide expanded tree node
+    collapse = {}
+    # type: bdii_top, bdii_site, subcluster_cpu, se_online, se_nearline, vo_job, vo_online, vo_nearline
+    collapse[type] = "expanded"
+
+    # Get subtree of TOP BDIIs and associated Nagios check names for testing results
+    # {"top bdii hostname": ["check list"]}
+    # ["top bdii hostname", ["check list"]]
+    nagios_status = get_nagios_status_dict()   
+    
+    tree_topbdii = []
+    if topbdii_list:
+        hostnames_topbdii = [topbdii.hostname for topbdii in topbdii_list]
+        hostnames_all_topbdii = get_hosts_from_aliases(hostnames_topbdii)        
+        for hostname in hostnames_all_topbdii:
+            #tree_topbdii[hostname] = get_check_list(nagios_status, hostname)
+            #tree_topbdii.append( [hostname, get_check_list(nagios_status, hostname)] )
+            tree_topbdii.append( ( hostname, tuple(get_check_list(nagios_status, hostname)) ) )
+        # decide expanded tree node
+        if type == "bdii_top":
+            hostnames_expand = get_hosts_from_alias(attribute)
+            for hostname_expand in hostnames_expand:
+                collapse[hostname_expand] = "expanded"
         
+    # Get subtree of Site BDIIs and associated Nagios check names for testing results
+    # {"site bdii hostname": ["check list"]}
+    # ["site bdii hostname", ["check list"]]
+    tree_sitebdii = []
+    if sitebdii_list:
+        hostnames_sitebdii = [sitebdii.hostname for sitebdii in sitebdii_list]
+        hostnames_all_sitebdii = get_hosts_from_aliases(hostnames_sitebdii)   
+        for hostname in hostnames_all_sitebdii:
+            #tree_sitebdii[hostname] = get_check_list(nagios_status, hostname)
+            #tree_sitebdii.append( [hostname, get_check_list(nagios_status, hostname)] )
+            tree_sitebdii.append( ( hostname, tuple(get_check_list(nagios_status, hostname)) ) )
+        # decide expanded tree node
+        if type == "bdii_site":
+            hostnames_expand = get_hosts_from_alias(attribute)
+            print hostnames_expand
+            for hostname_expand in hostnames_expand:
+                collapse[hostname_expand] = "expanded"
 
-    return render_to_response('vo_graphs.html', {'site_name': site_name,
-                                                 'objects'  : objects,
-                                                 'attribute': attribute,
-                                                 'vo_name'  : vo_name}) 
+    # Get subtree of Clusters and associated SubClusters for static cpu numbers
+    # {"cluster hostname": ["subcluster list"]}
+    # ["cluster hostname", ["subcluster list"]]
+    tree_cluster_cpu = []
+    if ce_list:
+        for cluster in ce_list:
+            #tree_cluster_cpu[cluster.hostname] = [subcluster.uniqueid for subcluster in get_gluesubclusters([cluster])]
+            #tree_cluster_cpu.append( [cluster.hostname, [subcluster.uniqueid for subcluster in get_gluesubclusters([cluster])].sort()] )
+            tree_cluster_cpu.append( ( cluster.hostname, tuple(sorted(subcluster.uniqueid for subcluster in get_gluesubclusters([cluster]))) ) )
+    tree_cluster_cpu.sort()
+    
+    # Gather information of VOs
+    dict_vo = {}
+    
+    # Get subtree of Clusters and supported VOs for job numbers
+    # {"cluster hostname": ["vo list"]}
+    # ["cluster hostname", ["vo list"]]
+    tree_cluster_job = []
+    if ce_list:
+        for cluster in ce_list:
+            #tree_cluster_job[cluster.hostname] = [vo.uniqueid for vo in get_vos([cluster])]
+            #vos = [vo.uniqueid for vo in get_vos([cluster])]
+            #tree_cluster_job.append( [cluster.hostname, vos.sort()] )
+            vos = tuple(sorted(vo.uniqueid for vo in get_vos([cluster])))
+            tree_cluster_job.append( (cluster.hostname, vos) )
+            # Gather information of VOs
+            for vo in vos:
+                try:
+                    dict_vo[vo][0].append(cluster.hostname)
+                except:
+                    dict_vo[vo] = [[cluster.hostname], []]
+    
+    # Get subtree of SEs and supported VOs for static and shared storage space
+    # {"se hostname": ["vo list"]}
+    # ["se hostname", ["vo list"]]
+    tree_se = []
+    if se_list:
+        for se in se_list:
+            #tree_se[se.hostname] = [vo.uniqueid for vo in get_vos([se])]
+            #vos = [vo.uniqueid for vo in get_vos([se])]
+            #tree_se.append( [se.hostname, vos.sort()] )
+            vos = tuple(sorted(vo.uniqueid for vo in get_vos([se])))
+            tree_se.append( (se.hostname, vos) )
+            # Gather information of VOs
+            for vo in vos:
+                try:
+                    dict_vo[vo][1].append(se.hostname)
+                except:
+                    dict_vo[vo] = [[], [se.hostname]]
+                        
+            
+    # Get subtree of service type and associated Services
+    # {"service type": ["service list"]}
+    # ["service type", ["service list"]]
+    tree_service = []
+    dict_service = {}
+    if others_list:
+        for service in others_list:
+            try:
+                dict_service[service.type].append(service.uniqueid)
+            except:
+                dict_service[service.type] = [service.uniqueid]
+    keys = dict_service.keys()
+    keys.sort()
+    for key in keys:
+        #tree_service.append( [key, dict_service[key].sort()] )
+        tree_service.append( (key, tuple(sorted(dict_service[key]))) )
+    
+    # Get subtree of VO and shared resource
+    # ["vo", [["cluster list"], ["se list"]]]
+    tree_vo = []
+    keys = dict_vo.keys()
+    keys.sort()
+    for key in keys:
+        #tree_vo.append( [key, [ dict_vo[key][0].sort(), dict_vo[key][1].sort() ]] )
+        tree_vo.append( ( key, tuple(sorted(dict_vo[key][0])), tuple(sorted(dict_vo[key][1])) ) )
+    
+    # decide expanded tree node
+    if type.startswith("vo_"):
+        collapse[attribute] = "expanded"
+        
+    # decide the default viewing content in iframe of treeview page
+    url = ""
+    if type == "bdii_top":
+        # e.g. /gstat/site/CERN-PROD/bdii_top/bdii118.cern.ch/all/
+        url = "/".join(["", "gstat", "site", site_name, type, attribute, "all"])
+    elif type == "bdii_site":
+        # e.g. /gstat/site/CERN-PROD/bdii_site/bdii116.cern.ch/all/
+        url = "/".join(["", "gstat", "site", site_name, type, attribute, "all"])
+    elif type == "subcluster_cpu":
+        # e.g. /gstat/rrd/Site/CERN-PROD/cpu/
+        url = "/".join(["", "gstat", "rrd", "Site", site_name, "cpu"])
+    elif type == "se_online":
+        # e.g. /gstat/rrd/Site/CERN-PROD/online/
+        url = "/".join(["", "gstat", "rrd", "Site", site_name, "online"])
+    elif type == "se_nearline":
+        # e.g. /gstat/rrd/Site/CERN-PROD/nearline/
+        url = "/".join(["", "gstat", "rrd", "Site", site_name, "nearline"])
+    elif type == "vo_job":
+        # e.g. /gstat/rrd/VO/CERN-PROD/alice/job/
+        url = "/".join(["", "gstat", "rrd", "VO", site_name, attribute, "job"])
+    elif type == "vo_online":
+        # e.g. /gstat/rrd/VO/CERN-PROD/alice/online/
+        url = "/".join(["", "gstat", "rrd", "VO", site_name, attribute, "online"])
+    elif type == "vo_nearline":
+        # e.g. /gstat/rrd/VO/CERN-PROD/alice/nearline/
+        url = "/".join(["", "gstat", "rrd", "VO", site_name, attribute, "nearline"])
+
+    return render_to_response('treeview_site.html', {'site_name':        site_name,
+                                                'collapse':         collapse,
+                                                'tree_topbdii':     tree_topbdii,
+                                                'tree_sitebdii':    tree_sitebdii,
+                                                'tree_cluster_cpu': tree_cluster_cpu,
+                                                'tree_cluster_job': tree_cluster_job,
+                                                'tree_se':          tree_se,
+                                                'tree_service':     tree_service,
+                                                'tree_vo':          tree_vo,
+                                                'url':              url})
+
+    """"
+    # Get testing results from TOP BDII    
+    nagios_status = get_nagios_status_dict()   
+    
+    status_list_topbdii = []
+    if not topbdii_list:
+        hostnames_topbdii = [topbdii.hostname for topbdii in topbdii_list]
+        hostnames_all_topbdii = get_hosts_from_aliases(hostnames_topbdii)        
+        for hostname in hostnames_all_topbdii:
+            status_list_topbdii.append( get_nagios_status(nagios_status, 'check-bdii-freshness', hostname) )
+            status_list_topbdii.append( get_nagios_status(nagios_status, 'check-bdii-sites',     hostname) )
+        
+    # Get testing results from Site BDII  
+    status_list_sitebdii = []
+    if not sitebdii_list:
+        hostnames_sitebdii = [sitebdii.hostname for sitebdii in sitebdii_list]
+        hostnames_all_sitebdii = get_hosts_from_aliases(hostnames_sitebdii)   
+        for hostname in hostnames_all_sitebdii:
+            status_list_sitebdii.append( get_nagios_status(nagios_status, 'check-bdii-freshness', hostname) )
+            status_list_sitebdii.append( get_nagios_status(nagios_status, 'check-bdii-services',  hostname) )
+            status_list_sitebdii.append( get_nagios_status(nagios_status, 'check-ce',             hostname) )
+            status_list_sitebdii.append( get_nagios_status(nagios_status, 'check-sanity',         hostname) )
+            status_list_sitebdii.append( get_nagios_status(nagios_status, 'check-se',             hostname) )
+            status_list_sitebdii.append( get_nagios_status(nagios_status, 'check-service',        hostname) )
+            status_list_sitebdii.append( get_nagios_status(nagios_status, 'check-site',           hostname) )
+    
+    # Sort status list
+    unsorted_list = status_list_sitebdii
+    sorted_list = [(dict['hostname'], dict) for dict in unsorted_list]
+    sorted_list.sort()
+    result_list = [dict for (hostname, dict) in sorted_list]
+    status_list_sitebdii = result_list   
+    """

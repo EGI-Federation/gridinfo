@@ -1,23 +1,16 @@
-{%  extends "base_gstat.html" %}
-
-{% block description %}Here you can put short description what application does, authors list and whatever you can come up with.{% endblock %}
-
-{% block app-info %}{% endblock %}
-
-{% block css-add %}
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<meta http-equiv="Content-Style-Type" content="text/css">
+<meta http-equiv="Content-Script-Type" content="text/javascript">
 <link rel="stylesheet" type="text/css" href="/media/gridsite/css/site.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/tablesorter.css" />
-<link rel="stylesheet" type="text/css" href="/media/core/css/jquery.treeview.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/nagios.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/jScrollPane.css" />
-{% endblock %}
-
-{% block scripts-add %}
 <script type="text/javascript" src="/media/core/scripts/utils.js"></script>
 <script type="text/javascript" src="/media/gridsite/scripts/site.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
-<script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.mousewheel.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jScrollPane.js"></script>
 <script type="text/javascript">
@@ -30,19 +23,11 @@
 	    }
 	});
 </script>
-{% endblock %}
-
-{% block breadcrumbs %}{% endblock %}
-
-{% block content-main %}
+</head>
+<body>
 
 <div>
-  <div id="top-board" class="board">
-    {% ifequal check_type 'monitoring' %}
-    <h2>Information System Monitoring Check Results</h2>
-    {% else %}
-    <h2>Information Content Validation Check Results</h2>
-    {% endifequal %}
+
     <table cellpadding="0" cellspacing="1" border="0" class="tablesorter" id="table_status">
       <thead>
         <tr>
@@ -80,77 +65,11 @@
         {% endfor %}
       </tbody>
     </table>
-  </div>
-  <div class="clear"></div>
+
   
-  {% if status_list %}
-  <div id="left-board" class="board">
-    {% ifequal check_type 'monitoring' %}
-    <h2>BDII Monitoring Checks</h2>
-    {% else %}
-    <h2>BDII Validation Checks</h2>
-    {% endifequal %}  
-    <div id="scroll-pane" style="overflow: visible; height: 350px;">
-    <ul id="tree" class="filetree treeview">
-      {% for check in status_list %}
-        {% ifchanged check.hostname %}
-           {% if forloop.first %}
-      <li>
-        <span class="ce">&nbsp;{{ check.hostname }} </span>
-        <ul>
-           {% else %}
-        </ul>
-      </li>
-      <li>
-        <span class="ce">&nbsp;{{ check.hostname }} </span>
-        <ul>
-           {% endif %}
-        {% endifchanged %} 
-        
-          <li>
-            <span class="{{ check_type }}">&nbsp;{{ check.check }}</span>
-            <ul id="ul{{ forloop.counter }}">
-              <script>
-                var datasources = DataSources("{{ check.check }}");
-                for (datasource in datasources) {
-                    var link = '<a target="graphframe" href="/gstat/rrd/Nagios/{{ check.hostname }}/{{ check.check }}/'+datasources[datasource]+'/">&nbsp;'+datasources[datasource]+'</a>'
-                    $('#ul{{ forloop.counter }}').append(
-                       $('<li></li>').append(
-                         $('<span></span>').attr({'className':'datasource'}).html(link)
-                       )
-                    );
-                    //document.write('<li><span class="datasource">'+link+'</span></li>');
-                }
-                $('#ul{{ forloop.counter }}').removeAttr('id');
-              </script>
-            </ul>
-          </li>
-      {% endfor %}       
-        </ul>
-      </li>
-    </ul>
-    </div>
-  </div>
-  <div id="middle-right-board" class="board" >
-    <h2>Viewing Graphs</h2>
-    <script>
-    {% if status_list %}{% for check in status_list %} 
-      {% if forloop.first %}
-        try {
-            var datasources = DataSources("{{ check.check }}")[0];
-            var link = '/gstat/rrd/Nagios/{{ check.hostname }}/{{ check.check }}/'+datasources+'/';
-        } catch(err) { 
-            var link = "";
-        }
-        document.write('<iframe name="graphframe" src="'+link+'" frameborder="no" height="280px" width="100%" scrolling="no"></iframe>');
-      {% endif %}
-    {% endfor %}{% endif %}
-    </script>
-  </div>
-  <div class="clear"></div>
-  {% endif %}
 </div>
 
-{% endblock %}
+</body>
+</html>
 
 
