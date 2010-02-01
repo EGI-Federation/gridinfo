@@ -417,6 +417,22 @@ def get_hosts_overall_nagios_status(status_dict, hostname_list, check_name_suffi
     
     return (overall_status, has_been_checked)
 
+def get_host_overall_nagios_status(status_dict, hostname):
+    overall_status = -1
+    has_been_checked = 1
+    try:
+        for key in status_dict[hostname].keys(): 
+            if re.compile('^check-.+').match(key):
+                if status_dict[hostname][key]['current_state'] > overall_status:
+                    overall_status = status_dict[hostname][key]['current_state']
+                if status_dict[hostname][key]['has_been_checked'] == 0:
+                    has_been_checked = 0
+    except (KeyError):
+        # No matching records found
+        pass
+    
+    return (overall_status, has_been_checked)
+
 def get_nagios_status_str(current_state, has_been_checked):
     if (current_state == 0):
         if (has_been_checked == 0): return 'PENDING'
@@ -442,6 +458,15 @@ def get_nagios_status(nagios_status, check, hostname):
 
     return status_dict
 
+def get_check_list(nagios_status, hostname):
+    check_list = []
+    if ( nagios_status.has_key(hostname) ) :
+        for key in nagios_status[hostname].keys(): 
+            if re.compile('^check-.+').match(key):
+                check_list.append(key)
+    check_list.sort()
+    
+    return check_list
 # -----------------------------
 # -- Miscellaneous functions --
 # -----------------------------
@@ -454,8 +479,6 @@ def get_hostname(uniqueid):
     index=hostname.find(':')
     if (index > -1 ):
         hostname = hostname[index+3:]
-
-
     return hostname
 
 def get_hosts_from_alias(hostname):
@@ -467,6 +490,24 @@ def get_hosts_from_alias(hostname):
             hosts.append(instance)
     except Exception, e:
         pass
+    hosts.sort()
+    return hosts
+
+def get_hosts_from_aliases(hostnames):
+    hosts = []
+    for hostname in hostnames:
+        hosts_from_alias = get_hosts_from_alias(hostname)
+        if ( len(hosts_from_alias) > 1 ):
+            #This is an alias point to more than one real hostname
+            hosts += hosts_from_alias
+        elif ( len(hosts_from_alias) == 1 ):
+            if not ( hostname == hosts_from_alias[0]):
+                #This is an alias for a single instance
+                hosts += hosts_from_alias
+            else:
+                #The actual id given was a real host.
+                hosts.append(hostname)
+    hosts.sort()
     return hosts
 
 def convert_to_integer(number):
