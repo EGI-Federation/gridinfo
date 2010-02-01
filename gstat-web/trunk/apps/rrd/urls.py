@@ -3,7 +3,7 @@ from django.conf.urls.defaults import *
 urlpatterns = patterns('rrd.views',
     # nagios-level
     (r'^Nagios/(?P<host_name>[^/]*)/(?P<check_name>[\w-]+)/(?P<data_source>[\w-]+)/(?P<start_time>[\w-]+)/$', 'nagios_level'),
-    # vo-level
+    # vo-site-level
     (r'^VO/(?P<site_name>[^/]*)/(?P<vo>[^/]*)/(?P<attribute>[\w-]+)/(?P<start_time>[\w-]+)/$', 'vo_site_level'),
     (r'^VO/(?P<site_name>[^/]*)/(?P<vo>[^/]*)/(?P<attribute>[\w-]+)/(?P<start_time>[\w-]+)/(?P<small>small)/$', 'vo_site_level'),
     # vo-cluster-level                       

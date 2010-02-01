@@ -380,7 +380,7 @@ def vo_job_graph(site_name, vo_uniqueid, start_time, small=False):
         if vo_uniqueid in [vo.uniqueid for vo in vos]:
             vocluster_dict[vo_uniqueid].append(cluster.uniqueid)
             
-    graph_cmd = job_graph_cmd('vo', vocluster_dict, start_time, small=small)
+    graph_cmd = job_graph_cmd('vosite', vocluster_dict, start_time, site_name=site_name, small=small)
         
     return graph_cmd
 
@@ -404,8 +404,8 @@ def job_graph_cmd(level, vocluster_dict, start_time, site_name='', small=False):
         title="Job Number (GlueCluster: %s, VO: %s)" %(vocluster_dict.values()[0][0], vocluster_dict.keys()[0])
     elif level == 'cluster': # cluster-level
         title = "Job Number (GlueCluster: %s)" %(vocluster_dict.values()[0][0])
-    elif level == 'vo': # vo-level
-        title = "Job Number (VO: %s)" %(vocluster_dict.keys()[0])
+    elif level == 'vosite': # vo-site-level
+        title = "Job Number (VO: %s, Site: %s)" %(vocluster_dict.keys()[0], site_name)
         
     label = "Jobs"
     graph_cmd = rrdgraph_cmd_options(start_time, title, label, small)
@@ -471,7 +471,7 @@ def vo_storage_graph(site_name, vo_uniqueid, attribute, start_time, small=False)
         if vo_uniqueid in [vo.uniqueid for vo in vos]:
             vose_dict[vo_uniqueid].append(se.uniqueid)
             
-    graph_cmd = vo_storage_graph_cmd('vo', vose_dict, attribute, start_time, small=small)
+    graph_cmd = vo_storage_graph_cmd('vosite', vose_dict, attribute, start_time, site_name=site_name, small=small)
         
     return graph_cmd
 
@@ -491,8 +491,8 @@ def vo_storage_graph_cmd(level, vose_dict, attribute, start_time, site_name='', 
 
     if level == 'vose': # vo-se level
         title="%s Storage Space (GlueSE: %s, VO: %s)" %(attribute.capitalize(), vose_dict.values()[0][0], vose_dict.keys()[0])
-    elif level == 'vo': # vo-level
-        title = "%s Storage Space (VO: %s)" %(attribute.capitalize(), vose_dict.keys()[0])
+    elif level == 'vosite': # vo-site-level
+        title = "%s Storage Space (VO: %s, Site: %s)" %(attribute.capitalize(), vose_dict.keys()[0], site_name)
         
     label = "GB"
     graph_cmd = rrdgraph_cmd_options(start_time, title, label, small)
