@@ -9,7 +9,17 @@ from topology.models import Entity
 from topology.models import Entityrelationship
 from core.utils import *
 
-def main(request, type='GRID', value='ALL', output=None):
+def main(request, type='GRID', value='ALL', output = None):
+
+    if ( output == None ):
+         breadcrumbs_list = [{'name':'Summary', 'url':'/gstat/summary/'}]
+         return render_to_response('single_table.html', 
+                                   {'summary_active'  : 1,
+                                    'breadcrumbs_list': breadcrumbs_list,
+                                    'type'            : type,
+                                    'value'           : value,
+                                    'filters_enabled' : True})
+
 
     data = []
     
@@ -36,14 +46,6 @@ def main(request, type='GRID', value='ALL', output=None):
     if (output == 'json'):
         content = '{"aaData": %s}' % (json.dumps(data))
         return HttpResponse(content, mimetype='application/json')  
-    else:
-        breadcrumbs_list = [{'name':'Summary', 'url':'/gstat/summary/'}]
-
-        return render_to_response('single_table.html', {'summary_active'  : 1,
-                                                        'breadcrumbs_list': breadcrumbs_list,
-                                                        'type'            : type,
-                                                        'value'           : value,
-                                                        'filters_enabled' : True})
         
 def get_data_for_sites(site_list, get_status=False, vo_name=False):
     data = []
