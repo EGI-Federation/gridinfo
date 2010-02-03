@@ -1,7 +1,7 @@
 Application:  gLite Info Static Create
 Authors:      David.Horat@cern.ch
               Laurence.Field@cern.ch
-Version:      0.1 (02/02/2010)
+Version:      0.2 (03/02/2010)
 ********************************************************************
 
 DESCRIPTION
@@ -10,19 +10,14 @@ static information in LDIF format for the BDII.
 
 
 USAGE
-Edit the corresponding .cfg file for your use case and fill in the parameters
-needed. Then invoke the application with the module name. E.g.:
-
-./glite-info-static-create.sh site
-
+Edit the corresponding .cfg file for your module and fill in the parameters
+needed. Invoke glite-info-create.sh without arguments for help if needed.
 The resulting LDIF files will be created in the output/ directory.
 
 
 CORE STRUCTURE
-  glite-info-static-create.sh   The main script to invoke
+  glite-info-create.sh          The main script to invoke
   README.txt                    This file
-  usage.txt                     The usage file printed in the script's help
-  ChangeLog.txt                 Change log for each version
 
 
 MODULE STRUCTURE
@@ -36,14 +31,17 @@ MODULE STRUCTURE
 
 TODO
 There are several improvements that could be done:
-- Use getops and parse more arguments (template name, cfg file path, etc.)
-- Improve script error handling and do more existence checks
 - Be able to use several .cfg files in one invocation
 - Package it into several RPMs (one for core and one per module)
-- Create documentation on howto create a new module
+- Create documentation on how to create a new module
 
 
 CHANGELOG
 0.1 (02/02/2010):
   - First draft
+0.2 (03/02/2010):
+  - Renamed the script from glite-info-static-create.sh to glite-info-create.sh
+  - Help info embedded into the script (Laurence's request)
+  - Use getops and parse more arguments (template name, cfg file path, etc.)
+  - Improve script error handling and do more existence checks
   
