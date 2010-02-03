@@ -40,7 +40,7 @@ error_messages = {
    "CE.Attribute.OptionalExist": ["Optional attribute does not exist in the Glue CE entry.","WARNING"],
    "CE.UniqueID.Unique": ["GlueCEUniqueID is not unique","ERROR"],
    "CE.PolicyAssignedJobSlots.Value": ["GlueCEPolicyAssignedJobSlots has negative or null value","WARNING"],
-   "CE.Status.Value": ["GlueCEStatus has unknown value","ERROR"],
+   "CE.Status.Value": ["GlueCEStateStatus has unknown value","ERROR"],
    "CE.GlueCluster.Exist": ["This CE does not have any GlueCluster associated","ERROR"],
    "CE.AccessControlBaseRule.Value": ["ACBR has an invalid format","ERROR"],
    "CE.Capability.Exist": ["CE Share or CPUScalingReferenceSI00 entries missing","WARNING"],
@@ -82,7 +82,7 @@ def test_glue_CE(key,entry):
       if ( int(entry['GlueCEPolicyAssignedJobSlots'][0]) <= 0 ):
          my_errors.log(gsutils.get_unique_id(key),'CE.PolicyAssignedJobSlots.Value', "", gsutils.get_site(key))
 
-   # Test that GlueCEStatus is set to one of the allowed statuses
+   # Test that GlueCEStateStatus is set to one of the allowed statuses
    if (entry.has_key('GlueCEStateStatus')):
       test_CE_Status(key,entry)
  
