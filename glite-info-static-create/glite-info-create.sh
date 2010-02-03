@@ -28,32 +28,70 @@
 #
 ##############################################################################
 
+# 0. Functions
+function print_help() {
+  cat << EOF >&2
+Usage:
+  glite-info-create.sh -m <module> [-i <iface>] [-t <template>] [-c <config>]
+       
+Parameters:
+  <module>    The module you are using. E.g.: site
+  <iface>     The interface you want to use. E.g.: glue, wlcg (default)
+  <template>  The template you want to use. E.g.: glue1, glue2
+  <config>    The config file location if outside from the module directory
+
+Examples:
+       glite-info-create.sh -m site
+       glite-info-create.sh -m site -i glue -t glue2 -c /etc/bdii/site.cfg
+
+Web site: http://cern.ch/gridinfo
+EOF
+}
+
 # 1. Basic setup
 `unalias -a` # Remove all aliases from this new shell
 STARTTIME=`date +%s`
-VERSION='0.1'
+VERSION='0.2'
 echo "Welcome to gLite Info Static Create v$VERSION"
 if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "-help" ] || [ "$1" = "--help" ]; then
-  cat usage.txt
+  print_help
   exit 1
 fi
-module=$1
+
+# 2. Set default values and parse command line arguments
 interface='wlcg'
 templates='glue1 glue2'
-shift
-while [ $# -ne 0 ]; do
-  case "$1" in
-    -i)
-      shift; interface=$1; shift;;
+while getopts ":m:i:t:c:" opt; do
+  case $opt in
+    i) interface=$OPTARG;;
+    t) templates=$OPTARG;;
+    c) config_file=$OPTARG;;
+    m) module=$OPTARG;;
+    \?) echo "Invalid option: -$OPTARG" >&2; exit 1;;
+    :) echo "Option -$OPTARG requires an argument." >&2; exit 1;;
   esac
 done
 
-# 2. Source the config file
-config_file=$module/$module.1.cfg
+if [ -z $module ]; then
+  print_help; 
+  echo "ERROR: Parameter -m <module> is mandatory"; 
+  exit 1;
+fi
+if [ -z $config_file ]; then config_file=$module/$module.1.cfg; fi
+
+# 3. Source the config file
+if [ ! -f $config_file ]; then
+  echo "ERROR: $config_file is not a valid config file"
+  exit 1
+fi
 source $config_file
 
-# 3. Check all needed variables are present using the interface
+# 4. Check all needed variables are present using the interface
 interface_file=$module/$module.$interface.ifc
+if [ ! -f $interface_file ]; then
+  echo "ERROR: $interface_file is not a valid interface file"
+  exit 1
+fi
 source $interface_file
 MANDATORY_VARS="$MANDATORY_SINGLEVALUED_VARS $MANDATORY_MULTIVALUED_VARS"
 OPTIONAL_VARS="$OPTIONAL_SINGLEVALUED_VARS $OPTIONAL_MULTIVALUED_VARS"
@@ -75,11 +113,20 @@ for var in $OPTIONAL_VARS; do
   fi
 done
 
-# 4. Fill the templates so all variables are filled
+# 5. Fill the templates so all variables are filled
 for template in $templates; do
-  cp $module/$module.$template.tpl output/$module.$template.ldif
+  template_file=output/$module.$template.ldif
+  if [ ! -f $template_file ]; then
+    echo "ERROR: $template_file is not a valid template file"
+    exit 1
+  fi
   ldif_file=output/$module.$template.ldif
-  # Substitue singlevalued attributes
+  if [ ! -f $ldif_file ]; then
+    echo "WARNING: $ldif_file already exists. It will be overwritten."
+    exit 1
+  fi
+  cp $template_file $ldif_file
+  # Substitute singlevalued attributes
   for var in $SINGLEVALUED_VARS; do
     eval val=\$$var
     if [ "x$val" = "x" ]; then
@@ -88,7 +135,7 @@ for template in $templates; do
       sed -i "s|\$$var|$val|" $ldif_file
     fi
   done
-  # Substitue mutivalued attributes
+  # Substitute mutivalued attributes
   for var in $MULTIVALUED_VARS; do
     eval multiple=\$$var
     if [ "x$multiple" = "x" ]; then
@@ -112,6 +159,6 @@ for template in $templates; do
   done
 done
 
-#5. Finalize
+#6. Finalize
 RUNTIME=$[`date +%s` - $STARTTIME]
 echo "Finished! It took $RUNTIME seconds to run"
