@@ -307,7 +307,7 @@
                       <ul>
                         <li class='{{ collapse.vo_job|default:"closed" }}'>
                           <span class="folder"> 
-                            <a target="frame" href="/gstat/rrd/VO/{{ site_name }}/{{ vo }}/job/">&nbsp; Grid Jobs </a>
+                            <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/job/">&nbsp; Grid Jobs </a>
                           </span>
                           <ul>
 		                    {% for cluster in clusters %}
@@ -329,7 +329,7 @@
                       <ul>
                         <li class='{{ collapse.vo_online|default:"closed" }}'>
                           <span class="folder"> 
-                            <a target="frame" href="/gstat/rrd/VO/{{ site_name }}/{{ vo }}/online/">&nbsp; Online Storage </a>
+                            <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/online/">&nbsp; Online Storage </a>
                           </span>
                           <ul>
 		                    {% for se in ses %}
@@ -343,7 +343,7 @@
                         </li>
                         <li class='{{ collapse.vo_nearline|default:"closed" }}'>
                           <span class="folder">
-                          <a target="frame" href="/gstat/rrd/VO/{{ site_name }}/{{ vo }}/nearline/">&nbsp; Nearline Storage </a>
+                          <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/nearline/">&nbsp; Nearline Storage </a>
                           </span>
                           <ul>
 		                    {% for se in ses %}

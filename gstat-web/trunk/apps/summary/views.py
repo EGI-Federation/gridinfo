@@ -44,6 +44,7 @@ def main(request, type='GRID', value='ALL', output=None):
                                                         'type'            : type,
                                                         'value'           : value,
                                                         'filters_enabled' : True})
+        
 def get_data_for_sites(site_list, get_status=False, vo_name=False):
     data = []
     nagios_status = {}

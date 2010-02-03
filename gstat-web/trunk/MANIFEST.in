@@ -13,6 +13,9 @@ include media/geo/css/img/*
 include media/geo/scripts/*
 include media/geo/scripts/img/*
 include media/geo/img/*
+include media/gridmap/css/*
+include media/gridmap/img/*
+include media/gridmap/scripts/*
 include media/gridsite/css/*
 include media/gridsite/css/img/*
 include media/gridsite/scripts/*
@@ -28,11 +31,13 @@ include apps/manage.py
 include apps/core/templates/*
 include apps/geo/templates/*
 include apps/gridsite/templates/*.html
+include apps/gridsite/templatetags/*
 include apps/ldapbrowser/templates/*.html
 include apps/rrd/templates/*.html
 include apps/service/templates/*.html
 include apps/stats/templates/*.html
 include apps/summary/templates/*.html
+include apps/vo/templates/*.html
 include tools/packer/*
 include tools/packer/base2/*
 include LICENSE

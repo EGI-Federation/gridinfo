@@ -341,7 +341,7 @@
 	          {% ifnotequal vo.totaljobs None %}
 	          <td colspan="3">
 	            <a href="/gstat/site/{{ site_name }}/treeview/vo_job/{{ vo.voname }}/">
-	              <img src="/gstat/rrd/VO/{{ site_name }}/{{ vo.voname }}/job/e-3h/small/"/>
+	              <img src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/job/e-3h/small/"/>
 	            </a>
 	          </td>
               {% endifnotequal %}
@@ -349,12 +349,12 @@
               {% ifnotequal vo.totalonlinesize None %}
 	          <td colspan="2">
 	            <a href="/gstat/site/{{ site_name }}/treeview/vo_online/{{ vo.voname }}/">
-	              <img src="/gstat/rrd/VO/{{ site_name }}/{{ vo.voname }}/online/e-3h/small/"/>
+	              <img src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/online/e-3h/small/"/>
 	            </a>
 	          </td>
 	          <td colspan="2">
 	            <a href="/gstat/site/{{ site_name }}/treeview/vo_nearline/{{ vo.voname }}/">
-	              <img src="/gstat/rrd/VO/{{ site_name }}/{{ vo.voname }}/nearline/e-3h/small/"/>
+	              <img src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/nearline/e-3h/small/"/>
 	            </a>
 	          </td>
               {% endifnotequal %}
