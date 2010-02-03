@@ -29,6 +29,8 @@ urlpatterns = patterns('',
     (r'^geo/', include('geo.urls')),
     (r'^ldap$', include('ldapbrowser.urls')),
     (r'^ldap/', include('ldapbrowser.urls')),
+    (r'^vo$', include('vo.urls')),
+    (r'^vo/', include('vo.urls')),
     (r'^rrd/', include('rrd.urls')),
     (r'^media/(.*)', 'django.views.static.serve', {'document_root': os_path.join(settings.PROJECT_PATH, 'media')}),
 )

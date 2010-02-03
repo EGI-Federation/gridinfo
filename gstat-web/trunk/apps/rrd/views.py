@@ -116,14 +116,27 @@ def entity_level(request, entity_type, uniqueid, attribute, start_time):
     return graph_render(graph_cmd)
 
 # --------------------------------
+# -- VO-level graphing function --
+# --------------------------------
+def vo_level(request, vo, attribute, start_time, small=False):
+    """ VO-level summarized graph """
+    if attribute == 'job':
+        graph_cmd = vo_job_graph(vo, start_time, small)
+    elif attribute in ['online', 'nearline']:
+        graph_cmd = vo_storage_graph(vo, attribute, start_time, small)
+        
+    return graph_render(graph_cmd)
+
+
+# --------------------------------
 # -- VO-Site-level graphing function --
 # --------------------------------
 def vo_site_level(request, site_name, vo, attribute, start_time, small=False):
     """ VO-Site-level summarized graph """
     if attribute == 'job':
-        graph_cmd = vo_job_graph(site_name, vo, start_time, small)
+        graph_cmd = vo_site_job_graph(site_name, vo, start_time, small)
     elif attribute in ['online', 'nearline']:
-        graph_cmd = vo_storage_graph(site_name, vo, attribute, start_time, small)
+        graph_cmd = vo_site_storage_graph(site_name, vo, attribute, start_time, small)
         
     return graph_render(graph_cmd)
 
@@ -131,7 +144,7 @@ def vo_site_level(request, site_name, vo, attribute, start_time, small=False):
 # -- VO-Cluster-level graphing function --
 # -----------------------------------
 def vo_cluster_level(request, vo, cluster, attribute, start_time):
-    """ Vo-Cluster-level summarized graph """
+    """ VO-Cluster-level summarized graph """
     if attribute == 'job':
         graph_cmd = vo_cluster_job_graph(vo, cluster, start_time)
         
@@ -141,7 +154,7 @@ def vo_cluster_level(request, vo, cluster, attribute, start_time):
 # -- VO-SE-level graphing function --
 # -----------------------------------
 def vo_se_level(request, vo, se, attribute, start_time):
-    """ Vo-SE-level summarized graph """
+    """ VO-SE-level summarized graph """
     if attribute in ['online', 'nearline']:
         graph_cmd = vo_se_storage_graph(vo, se, attribute, start_time)
         
@@ -369,8 +382,23 @@ def cluster_job_graph(cluster_uniqueid, start_time):
         
     return graph_cmd
 
-def vo_job_graph(site_name, vo_uniqueid, start_time, small=False):
+def vo_job_graph(vo_uniqueid, start_time, small=False):
     """ VO-level Jobs number """
+    site_list = get_groups('Site')
+    service_list = get_services(site_list, service_type="CE")
+    cluster_list = [service for service in service_list]    
+    vocluster_dict = {vo_uniqueid:[]}
+    for cluster in cluster_list:
+        vos = get_vos([cluster])
+        if vo_uniqueid in [vo.uniqueid for vo in vos]:
+            vocluster_dict[vo_uniqueid].append(cluster.uniqueid)
+            
+    graph_cmd = job_graph_cmd('vo', vocluster_dict, start_time, small=small)
+        
+    return graph_cmd
+
+def vo_site_job_graph(site_name, vo_uniqueid, start_time, small=False):
+    """ VO-Site-level Jobs number """
     site_entity = get_unique_entity(site_name, 'Site')
     service_list = get_services([site_entity], service_type="CE")
     cluster_list = [service for service in service_list]    
@@ -398,14 +426,16 @@ def job_graph_cmd(level, vocluster_dict, start_time, site_name='', small=False):
         return 'N/A'
     rrd_dir = '/var/cache/gstat/rrd/VO'
 
-    if level == 'site': # site-level
+    if level == 'site': # site level
         title = "Job Number (Site: %s)" %(site_name)
     elif level == 'vocluster': # vo-cluster level
         title="Job Number (GlueCluster: %s, VO: %s)" %(vocluster_dict.values()[0][0], vocluster_dict.keys()[0])
-    elif level == 'cluster': # cluster-level
+    elif level == 'cluster': # cluster level
         title = "Job Number (GlueCluster: %s)" %(vocluster_dict.values()[0][0])
-    elif level == 'vosite': # vo-site-level
+    elif level == 'vosite': # vo-site level
         title = "Job Number (VO: %s, Site: %s)" %(vocluster_dict.keys()[0], site_name)
+    elif level == 'vo': # vo level
+        title = "Job Number (VO: %s)" %(vocluster_dict.keys()[0])
         
     label = "Jobs"
     graph_cmd = rrdgraph_cmd_options(start_time, title, label, small)
@@ -460,8 +490,26 @@ def job_graph_cmd(level, vocluster_dict, start_time, site_name='', small=False):
 # -----------------------------------------------
 # -- VO-based Storage Space graphing functions --
 # -----------------------------------------------
-def vo_storage_graph(site_name, vo_uniqueid, attribute, start_time, small=False):
+def vo_storage_graph(vo_uniqueid, attribute, start_time, small=False):
     """ VO-level Storage space """
+    site_list = get_groups('Site')
+    service_list = get_services(site_list, service_type="SE")
+    se_list = [service for service in service_list]    
+    vose_dict = {vo_uniqueid:[]}
+    for se in se_list:
+        vos = get_vos([se])
+        if vo_uniqueid in [vo.uniqueid for vo in vos]:
+            vose_dict[vo_uniqueid].append(se.uniqueid)
+            
+    graph_cmd = vo_storage_graph_cmd('vo', vose_dict, attribute, start_time, small=small)
+        
+    return graph_cmd
+
+# -----------------------------------------------
+# -- VO-Site-based Storage Space graphing functions --
+# -----------------------------------------------
+def vo_site_storage_graph(site_name, vo_uniqueid, attribute, start_time, small=False):
+    """ VO-Site-level Storage space """
     site_entity = get_unique_entity(site_name, 'Site')
     service_list = get_services([site_entity], service_type="SE")
     se_list = [service for service in service_list]    
@@ -491,8 +539,10 @@ def vo_storage_graph_cmd(level, vose_dict, attribute, start_time, site_name='', 
 
     if level == 'vose': # vo-se level
         title="%s Storage Space (GlueSE: %s, VO: %s)" %(attribute.capitalize(), vose_dict.values()[0][0], vose_dict.keys()[0])
-    elif level == 'vosite': # vo-site-level
+    elif level == 'vosite': # vo-site level
         title = "%s Storage Space (VO: %s, Site: %s)" %(attribute.capitalize(), vose_dict.keys()[0], site_name)
+    elif level == 'vo': # vo level
+        title = "%s Storage Space (VO: %s)" %(attribute.capitalize(), vose_dict.keys()[0])
         
     label = "GB"
     graph_cmd = rrdgraph_cmd_options(start_time, title, label, small)

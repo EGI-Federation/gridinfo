@@ -347,14 +347,14 @@ def treeview(request, site_name, type, attribute=""):
         # e.g. /gstat/rrd/Site/CERN-PROD/nearline/
         url = "/".join(["", "gstat", "rrd", "Site", site_name, "nearline"])
     elif type == "vo_job":
-        # e.g. /gstat/rrd/VO/CERN-PROD/alice/job/
-        url = "/".join(["", "gstat", "rrd", "VO", site_name, attribute, "job"])
+        # e.g. /gstat/rrd/VOSite/CERN-PROD/alice/job/
+        url = "/".join(["", "gstat", "rrd", "VOSite", site_name, attribute, "job"])
     elif type == "vo_online":
-        # e.g. /gstat/rrd/VO/CERN-PROD/alice/online/
-        url = "/".join(["", "gstat", "rrd", "VO", site_name, attribute, "online"])
+        # e.g. /gstat/rrd/VOSite/CERN-PROD/alice/online/
+        url = "/".join(["", "gstat", "rrd", "VOSite", site_name, attribute, "online"])
     elif type == "vo_nearline":
-        # e.g. /gstat/rrd/VO/CERN-PROD/alice/nearline/
-        url = "/".join(["", "gstat", "rrd", "VO", site_name, attribute, "nearline"])
+        # e.g. /gstat/rrd/VOSite/CERN-PROD/alice/nearline/
+        url = "/".join(["", "gstat", "rrd", "VOSite", site_name, attribute, "nearline"])
 
     return render_to_response('treeview_site.html', {'site_name':        site_name,
                                                 'collapse':         collapse,
