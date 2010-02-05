@@ -8,7 +8,6 @@ from django.utils import simplejson as json
 from topology.models import Entity
 from topology.models import Entityrelationship
 from core.utils import *
-import time
 
 def main(request, type='GRID', value='ALL'):
 
@@ -37,7 +36,6 @@ def get_json(request, type='GRID', value='ALL'):
         site_list = get_sites(type, value)
     if (value == "ALL"):
         site_data  = get_installed_capacities(site_list)
-
         for group in topology.keys():
             group_summary = [group, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             for site_id in topology[group]:
@@ -51,9 +49,7 @@ def get_json(request, type='GRID', value='ALL'):
             site_data = get_installed_capacities(site_list, vo_name=value)
         else:
             site_data = get_installed_capacities(site_list)
-        start=time.time()
         status_data = get_status_for_sites(site_list)
-        print "T2 = %s\n" %(time.time()-start)
         for site_id in site_data.keys():
             row = [site_id, status_data[site_id]]
             row.extend(site_data[site_id])
