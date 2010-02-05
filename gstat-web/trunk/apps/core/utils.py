@@ -600,3 +600,141 @@ def sort_objects_by_attr(object_list, attribute):
     result_list = [obj for (attribute, obj) in sorted_list]
     
     return result_list
+
+def get_status_for_sites(site_list):
+    nagios_status = get_nagios_status_dict()
+    relationships = Entityrelationship.objects.select_related('subject', 'object').filter(predicate = 'SiteService',  subject__in = site_list, object__type='bdii_top') | Entityrelationship.objects.select_related('subject', 'object').filter(predicate = 'SiteService',  subject__in = site_list, object__type='bdii_site')
+    site_bdii = {}
+    for relation in relationships:
+        site_id = relation.subject.uniqueid
+        if not site_bdii.has_key(site_id):
+            site_bdii[site_id] = []
+            site_bdii[site_id].append(relation.object.hostname)
+    data = {}
+
+    for site in site_list:
+        site_id = site.uniqueid
+        site_status = 0
+        hostnames = []
+        if site_bdii.has_key(site_id):
+            hostnames = site_bdii[site_id]
+        #The performance of this command needs to be improved. 
+        (status, has_been_checked) = get_hosts_overall_nagios_status(nagios_status, hostnames, '^check-.+')
+        site_status = 0
+        site_status = get_nagios_status_str(status, has_been_checked)
+        data[site_id] = site_status
+
+    return data
+
+def get_installed_capacities(site_list, vo_name=None):
+# data structure
+# 0 physical_cpu
+# 1 logical_cpu 
+# 2 total_online
+# 3 used_online
+# 4 total_nearline
+# 5 used_nearline
+# 6 total_jobs
+# 7 running_jobs
+# 8 waiting_jobs    
+
+    # Create data structure
+    site_data = {}
+    for site in site_list:
+        site_id = site.uniqueid
+        site_data[site_id] = [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+
+    # Get the list of clusters
+    relationships = Entityrelationship.objects.select_related('object','subject').filter(predicate = 'SiteService', subject__in = site_list, object__type='CE')
+    cluster_site_mapping = {}
+    for relation in relationships:
+        cluster_site_mapping[relation.object.uniqueid]=relation.subject.uniqueid
+    #Get a list of subclusters
+    sub_clusters_list = gluesubcluster.objects.filter(gluecluster_fk__in = cluster_site_mapping.keys())
+
+    # Get CE installed capacities
+    for sub_cluster in sub_clusters_list:
+        try:
+            site_id = cluster_site_mapping[sub_cluster.gluecluster_fk]
+            site_data[site_id][0] += convert_to_integer(sub_cluster.physicalcpus)
+            site_data[site_id][1] += convert_to_integer(sub_cluster.logicalcpus)
+        except KeyError, e:
+            continue
+
+    #Get ce/cluster mapping
+    ces = gluece.objects.filter(gluecluster_fk__in = cluster_site_mapping.keys())
+    ce_cluster_mapping = {}
+    for ce in ces:
+        ce_cluster_mapping[ce.uniqueid]=ce.gluecluster_fk
+
+    #Get VO Views
+    if (not vo_name == None):
+        objects = gluemultivalued.objects.filter(value__startswith='VO:%s' % vo_name, attribute='GlueCEAccessControlBaseRule',uniqueid__in=ce_cluster_mapping.keys()).exclude(localid__exact="") | gluemultivalued.objects.filter(value__startswith='VOMS:/%s' % vo_name, attribute='GlueCEAccessControlBaseRule',uniqueid__in=ce_cluster_mapping.keys()).exclude(localid__exact="")
+        ce_vo_view = {}
+        for object in objects:
+            if not ce_vo_view.has_key(object.uniqueid):
+                ce_vo_view[object.uniqueid] = {}
+            ce_vo_view[object.uniqueid][object.localid] = None
+    vo_view_list = gluevoview.objects.filter(gluece_fk__in = ce_cluster_mapping.keys())
+
+    # Create a mapping between Sites and CEs
+    for vo_view in vo_view_list:
+        if (not vo_name == None ):
+            if (not ce_vo_view.has_key(vo_view.glueceuniqueid)):
+                continue
+            if (not ce_vo_view[vo_view.glueceuniqueid].has_key(vo_view.localid)):
+                continue
+        try:
+            site_id = cluster_site_mapping[ce_cluster_mapping[vo_view.glueceuniqueid]]
+            site_data[site_id][6] += convert_to_integer(vo_view.totaljobs)
+            site_data[site_id][7] += convert_to_integer(vo_view.waitingjobs)
+            site_data[site_id][8] += convert_to_integer(vo_view.runningjobs)
+        except KeyError:
+            continue
+
+   # Get the list of ses                                                  
+    relationships = Entityrelationship.objects.select_related('object','subject').filter(predicate = 'SiteService', subject__in = site_list, object__type='SE')
+    se_site_mapping = {}
+    for relation in relationships:
+        se_site_mapping[relation.object.uniqueid]=relation.subject.uniqueid
+
+    #Get a list of ses                                                  
+    se_list = gluese.objects.filter(uniqueid__in = se_site_mapping.keys())
+
+    if ( vo_name == None ): 
+        # Get SE Installed Capacities
+        for se in se_list:
+            try:
+                site_id = se_site_mapping[se.uniqueid]
+                site_data[site_id][2] += convert_to_integer(se.totalonlinesize)
+                site_data[site_id][3] += convert_to_integer(se.usedonlinesize)
+                site_data[site_id][4] += convert_to_integer(se.totalnearlinesize)
+                site_data[site_id][5] += convert_to_integer(se.usednearlinesize)
+            except KeyError, e:
+                continue
+    else:
+        objects = gluemultivalued.objects.filter(value__startswith='VO:%s' % vo_name, attribute='GlueSAAccessControlBaseRule',uniqueid__in=se_list).exclude(localid__exact="") | gluemultivalued.objects.filter(value__startswith='VOMS:/%s' % vo_name, attribute='GlueSAAccessControlBaseRule',uniqueid__in=se_list).exclude(localid__exact="")
+        se_sa = {}
+        for object in objects:
+            if not se_sa.has_key(object.uniqueid):
+                se_sa[object.uniqueid] = {}
+            se_sa[object.uniqueid][object.localid] = None
+
+        sa_list = gluesa.objects.filter(gluese_fk__in = se_list)
+
+        for sa in sa_list:
+            if ( not se_sa.has_key(sa.gluese_fk)):
+                continue
+            if (not se_sa[sa.gluese_fk].has_key(sa.localid)):
+                continue
+            try:
+                site_id = se_site_mapping[sa.gluese_fk]
+                site_data[site_id][2] += convert_to_integer(sa.totalonlinesize)
+                site_data[site_id][3] += convert_to_integer(sa.usedonlinesize)
+                site_data[site_id][4] += convert_to_integer(sa.totalnearlinesize)
+                site_data[site_id][5] += convert_to_integer(sa.usednearlinesize)
+            except KeyError, e:
+                pass
+
+    return site_data
+
