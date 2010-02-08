@@ -1,109 +1,14 @@
-/**
- * General styles
- */
+/** General styles **/
+a:link { text-decoration: none;}
+a:visited {text-decoration: none;}
+a.bold { font-weight: bold;}
+a.glue { color: #EA7618; font-weight: bold; font-size:7px;}
 
+/** Table Row Expanding **/
+tr.hidden { display: none; }
+tr.unhidden { display: table-row; }
 
-
-
-a:link {
-/*    color:            #BA020E; */
-    text-decoration:  none;
-}
-
-a:visited {
-/*    color:            #BA020E; */
-    text-decoration:  none;
-}
-
-a.bold {
-    font-weight:      bold;
-}
-
-
-/**
- * Containers
- */
-.board {
-	background-color:#FFFFFF; /*#EEF0F1;*/
-	border:1px solid #D3D3D3;
-	color:#222222;
-	margin:0 15px 15px 0;
-	padding:0 5px 5px;
-}
-
-.board h2 {
-	background-color:#3399CC;
-	border-top:3px solid #ADD8E6;
-	color:#FFF;
-	font-size:11px;
-	margin:0 -5px 5px;
-	line-height:2;
-	padding:0 5px;
-}
-
-.clear {
-	clear:both;
-	font-size:1px;
-	line-height:1px;
-}
-
-
-/**
- * Positioning
- */
-.corner-all {
-	-moz-border-radius-bottomleft:4px;
-	-moz-border-radius-bottomright:4px;
-	-moz-border-radius-topleft:4px;
-	-moz-border-radius-topright:4px;
-}
-#top-board {
-	width:99%;
-}
-
-#left-board {
-	float:left;
-	width:30%;	
-}
-
-
-#middle-board {
-	float:left;
-	width:47%;
-}
-
-#right-board {
-	float:left;
-	width:20%;
-}
-
-#bottom-board {
-	width:99%;
-}
-
-#middle-right-board {
-	float:left;
-	width:64%;
-}
-
-
-/**
- * Table Row Expanding
- */
-tr.hidden { 
-    display: none; 
-}
-
-tr.unhidden { 
-    display: table-row; 
-}
-
-
-
-/**
- * TreeView
- */
- 
+/** TreeView **/
 #tree {
 	font-family: Verdana, helvetica, arial, sans-serif;
 	font-size: 8pt;

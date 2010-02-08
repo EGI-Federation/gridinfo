@@ -15,7 +15,7 @@ def index(request, url=""):
         # Select the default host to show
         if (url == label): hostnames.append([label, bdii.uniqueid, 1])
         else: hostnames.append([label, bdii.uniqueid, 0])
-    return render_to_response('ldapbrowser.html', {'hostnames': hostnames})
+    return render_to_response('ldapbrowser.html', {'hostnames': hostnames, 'ldapbrowser_active':1})
 
 def browse(request):
     # Parsing of needed attributes

@@ -35,10 +35,15 @@ function showEntry(node, fnLoadComplete)  {
         var div = document.getElementById('entrypage');
         if(o.responseText !== undefined){
             div.innerHTML = o.responseText;
+		    $(document).ready(function() { 
+		        $("#attributestable").tablesorter({sortList:[[0,0],[1,0]], widgets: ['zebra']}); 
+		    });  
+
         }
     }
     var nodeLabel = encodeURI(node.title);
-    var url = "/gstat/ldap/browse?host=" + selectedHost + "&entry=true&dn=" + nodeLabel;
+    var url = "/gstat/ldap/browse?host=" + selectedHost + "&entry=true&dn=" + nodeLabel; 
+    //alert(url);
     var request = YAHOO.util.Connect.asyncRequest('GET', url, {success: handleSuccess});
 }
 

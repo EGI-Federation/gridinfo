@@ -6,7 +6,7 @@
 body { margin:0px; background-color:#ADD1EB; background-image:url(../images/BG-main-top.jpg); background-repeat:repeat-x; font-family:'Trebuchet MS','Arial','Verdana'; font-size:9pt; color:#184262; }
 
 #container { text-align:center; }
-#main-centeriser { width:960px;/*(1)*/ background-color:gray; margin-left:auto; margin-right:auto; text-align:left; }
+#main-centeriser { width:100%; /*960px;*/ background-color:gray; margin-left:auto; margin-right:auto; text-align:left; }
 #header { position:relative; width:100%; height:100px; background-color:#64727D; background-image:url(../images/BG-header.jpg); }
 #header-content { width:100%; height:100px; background-image:url(../images/BG-logo.jpg); background-repeat:no-repeat; }
 
@@ -101,7 +101,7 @@ body { background-image:url(../images/BG-main-top-menu.jpg); }
 
 /* BLOCK/footer=BEGIN */
 #footer { background-color:#4B7797; width:100%; height:45px; border-top:4px #2C4558 solid; clear:both; }
-#footer p { color:white; margin:0px; line-height:45px; text-align:right; margin-right: 20px; font-weight:bold; }
+#footer p { color:white; margin:0px; /*line-height:45px;*/ text-align:right; margin-right: 20px; font-weight:bold; }
 /* BLOCK/footer=END */
 
 /* 

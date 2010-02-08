@@ -5,7 +5,7 @@
 {% block app-info %}{% endblock %}
 
 {% block css-add %}
-<link rel="stylesheet" type="text/css" href="/media/gridsite/css/site.css" />
+<link rel="stylesheet" type="text/css" href="/media/vo/css/vo.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/tablesorter.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/jquery.treeview.css" />
 {% endblock %}
@@ -39,6 +39,30 @@
 		filtervalue.value = '{{ vo_name|default:"-1" }}';
 
 		$("#tree").treeview();
+		
+	    main_centeriser = parseInt( $("#main-centeriser").height() );
+	    header = parseInt( $("#header").height() );
+	    menu = parseInt( $("#menu").height() );
+	    footer = parseInt( $("#footer").height() );
+	    proportion = parseInt( (main_centeriser - header - menu - footer) / main_centeriser * 100 );
+	    $("#content").css('height', proportion + '%');
+
+        content = parseInt( $("#content").height() );
+        breadcrumbs = parseInt( $("#breadcrumbs").height() );
+        proportion = parseInt( (content - breadcrumbs) / content * 100 );
+        $("#content-main").css('height', proportion + '%');
+        
+        content_main = parseInt( $("#content-main").height() );
+        proportion = parseInt( (content_main - 10) / content_main * 100 );
+        $("#layoutdiv").css('height', proportion + '%');
+        
+        left_board = parseInt( $("#left-board").height() );
+        proportion = parseInt( (left_board - 30) / left_board * 100 );
+        $("#treediv").css('height', proportion + '%');
+        
+        right_board = parseInt( $("#right-board").height() );
+        proportion = parseInt( (right_board - 30) / right_board * 100 );
+        $("#frame").css('height', proportion + '%');
 	});
 </script>
 {% endblock %}
@@ -49,10 +73,10 @@
 
 {% load dict_tags %}
 
-<div>
+<div id="layoutdiv">
   <div id="left-board" class="board">
     <h2>VO Resource Allocation and Usage</h2>
-    <div style="overflow: auto; height: 350px;">
+    <div id="treediv">
     <ul id="tree" class="filetree treeview">
 <!--     
       <li>
@@ -178,9 +202,9 @@
     </ul>
     </div>
   </div>
-  <div id="middle-right-board" class="board" >
+  <div id="right-board" class="board rightboard" >
     <h2>Viewing Statistics or Graphs</h2>
-    <iframe name="frame" src="{{ url }}" frameborder="0" height="350px" width="100%" scrolling="yes" allowtransparency="true" style="overflow:auto">
+    <iframe id="frame" name="frame" src="{{ url }}" frameborder="0" width="100%" scrolling="yes" allowtransparency="true">
     </iframe>
   </div>
   <div class="clear"/>

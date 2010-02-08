@@ -63,7 +63,8 @@ def treeview(request, vo_name=""):
         # e.g. /gstat/rrd/VOSite/CERN-PROD/alice/nearline/
         url = "/".join(["", "gstat", "rrd", "VOSite", site_name, attribute, "nearline"])
 
-    return render_to_response('treeview_vo.html', {'vo_name':          vo_name,
+    return render_to_response('treeview_vo.html', {'vo_active':        1,
+                                                   'vo_name':          vo_name,
                                                    'collapse':         collapse,
                                                    'tree_vo':          tree_vo,
                                                    'url':              url,
