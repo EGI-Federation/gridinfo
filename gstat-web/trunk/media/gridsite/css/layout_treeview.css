@@ -1,28 +1,21 @@
 /** Layout: 100% Height Overflow Auto **/
-
 html { height:100%; }
 body { height:100%; } 
 #container { height:100%; }
 #main-centeriser { height:100%; }
+#left-board { height:100%; }
+#right-board { height:100%; }
 
-#tree { overflow: auto;}
-#entrypage { overflow: auto;}
+#treediv { overflow: auto;  }
+#frame { overflow: auto;  }
 
-/** Combobox **/
-
-#visiblecombo select{
-  background-color: lightyellow;
-}
-
-
-/** Containers  **/
-
+/** Containers **/
 .board {
 	background-color:#FFFFFF; /*#EEF0F1;*/
 	border:1px solid #D3D3D3;
 	color:#222222;
-	margin:0 15px 0px 0;
-	padding:0 5px 0px;
+	margin:0 15px 0 0;
+	padding:0 5px 0;
 }
 
 .rightboard {
@@ -35,7 +28,7 @@ body { height:100%; }
 	color:#FFF;
 	font-size:11px;
 	margin:0 -5px 5px;
-	line-height:20px;
+	line-height:2;
 	padding:0 5px;
 }
 
@@ -46,16 +39,5 @@ body { height:100%; }
 	padding-top:10px;
 }
 
-
-/** Positioning **/
-
-div#ldaptree {
-	float:left;
-	width:50%;	
-}
-
-div#attributes {
-	float:left;
-	width:46%;
-}
-
+#left-board { float:left; width:30%;}
+#right-board { float:left; width:64%;}

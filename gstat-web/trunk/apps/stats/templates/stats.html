@@ -5,17 +5,12 @@
 {% block app-info %}{% endblock %}
 
 {% block css-add %}
-<link rel="stylesheet" type="text/css" href="/media/gridsite/css/site.css" />
+<link rel="stylesheet" type="text/css" href="/media/stats/css/stats.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/tablesorter.css" />
-<link rel="stylesheet" type="text/css" href="/media/core/css/dataTables.css" />
-<link rel="stylesheet" type="text/css" href="/media/core/css/percentbar_style.css" />
-<link rel="stylesheet" type="text/css" href="/media/core/css/nagios.css" />
 {% endblock %}
 
 {% block scripts-add %}
 <script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
-<script type="text/javascript" src="/media/core/scripts/jquery.dataTables.js"></script>
-<script type="text/javascript" src="/media/core/scripts/percentbar_progress.js" ></script>
 
 <script type="text/javascript" charset="utf-8">
     $(document).ready(function() { 
@@ -72,7 +67,8 @@
       </tbody> 
     </table> 
   </div>
-  <div id="middle-right-board" class="board" >
+  
+  <div id="middle-board" class="board" >
     <h2>OS Information</h2>
     <table id="osTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
       <thead> 
@@ -94,7 +90,8 @@
       </tbody> 
     </table> 
   </div>
-  <div id="middle-right-board" class="board">
+  
+  <div id="right-board" class="board rightboard">
     <h2>Service Version Information</h2>
     <table id="serviceTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
       <thead> 
@@ -115,6 +112,7 @@
       </tbody> 
     </table> 
   </div>
+  
   <div class="clear"></div>
 </div>
 <div class="clear"></div>

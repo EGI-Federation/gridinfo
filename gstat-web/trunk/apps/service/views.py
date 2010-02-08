@@ -134,7 +134,8 @@ def treeview(request, type, uniqueid):
         # e.g. /gstat/service/bdii_site/bdii116.cern.ch/all/
         url = "/".join(["", "gstat", "service", type, uniqueid, "all"])
 
-    return render_to_response('treeview_service.html', {'collapse':         collapse,
+    return render_to_response('treeview_service.html', {'service_active':   1,
+                                                        'collapse':         collapse,
                                                         'tree_topbdii':     tree_topbdii,
                                                         'tree_sitebdii':    tree_sitebdii,
                                                         'url':              url})

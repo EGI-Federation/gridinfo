@@ -8,6 +8,7 @@
 
 {% block css-add %}
 <link rel="stylesheet" type="text/css" href="/media/gridsite/css/site.css" />
+<link rel="stylesheet" type="text/css" href="/media/gridsite/css/layout_overview.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/tablesorter.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/jquery.tabs.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/percentbar_style.css" />
@@ -297,7 +298,7 @@
 	  {% for vo in vo_resources %}
 	  <div id="fragment-{{ forloop.counter }}">
 
-	    <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0" style="width:33%;"> 
+	    <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
 	      <thead> 
 	        <tr> 
 	          {% ifnotequal vo.totaljobs None %}

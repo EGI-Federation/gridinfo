@@ -233,9 +233,19 @@ function loadTable(event) {
     else $('#sites_or_status').text('Monitoring Status');
     
     if (!event) 
-      setTimeout('loadTable();',300000); //Reload Ajax every 5 minutes
+        setTimeout('loadTable();',300000); //Reload Ajax every 5 minutes
     //else
     //  $(document).ready(function() {window.location.href = '/gstat/summary/'+ filtertype + '/' + filtervalue;return true;});
 
+    //changeLayoutWidth();
+}
 
+
+function changeLayoutWidth() {
+    var container_width = parseInt( $('#main-centeriser').css('width') );
+    //var table_width = parseInt( $('#single_table').css('width') );
+    var table_width = parseInt( $('#single_table').width() );
+    //alert(container_width + ', ' + table_width);
+    if (table_width > container_width)
+        $('#main-centeriser').css('width', (table_width+20) + "px");
 }
