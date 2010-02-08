@@ -7,7 +7,7 @@ from topology.models import Entity
 import gsutils
 import string
 
-def index(request, url=""):
+def index(request, url="", ldapurl=""):
     query = Entity.objects.filter(type='bdii_top')
     hostnames = []
     for bdii in query:
@@ -15,7 +15,11 @@ def index(request, url=""):
         # Select the default host to show
         if (url == label): hostnames.append([label, bdii.uniqueid, 1])
         else: hostnames.append([label, bdii.uniqueid, 0])
-    return render_to_response('ldapbrowser.html', {'hostnames': hostnames, 'ldapbrowser_active':1})
+    if ldapurl == "": display = 'block';
+    else: display = 'none';
+    return render_to_response('ldapbrowser.html',
+                              {'hostnames': hostnames, 'ldapurl': ldapurl,
+                               'display': display, 'ldapbrowser_active': 1})
 
 def browse(request):
     # Parsing of needed attributes

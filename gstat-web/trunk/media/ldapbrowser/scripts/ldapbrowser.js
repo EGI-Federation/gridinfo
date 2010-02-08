@@ -1,5 +1,13 @@
 var selectedHost = '';
 
+/** Empty Attributes Table */
+function resetAttributesTable()  {
+	var entrypage = document.getElementById('entrypage');
+	while(entrypage.hasChildNodes()) {
+		entrypage.removeChild(entrypage.firstChild);
+	}
+}
+
 /** Show more nodes of the tree */
 function showNode(node, fnLoadComplete)  {
     var callback = {
@@ -61,9 +69,24 @@ function buildTree() {
 /** Builds a tree when a host is selected in the combobox */
 function selectHost(selectobj){
     selectedHost = selectobj.options[selectobj.selectedIndex].value;
-    buildTree();
     var urllink = document.getElementById('urllink');
     urllink.href = '/gstat/ldap/site/' + selectobj.options[selectobj.selectedIndex].text;
+    var urltext = document.getElementById('urltext');
+    urltext.value = selectedHost;
+    resetAttributesTable();
+    buildTree();
+}
+
+/** Builds a tree when a host is selected in the combobox */
+function inputHost(){
+    var urltext = document.getElementById('urltext');
+    selectedHost = urltext.value;
+    var urllink = document.getElementById('urllink');
+    urllink.href = '/gstat/ldap/server/' + selectedHost;
+    var hosts = document.getElementById('hosts');
+    hosts.selectedIndex = 0;
+    resetAttributesTable();
+    buildTree();
 }
 
 /** Select the default host if needed */
@@ -71,5 +94,7 @@ function init() {
     var selectobj = document.getElementById('hosts');
     if (selectobj.options[selectobj.selectedIndex].value != "default") {
         selectHost(selectobj);
+    } else {
+    	inputHost();
     }
 };
