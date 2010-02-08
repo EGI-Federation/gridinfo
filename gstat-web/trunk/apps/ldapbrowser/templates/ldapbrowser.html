@@ -64,8 +64,8 @@
 {% endblock %}
 
 {% block content-main %}
-	<form action="">
-	<div id="visiblecombo">
+	<form style="display: {{display}};" action="" onsubmit="inputHost(); return false" id="visiblecombo">
+	    <p><a id='urllink' href='/gstat/ldap'>Permalink for this host</a></p>
 		<select id="hosts" size="1" onchange="selectHost(this)">
 			<option value="default" style="background-color: #532900; color: white;">--SELECT A TOP LEVEL BDII--</option>
 			{% for label, hostname, sel in hostnames %}
@@ -73,8 +73,7 @@
 	 			{% else %}<option value="{{hostname}}">{{label}}</option>{% endifequal %}
 			{% endfor %}
 		</select>
-		<a id='urllink' href='/gstat/ldap'>Permalink for this host</a>
-	</div>
+		<input type='text' id='urltext' name='urltext' size='85' value='{{ldapurl}}' />
 	</form>
 	
     <div class="clear"></div> 
@@ -86,7 +85,7 @@
 			<div id="tree"></div>
 		</div>
 		
-	    <div id="attributes"  class="board rightboard">
+	    <div id="attributes" class="board rightboard">
 	        <h2>Viewing Entry</h2>
 			<div id="entrypage"></div>  
 	    </div>
