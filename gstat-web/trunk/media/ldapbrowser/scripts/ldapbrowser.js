@@ -51,7 +51,7 @@ function showEntry(node, fnLoadComplete)  {
     }
     var nodeLabel = encodeURI(node.title);
     var url = "/gstat/ldap/browse?host=" + selectedHost + "&entry=true&dn=" + nodeLabel; 
-    alert(url);
+    //alert(url);
     var request = YAHOO.util.Connect.asyncRequest('GET', url, {success: handleSuccess});
 }
 
