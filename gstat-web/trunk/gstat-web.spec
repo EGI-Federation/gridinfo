@@ -1,6 +1,6 @@
 Summary: GStat Web Applciation
 Name: gstat-web
-Version: 0.0.20
+Version: 0.0.21
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: Apache license v2.0
