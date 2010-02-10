@@ -4,9 +4,21 @@
 
 {% block css %}
 <link rel="stylesheet" href="/media/ldapbrowser/css/ldapbrowser.css" type="text/css" />
+<!-- remove the following line after deprecating iframe -->
+<link rel="stylesheet" type="text/css" href="/media/core/css/tablesorter.css" />
+<!-- end -->
 {% endblock %}
 
 {% block javascript %}
+<!-- remove the following lines after deprecating iframe -->
+<script src="/media/core/scripts/jquery.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
+<script type="text/javascript">
+    $(document).ready(function() { 
+        $("#attributestable").tablesorter({sortList:[[0,0],[1,0]], widgets: ['zebra']}); 
+    });
+</script>
+<!-- end -->
 {% endblock %}
 
 {% block content %}

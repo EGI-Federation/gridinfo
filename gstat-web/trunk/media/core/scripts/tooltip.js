@@ -36,22 +36,22 @@ function defHdrStyle() {
 	dvHdr.style.fontWeight='bold';
 	dvHdr.style.width='auto';
 	dvHdr.style.fontFamily='arial';
-	dvHdr.style.border='1px solid #A5CFE9';
+	dvHdr.style.border='1px solid #fbcb09';
 	dvHdr.style.padding='6px 6px 6px 6px';
-	dvHdr.style.fontSize='11';
-	dvHdr.style.color='#4B7A98';
-	dvHdr.style.background='#D5EBF9';
+	dvHdr.style.fontSize='10';
+	dvHdr.style.color='#27537A';
+	dvHdr.style.background='#fdf5ce';
 	dvHdr.style.filter='alpha(opacity=85)'; // IE
 	dvHdr.style.opacity='0.95'; // FF
 }
 
 function defBdyStyle() {
-	dvBdy.style.borderBottom='1px solid #A5CFE9';
-	dvBdy.style.borderLeft='1px solid #A5CFE9';
-	dvBdy.style.borderRight='1px solid #A5CFE9';
+	dvBdy.style.borderBottom='1px solid #fbcb09';
+	dvBdy.style.borderLeft='1px solid #fbcb09';
+	dvBdy.style.borderRight='1px solid #fbcb09';
 	dvBdy.style.width='auto';
 	dvBdy.style.fontFamily='arial';
-	dvBdy.style.fontSize='11';
+	dvBdy.style.fontSize='10';
 	dvBdy.style.padding='6px 6px 6px 6px';
 	dvBdy.style.color='#1B4966';
 	dvBdy.style.background='#FFFFFF';

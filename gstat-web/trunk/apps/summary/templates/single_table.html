@@ -29,23 +29,6 @@ $(document).ready(function() {
     if (url.split("/").length == 2) $('#sites_or_status').text('Monitoring Status');
     else $('#sites_or_status').text('Sites'); 
     
-    //var type = "";
-    //var value = "";
-    //var url = document.URL;
-    //if (url.split("/gstat/summary/")[1].length == 0) {
-    //  type = "GRID";
-    //  value = "ALL";
-    //} else {
-    //  if (url[url.length-1] == '/') url = url.slice(0,length-1);
-    //  if (url.split("/gstat/summary/")[1].split("/").length == 1) {
-    //    type = url.split("/gstat/summary/")[1].split("/");
-    //    value = "ALL";
-    //  } else if (url.split("/gstat/summary/")[1].split("/").length == 2){
-    //    type = url.split("/gstat/summary/")[1].split("/")[0];
-    //    value = url.split("/gstat/summary/")[1].split("/")[1];
-    //  } 
-    //}
-    
     filtertype = document.getElementById('filtertype')
     filtertype.value = "{{ type }}";
     try {
@@ -59,124 +42,7 @@ $(document).ready(function() {
     filtervalue = document.getElementById('filtervalue')
     filtervalue.value = "{{ value }}";
 
-    
-    
-    //$("#filtertype :selected").val(decodeURIComponent(type));
-    //$("#filtervalue :selected").val(decodeURIComponent(value));
     loadTable();
-
-/*    $('#single_table').dataTable({
-        "bProcessing": true, 
-        "iDisplayLength": 25, 
-        "sAjaxSource": 'json', 
-        "sDom": 'T<"clear">lfrtip',
-        "aoColumns": [
-            { sWidth: '50px',
-              "fnRender": function(oObj) {
-                 var url = document.URL;
-                 if (url.split("/gstat/summary/")[1].length == 0) {
-                   var link = '<a href="/gstat/summary/GRID/'+oObj.aData[0]+'/">'+oObj.aData[0]+'</a>';
-                 } else {
-                   if (url[url.length-1] == '/') url = url.slice(0,length-1);
-                   if (url.split("/gstat/summary/")[1].split("/").length == 1) {
-                     var type = url.split("/gstat/summary/")[1].split("/");
-                    var link = '<a href="/gstat/summary/'+type+'/'+oObj.aData[0]+'/">'+oObj.aData[0]+'</a>';
-                   } else if (url.split("/gstat/summary/")[1].split("/").length == 2){
-                     var link = '<a href="/gstat/site/'+oObj.aData[0]+'/">'+oObj.aData[0]+'</a>';
-                   } 
-                 }
-                 return link;
-                },
-              "bUseRendered": false
-            },
-            { "fnRender": function(oObj) {
-                 var status = '<span class="NagiosStatus_'+oObj.aData[1]+'">'+oObj.aData[1]+'</span>';
-                 return status;
-                },
-              "bUseRendered": false,
-              "sType": "status"
-            },
-            { "fnRender": function(oObj) {
-                var physical_cpu = CommaFormatted(oObj.aData[2]);
-                return physical_cpu
-                },
-              "bUseRendered": false
-            },
-            { "fnRender": function(oObj) {
-                var logical_cpu = CommaFormatted(oObj.aData[3]);
-                return logical_cpu
-                },
-              "bUseRendered": false
-            },
-            { "fnRender": function(oObj) {
-                var total_space = CommaFormatted(oObj.aData[4]);
-                return total_space;
-                },
-              "bUseRendered": false
-            },
-            { "fnRender": function(oObj) {
-                var used_space = display_string(oObj.aData[4], oObj.aData[5]);
-                return used_space;
-                },
-              "sType": "num-html"
-            },
-            { "fnRender": function(oObj) {
-                var total_job = CommaFormatted(oObj.aData[6]);
-                return total_job;
-                },
-              "bUseRendered": false 
-            },
-            { "fnRender": function(oObj) {
-                var running_job = display_string(oObj.aData[3], oObj.aData[7]);
-                return running_job
-                },
-              "sType": "num-html"
-            },
-            { "fnRender": function(oObj) {
-                var waiting_job = display_string(oObj.aData[6], oObj.aData[8]);
-                return waiting_job;
-                },
-              "sType": "num-html"
-            }],
-            "fnFooterCallback": function ( nRow, aaData, iStart, iEnd, aiDisplay ) {
-                var site         = 0;
-                var physical_cpu = 0;
-                var logical_cpu  = 0;
-                var total_space  = 0;
-                var used_space   = 0;
-                var total_job    = 0;
-                var running_job  = 0;
-                var waiting_job  = 0;
-                
-                var calculate_site = false;
-                var url = document.URL.split("/gstat/summary/")[1];
-                if (url[url.length-1] == '/') url = url.slice(0,length-1);
-                if (!(url.split("/").length == 2)) calculate_site = true;
-                
-                for ( var i=0 ; i<aaData.length ; i++ ) {
-                    if (calculate_site) site += parseInt(aaData[i][1].toString().replace( /<.*?>/g, "" ));
-                    physical_cpu += aaData[i][2];
-                    logical_cpu  += aaData[i][3];
-                    total_space  += aaData[i][4];
-                    used_space   += parseInt(eval(aaData[i][5].split("title=")[1].split(" ")[0]));
-                    total_job    += aaData[i][6];
-                    running_job  += parseInt(eval(aaData[i][7].split("title=")[1].split(" ")[0]));
-                    waiting_job  += parseInt(eval(aaData[i][8].split("title=")[1].split(" ")[0]));
-                }
-                
-                var nCells = nRow.getElementsByTagName('th');
-                if (calculate_site) nCells[1].innerHTML = CommaFormatted(site);
-                nCells[2].innerHTML = CommaFormatted(physical_cpu);
-                nCells[3].innerHTML = CommaFormatted(logical_cpu);
-                nCells[4].innerHTML = CommaFormatted(total_space);
-                nCells[5].innerHTML = CommaFormatted(used_space);
-                nCells[6].innerHTML = CommaFormatted(total_job);
-                nCells[7].innerHTML = CommaFormatted(running_job);
-                nCells[8].innerHTML = CommaFormatted(waiting_job);
-		    }
-    });
-*/   
- 
 })
 
 
@@ -184,13 +50,7 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block breadcrumbs %}
-    {% for item in breadcrumbs_list %}
-        {% if forloop.last %}
-            <a href="{{ item.url }}">{{ item.name }}</a>
-        {% else %}
-            <a href="{{ item.url }}">{{ item.name }}</a>::
-        {% endif %}
-    {% endfor %}
+<a href="/gstat/">Home</a> :: <a href="/gstat/summary/">Site Summary</a>
 {% endblock %}
 
 {% block content-main %}
@@ -205,15 +65,15 @@ $(document).ready(function() {
         <th colspan=3 align="center">Grid Jobs</th>
       </tr>
       <tr>
-        <th><div class="tooltip" title="header=[] body=[]">Physical</div></th>
-        <th><div class="tooltip" title="header=[] body=[]">Logical</div></th>
-        <th><div class="tooltip" title="header=[] body=[]">TotalOnline</div></th>
-        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[UsedOnlineSize / TotalOnlineSize]">UsedOnline</div></th>
-        <th><div class="tooltip" title="header=[] body=[]">TotalNearline</div></th>
-        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[UsedNearlineSize / TotalNearlineSize]">UsedNearline</div></th>
-        <th><div class="tooltip" title="header=[] body=[]">Total</div></th>
-        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[RunningJobs / LogicalCPUs]">Running</div></th>
-        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[WaitingJobs / TotalJobs]">Waiting</div></th>
+        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[The sum of GlueSubClusterPhysicalCPUs over all SubClusters]">Physical</div></th>
+        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[The sum of GlueSubClusterLogicalCPUs over all SubClusters]">Logical</div></th>
+        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[The sum of GlueSETotalOnlineSize over all SEs]">TotalOnline</div></th>
+        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[GlueSEUsedOnlineSize / GlueSETotalOnlineSize]">UsedOnline</div></th>
+        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[The sum of GlueSETotalNearlineSize over all SEs]">TotalNearline</div></th>
+        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[GlueSEUsedNearlineSize / GlueSETotalNearlineSize]">UsedNearline</div></th>
+        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[The sume of GlueCEStateTotalJobs over all VOViews]">Total</div></th>
+        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[GlueCEStateRunningJobs / GlueSubClusterLogicalCPUs]">Running</div></th>
+        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[GlueCEStateWaitingJobs / GlueCEStateTotalJobs]">Waiting</div></th>
       </tr>
     </thead>
     <tbody>

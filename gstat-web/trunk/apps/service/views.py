@@ -40,12 +40,16 @@ def main(request, type, output=None):
     else:
         if (type == 'bdii_top'):
             title = "Top BDII View"
-            breadcrumbs_list = [{'name':'Site BDII View',
+            breadcrumbs_list = [{'name': 'Home',
+                                 'url':  '/gstat/'},
+                                {'name':'Site BDII View',
                                  'url':'/gstat/service/bdii_site/'}]
             thead=["Alias", "Hostname", "Instances", "Freshness", "Sites"]
         else:
             title = "Site BDII View"
-            breadcrumbs_list = [{'name':'Top BDII View',
+            breadcrumbs_list = [{'name': 'Home',
+                                 'url':  '/gstat/'},
+                                {'name':'Top BDII View',
                                  'url':'/gstat/service/bdii_top/'}]
             thead=["Alias", "Hostname", "Instances", "Freshness", "Services"]
 

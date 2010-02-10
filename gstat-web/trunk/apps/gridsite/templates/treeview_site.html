@@ -49,7 +49,9 @@
 </script>
 {% endblock %}
 
-{% block breadcrumbs %}{% endblock %}
+{% block breadcrumbs %}
+<a href="/gstat/">Home</a> :: <a href="/gstat/summary/">Site Summary</a> :: <a href="/gstat/site/{{site_name}}">{{site_name}}</a>
+{% endblock %}
 
 {% block content-main %}
 
@@ -61,10 +63,10 @@
     <div id="treediv">
     <ul id="tree" class="filetree treeview">
       <li>
-        <span class="folder">&nbsp;{{ site_name }}</span>
+        <span class="folder">&nbsp;{{ site_name }}
+            <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
+        </span>
         <ul>
-        
-        
           {% if tree_topbdii %}
           <li class='{{ collapse.bdii_top|default:"closed" }}'>
             <span class="folder"> 
@@ -76,7 +78,7 @@
               <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
                 <span class="ce">
                   <a target="frame" href="/gstat/site/{{ site_name }}/bdii_top/{{ hostname }}/all/">&nbsp;{{ hostname }}</a>
-                  <a href="/gstat/ldap/site/{{ hostname }}" class="glue"> LDAP View </a>
+                  <a href="/gstat/ldap/site/{{ hostname }}" class="glue"> LDAP </a>
                 </span>
                 <ul>
                   {% for check in checks %}
@@ -123,7 +125,7 @@
               <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
                 <span class="ce">
                   <a target="frame" href="/gstat/site/{{ site_name }}/bdii_site/{{ hostname }}/all/">&nbsp;{{ hostname }}</a>
-                  <a href="/gstat/ldap/site/{{ hostname }}" class="glue"> LDAP View </a>
+                  <a href="/gstat/ldap/server/ldap://{{ hostname }}:2170/mds-vo-name=local,o=grid" class="glue"> LDAP </a>
                 </span>
                 <ul>
                   {% for check in checks %}
@@ -161,11 +163,11 @@
           
           
           {% if tree_cluster_cpu or tree_cluster_job %}
-            <li class='{% firstof collapse.subcluster_cpu "closed" %}'>
+            <li class='{% firstof collapse.cluster collapse.subcluster_cpu "closed" %}'>
               <span class="folder">&nbsp; Cluster </span>
               <ul>
                 {% if tree_cluster_cpu %}
-                <li class='{{ collapse.subcluster_cpu|default:"closed" }}'>
+                <li class='{% firstof collapse.cluster collapse.subcluster_cpu "closed" %}'>
                   <span class="folder">
                   <a target="frame" href="/gstat/rrd/Site/{{ site_name }}/cpu/">&nbsp; CPU Numbers </a>
                   </span>
@@ -173,7 +175,9 @@
                     {% for cluster,subclusters in tree_cluster_cpu %}
                     
                     <li class='{{ collapse.subcluster_cpu|default:"closed" }}'>
-                      <span class="ce">&nbsp; {{ cluster }} </span>
+                      <span class="ce">&nbsp; {{ cluster }} 
+                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
+                      </span>
                       <ul>
                         <li class='{{ collapse.subcluster_cpu|default:"closed" }}'>
                           <span class="folder">&nbsp; SubCluster </span>
@@ -182,6 +186,7 @@
 		                    <li>
 		                      <span class="ce">
 		                        <a target="frame" href="/gstat/rrd/SubCluster/{{ subcluster }}/cpu/">&nbsp;{{ subcluster }}</a>
+		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesubclusteruniqueid={{ subcluster }},glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -206,6 +211,7 @@
                     <li class='closed'>
                       <span class="ce">
                         <a target="frame" href="/gstat/rrd/Cluster/{{ cluster }}/job/">&nbsp;{{ cluster }}</a>
+                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
                       </span>
                       <ul>
                         <li class='closed'>
@@ -235,19 +241,20 @@
           
           
           {% if tree_se %}
-            <li class='{% firstof collapse.se_online collapse.se_nearline "closed" %}'>
+            <li class='{% firstof collapse.se collapse.se_online collapse.se_nearline "closed" %}'>
               <span class="folder">&nbsp; SE </span>
               <ul>
               
-                <li class='{{ collapse.se_online|default:"closed" }}'>
+                <li class='{% firstof collapse.se collapse.se_online "closed" %}'>
                   <span class="folder">
                     <a target="frame" href="/gstat/rrd/Site/{{ site_name }}/online/">&nbsp; Online Storage </a>
                   </span>
                   <ul>
                     {% for se,vos in tree_se %}
-                    <li class='{{ collapse.se_online|default:"closed" }}'>
+                    <li class='closed'>
                       <span class="se">
                         <a target="frame" href="/gstat/rrd/SE/{{ se }}/online/">&nbsp;{{ se }}</a>
+                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
                       </span>
                       <ul>
                         <li class="closed">
@@ -274,9 +281,10 @@
                   </span>
                   <ul>
                     {% for se,vos in tree_se %}
-                    <li class='{{ collapse.se_nearline|default:"closed" }}'>
+                    <li class='closed'>
                       <span class="se">
                         <a target="frame" href="/gstat/rrd/SE/{{ se }}/nearline/">&nbsp;{{ se }}</a>
+                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
                       </span>
                       <ul>
                         <li class='closed'>
@@ -303,7 +311,7 @@
           
           
           {% if tree_service %}
-            <li class='closed'>
+            <li class='{% firstof collapse.service "closed" %}'>
               <span class="folder">&nbsp; Service </span>
               <ul>
                 {% for type,uniqueids in tree_service %}
@@ -312,7 +320,9 @@
                   <ul>
                     {% for uniqueid in uniqueids %}
                     <li>
-                      <span class="ce">&nbsp; {{ uniqueid }}</span>
+                      <span class="ce">&nbsp; {{ uniqueid }}
+                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueserviceuniqueid={{ uniqueid }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
+                      </span>
                     </li>
                     {% endfor %}
                   </ul>
