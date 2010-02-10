@@ -31,7 +31,9 @@
 </script>
 {% endblock %}
 
-{% block breadcrumbs %}{% endblock %}
+{% block breadcrumbs %}
+<a href="/gstat/">Home</a> :: <a href="/gstat/summary/">Site Summary</a> :: <a href="/gstat/site/{{site_name}}">{{site_name}}</a>
+{% endblock %}
 
 {% block content-main %}
 
@@ -152,19 +154,19 @@
           {% endifequal %}{% endifequal %}{% endifequal %}
           {% ifnotequal count_dict.ce 0 %}
           <tr> 
-            <td>CE<!-- <a href="/gstat/site/{{ site_name }}/ce/">CE</a> --></td> 
+            <td><a href="/gstat/site/{{ site_name }}/treeview/cluster/">CE</a></td> 
             <td>{{ count_dict.ce }}</td> 
           </tr> 
           {% endifnotequal %}
           {% ifnotequal count_dict.se 0 %}
           <tr> 
-            <td>SE<!-- <a href="/gstat/site/{{ site_name }}/se/">SE</a> --></td> 
+            <td><a href="/gstat/site/{{ site_name }}/treeview/se/">SE</a></td> 
             <td>{{ count_dict.se }}</td> 
           </tr> 
           {% endifnotequal %}          
           {% ifnotequal count_dict.service 0 %}
           <tr> 
-            <td>Service<!-- <a href="/gstat/site/{{ site_name }}/service/">Service</a> --></td> 
+            <td><a href="/gstat/site/{{ site_name }}/treeview/service/">Service</a></td> 
             <td>{{ count_dict.service }}</td> 
           </tr> 
           {% endifnotequal %}      

@@ -10,6 +10,18 @@ from glue.models import *
 # -- Glue data model related functions --
 # ---------------------------------------
 
+def get_glue_entities(model_name, uniqueids_list=[]):
+    try:
+        model = models.get_model('glue', model_name)
+        if not uniqueids_list:
+            objects = model.objects.all()
+        else:
+            objects = model.objects.filter(uniqueid__in=uniqueids_list)
+        return objects
+    except:
+        # need to re-factor
+        return None
+
 def get_unique_gluesite(site_name):
     """ get glue site entities from glue database """
     site = gluesite.objects.filter(uniqueid=site_name)

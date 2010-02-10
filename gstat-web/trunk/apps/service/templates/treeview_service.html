@@ -71,7 +71,7 @@
               <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
                 <span class="ce">
                   <a target="frame" href="/gstat/service/bdii_top/{{ hostname }}/all/">&nbsp;{{ hostname }}</a>
-                  <a href="/gstat/ldap/site/{{ hostname }}" class="glue"> LDAP View </a>
+                  <a href="/gstat/ldap/site/{{ hostname }}" class="glue"> LDAP </a>
                 </span>
                 <ul>
                   {% for check in checks %}
@@ -116,7 +116,7 @@
               <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
                 <span class="ce">
                   <a target="frame" href="/gstat/service/bdii_site/{{ hostname }}/all/">&nbsp;{{ hostname }}</a>
-                  <a href="/gstat/ldap/site/{{ hostname }}" class="glue"> LDAP View </a>
+                  <a href="/gstat/ldap/server/ldap://{{ hostname }}:2170/mds-vo-name=local,o=grid" class="glue"> LDAP </a>
                 </span>
                 <ul>
                   {% for check in checks %}

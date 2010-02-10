@@ -2,6 +2,7 @@
 a:link { text-decoration: none;}
 a:visited {text-decoration: none;}
 a.bold { font-weight: bold;}
+a.glue { color: #EA7618; font-weight: bold; font-size:7px;}
 
 
 /** Layout: 100% Height Overflow Auto **/
@@ -47,13 +48,6 @@ body { height:100%; }
 
 
 /** Positioning **/
-.corner-all {
-	-moz-border-radius-bottomleft:4px;
-	-moz-border-radius-bottomright:4px;
-	-moz-border-radius-topleft:4px;
-	-moz-border-radius-topright:4px;
-}
-
 #left-board { float:left; width:30%;}
 #right-board { float:left; width:64%;}
 

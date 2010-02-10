@@ -264,6 +264,17 @@ def treeview(request, site_name, type, attribute=""):
     # Get subtree of Clusters and supported VOs for job numbers
     # {"cluster hostname": ["vo list"]}
     # ["cluster hostname", ["vo list"]]
+    
+    """
+    queues = {}
+    glueces = get_glue_entities(model_name='gluece')
+    if glueces:
+        for gluece in glueces:
+            if gluece.gluecluster_fk not in queues:
+                queues[gluece.gluecluster_fk] = {}
+            queues[gluece.gluecluster_fk][gluece.name] = gluece.uniqueid
+    """
+    
     tree_cluster_job = []
     if ce_list:
         for cluster in ce_list:
@@ -271,6 +282,20 @@ def treeview(request, site_name, type, attribute=""):
             #vos = [vo.uniqueid for vo in get_vos([cluster])]
             #tree_cluster_job.append( [cluster.hostname, vos.sort()] )
             vos = tuple(sorted(vo.uniqueid for vo in get_vos([cluster])))
+            """
+            vos = []
+            vo_names = [vo.uniqueid for vo in get_vos([cluster])]
+            vo_names.sort()
+            for vo_name in vo_names:
+                try:
+                    print cluster.uniqueid, vo_name
+                    gluece_uniqueid = queues[cluster.uniqueid][vo_name]
+                except:
+                    gluece_uniqueid = ""
+                vos.append( (vo_name, gluece_uniqueid)  )
+            vos = tuple(vos)   
+            """
+
             tree_cluster_job.append( (cluster.hostname, vos) )
             # Gather information of VOs
             for vo in vos:

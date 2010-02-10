@@ -11,10 +11,8 @@ from core.utils import *
 
 def main(request, type='GRID', value='ALL'):
 
-    breadcrumbs_list = [{'name':'Summary', 'url':'/gstat/summary/'}]
     return render_to_response('single_table.html', 
                               {'summary_active'  : 1,
-                               'breadcrumbs_list': breadcrumbs_list,
                                'type'            : type,
                                'value'           : value,
                                'filters_enabled' : True})
