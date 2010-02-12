@@ -262,7 +262,7 @@ def process_tuple(dn,tuple,table_name,multivalues):
         
         # Import models and create instance from the class
         table_name_lower = table_name.lower()
-        inst = getattr(module, table_name_lower)()
+        #inst = getattr(module, table_name_lower)()
 
         # Iterate through all the keys and values and insert them        
         for key in tuple:
@@ -306,6 +306,7 @@ def process_tuple(dn,tuple,table_name,multivalues):
                     value = value[0:value.__len__()-1]
             except Exception, e:
                 log.warn(str(e) + ' Value: ' + value)
+            
             # Check if method exists
             try:
                 getattr(inst, methodName)
@@ -344,7 +345,7 @@ def process_tuple(dn,tuple,table_name,multivalues):
             #sys.exit()
 
 # Main function
-@transaction.commit_manually
+#@transaction.commit_manually
 def main():
     # Welcome
     log.info('Welcome to the snapshot script')
@@ -443,11 +444,11 @@ def main():
 
     # Finishing the transaction
     log.info('Committing all changes to the database...')
-    transaction.commit()
+    #transaction.commit()
 
     # Delete old entries from the database
     log.info('Deleting old entries...')
-    delete_old_entries_raw()
+    #delete_old_entries_raw()
     
     # Get time taken for the translation
     log.info("Time taken: %s" % str(datetime.now() - start_time))
