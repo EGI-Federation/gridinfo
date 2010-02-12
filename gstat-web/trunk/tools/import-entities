@@ -51,7 +51,6 @@ from glue.models import gluesite
 from glue.models import gluemultivalued
 from django.db import connection, transaction
 
-
 modulename='topology.models'
 __import__(modulename)
 module=sys.modules[modulename]
@@ -106,7 +105,6 @@ Options:
 
 ''')
     
-#@transaction.commit_manually
 def save_entities():
     
     #Get the current time
@@ -122,15 +120,13 @@ def save_entities():
     for tuple in row:
         unique_ids[tuple[0].lower()] = None
 
-    insert_data = []
-    update_data = []
     for entity_id in entity_store.keys():
         entity_hostname = get_hostname(entity_id)
         if ( unique_ids.has_key(entity_id.lower()) ):
             update_data = "type='%s', hostname='%s', updated_at='%s' where uniqueid='%s'" %(entity_id, entity_store[entity_id], entity_hostname, date_time)   
             cursor.execute("UPDATE topology_entity set %s;"% update_data)
         else:
-            insert_data ="('%s','%s','%s','%s','%s','%s')" %(entity_id, entity_store[entity_id], entity_hostname, date_time, date_time, date_time)   
+            insert_data = "('%s','%s','%s','%s','%s','%s')" %(entity_id, entity_store[entity_id], entity_hostname, date_time, date_time, date_time)   
             cursor.execute('INSERT into topology_entity(uniqueid, type, hostname, timestamp, created_at, updated_at) value %s;'% insert_data)
             unique_ids[entity_id.lower()] = None
     transaction.commit_unless_managed()
@@ -162,27 +158,23 @@ def save_relationships():
             relationships[tuple[0]][tuple[1]] = {}
         relationships[tuple[0]][tuple[1]][tuple[2]] = None         
 
-    insert_data = []
-    update_data = []
     for tuple in relationship_store:
         try:
             sub = ids[tuple[0].lower()]
             obj = ids[tuple[1].lower()]
-        except KeyError,e:
-            #print e
+        except KeyError:
             continue
         if ( relationships.has_key(tuple[0]) and relationships[tuple[0]].has_key(tuple[1]) and relationships[tuple[0]][tuple[1]].has_key(tuple[2])):
             update_data = "updated_at='%s' where subject_id='%s'AND object_id='%s' AND predicate='%s'" %(date_time, sub, obj, tuple[2])   
             cursor.execute("UPDATE topology_entityrelationship set %s;" % update_data)
         else:
-            insert_data.append("('%s','%s','%s','%s','%s','%s')" %(sub, obj, tuple[2], date_time, date_time, date_time))   
+            insert_data = "('%s','%s','%s','%s','%s','%s')" %(sub, obj, tuple[2], date_time, date_time, date_time) 
             if ( not relationships.has_key(tuple[0])):
                 relationships[tuple[0]] = {}
             if ( not relationships[tuple[0]].has_key(tuple[1])):
                 relationships[tuple[0]][tuple[1]] = {}
             relationships[tuple[0]][tuple[1]][tuple[2]] = None
-    insert_data = string.join(insert_data, ",")
-    cursor.execute('INSERT into topology_entityrelationship(subject_id, object_id, predicate, timestamp, created_at, updated_at) value %s;'% insert_data)
+            cursor.execute('INSERT into topology_entityrelationship(subject_id, object_id, predicate, timestamp, created_at, updated_at) value %s;'% insert_data)
     transaction.commit_unless_managed()
 
 def get_hostname(UniqueID):
