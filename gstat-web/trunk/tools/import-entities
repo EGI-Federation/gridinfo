@@ -363,5 +363,5 @@ if __name__ == "__main__":
     save_entities()
     save_relationships()
     delete_old_objects()
-    log.info("Time = %d" %(time.time() - start_time))
+    log.info("Time taken = %d" %(time.time() - start_time))
 
