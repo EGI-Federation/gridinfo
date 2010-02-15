@@ -62,19 +62,19 @@
         </tr> 
         <tr> 
           <td>Web</td> 
-          <td>{% ifnotequal gluesite "N/A" %}<a href="{{ gluesite.web }}">{{ gluesite.web }}</a>{% else %}N/A{% endifnotequal %}</td> 
+          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.web|urlize }}{% else %}N/A{% endifnotequal %}</td> 
         </tr> 
         <tr> 
           <td>Sysadmin Email</td> 
-          <td>{% ifnotequal gluesite "N/A" %}<a href="mailto:{{ gluesite.sysadmincontact }}">{{ gluesite.sysadmincontact }}</a>{% else %}N/A{% endifnotequal %}</td> 
-        </tr> 
+          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.sysadmincontact|cut:"mailto:"|urlize }}{% else %}N/A{% endifnotequal %}</td> 
+        </tr>
         <tr> 
           <td>User-Support Email</td> 
-          <td>{% ifnotequal gluesite "N/A" %}<a href="mailto:{{ gluesite.usersupportcontact }}">{{ gluesite.usersupportcontact }}</a>{% else %}N/A{% endifnotequal %}</td> 
+          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.usersupportcontact|cut:"mailto:"|urlize }}{% else %}N/A{% endifnotequal %}</td> 
         </tr> 
         <tr> 
           <td>Security Email</td> 
-          <td>{% ifnotequal gluesite "N/A" %}<a href="mailto:{{ gluesite.securitycontact }}">{{ gluesite.securitycontact }}</a>{% else %}N/A{% endifnotequal %}</td> 
+          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.securitycontact|cut:"mailto:"|urlize }}{% else %}N/A{% endifnotequal %}</td> 
         </tr> 
       </tbody> 
     </table> 

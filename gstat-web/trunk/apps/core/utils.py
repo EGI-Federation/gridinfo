@@ -5,6 +5,7 @@ from django.db import models
 from topology.models import Entity
 from topology.models import Entityrelationship
 from glue.models import *
+import time
 
 # ---------------------------------------
 # -- Glue data model related functions --
@@ -415,111 +416,84 @@ def get_service_versions(service_list):
 
 def get_nagios_status_dict():
     """ This takes the nagios realtime status data and outputs as a dictionary object. """
-    def __getDefinitions(filename, obj):
+    def __getDefinitions(content, token):
         """ Parse the status.dat file and extract matching object definitions """
-        try:
-            file = open(filename)
-        except(IOError):
-            print "Nagios realtime status file doesn't exist: %s" % filename
-            sys.exit()
-            
-        content = file.read().replace("\t"," ")
-        file.close
-        pat = re.compile(obj +' \{([\S\s]*?)\}',re.DOTALL)
-        finds = pat.findall(content)
+        pattern = re.compile(token +' \{([\S\s]*?)\}',re.DOTALL)
+        finds = pattern.findall(content)
         return finds
     
     def __getDirective(item, directive):
         """ parse an object definition, return the directives """
         #pat = re.compile(' '+directive+'[\s= ]*([\S, ]*)\n')
-        pat = re.compile(' '+directive+'[=]*([\S, ]*)\n')
-        m = pat.search(item)
+        pattern = re.compile(' '+directive+'[=]*([\S, ]*)\n')
+        m = pattern.search(item)
         if m:
             return m.group(1).strip()    
+        
+    # store nagios status data in a dictionary object. 
+    status_dict = {}
+        
     # config local access control permission to enable the file to be readbale by this script
     # Please note that it's HARD CODE for now!!!
     status_file="/var/nagios/status.dat"
-
-    # store nagios status data in a dictionary object. 
-    status_dict = {}
-
+    try:
+        file = open(status_file)
+    except(IOError):
+        print "Nagios realtime status file doesn't exist: %s" % status_file
+        return status_dict
+    content = file.read().replace("\t"," ")
+    file.close
+    
     # fixme - the following token change dependiong on the version of Nagios 
     hosttoken='hoststatus'
     servicetoken='servicestatus'
-    programtoken='programstatus'
     
     # parse the nagios realtime status data and generate a dictionary
-    
-    # each host
-    hosts = __getDefinitions(status_file, hosttoken)
-    services = __getDefinitions(status_file, servicetoken)
-    for hostdef in hosts:
+    hostdefs = __getDefinitions(content, hosttoken)
+    for hostdef in hostdefs:
         host_name          = __getDirective(hostdef, "host_name")
         current_state      = __getDirective(hostdef, "current_state")
         plugin_output      = __getDirective(hostdef, "plugin_output")
         last_check         = __getDirective(hostdef, "last_check")
         has_been_checked   = __getDirective(hostdef, "has_been_checked")
-        
-        status_dict[host_name]                     = {}
+        if host_name not in status_dict:
+            status_dict[host_name] = {}
         status_dict[host_name]['current_state']    = convert_to_integer(current_state)
         status_dict[host_name]['plugin_output']    = plugin_output
         status_dict[host_name]['last_check']       = last_check
         status_dict[host_name]['has_been_checked'] = convert_to_integer(has_been_checked)
 
-        for servicedef in services:
-            if (__getDirective(servicedef, "host_name") == host_name):
-                service_description = __getDirective(servicedef, "service_description")
-                current_state       = __getDirective(servicedef, "current_state")
-                plugin_output       = __getDirective(servicedef, "plugin_output")
-                long_plugin_output  = __getDirective(servicedef, "long_plugin_output")
-                last_check          = __getDirective(servicedef, "last_check")
-                has_been_checked    = __getDirective(servicedef, "has_been_checked")
-                
-                status_dict[host_name][service_description]                       = {}
-                status_dict[host_name][service_description]['current_state']      = convert_to_integer(current_state)
-                status_dict[host_name][service_description]['plugin_output']      = plugin_output
-                status_dict[host_name][service_description]['long_plugin_output'] = long_plugin_output
-                status_dict[host_name][service_description]['last_check']         = last_check
-                status_dict[host_name][service_description]['has_been_checked']   = convert_to_integer(has_been_checked)
-    
+    servicedefs = __getDefinitions(content, servicetoken)
+    for servicedef in servicedefs:
+        host_name           = __getDirective(servicedef, "host_name")
+        service_description = __getDirective(servicedef, "service_description")
+        current_state       = __getDirective(servicedef, "current_state")
+        plugin_output       = __getDirective(servicedef, "plugin_output")
+        long_plugin_output  = __getDirective(servicedef, "long_plugin_output")
+        last_check          = __getDirective(servicedef, "last_check")
+        has_been_checked    = __getDirective(servicedef, "has_been_checked")
+        if host_name in status_dict:
+            if service_description not in status_dict[host_name]:
+                status_dict[host_name][service_description] = {}
+            status_dict[host_name][service_description]['current_state']      = convert_to_integer(current_state)
+            status_dict[host_name][service_description]['plugin_output']      = plugin_output
+            status_dict[host_name][service_description]['long_plugin_output'] = long_plugin_output
+            status_dict[host_name][service_description]['last_check']         = last_check
+            status_dict[host_name][service_description]['has_been_checked']   = convert_to_integer(has_been_checked)
+
     return status_dict
 
-
-def get_hosts_overall_nagios_status(status_dict, hostname_list, check_name_suffix):
+def get_overall_check_status(status_dict):
     overall_status = -1
     has_been_checked = 1
-    real_hostname_list = []
-    for hostname in hostname_list:
-        alias = get_hostname(hostname)
-        real_hostname_list += get_hosts_from_alias(alias)
-    for hostname in real_hostname_list:
-        try:
-            for key in status_dict[hostname].keys(): 
-                if re.compile(check_name_suffix).match(key):
-                    if status_dict[hostname][key]['current_state'] > overall_status:
-                        overall_status = status_dict[hostname][key]['current_state']
-                    if status_dict[hostname][key]['has_been_checked'] == 0:
-                        has_been_checked = 0
-        except (KeyError):
-            # No matching records found
-            pass
-    
-    return (overall_status, has_been_checked)
-
-def get_host_overall_nagios_status(status_dict, hostname):
-    overall_status = -1
-    has_been_checked = 1
-    try:
-        for key in status_dict[hostname].keys(): 
-            if re.compile('^check-.+').match(key):
-                if status_dict[hostname][key]['current_state'] > overall_status:
-                    overall_status = status_dict[hostname][key]['current_state']
-                if status_dict[hostname][key]['has_been_checked'] == 0:
-                    has_been_checked = 0
-    except (KeyError):
-        # No matching records found
-        pass
-    
+    for key in status_dict.keys(): 
+        if key.startswith("check"):
+            status = status_dict[key]['current_state']
+            checked = status_dict[key]['has_been_checked']
+            if status > overall_status:
+                overall_status = status
+            if checked == 0:
+                has_been_checked = 0
     return (overall_status, has_been_checked)
 
 def get_nagios_status_str(current_state, has_been_checked):
@@ -571,6 +545,7 @@ def get_hostname(uniqueid):
     return hostname
 
 def get_hosts_from_alias(hostname):
+    
     hosts = []
     try:
         ips = socket.gethostbyname_ex(hostname)[2]
@@ -580,6 +555,7 @@ def get_hosts_from_alias(hostname):
     except Exception, e:
         pass
     hosts.sort()
+    
     return hosts
 
 def get_hosts_from_aliases(hostnames):
@@ -614,6 +590,7 @@ def sort_objects_by_attr(object_list, attribute):
     return result_list
 
 def get_status_for_sites(site_list):
+    
     nagios_status = get_nagios_status_dict()
     relationships = Entityrelationship.objects.select_related('subject', 'object').filter(predicate = 'SiteService',  subject__in = site_list, object__type='bdii_top') | Entityrelationship.objects.select_related('subject', 'object').filter(predicate = 'SiteService',  subject__in = site_list, object__type='bdii_site')
     site_bdii = {}
@@ -623,17 +600,27 @@ def get_status_for_sites(site_list):
             site_bdii[site_id] = []
             site_bdii[site_id].append(relation.object.hostname)
     data = {}
-
+    
     for site in site_list:
+        
         site_id = site.uniqueid
-        site_status = 0
-        hostnames = []
+        site_status = -1
         if site_bdii.has_key(site_id):
             hostnames = site_bdii[site_id]
-        #The performance of this command needs to be improved. 
-        (status, has_been_checked) = get_hosts_overall_nagios_status(nagios_status, hostnames, '^check-.+')
-        site_status = 0
-        site_status = get_nagios_status_str(status, has_been_checked)
+            overall_status = -1
+            checked = 1
+            #The performance of this command needs to be improved. 
+            for hostname in hostnames:
+                hosts_from_alias = get_hosts_from_alias(hostname)
+                for host in hosts_from_alias:
+                    if host in nagios_status.keys():
+                        (status, has_been_checked) = get_overall_check_status(nagios_status[host])
+                        if status > overall_status:
+                            overall_status = status
+                        if has_been_checked == 0:
+                            checked = 0
+                
+            site_status = get_nagios_status_str(overall_status, checked)
         data[site_id] = site_status
 
     return data
