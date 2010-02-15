@@ -162,18 +162,19 @@ def save_relationships():
         try:
             sub = ids[tuple[0].lower()]
             obj = ids[tuple[1].lower()]
+            predicate = tuple[2]
         except KeyError:
             continue
-        if ( relationships.has_key(tuple[0]) and relationships[tuple[0]].has_key(tuple[1]) and relationships[tuple[0]][tuple[1]].has_key(tuple[2])):
-            update_data = "updated_at='%s' where subject_id='%s'AND object_id='%s' AND predicate='%s'" %(date_time, sub, obj, tuple[2])   
+        if ( relationships.has_key(sub) and relationships[sub].has_key(obj) and relationships[sub][obj].has_key(predicate)):
+            update_data = "updated_at='%s' where subject_id='%s'AND object_id='%s' AND predicate='%s'" %(date_time, sub, obj, predicate)   
             cursor.execute("UPDATE topology_entityrelationship set %s;" % update_data)
         else:
-            insert_data = "('%s','%s','%s','%s','%s','%s')" %(sub, obj, tuple[2], date_time, date_time, date_time) 
-            if ( not relationships.has_key(tuple[0])):
-                relationships[tuple[0]] = {}
-            if ( not relationships[tuple[0]].has_key(tuple[1])):
-                relationships[tuple[0]][tuple[1]] = {}
-            relationships[tuple[0]][tuple[1]][tuple[2]] = None
+            insert_data = "('%s','%s','%s','%s','%s','%s')" %(sub, obj, predicate, date_time, date_time, date_time) 
+            if ( not relationships.has_key(sub)):
+                relationships[sub] = {}
+            if ( not relationships[sub].has_key(obj)):
+                relationships[sub][obj] = {}
+            relationships[sub][obj][predicate] = None
             cursor.execute('INSERT into topology_entityrelationship(subject_id, object_id, predicate, timestamp, created_at, updated_at) value %s;'% insert_data)
     transaction.commit_unless_managed()
 
