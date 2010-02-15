@@ -1,7 +1,7 @@
 Application:  gLite Info Static Create
 Authors:      David.Horat@cern.ch
               Laurence.Field@cern.ch
-Version:      0.3 (XX/02/2010)
+Version:      0.3 (15/02/2010)
 ********************************************************************
 
 DESCRIPTION
