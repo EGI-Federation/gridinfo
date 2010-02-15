@@ -8,6 +8,7 @@ from django.utils import simplejson as json
 from topology.models import Entity
 from topology.models import Entityrelationship
 from core.utils import *
+import time
 
 def main(request, type='GRID', value='ALL'):
 

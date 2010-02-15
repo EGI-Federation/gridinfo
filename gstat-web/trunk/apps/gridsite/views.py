@@ -10,27 +10,20 @@ import re
 import time
    
 def overview(request, site_name):     
-
     # Get the site information from glue database
-    site = get_unique_gluesite(site_name)
-    if not site:
-        #raise Http404
+    gluesite = get_unique_gluesite(site_name)
+    if not gluesite:
         gluesite = "N/A"
-    else:
-        gluesite = site
-        gluesite.sysadmincontact = str(gluesite.sysadmincontact).split(":")[-1]      
-        gluesite.usersupportcontact = str(gluesite.usersupportcontact).split(":")[-1]
-        gluesite.securitycontact = str(gluesite.securitycontact).split(":")[-1]
 
     # Get all the service and entity at site from topology database
     site_entity = get_unique_entity(site_name, 'Site')
     service_list = get_services([site_entity])
     topbdii_list, sitebdii_list, ce_list, se_list  = [], [], [], []
     for service in service_list:
-        if service.type == 'bdii_top':  topbdii_list.append(service)
-        if service.type == 'bdii_site': sitebdii_list.append(service)
-        if service.type == 'CE':        ce_list.append(service)
-        if service.type == 'SE':        se_list.append(service)
+        if   service.type == 'bdii_top':  topbdii_list.append(service)
+        elif service.type == 'bdii_site': sitebdii_list.append(service)
+        elif service.type == 'CE':        ce_list.append(service)
+        elif service.type == 'SE':        se_list.append(service)
 
     # Get the overall monitoring and validation results
     nagios_status = get_nagios_status_dict()
@@ -39,26 +32,27 @@ def overview(request, site_name):
     for hostname in hostnames:
         hosts_from_alias = get_hosts_from_alias(hostname)
         for host in hosts_from_alias:
-            (status, has_been_checked)   = get_host_overall_nagios_status(nagios_status, host)
-            dict = {}
-            dict['alias']    = hostname
-            dict['host']     = host
-            dict['instance'] = len(hosts_from_alias)
-            dict['status']   = get_nagios_status_str(status, has_been_checked)
-            status_list_top.append(dict)
+            if host in nagios_status.keys():
+                (status, has_been_checked) = get_overall_check_status(nagios_status[host])
+                dict = {}
+                dict['alias']    = hostname
+                dict['host']     = host
+                dict['instance'] = len(hosts_from_alias)
+                dict['status']   = get_nagios_status_str(status, has_been_checked)
+                status_list_top.append(dict)
     status_list_site = []
     hostnames = [sitebdii.hostname for sitebdii in sitebdii_list]
     for hostname in hostnames:
         hosts_from_alias = get_hosts_from_alias(hostname)
         for host in hosts_from_alias:
-            (status, has_been_checked)   = get_host_overall_nagios_status(nagios_status, host)
-            dict = {}
-            dict['alias']    = hostname
-            dict['host']     = host
-            dict['instance'] = len(hosts_from_alias)
-            dict['status']   = get_nagios_status_str(status, has_been_checked)
-            status_list_site.append(dict)
-
+            if host in nagios_status.keys():
+                (status, has_been_checked) = get_overall_check_status(nagios_status[host])
+                dict = {}
+                dict['alias']    = hostname
+                dict['host']     = host
+                dict['instance'] = len(hosts_from_alias)
+                dict['status']   = get_nagios_status_str(status, has_been_checked)
+                status_list_site.append(dict)
     # Count the numbers of entities
     count_dict            = {}
     count_dict['ce']      = len(ce_list)
