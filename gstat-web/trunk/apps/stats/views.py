@@ -49,7 +49,9 @@ def main(request, type='GRID', value='ALL', output=None):
 
     versions = get_service_versions(service_list)
 
+    # Get SE Instances
     se_instances = {}
+    se_instances_sites = {}
     for se in  se_list:
         if (se.implementationname ):
             name=se.implementationname
@@ -58,10 +60,21 @@ def main(request, type='GRID', value='ALL', output=None):
         if (not se_instances.has_key(name)):
             se_instances[name] = 0
         se_instances[name] += 1
+
+        if (se.gluesite_fk):
+            site = se.gluesite_fk
+        else:
+            site = "Unknown"
+        if (not se_instances_sites.has_key(name)):
+            se_instances_sites[name] = {}
+        if (not se_instances_sites[name].has_key(site)):
+            se_instances_sites[name][site] = None
+
+
     
     se_types = []
     for name in se_instances.keys():
-        row = [ name, se_instances[name] ]
+        row = [ name, se_instances[name], len(se_instances_sites[name]) ]
         se_types.append(row)
 
 
