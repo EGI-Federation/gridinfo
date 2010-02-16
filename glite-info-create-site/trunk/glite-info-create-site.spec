@@ -28,8 +28,7 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%attr(0644,root,root) /etc/glite-info-create/templates
-%attr(0644,root,root) /etc/glite-info-create/interfaces
+%attr(0644,root,root) /etc/glite-info-create/site
 %attr(0644,root,root) %config(noreplace) /etc/glite-info-create/site.1.cfg
 
 %changelog
