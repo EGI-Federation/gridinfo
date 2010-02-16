@@ -1,7 +1,7 @@
 Application:  gLite Info Static Create
 Authors:      David.Horat@cern.ch
               Laurence.Field@cern.ch
-Version:      0.3 (15/02/2010)
+Version:      0.4 (16/02/2010)
 ********************************************************************
 
 DESCRIPTION
@@ -31,9 +31,7 @@ MODULE STRUCTURE
 
 
 TODO
-There are several improvements that could be done:
-- Package it into several RPMs (one for core and one per module)
-
+None. :)
 Do you have more suggestions?
 Send us an email to: project-grid-info-support@cern.ch
 
@@ -54,3 +52,7 @@ CHANGELOG
   - Directory renamed from glite-info-static-create to glite-info-create
   - Now the script changes to its directory wherever it is invoked from
   - Added more debug messages
+0.4 (16/02/2010):
+  - Now the default path for modules is hardcoded to: /etc/glite-info-create/
+  - A new switch (-p) has been added to change the modules path
+  - You can use several interfaces at once
