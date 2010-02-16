@@ -114,6 +114,27 @@
       </tbody> 
     </table> 
   </div>
+
+  <div id="right-board" class="board rightboard">
+    <h2>Number of Deployed SE Instances</h2>
+    <table id="SETable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
+      <thead> 
+        <tr> 
+          <th>Implementation</th> 
+          <th>Instances</th>
+        </tr> 
+      </thead> 
+      <tbody> 
+        {% for row in se_types %}
+        <tr >
+          {% for col in row %}
+          <td >{{ col }}</td>
+          {% endfor %}
+        </tr>
+        {% endfor %}      
+      </tbody> 
+    </table> 
+  </div>
   
   <div class="clear"></div>
 </div>

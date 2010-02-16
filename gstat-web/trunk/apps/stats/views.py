@@ -49,6 +49,22 @@ def main(request, type='GRID', value='ALL', output=None):
 
     versions = get_service_versions(service_list)
 
+    se_instances = {}
+    for se in  se_list:
+        if (se.implementationname ):
+            name=se.implementationname
+        else:
+            name="Unknown"
+        if (not se_instances.has_key(name)):
+            se_instances[name] = 0
+        se_instances[name] += 1
+    
+    se_types = []
+    for name in se_instances.keys():
+        row = [ name, se_instances[name] ]
+        se_types.append(row)
+
+
     breadcrumbs_list = [{'name':'Stats', 'url':'/gstat/stats/'}]
      
     return render_to_response('stats.html', {'stats_active': 1,
@@ -58,6 +74,7 @@ def main(request, type='GRID', value='ALL', output=None):
                                              'value' :  value,
                                              'data': data,
                                              'versions': versions,
+                                             'se_types': se_types,
                                              'os': os})
 
 
