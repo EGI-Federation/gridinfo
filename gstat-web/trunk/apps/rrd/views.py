@@ -254,8 +254,8 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
             cdef_total.append(vname_total)
             cdef_used.append(vname_used)
         else:
-            cdef_total += ['TIME', str(int(time.time())-600), 'GT', vname_total, vname_total, 'UN', '0', vname_total, 'IF', 'IF']
-            cdef_used += ['TIME', str(int(time.time())-600), 'GT', vname_used, vname_used, 'UN', '0', vname_used, 'IF', 'IF']
+            cdef_total += ['TIME', str(int(time.time())-900), 'GT', vname_total, vname_total, 'UN', '0', vname_total, 'IF', 'IF']
+            cdef_used += ['TIME', str(int(time.time())-900), 'GT', vname_used, vname_used, 'UN', '0', vname_used, 'IF', 'IF']
         if count != 1:
             cdef_total.append('+')
             cdef_used.append('+')
@@ -328,8 +328,8 @@ def cpu_graph_cmd(uniqueids, start_time, site_name='', small=False):
             cdef_physical.append(vname_physical)
             cdef_logical.append(vname_logical)
         else:
-            cdef_physical += ['TIME', str(int(time.time())-600), 'GT', vname_physical, vname_physical, 'UN', '0', vname_physical, 'IF', 'IF']
-            cdef_logical += ['TIME', str(int(time.time())-600), 'GT', vname_logical, vname_logical, 'UN', '0', vname_logical, 'IF', 'IF']
+            cdef_physical += ['TIME', str(int(time.time())-900), 'GT', vname_physical, vname_physical, 'UN', '0', vname_physical, 'IF', 'IF']
+            cdef_logical += ['TIME', str(int(time.time())-900), 'GT', vname_logical, vname_logical, 'UN', '0', vname_logical, 'IF', 'IF']
         if count != 1:
             cdef_physical.append('+')
             cdef_logical.append('+')
@@ -461,9 +461,9 @@ def job_graph_cmd(level, vocluster_dict, start_time, site_name='', small=False):
                 cdef_running.append(vname_running)
                 cdef_waiting.append(vname_waiting)
             else:
-                cdef_total   += ['TIME', str(int(time.time())-600), 'GT', vname_total,   vname_total,   'UN', '0', vname_total,   'IF', 'IF']
-                cdef_running += ['TIME', str(int(time.time())-600), 'GT', vname_running, vname_running, 'UN', '0', vname_running, 'IF', 'IF']
-                cdef_waiting += ['TIME', str(int(time.time())-600), 'GT', vname_waiting, vname_waiting, 'UN', '0', vname_waiting, 'IF', 'IF']
+                cdef_total   += ['TIME', str(int(time.time())-900), 'GT', vname_total,   vname_total,   'UN', '0', vname_total,   'IF', 'IF']
+                cdef_running += ['TIME', str(int(time.time())-900), 'GT', vname_running, vname_running, 'UN', '0', vname_running, 'IF', 'IF']
+                cdef_waiting += ['TIME', str(int(time.time())-900), 'GT', vname_waiting, vname_waiting, 'UN', '0', vname_waiting, 'IF', 'IF']
             if count != 1:
                 cdef_total.append('+')
                 cdef_running.append('+')
@@ -567,8 +567,8 @@ def vo_storage_graph_cmd(level, vose_dict, attribute, start_time, site_name='', 
                 cdef_total.append(vname_total)
                 cdef_used.append(vname_used)
             else:
-                cdef_total += ['TIME', str(int(time.time())-600), 'GT', vname_total, vname_total, 'UN', '0', vname_total, 'IF', 'IF']
-                cdef_used  += ['TIME', str(int(time.time())-600), 'GT', vname_used,  vname_used,  'UN', '0', vname_used,  'IF', 'IF']
+                cdef_total += ['TIME', str(int(time.time())-900), 'GT', vname_total, vname_total, 'UN', '0', vname_total, 'IF', 'IF']
+                cdef_used  += ['TIME', str(int(time.time())-900), 'GT', vname_used,  vname_used,  'UN', '0', vname_used,  'IF', 'IF']
             if count != 1:
                 cdef_total.append('+')
                 cdef_used.append('+')

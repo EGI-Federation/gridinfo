@@ -226,8 +226,8 @@ def get_services(site_list, service_type=None):
 def get_vo_site_service(vo_name, service_type):
     
     # vo_to_site_mapping[vo][service] = [site]
-    site_service_rlp = Entityrelationship.objects.select_related('object').filter(predicate = 'SiteService', object__type=service_type)
-    service_vo_rlp = Entityrelationship.objects.select_related('subject').filter(predicate = 'ServiceVO', subject__type=service_type, object__uniqueid=vo_name)
+    site_service_rlp = Entityrelationship.objects.select_related('subject', 'object').filter(predicate = 'SiteService', object__type=service_type)
+    service_vo_rlp = Entityrelationship.objects.select_related('subject', 'object').filter(predicate = 'ServiceVO', subject__type=service_type, object__uniqueid=vo_name)
 
     service_to_site_mapping = {}
     # {"service_uniqueid": "site_name"}
@@ -589,7 +589,8 @@ def sort_objects_by_attr(object_list, attribute):
 
 def get_status_for_sites(site_list):
     nagios_status = get_nagios_status_dict()
-    relationships = Entityrelationship.objects.select_related('subject', 'object').filter(predicate = 'SiteService',  subject__in = site_list, object__type='bdii_top') | Entityrelationship.objects.select_related('subject', 'object').filter(predicate = 'SiteService',  subject__in = site_list, object__type='bdii_site')
+    #relationships = Entityrelationship.objects.select_related('subject', 'object').filter(predicate = 'SiteService',  subject__in = site_list, object__type='bdii_top') | Entityrelationship.objects.select_related('subject', 'object').filter(predicate = 'SiteService',  subject__in = site_list, object__type='bdii_site')
+    relationships = Entityrelationship.objects.select_related('subject', 'object').filter(predicate = 'SiteService',  subject__in = site_list, object__type__in=['bdii_top', 'bdii_site']) 
     site_bdii = {}
     for relation in relationships:
         site_id = relation.subject.uniqueid
