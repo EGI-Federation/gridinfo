@@ -61,29 +61,23 @@ def overview(request, site_name):
 
     # Calculate how many minutes ago the information is updated
     last_update = 0
-    minutes_ago = 0
     if site_entity:
         last_update = time.mktime(time.strptime(str(site_entity.updated_at), "%Y-%m-%d %H:%M:%S"))
-        minutes_ago = int((time.mktime(time.localtime()) - time.mktime(time.strptime(str(site_entity.updated_at), "%Y-%m-%d %H:%M:%S")))/60)
-
+    
     # Calculate the CPU numbers through all SubCluster
     installed_capacity = {}
     sub_cluster_list = get_gluesubclusters(service_list)
+    physical_cpu, logical_cpu = "N/A", "N/A"
     if sub_cluster_list:
         physical_cpu, logical_cpu = get_installed_capacity_cpu(sub_cluster_list)
-
-    else:
-        physical_cpu, logical_cpu = "N/A", "N/A"
     installed_capacity['physicalcpus'] = physical_cpu
     installed_capacity['logicalcpus']  = logical_cpu
     
     # Calculate the storage space through all SE
     se_list = get_glueses(service_list)
+    totalonlinesize, usedonlinesize, totalnearlinesize, usednearlinesize = "N/A", "N/A", "N/A", "N/A"
     if se_list:
         totalonlinesize, usedonlinesize, totalnearlinesize, usednearlinesize = get_installed_capacity_storage(se_list)
-    else:
-        totalonlinesize, usedonlinesize, totalnearlinesize, usednearlinesize = "N/A", "N/A", "N/A", "N/A"
-
     installed_capacity['totalonlinesize']   = totalonlinesize
     installed_capacity['usedonlinesize']    = usedonlinesize
     installed_capacity['totalnearlinesize'] = totalnearlinesize
@@ -139,15 +133,15 @@ def overview(request, site_name):
     sorted_list.sort()
     vo_resources = [dict_ for (key, dict_) in sorted_list]
     
-    return render_to_response('overview.html', {'site_name'           : site_name,
-                                                'gluesite'           : gluesite,
-                                                'status_list_top'    : status_list_top,
-                                                'status_list_site'   : status_list_site,
-                                                'count_dict'         : count_dict,
-                                                'last_update'        : last_update,
-                                                'minutes_ago'        : minutes_ago,
-                                                'installed_capacity' : installed_capacity,
-                                                'vo_resources'       : vo_resources})
+    return render_to_response('overview.html', 
+                              {'site_name'          : site_name,
+                               'gluesite'           : gluesite,
+                               'status_list_top'    : status_list_top,
+                               'status_list_site'   : status_list_site,
+                               'count_dict'         : count_dict,
+                               'last_update'        : last_update,
+                               'installed_capacity' : installed_capacity,
+                               'vo_resources'       : vo_resources})
     
 def status(request, site_name, type_name, host_name, check_name):
     site_entity = get_unique_entity(site_name, 'Site')
@@ -206,8 +200,7 @@ def treeview(request, site_name, type, attribute=""):
     collapse[type] = "expanded"
 
     # Get subtree of TOP BDIIs and associated Nagios check names for testing results
-    # {"top bdii hostname": ["check list"]}
-    # ["top bdii hostname", ["check list"]]
+    # ("top bdii hostname", ("check list"))
     nagios_status = get_nagios_status_dict()   
     
     tree_topbdii = []
@@ -225,8 +218,7 @@ def treeview(request, site_name, type, attribute=""):
                 collapse[hostname_expand] = "expanded"
         
     # Get subtree of Site BDIIs and associated Nagios check names for testing results
-    # {"site bdii hostname": ["check list"]}
-    # ["site bdii hostname", ["check list"]]
+    # ("site bdii hostname", ("check list"))
     tree_sitebdii = []
     if sitebdii_list:
         hostnames_sitebdii = [sitebdii.hostname for sitebdii in sitebdii_list]
@@ -242,8 +234,7 @@ def treeview(request, site_name, type, attribute=""):
                 collapse[hostname_expand] = "expanded"
 
     # Get subtree of Clusters and associated SubClusters for static cpu numbers
-    # {"cluster hostname": ["subcluster list"]}
-    # ["cluster hostname", ["subcluster list"]]
+    # ("cluster hostname", ("subcluster list"))
     tree_cluster_cpu = []
     if ce_list:
         for cluster in ce_list:
@@ -256,8 +247,7 @@ def treeview(request, site_name, type, attribute=""):
     dict_vo = {}
     
     # Get subtree of Clusters and supported VOs for job numbers
-    # {"cluster hostname": ["vo list"]}
-    # ["cluster hostname", ["vo list"]]
+    # ("cluster hostname", ("vo list"))
     
     """
     queues = {}
@@ -299,8 +289,7 @@ def treeview(request, site_name, type, attribute=""):
                     dict_vo[vo] = [[cluster.hostname], []]
     
     # Get subtree of SEs and supported VOs for static and shared storage space
-    # {"se hostname": ["vo list"]}
-    # ["se hostname", ["vo list"]]
+    # ("se hostname", ("vo list"))
     tree_se = []
     if se_list:
         for se in se_list:
@@ -318,8 +307,7 @@ def treeview(request, site_name, type, attribute=""):
                         
             
     # Get subtree of service type and associated Services
-    # {"service type": ["service list"]}
-    # ["service type", ["service list"]]
+    # ("service type", ("service list"))
     tree_service = []
     dict_service = {}
     if others_list:
@@ -335,7 +323,7 @@ def treeview(request, site_name, type, attribute=""):
         tree_service.append( (key, tuple(sorted(dict_service[key]))) )
     
     # Get subtree of VO and shared resource
-    # ["vo", [["cluster list"], ["se list"]]]
+    # ("vo", ("cluster list"), ("se list"))
     tree_vo = []
     keys = dict_vo.keys()
     keys.sort()
@@ -374,47 +362,14 @@ def treeview(request, site_name, type, attribute=""):
         # e.g. /gstat/rrd/VOSite/CERN-PROD/alice/nearline/
         url = "/".join(["", "gstat", "rrd", "VOSite", site_name, attribute, "nearline"])
 
-    return render_to_response('treeview_site.html', {'site_name':        site_name,
-                                                'collapse':         collapse,
-                                                'tree_topbdii':     tree_topbdii,
-                                                'tree_sitebdii':    tree_sitebdii,
-                                                'tree_cluster_cpu': tree_cluster_cpu,
-                                                'tree_cluster_job': tree_cluster_job,
-                                                'tree_se':          tree_se,
-                                                'tree_service':     tree_service,
-                                                'tree_vo':          tree_vo,
-                                                'url':              url})
-
-    """"
-    # Get testing results from TOP BDII    
-    nagios_status = get_nagios_status_dict()   
-    
-    status_list_topbdii = []
-    if not topbdii_list:
-        hostnames_topbdii = [topbdii.hostname for topbdii in topbdii_list]
-        hostnames_all_topbdii = get_hosts_from_aliases(hostnames_topbdii)        
-        for hostname in hostnames_all_topbdii:
-            status_list_topbdii.append( get_nagios_status(nagios_status, 'check-bdii-freshness', hostname) )
-            status_list_topbdii.append( get_nagios_status(nagios_status, 'check-bdii-sites',     hostname) )
-        
-    # Get testing results from Site BDII  
-    status_list_sitebdii = []
-    if not sitebdii_list:
-        hostnames_sitebdii = [sitebdii.hostname for sitebdii in sitebdii_list]
-        hostnames_all_sitebdii = get_hosts_from_aliases(hostnames_sitebdii)   
-        for hostname in hostnames_all_sitebdii:
-            status_list_sitebdii.append( get_nagios_status(nagios_status, 'check-bdii-freshness', hostname) )
-            status_list_sitebdii.append( get_nagios_status(nagios_status, 'check-bdii-services',  hostname) )
-            status_list_sitebdii.append( get_nagios_status(nagios_status, 'check-ce',             hostname) )
-            status_list_sitebdii.append( get_nagios_status(nagios_status, 'check-sanity',         hostname) )
-            status_list_sitebdii.append( get_nagios_status(nagios_status, 'check-se',             hostname) )
-            status_list_sitebdii.append( get_nagios_status(nagios_status, 'check-service',        hostname) )
-            status_list_sitebdii.append( get_nagios_status(nagios_status, 'check-site',           hostname) )
-    
-    # Sort status list
-    unsorted_list = status_list_sitebdii
-    sorted_list = [(dict['hostname'], dict) for dict in unsorted_list]
-    sorted_list.sort()
-    result_list = [dict for (hostname, dict) in sorted_list]
-    status_list_sitebdii = result_list   
-    """
+    return render_to_response('treeview_site.html', 
+                              {'site_name':        site_name,
+                               'collapse':         collapse,
+                               'tree_topbdii':     tree_topbdii,
+                               'tree_sitebdii':    tree_sitebdii,
+                               'tree_cluster_cpu': tree_cluster_cpu,
+                               'tree_cluster_job': tree_cluster_job,
+                               'tree_se':          tree_se,
+                               'tree_service':     tree_service,
+                               'tree_vo':          tree_vo,
+                               'url':              url})

@@ -506,7 +506,6 @@ def get_nagios_status_str(current_state, has_been_checked):
     else:                           return 'N/A'
 
 def get_nagios_status(nagios_status, check, hostname):
-
     status_dict = {'hostname': hostname,
                    'current_state': 'N/A'}
     if ( nagios_status.has_key(hostname) ) :
@@ -545,7 +544,6 @@ def get_hostname(uniqueid):
     return hostname
 
 def get_hosts_from_alias(hostname):
-    
     hosts = []
     try:
         ips = socket.gethostbyname_ex(hostname)[2]
@@ -590,7 +588,6 @@ def sort_objects_by_attr(object_list, attribute):
     return result_list
 
 def get_status_for_sites(site_list):
-    
     nagios_status = get_nagios_status_dict()
     relationships = Entityrelationship.objects.select_related('subject', 'object').filter(predicate = 'SiteService',  subject__in = site_list, object__type='bdii_top') | Entityrelationship.objects.select_related('subject', 'object').filter(predicate = 'SiteService',  subject__in = site_list, object__type='bdii_site')
     site_bdii = {}
@@ -600,11 +597,9 @@ def get_status_for_sites(site_list):
             site_bdii[site_id] = []
             site_bdii[site_id].append(relation.object.hostname)
     data = {}
-    
     for site in site_list:
-        
         site_id = site.uniqueid
-        site_status = -1
+        site_status = 'N/A'
         if site_bdii.has_key(site_id):
             hostnames = site_bdii[site_id]
             overall_status = -1
@@ -619,7 +614,6 @@ def get_status_for_sites(site_list):
                             overall_status = status
                         if has_been_checked == 0:
                             checked = 0
-                
             site_status = get_nagios_status_str(overall_status, checked)
         data[site_id] = site_status
 
