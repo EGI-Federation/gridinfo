@@ -313,7 +313,7 @@ def get_service_VO():
             vo = vo.split('/')[1]
         if ( not vo == None ):
             # clean up the vo name
-            vo.strip().lower()
+            vo = vo.strip().lower()
             if (vo == ""): vo = 'unidentified'
             
             if ( not entity_store.has_key(vo) ):
