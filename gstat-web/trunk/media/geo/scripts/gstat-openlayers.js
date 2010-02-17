@@ -101,7 +101,7 @@ function onFeatureSelect(event) {
     var selectedFeature = feature;
     var msg = "<h2>" + feature.attributes.name + "</h2>" +
             '<p>' + feature.attributes.description + '</p>' + 
-            '<p><a href="/gstat/site/' + feature.attributes.name + '">Summary View</a></p>';
+            '<p><a href="/gstat/site/' + feature.attributes.name + '">Site View</a></p>';
     var popup = new OpenLayers.Popup.FramedCloud("chicken", 
         feature.geometry.getBounds().getCenterLonLat(),
         new OpenLayers.Size(100,100), msg,
