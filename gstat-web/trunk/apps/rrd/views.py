@@ -244,7 +244,7 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
     cdef_used = []
     count = 0
     for uniqueid in uniqueids:
-        rrd_file = '%s/%s/%s.rrd' %(rrd_dir, str(uniqueid).replace('/',''), attribute)
+        rrd_file = '%s/%s/storage.rrd' %(rrd_dir, str(uniqueid).replace('/',''))
         if(not os.path.exists(rrd_file)):
             continue
         count += 1
@@ -557,7 +557,7 @@ def vo_storage_graph_cmd(level, vose_dict, attribute, start_time, site_name='', 
     for vo in vose_dict.keys():
         ses = vose_dict[vo]
         for se in ses:
-            rrd_file = '%s/%s/%s/%s.rrd' %(rrd_dir, str(vo).replace('/',''), str(se).replace('/',''), attribute)
+            rrd_file = '%s/%s/%s/storage.rrd' %(rrd_dir, str(vo).replace('/',''), str(se).replace('/',''))
             if(not os.path.exists(rrd_file)):
                 continue
             count += 1
