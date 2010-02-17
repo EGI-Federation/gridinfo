@@ -88,9 +88,9 @@ def createArchive(archive_dir, archive_path, archive_type, archive_period, data_
             " DS:%s:%s:%s:U:U" % (data_name, archive_type, archive_period*2)
         create_cmd += \
             " RRA:AVERAGE:0.5:1:1000"+\
-            " RRA:AVERAGE:0.5:6:1000"+\
-            " RRA:AVERAGE:0.5:24:1000"+\
-            " RRA:AVERAGE:0.5:288:1000"
+            " RRA:AVERAGE:0.5:2:1000"+\
+            " RRA:AVERAGE:0.5:8:1000"+\
+            " RRA:AVERAGE:0.5:96:1000"
             
         os.system(create_cmd)
         #print "create RRD: "+create_cmd+"\nResults: "+query_res
@@ -113,6 +113,7 @@ def archiveData(archive_path, data_list):
 # -----------------------------------------
 # -- GlueSE storage space size archiving --
 # -----------------------------------------
+#start_time_se=datetime.now()
 sub_data_dir='%s/SE' %(data_dir)
 createDir(sub_data_dir)
 
@@ -122,8 +123,7 @@ for obj in objects:
     if (not distinct.has_key(obj.uniqueid)):
         obj_unique_data_dir = '%s/%s' %(sub_data_dir, str(obj.uniqueid).replace('/',''))
         
-        datasources = {'online':   ['totalonlinesize', 'usedonlinesize'],
-                       'nearline': ['totalnearlinesize', 'usednearlinesize']}
+        datasources = {'storage':   ['totalonlinesize', 'usedonlinesize', 'totalnearlinesize', 'usednearlinesize']}
         
         for key in datasources.keys():
             obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, key)
@@ -132,7 +132,7 @@ for obj in objects:
             createArchive(archive_dir    = obj_unique_data_dir, 
                           archive_path   = obj_data_file, 
                           archive_type   = 'GAUGE', 
-                          archive_period = 600, 
+                          archive_period = 900, 
                           data_names     = datasources[key])
         
             # Store RRD data
@@ -146,10 +146,12 @@ for obj in objects:
             archiveData(archive_path = obj_data_file, 
                         data_list    = data_list)
             distinct[obj.uniqueid] = None
-            
+#print "Time taken (SE finished): %s" % str(datetime.now() - start_time_se)
+
 # ------------------------------------------
 # -- GlueSubCluster CPU numbers archiving --
 # ------------------------------------------
+#start_time_subcluster=datetime.now()
 sub_data_dir='%s/SubCluster' %(data_dir)
 createDir(sub_data_dir)
 
@@ -169,7 +171,7 @@ for obj in objects:
             createArchive(archive_dir    = obj_unique_data_dir, 
                           archive_path   = obj_data_file, 
                           archive_type   = 'GAUGE', 
-                          archive_period = 600, 
+                          archive_period = 900, 
                           data_names     = datasources[key])
         
             # Store RRD data
@@ -183,43 +185,29 @@ for obj in objects:
             archiveData(archive_path = obj_data_file, 
                         data_list    = data_list)            
             distinct[obj.uniqueid] = None
-
+#print "Time taken (SubCluster finished): %s" % str(datetime.now() - start_time_subcluster)
 
 # -------------------------------------------------
 # -- GlueVOView job numbers archiving (VO-based) --
 # -------------------------------------------------
+#start_time_vo_job=datetime.now()
 sub_data_dir='%s/VO' %(data_dir)
 createDir(sub_data_dir)
 
 # Create CE to Cluster mapping
+#start_time_get_cetoclustermapping=datetime.now()
 ce_to_cluster_mapping= {}
 objects = gluece.objects.all()
 for object in objects:
     if ( not ce_to_cluster_mapping.has_key(object.uniqueid) ):
          ce_to_cluster_mapping[object.uniqueid] = object.gluecluster_fk
+#print "Time taken (get ce_to_cluster_mapping): %s" % str(datetime.now() - start_time_get_cetoclustermapping)
 
-"""
-# Create VO to VOView Mapping
-vo_to_voview_mapping = {}
-objects = gluemultivalued.objects.filter(attribute='GlueCEAccessControlBaseRule')
-for object in objects:
-    if ( object.localid == "" ):
-        continue
-    
-    if ( object.value[:3] == "VO:" ):
-        vo = object.value[3:]
-    elif ( object.value[:5] == "VOMS:" ):
-        vo = object.value[5:]
-        vo = vo.split('/')[1]
-        
-    if vo.strip() == '': continue
-        
-    if ( not vo_to_voview_mapping.has_key(object.uniqueid) ):
-        vo_to_voview_mapping[object.uniqueid] = {}
-    vo_to_voview_mapping[object.uniqueid][object.localid] = vo
-"""
+#start_time_get_votovoviewmapping=datetime.now()
 vo_to_voview_mapping = get_vo_to_voview_mapping()
+#print "Time taken (get vo_to_voview_mapping): %s" % str(datetime.now() - start_time_get_votovoviewmapping)
 
+#start_time_get_voviewjobnumber=datetime.now()
 data = {}
 datasources = {'job':   ['totaljobs', 'runningjobs', 'waitingjobs']}
 # Store Total, Running, Waiting Jobs
@@ -246,7 +234,9 @@ for voview in objects:
         value = voview.__getattribute__(attr)
         if (attr == "waitingjobs" and value == "444444"): value = "0"
         data[cluster][vo][datasources['job'].index(attr)] += convert_to_integer(value)    
+#print "Time taken (get voview job number): %s" % str(datetime.now() - start_time_get_voviewjobnumber)
         
+#start_time_archive_data=datetime.now()
 for cluster in data.keys():
     for vo in data[cluster].keys():
         try:
@@ -261,7 +251,7 @@ for cluster in data.keys():
                 createArchive(archive_dir    = obj_unique_data_dir, 
                               archive_path   = obj_data_file, 
                               archive_type   = 'GAUGE', 
-                              archive_period = 600, 
+                              archive_period = 900, 
                               data_names     = datasources[key])
             
                 # Store RRD data
@@ -271,45 +261,25 @@ for cluster in data.keys():
             
         except KeyError:
           pass
-
+#print "Time taken (archive data): %s" % str(datetime.now() - start_time_archive_data)
+#print "Time taken (VO Job finished): %s" % str(datetime.now() - start_time_vo_job)
 
 # ----------------------------------------------------
 # -- GlueSA storage space size archiving (VO-based) --
 # ----------------------------------------------------
+#start_time_vo_storage=datetime.now()
 sub_data_dir='%s/VO' %(data_dir)
 createDir(sub_data_dir)
 
-"""
-# Create VO to SA Mapping
-vo_to_sa_mapping = {}
-objects = gluemultivalued.objects.filter(attribute='GlueSAAccessControlBaseRule')
-for object in objects:
-    # extract the vo name
-    if ( object.value[:3] == "VO:" ):
-        if len(object.value.split('/')) > 1:
-            continue
-        vo = object.value[3:]
-    elif ( object.value[:5] == "VOMS:" ):
-        vo = object.value[5:]
-        vo = vo.split('/')[1]
-    else:
-        if len(object.value.split('/')) > 1:
-            continue
-        vo = object.value
-    
-    if vo.strip() == '': continue
-    
-    if ( not vo_to_sa_mapping.has_key(object.uniqueid) ):
-        vo_to_sa_mapping[object.uniqueid] = {}
-    vo_to_sa_mapping[object.uniqueid][object.localid] = vo
-"""
+#start_time_get_votosamapping=datetime.now()
 vo_to_sa_mapping = get_vo_to_sa_mapping()
+#print "Time taken (get vo_to_sa_mapping): %s" % str(datetime.now() - start_time_get_votosamapping)
 
+#start_time_get_sastoragespace=datetime.now()
 data = {}
 # A ds-name must be 1 to 19 characters long in the characters [a-zA-Z0-9_].
 # consequently, too long attribute name is not allowed.
-datasources = {'online':   ['totalonlinesize', 'usedonlinesize'],
-               'nearline': ['totalnearlinesize', 'usednearlinesize']}
+datasources = {'storage':   ['totalonlinesize', 'usedonlinesize', 'totalnearlinesize', 'usednearlinesize']}
 # Store Total, Used, Reserved storage space
 objects = gluesa.objects.all()
 for sa in objects:
@@ -326,13 +296,15 @@ for sa in objects:
         if ( not data[se].has_key(vo) ):
             data[se][vo] = {}
         if ( not data[se][vo].has_key(key) ):   
-            data[se][vo][key] = [0,0]        
+            data[se][vo][key] = [0,0,0,0]        
         
         for attr in datasources[key]:
             value = sa.__getattribute__(attr)
             if (value != "999999"): 
                 data[se][vo][key][datasources[key].index(attr)] += convert_to_integer(value)    
+#print "Time taken (get sa storage space): %s" % str(datetime.now() - start_time_get_sastoragespace)
         
+#start_time_archivedata=datetime.now()
 for se in data.keys():
     for vo in data[se].keys():
         try:
@@ -347,7 +319,7 @@ for se in data.keys():
                 createArchive(archive_dir    = obj_unique_data_dir, 
                               archive_path   = obj_data_file, 
                               archive_type   = 'GAUGE', 
-                              archive_period = 600, 
+                              archive_period = 900, 
                               data_names     = datasources[key])
             
                 # Store RRD data
@@ -357,7 +329,8 @@ for se in data.keys():
             
         except KeyError:
           pass
-
+#print "Time taken (archive data): %s" % str(datetime.now() - start_time_archivedata)
+#print "Time taken (VO Storage finished): %s" % str(datetime.now() - start_time_vo_storage)
 # Get time taken for the archiving
 log.info("Time taken: %s" % str(datetime.now() - start_time))
 
