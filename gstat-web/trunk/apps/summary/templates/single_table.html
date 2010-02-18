@@ -26,15 +26,16 @@
 $(document).ready(function() {
     var url = document.URL.split("/gstat/summary/")[1];
     if (url[url.length-1] == '/') url = url.slice(0,length-1);
-    if (url.split("/").length == 2) $('#sites_or_status').text('Monitoring Status');
+    if (url.split("/").length == 2) $('#sites_or_status').text('Status');
     else $('#sites_or_status').text('Sites'); 
     
     filtertype = document.getElementById('filtertype')
     filtertype.value = "{{ type }}";
+    if (filtertype.value=="VO") 
+        changeTooltip();
     try {
         loadJSONDoc("/gstat/core/filter/" + "{{ type }}");
-    }
-    catch(e) {
+    } catch(e) {
         var msg = (typeof e == "string") ? e : ((e.message) ? e.message : "Unknown Error");
         alert("Unable to get JSON data:\n" + msg);
         return;
@@ -61,19 +62,20 @@ $(document).ready(function() {
         <th rowspan=2>Name</th>
         <th rowspan=2 id="sites_or_status">Sites</th>
         <th colspan=2 align="center">CPUs</th>
-        <th colspan=4 align="center">Storage Space (GB)</th>
+        <th colspan=2 align="center">Online Storage Space (GB)</th>
+        <th colspan=2 align="center">Nearline Storage Space (GB)</th>
         <th colspan=3 align="center">Grid Jobs</th>
       </tr>
       <tr>
-        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[The sum of GlueSubClusterPhysicalCPUs over all SubClusters]">Physical</div></th>
-        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[The sum of GlueSubClusterLogicalCPUs over all SubClusters]">Logical</div></th>
-        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[The sum of GlueSETotalOnlineSize over all SEs]">TotalOnline</div></th>
-        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[GlueSEUsedOnlineSize / GlueSETotalOnlineSize]">UsedOnline</div></th>
-        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[The sum of GlueSETotalNearlineSize over all SEs]">TotalNearline</div></th>
-        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[GlueSEUsedNearlineSize / GlueSETotalNearlineSize]">UsedNearline</div></th>
-        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[The sume of GlueCEStateTotalJobs over all VOViews]">Total</div></th>
-        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[GlueCEStateRunningJobs / GlueSubClusterLogicalCPUs]">Running</div></th>
-        <th><div class="tooltip" title="header=[How does GStat calculate it?] body=[GlueCEStateWaitingJobs / GlueCEStateTotalJobs]">Waiting</div></th>
+        <th><div id="physicalcpu"   class="tooltip" title="header=[How does GStat calculate it?] body=[The sum of PhysicalCPUs over all SubClusters]">Physical</div></th>
+        <th><div id="logicalcpu"    class="tooltip" title="header=[How does GStat calculate it?] body=[The sum of LogicalCPUs over all SubClusters]">Logical</div></th>
+        <th><div id="totalonline"   class="tooltip" title="header=[How does GStat calculate it?] body=[The sum of TotalOnlineSize over all SEs]">TotalSize</div></th>
+        <th><div id="usedonline"    class="tooltip" title="header=[How does GStat calculate it?] body=[Divide the sum of UsedOnlineSize over all SEs by the sum of TotalOnlineSize over all SEs]">UsedSize</div></th>
+        <th><div id="totalnearline" class="tooltip" title="header=[How does GStat calculate it?] body=[The sum of TotalNearlineSize over all SEs]">TotalSize</div></th>
+        <th><div id="usednearline"  class="tooltip" title="header=[How does GStat calculate it?] body=[Divide the sum of UsedNearlineSize over all SEs by the sum of TotalNearlineSize over all SEs]">UsedSize</div></th>
+        <th><div id="totaljob"      class="tooltip" title="header=[How does GStat calculate it?] body=[The sum of TotalJobs over all VOViews]">Total</div></th>
+        <th><div id="runningjob"    class="tooltip" title="header=[How does GStat calculate it?] body=[Divide the sum of RunningJobs over all VOViews by the sum of LogicalCPUs over all SubClusters]">Running</div></th>
+        <th><div id="waitingjob"    class="tooltip" title="header=[How does GStat calculate it?] body=[Divide the sum of WaitingJobs over all VOViews by the sum of TotalJobs over all VOViews]">Waiting</div></th>
       </tr>
     </thead>
     <tbody>

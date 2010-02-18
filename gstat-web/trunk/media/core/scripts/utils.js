@@ -1,6 +1,8 @@
 
 function CommaFormatted(amount)
-{
+{   
+    var isInt=parseInt(amount);
+    if (isNaN(isInt)) return amount; 
     if (amount == 0) return amount;
     amount=amount.toString().replace(/^0+/, ''); 
 	amount += '';
