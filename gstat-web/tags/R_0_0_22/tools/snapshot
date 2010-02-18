@@ -1,0 +1,455 @@
+#!/usr/bin/python
+##############################################################################
+# Copyright (c) Members of the EGEE Collaboration. 2004.
+# See http://www.eu-egee.org/partners/ for details on the copyright
+# holders.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at #
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS
+# OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+#
+# NAME :        snapshot
+#
+# DESCRIPTION : This script takes a snapshot of an LDAP server using GLUE 1.3
+#
+# AUTHORS :     Laurence.Field@cern.ch
+#               David.Horat@cern.ch
+#
+# EXAMPLE :     ./snapshot -h lcg-bdii.cern.ch -p 2170 -b o=grid
+#
+##############################################################################
+
+import os, re, sys, getopt, string, logging
+from datetime import datetime
+
+# Import django gstat app to use its data models
+DIR = os.path.dirname(__file__)
+APPS_DIR = os.path.join(DIR, '..','apps')
+sys.path.append(APPS_DIR)
+os.environ['DJANGO_SETTINGS_MODULE']='core.settings'
+from django.conf import settings
+from django.db import transaction
+modulename='glue.models'
+__import__(modulename)
+module=sys.modules[modulename]
+start_time=datetime.now()
+
+# Funtion to print out the usage to the log
+def usage():
+    sys.stderr.write('Usage: %s [OPTIONS] -h host -p port -b bind \n' % (sys.argv[0]))
+    sys.stderr.write('''
+-h --host      Hostname of the LDAP server.
+-p --port      Port for the LDAP server.
+-b --bind      The bind point for the LDAP server.
+
+Options:
+-d --debug     Debug level: 0(errors), 1(warnings), 2(info), 3(debug), default 2
+-u --update    Update dynamic values only.
+
+''')
+    
+# Parse input parameters using getopt and assign to config hash
+config={}
+config['debug'] = 2
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "h:p:b:d:u", ["host=","port", "bind", "debug","update"])
+except getopt.GetoptError:
+    sys.stderr.write("Error: Invalid option specified.\n")
+    usage()
+    sys.exit(2)
+for o, a in opts:
+    if o in ("-h", "--host"):
+        config['host'] = a
+    if o in ("-p", "--port"):
+        config['port'] = a
+    if o in ("-b", "--bind"):
+        config['bind'] = a
+    if o in ("-d", "--debug"):
+        config['debug'] = a
+    if o in ("-u", "--update"):
+        config['filter'] = "'(|(objectClass=GlueVOView)(objectClass=GlueCE))' objectClass GlueCEStateRunningJobs GlueCEStateWaitingJobs GlueCEStateTotalJobs GlueCEStateFreeJobSlots GlueCEStateEstimatedResponseTime GlueCEStateWorstResponseTime"
+
+# Check debug level
+config['debug'] = int(config['debug'])
+if (config['debug'] > 3):
+    sys.stderr.write("Error: Invalid logging level.\n")
+    usage()
+    sys.exit(1)
+config['debug'] = ( 4 - int(config['debug'])) * 10
+
+# Set logging
+log = logging.getLogger(sys.argv[0])
+hdlr = logging.StreamHandler(sys.stderr)
+formatter = logging.Formatter('[%(levelname)s]: %(message)s')
+hdlr.setFormatter(formatter)
+log.addHandler(hdlr)
+log.setLevel(config['debug'])
+
+log.debug("Checking input parameters ...")
+for attribute in [ 'host', 'port','bind']:
+    if ( not config.has_key(attribute) ):
+        log.error("Mandatory argument %s was not specified.\n" % (attribute))
+        usage()
+        sys.exit(1)
+
+log.debug("Preparing a number of variables")
+
+# Create the lists to store the database commands and the multivalues
+command=[]
+multivalues=[]
+
+# Set alias for performance reasons
+appendc = command.append
+find=string.find
+join=string.join
+replace=string.replace
+
+prefixes=['GlueCEInfo',
+          'GlueCEPolicy',
+          'GlueCEState',
+          'GlueSAPolicy',
+          'GlueSAState',
+          'GlueService',
+          'GlueCESEBindCE',
+          'GlueHost',
+          'GlueSEState'
+          ]
+
+objects={ 'GlueCE' : None,
+          'GlueCESEBind' : None,
+          'GlueCESEBindGroup' : None,
+          'GlueCluster' : None,
+          'GlueLocation' : None,
+          'GlueSA' : None,
+          'GlueSE' : None,
+          'GlueSEAccessProtocol' : None,
+          'GlueSEControlProtocol' : None,
+          'GlueService' : None,
+          'GlueServiceData' : None,
+          'GlueSite' : None,
+          'GlueSL' : None,
+          'GlueSoftware' : None,
+          'GlueSubCluster' : None,
+          'GlueVOInfo' : None,
+          'GlueVOView' : None,
+          }
+
+ignore={ 'GlueCEInfoGRAMVersion' : None,
+# Chunk Keys are now processed
+#         'GlueChunkKey' : None,
+         'GlueClusterService' : None,
+#         'GlueForeignKey' : None,
+         'GlueHostProcessorVersion' : None,
+         'GlueInformationServiceURL' : None,
+         'GlueSchemaVersionMajor' : None,
+         'GlueSchemaVersionMinor' : None,
+         'GlueServiceInformationServiceURL' : None,
+         'Mds-Vo-name' : None,
+         }
+
+multivalued = {'GlueCEAccessControlBaseRule' : None,
+               'GlueCECapability' : None,
+               'GlueHostApplicationSoftwareRunTimeEnvironment' : None,
+               'GlueSAAccessControlBaseRule' : None,
+               'GlueSACapability' : None,
+               'GlueSEAccessProtocolCapability' : None,
+               'GlueSEAccessProtocolSupportedSecurity' : None,
+               'GlueSEControlProtocolCapability' : None,
+               'GlueServiceAccessControlBaseRule' : None,
+               'GlueServiceAccessControlRule' : None,
+               'GlueServiceOwner' : None,
+               'GlueSiteOtherInfo' : None,
+               'GlueSiteSponsor' : None,
+               'GlueVOInfoAccessControlBaseRule' : None,
+               }
+
+# Delete old entries from the database
+def delete_old_entries():
+    to_test = objects.copy()
+    to_test['gluemultivalued'] = None
+    # Process the rest of tables
+    for table_name in to_test:
+        inst = getattr(module, table_name.lower())
+        oldies = inst.objects.filter(updated_at__lt = start_time)
+        log.debug('Deleting entries from ' + table_name.lower())
+        for obj in oldies:
+            obj.delete()
+    transaction.commit()
+
+# Delete old entries from the database in raw SQL
+def delete_old_entries_raw():
+    from django.db import connection
+    cursor = connection.cursor()
+    to_test = objects.copy()
+    to_test['gluemultivalued'] = None
+    # Process the rest of tables
+    for table_name in to_test:
+        cursor.execute("DELETE FROM gstat.glue_"+table_name.lower()+" WHERE updated_at <= %s", [start_time])
+    transaction.commit()
+
+# Define function to process tuple
+def process_tuple(dn,tuple,table_name,multivalues):
+    global command
+    
+    # Hack for GlueVOInfo being GlueSA
+    if (table_name == "GlueSA"):
+        if ( tuple.has_key('Tag') ):
+            table_name="GlueVOInfo"
+
+    # Check for UniqueID and find one from the DN if it is not set
+    if ( not tuple.has_key('UniqueID') ):
+        dn=replace(dn,"\n","")
+        index=find(dn, "UniqueID=")
+        if ( index == -1):
+            if ( not "mds-vo-name" == dn[:11].lower()):
+                site = "Unknown"
+                for value in dn.split(","):
+                    index = value.find("=")
+                    attribute = value[:index]
+                    if (attribute.lower() == "mds-vo-name" ):
+                        site = value[index+1:]
+                        break
+                log.warn("Could not find a UniqueID for entry %s" % (dn))
+                return
+        else:
+            dn = dn[index+9:]
+            index=find(dn, ",")
+            tuple['UniqueID'] = dn[:index]
+
+        # Generate insert statments for multivalue attributes
+        if ( len(multivalues) > 0 ):
+            for line in multivalues:
+                attribute, value = line
+                gluemultivalued = getattr(module, 'gluemultivalued')()
+                gluemultivalued.uniqueid = tuple['UniqueID']
+                gluemultivalued.attribute = attribute
+                gluemultivalued.value = value
+                if ( tuple.has_key('GlueVOViewLocalID') ):
+                    gluemultivalued.localid = tuple['GlueVOViewLocalID']
+                if ( tuple.has_key('GlueSALocalID') ):
+                    gluemultivalued.localid = tuple['GlueSALocalID']
+                try:
+                    gluemultivalued.save()
+                except Exception, e:
+                    log.warn("%s, %s" % (dn,e) )
+        # Exceptions on the uniqueid
+        if ( table_name=='GlueLocation' or table_name=='GlueSoftware' or
+             table_name=='GlueVOView'): 
+            tuple['GlueCEUniqueID'] = tuple['UniqueID']
+            tuple.pop('UniqueID')
+        if ( table_name=='GlueSEAccessProtocol' or
+             table_name=='GlueSEControlProtocol' or
+             table_name=='GlueVOInfo' or
+             table_name=='GlueSA'):
+            tuple['GlueSEUniqueID'] = tuple['UniqueID']
+            tuple.pop('UniqueID')
+        if ( table_name=='GlueServiceData'): 
+            tuple['GlueServiceUniqueID'] = tuple['UniqueID']
+            tuple.pop('UniqueID')
+    
+        # Debug table name
+        if (table_name == ''): log.warn('Table empty')
+        else: log.debug(table_name)
+        
+        # Import models and create instance from the class
+        table_name_lower = table_name.lower()
+        inst = getattr(module, table_name_lower)()
+
+        # Iterate through all the keys and values and insert them        
+        for key in tuple:
+            # Check for special cases on the keys
+            keylower = key.lower()
+            if (keylower == 'uniqueid'):
+                methodName = keylower
+            elif (keylower == 'glueseuniqueid' and table_name_lower != 'gluese'):
+                methodName = keylower
+            elif (keylower == 'glueceuniqueid' and table_name_lower != 'gluece'):
+                methodName = keylower
+            elif (keylower == 'glueserviceuniqueid' and table_name_lower != 'glueservice'):
+                methodName = keylower
+            elif (keylower == 'gluechunkkey' or keylower == 'glueforeignkey'):
+                tmpvalue = tuple[key]
+                if (tmpvalue == 'unset' or tmpvalue == 'None'):
+                    continue
+                fkvalues = tmpvalue.split('=')
+                fktable = fkvalues[0][:fkvalues[0].find('UniqueID')]
+                methodName = fktable.lower() + '_fk'
+            else:
+                # Test each prefix to get rid of it
+                for prefix in prefixes:
+                    if (key.find(prefix) != -1):
+                        methodName = key[prefix.__len__():key.__len__()].lower()
+                        break
+                else:
+                    methodName = key[table_name.__len__():key.__len__()].lower()
+            # Check for special cases on the values
+            if (keylower == 'gluechunkkey' or keylower == 'glueforeignkey'):
+                try:
+                    value = fkvalues[1]
+                except Exception, e:
+                    log.warn('Wrong value for Key:' + key + '. Value:' + tuple[key] + ' in ' + table_name_lower + '.' + methodName)
+                    continue #sys.exit()
+            else:
+                value = tuple[key]
+            # Special case of floats with trailing # -> take it out
+            try:
+              if (value[value.__len__()-1] == '#'):
+                    value = value[0:value.__len__()-1]
+            except Exception, e:
+                log.warn(str(e) + ' Value: ' + value)
+            # Check if method exists
+            try:
+                getattr(inst, methodName)
+            except AttributeError:
+                if (keylower == 'gluechunkkey' or keylower == 'glueforeignkey'):
+                    log.warn(table_name_lower + '.' + methodName + ' does not exist. Key:' + key + '. Value:' + value)
+                    #sys.exit()
+                else:
+                    log.warn(table_name_lower + '.' + methodName + ' does not exist. Key:' + key + '. Value:' + tuple[key])
+                    #sys.exit()
+            else:
+                # Store the result
+                inst.__setattr__(methodName, value)
+
+        # Check ChunkKey presence and if not, take the relation from the dn
+        if (table_name_lower == 'glueservice' or 
+                table_name_lower == 'gluecluster' or 
+                table_name_lower == 'gluese'):
+            if ('GlueChunkKey' not in tuple):
+                dn2 = dn[dn.find('Mds-Vo-name')+12:]
+                value = dn2[:dn2.find(',')]
+                methodName = 'gluesite_fk'
+                try:
+                    getattr(inst, methodName)
+                except AttributeError:
+                    log.warn(table_name_lower + '.' + methodName + ' does not exist. Special ChunkKey from DN. Value:' + value)
+                inst.__setattr__(methodName, value)
+
+        # Save the object    
+        try:
+            inst.save()
+        except ValueError, e:
+            log.warn("%s" % (e))
+        except Exception, e:
+            log.warn("%s: %s, %s" % (table_name.lower(), dn, e))
+            #sys.exit()
+
+# Main function
+@transaction.commit_manually
+def main():
+    # Welcome
+    log.info('Welcome to the snapshot script')
+    log.info('Processing started ...')
+    
+    #Define variables required for the translation loop
+    table_name=""
+    tuple={}
+    attribute = "#"
+    
+    # Filter to use for debugging purposes
+    #config['filter']="objectClass=GlueCE"
+    
+    # Open pipe to ldapsearch command
+    ldap_command="ldapsearch -LLL -x -h %s -p %s -b %s" % (config['host'], config['port'], config['bind'])
+    if ( 'filter' in config ):
+        ldap_command=("%s %s") % (ldap_command, config['filter'])
+    pipe=os.popen(ldap_command)
+    
+    log.debug("Doing translation loop ... ")
+    for line in pipe:
+    
+        # Process tuple if new entry is found.
+        if ( line[:3] == "dn:"): 
+            if ( tuple.has_key('dn') ):
+                if ( objects.has_key(table_name) ):
+                    dn = tuple['dn']        
+                    tuple.pop('dn')
+                    process_tuple(dn,tuple,table_name,multivalues)
+    
+            # Set DN and reset loop variables    
+            tuple={}  
+            multivalues = []
+            table_name = ""
+            attribute = "#"
+            
+        # Deal with wrapped lines
+        if ( line[0] == " "):
+            # Remove the newline character
+            line=line.replace("\n","")
+            if ( tuple.has_key(attribute) ):
+                 tuple[attribute] += line[1:]
+            elif ( multivalued.has_key(attribute) and len(multivalues) > 0):
+                attribute, value = multivalues[len(multivalues) - 1]
+                value += line[1:]
+                multivalues.append( (attribute, value) )                        
+            continue
+        
+        # Ignore comments
+        if ( line[0] == "#" ):
+            attribute = "#"
+            continue
+    
+        index=line.find(":")
+                                                            
+        # Ignore blank lines
+        if ( index == -1):
+            continue
+    
+        # Remove the newline character
+        line=line.replace("\n","")
+    
+        # Split the attribute and value    
+        attribute=line[0:index] 
+        value=line[index+2:]
+        value=replace(value,"'","\\'")
+        
+        log.debug(line)
+        
+        # Find the table name if the attribute is an objectClass
+        if ( attribute == 'objectClass'): # Get table name 
+            if ( objects.has_key(value) ):
+                table_name = value
+        # Do the mapping
+        else:
+            if ( ignore.has_key(attribute)):
+                continue
+            # Add attribute and value to the multivalues list
+            elif ( multivalued.has_key(attribute)):
+                multivalues.append( (attribute, value) )
+            # Add attribute and value to the tuple
+            else:
+                try: 
+                    tuple[attribute] = value
+                except:
+                    log.warn("Attribute %s is not specified in the mapping file\n" % (e))
+    
+    # Process last entry
+    if ( tuple.has_key('dn') ):
+        dn = tuple['dn']
+        tuple.pop('dn')
+        process_tuple(dn,tuple,table_name,multivalues) 
+    
+    # Close the pipe for the ldapsearch
+    pipe.close()
+
+    # Finishing the transaction
+    log.info('Committing all changes to the database...')
+    transaction.commit()
+
+    # Delete old entries from the database
+    log.info('Deleting old entries...')
+    delete_old_entries_raw()
+    
+    # Get time taken for the translation
+    log.info("Time taken: %s" % str(datetime.now() - start_time))
+    
+main()
