@@ -1,5 +1,0 @@
-# Run snapshot if enabled
-*/15 * * * * root /usr/bin/gstat-update
-
-
-
