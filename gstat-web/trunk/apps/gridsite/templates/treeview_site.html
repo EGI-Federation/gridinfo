@@ -64,7 +64,9 @@
     <ul id="tree" class="filetree treeview">
       <li>
         <span class="folder">&nbsp;{{ site_name }}
+          {% if tree_sitebdii %}
             <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
+          {% endif %}
         </span>
         <ul>
           {% if tree_topbdii %}
@@ -176,7 +178,9 @@
                     
                     <li class='{{ collapse.subcluster_cpu|default:"closed" }}'>
                       <span class="ce">&nbsp; {{ cluster }} 
-                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
+                        {% if tree_sitebdii %}
+                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
+                        {% endif %}
                       </span>
                       <ul>
                         <li class='{{ collapse.subcluster_cpu|default:"closed" }}'>
@@ -186,7 +190,9 @@
 		                    <li>
 		                      <span class="ce">
 		                        <a target="frame" href="/gstat/rrd/SubCluster/{{ subcluster }}/cpu/">&nbsp;{{ subcluster }}</a>
-		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesubclusteruniqueid={{ subcluster }},glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
+		                        {% if tree_sitebdii %}
+		                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesubclusteruniqueid={{ subcluster }},glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
+		                        {% endif %}
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -211,7 +217,9 @@
                     <li class='closed'>
                       <span class="ce">
                         <a target="frame" href="/gstat/rrd/Cluster/{{ cluster }}/job/">&nbsp;{{ cluster }}</a>
-                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
+                        {% if tree_sitebdii %}
+                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
+                        {% endif %}
                       </span>
                       <ul>
                         <li class='closed'>
@@ -254,7 +262,9 @@
                     <li class='closed'>
                       <span class="se">
                         <a target="frame" href="/gstat/rrd/SE/{{ se }}/online/">&nbsp;{{ se }}</a>
-                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
+                        {% if tree_sitebdii %}
+                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
+                        {% endif %}
                       </span>
                       <ul>
                         <li class="closed">
@@ -284,7 +294,9 @@
                     <li class='closed'>
                       <span class="se">
                         <a target="frame" href="/gstat/rrd/SE/{{ se }}/nearline/">&nbsp;{{ se }}</a>
-                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
+                        {% if tree_sitebdii %}
+                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
+                        {% endif %}
                       </span>
                       <ul>
                         <li class='closed'>
@@ -321,7 +333,9 @@
                     {% for uniqueid in uniqueids %}
                     <li>
                       <span class="ce">&nbsp; {{ uniqueid }}
-                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueserviceuniqueid={{ uniqueid }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
+                        {% if tree_sitebdii %}
+                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueserviceuniqueid={{ uniqueid }},mds-vo-name={{ site_name }},o=grid" class="glue"> GLUE </a>
+                        {% endif %}
                       </span>
                     </li>
                     {% endfor %}
