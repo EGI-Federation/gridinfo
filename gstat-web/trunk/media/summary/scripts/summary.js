@@ -37,7 +37,6 @@ jQuery.fn.dataTableExt.oSort['num-html-desc'] = function(a,b) {
 	return ((x < y) ?  1 : ((x > y) ? -1 : 0));
 };
 
-
 var status = new Array();
 status['ok'] = 1;
 status['warning'] = 2;
@@ -198,17 +197,6 @@ function loadTable(event) {
                     waiting_job    += parseInt(eval(aaData[i][10].split("title=")[1].split(" ")[0]));
                 }
                 
-                /* Calculate the market share for browsers on this page */
-                //for ( var i=iStart ; i<iEnd ; i++ ) {
-                //  physical_cpu += aaData[aiDisplay[i]][2];
-                //  logical_cpu  += aaData[aiDisplay[i]][3];
-                //  total_space  += aaData[aiDisplay[i]][4];
-                //  used_space   += aaData[aiDisplay[i]][5];
-                //  total_job    += aaData[aiDisplay[i]][6];
-                //  running_job  += aaData[aiDisplay[i]][7];
-                //  waiting_job  += aaData[aiDisplay[i]][8];
-                //}
-                
                 var nCells = nRow.getElementsByTagName('th');
                 if (calculate_site) nCells[1].innerHTML = CommaFormatted(site);
                 nCells[2].innerHTML = CommaFormatted(physical_cpu);
@@ -228,24 +216,22 @@ function loadTable(event) {
     
     oTable.fnReloadAjax("/gstat/summary/"+filtertype+"/"+filtervalue+"/json/");
     var value = $('#filtervalue :selected').val();
-    //alert($('#sites_or_status').text());
     if (value=="" || value=="-1" || value=="ALL") $('#sites_or_status').text('Sites');
-    else $('#sites_or_status').text('Monitoring Status');
+    else $('#sites_or_status').text('Status');
     
     if (!event) 
         setTimeout('loadTable();',300000); //Reload Ajax every 5 minutes
-    //else
-    //  $(document).ready(function() {window.location.href = '/gstat/summary/'+ filtertype + '/' + filtervalue;return true;});
 
-    //changeLayoutWidth();
 }
 
 
-function changeLayoutWidth() {
-    var container_width = parseInt( $('#main-centeriser').css('width') );
-    //var table_width = parseInt( $('#single_table').css('width') );
-    var table_width = parseInt( $('#single_table').width() );
-    //alert(container_width + ', ' + table_width);
-    if (table_width > container_width)
-        $('#main-centeriser').css('width', (table_width+20) + "px");
+function changeTooltip() {
+    totalonline = document.getElementById('totalonline');
+    totalonline.title = "header=[How does GStat calculate it?] body=[The sum of TotalOnlineSize over all SAs]";
+    usedonline = document.getElementById('usedonline');
+    usedonline.title = "header=[How does GStat calculate it?] body=[Divide the sum of UsedOnlineSize over all SAs by the sum of TotalOnlineSize over all SAs]";
+    totalnearline = document.getElementById('totalnearline');
+    totalnearline.title = "header=[How does GStat calculate it?] body=[The sum of TotalNearlineSize over all SAs]";
+    usednearline = document.getElementById('usednearline');
+    usednearline.title = "header=[How does GStat calculate it?] body=[Divide the sum of UsedNearlineSize over all SAs by the sum of TotalNearlineSize over all SAs]";
 }
