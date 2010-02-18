@@ -1,0 +1,82 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>{% block title %}Django Template - Test{% endblock %}</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+{% block icon %}{% endblock %}
+{% block css-base %}<link rel="stylesheet" type="text/css" href="/media/core/css/base.css" />{% endblock %}
+{% block css-add %}{% endblock %}
+{% if filters_enabled %}
+  <script src="/media/core/scripts/jquery.js"></script>
+{% endif %}
+{% block scripts-add %}{% endblock %}
+</head>
+{% load i18n %}
+<body {% block bodyparams %}{% endblock %}>
+<div id="container">
+    <div id="main-centeriser">
+      {% if not is_popup %}
+        <div id="header">
+            <div id="header-content">
+                <div id="logo-img">&nbsp;</div>
+                <!-- BLOCK/description=BEGIN -->
+                <div id="description"><p>{% block description %}{% endblock %}</p></div>
+                <!-- BLOCK/description=END -->
+                <div id="site-name"><h1>{% block app-name %}{% endblock %}</h1><p>{% block app-info %}{% endblock %}</p></div>
+            </div>
+            <div id="belt-darken">
+                <div id="belt-darken-transparent">&nbsp;</div>
+                <div id="belt-darken-text">{% block belt-darken-text %}<p>Log in</p>{% endblock %}</div>
+            </div>
+        </div>
+	{% endif %}
+        <!-- BLOCK/menu=BEGIN -->
+        {% block menu %}{% endblock %}
+        <!-- BLOCK/menu=END -->
+        <div id="content">
+            <!-- BLOCK/breadcrumbs=BEGIN -->
+            <div id="breadcrumbs" style='position: relative;'>
+                :: {% block breadcrumbs %}<a href="#">Home</a>{% endblock %}
+	            {% if filters_enabled %}
+				<div id="filters" style='display: inline;'>
+					<form style='display: inline; text-align: right; position: absolute; right: 0px;'>
+						<strong>Filters:</strong>
+						<select id="filtertype" onchange="changeFilterType(event)">
+						    <option value="no">Select one</option>
+						    <option value="Country">Country</option>
+						    <option value="EGEE_ROC">EGEE_ROC</option>
+						    <option value="GRID">GRID</option>
+						    <option value="VO">VO</option>
+						    <option value="WLCG_TIER">WLCG_TIER</option>
+						</select>
+						<strong>Values:</strong>
+						<select id="filtervalue" style='width: 200px' onchange="changeFilterValue(event)">
+						    <option value="">Select a filter first</option>
+						</select>
+					</form>
+				</div>
+				{% endif %}
+            </div>
+            <!-- BLOCK/breadcrumbs=END -->
+            
+            <!-- BLOCK/vert-menu-left=BEGIN -->
+            {% block vert-menu-left %}{% endblock %}
+            <!-- BLOCK/vert-menu-left=END -->
+            
+            <!-- BLOCK/vert-menu-right=BEGIN -->
+            {% block vert-menu-right %}{% endblock %}
+            <!-- BLOCK/vert-menu-right=END -->
+
+            <div id="content-main">
+                <!-- CONTENT BEGIN -->
+                {% block content-main %}{% endblock %}
+                <!-- CONTENT END -->
+            </div>
+        </div>
+        <div id="footer"><p>{% block footer-text %}Django Template &copy; 2009{% endblock %}</p></div>
+    </div>
+</div>
+<script src="/media/core/scripts/filter.js" type="text/javascript"></script>
+</body>
+{% block scripts-bottom-add %}{% endblock %}
+</html>
