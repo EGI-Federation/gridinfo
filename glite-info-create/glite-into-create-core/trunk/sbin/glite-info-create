@@ -29,18 +29,52 @@
 ##############################################################################
 
 # 0. Functions
+
+# $1 Level: 0:ERROR, 1:WARNING, 2:INFO, 3:DEBUG
+# $2 Message
+function log() {
+  logger='/usr/bin/logger'
+  tag='glite-info-create'
+  case $1 in
+    0)
+      msg="[ERROR] $2"
+      if [ $verbose -ge "0" ]; then echo $msg >&2; fi
+      $logger -t $tag -p user.error $msg
+      exit 1;;
+    1)
+      msg="[WARNING] $2"
+      if [ $verbose -ge "1" ]; then echo $msg; fi
+      $logger -t $tag -p user.warning $msg;;
+    2)
+      msg="[INFO] $2"
+      if [ $verbose -ge "2" ]; then echo $msg; fi
+      $logger -t $tag -p user.info $msg;;
+    3)
+      msg="[DEBUG] $2"
+      if [ $verbose -ge "3" ]; then echo $msg; fi
+      $logger -t $tag -p user.debug $msg;;
+    *)
+      msg="[PROGRAM ERROR] Level $1 does not exist"
+      echo $msg >&2
+      $logger -t $tag -p user.crit $msg
+      exit 1;;
+  esac
+}
+
 function print_help() {
   cat << EOF >&2
 Usage:
-  glite-info-create.sh -m <module> [-i <ifaces>] [-t <templates>]
-                      [-c <configs>] [-p <path>]
+  glite-info-create.sh -m <module> [-i <ifaces>] [-t <templates>] [-c <configs>]
+                       [-p <path>] [-o <outpath>] [-v verbose]
        
 Parameters:
   <module>    The module you are using. E.g.: site
   <ifaces>    The interface you want to use. E.g.: glue, wlcg (default)
   <templates> The template you want to use. E.g.: glue1, glue2 (all default)
   <configs>   The config file location if outside from the module directory
-  <path>      The path for the module directory. Default: /etc/glite-info-create/
+  <path>      The path for the module directory. Default: /etc/glite-info-create
+  <outpath>   The path for the output directory. Default: <path>/output
+  <verbose>   Verbose level: 0:ERROR, 1:WARNING, 2:INFO, 3:DEBUG. Default: 0
 
 Examples:
   glite-info-create.sh -m site
@@ -53,8 +87,8 @@ EOF
 # 1. Basic setup
 `unalias -a` # Remove all aliases from this new shell
 STARTTIME=`date +%s`
-VERSION='0.4'
-echo "Welcome to gLite Info Static Create v$VERSION"
+VERSION='0.5'
+echo "Welcome to gLite Info Create v$VERSION"
 #fullpath="$(cd "${0%/*}" 2>/dev/null; echo "$PWD"/"${0##*/}")"
 if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "-help" ] || [ "$1" = "--help" ]; then
   print_help
@@ -65,44 +99,59 @@ fi
 interfaces='wlcg'
 templates='glue1 glue2'
 ldif_files=''
-fullpath=/etc/glite-info-create
-while getopts ":m:i:t:c:p:" opt; do
+fullpath='/etc/glite-info-create'
+verbose=0
+while getopts ":m:i:t:c:p:o:v:" opt; do
   case $opt in
     i) interfaces=$OPTARG;;
     t) templates=$OPTARG;;
     c) config_files=$OPTARG;;
     m) module=$OPTARG;;
-    p) fullpath=$OPTARG;;
-    \?) echo "Invalid option: -$OPTARG" >&2; exit 1;;
-    :) echo "Option -$OPTARG requires an argument." >&2; exit 1;;
+    p) fullpath=${OPTARG%/};;
+    o) outputpath=${OPTARG%/};;
+    v) verbose=$OPTARG;;
+    \?) log 0 "Invalid option: -$OPTARG";;
+    :) log 0 "Option -$OPTARG requires an argument.";;
   esac
 done
-echo "Changing to $fullpath"
+log 3 "Changing to $fullpath"
 cd $fullpath
 
 if [ -z $module ]; then
-  print_help; 
-  echo "ERROR: Parameter -m <module> is mandatory"; 
-  exit 1;
+  print_help
+  log 0 "Parameter -m <module> is mandatory"
 fi
 if [ -z $config_files ]; then config_files="$module.*.cfg"; fi
+if [ -z $outputpath ]; then outputpath="$fullpath/output"; fi
+if [ -d $outputpath ]; then
+  log 3 "Output directory exists: $outputpath"
+else
+  log 3 "Creating output path $outputpath"
+  mkdir $outputpath
+  if [ $? -ne 0 ]; then 
+    log 0 "You don't have permissions to create output directory"
+  fi
+fi
+touch $outputpath/test
+if [ $? -ne 0 ]; then
+  log 0 "You don't have permissions to write in the output directory"
+fi
+rm $outputpath/test
 
 # 3. Source the config file
 for config_file in $config_files; do
   if [ ! -f $config_file ]; then
-    echo "ERROR: $config_file is not a valid config file"
-    exit 1
+    log 0 "$config_file is not a valid config file"
   fi
   source $config_file
-  echo "DEBUG: Using config file $config_file"
+  log 3 "Using config file $config_file"
 
   # 4. Check all needed variables are present using the interface
   for interface in $interfaces; do
-    interface_file="$module/$module.$interface.ifc"
-    echo "DEBUG: Checking interface $interface_file"
+    interface_file="$module/$module.$interface.ifc"    
+    log 3 "Checking interface $interface_file"
     if [ ! -f $interface_file ]; then
-      echo "ERROR: $interface_file is not a valid interface file"
-      exit 1
+      log 0 "$interface_file is not a valid interface file"
     fi
     source $interface_file
     MANDATORY_VARS="$MANDATORY_SINGLEVALUED_VARS $MANDATORY_MULTIVALUED_VARS"
@@ -112,34 +161,31 @@ for config_file in $config_files; do
     for var in $MANDATORY_VARS; do
       eval val=\$$var
       if [ "x$val" = "x" ]; then
-        echo "ERROR: $var has no value. Check $config_file"
-        echo "Mandatory values: $MANDATORY_VARS"
-        echo "Optional values: $OPTIONAL_VARS"
-        exit 1
+        log 0 "$var has no value. Check $config_file"
       fi
     done
     for var in $OPTIONAL_VARS; do
       eval val=\$$var
       if [ "x$val" = "x" ]; then
-        echo "WARNING: $var has no value. Fix it in $config_file"
+        log 1 "$var has no value. Fix it in $config_file"
       fi
     done
   done
 
   # 5. Fill the templates so all variables are filled
-  echo "DEBUG: Generating files"
+  log 2 "Generating files"
   for template in $templates; do
     template_file=$module/$module.$template.tpl
     if [ ! -f $template_file ]; then
-      echo "ERROR: $template_file is not a valid template file"
-      exit 1
+      log 0 "$template_file is not a valid template file"
     fi
     line=${config_file#*$module.}
     num=${line%%.cfg*}
-    ldif_file=output/$module.$num.$template.ldif
-    ldif_files="$ldif_files $ldif_file"
+    ldif_file_name=$module.$num.$template.ldif
+    ldif_file_names="$ldif_file_names $ldif_file_name"
+    ldif_file=$outputpath/$ldif_file_name
     if [ -f $ldif_file ]; then
-      echo "WARNING: $ldif_file already existed. It has been overwritten."
+      log 1 "$ldif_file already existed. It has been overwritten."
     fi
     cp $template_file $ldif_file
     # Substitute singlevalued attributes
@@ -178,9 +224,11 @@ for config_file in $config_files; do
 done
 
 #6. Finalize
+echo "OUTPUT FOLDER:"
+echo $outputpath
 echo "NEW FILES GENERATED:"
-for ldif_file in $ldif_files; do
-  echo $ldif_file
+for ldif_file_name in $ldif_file_names; do
+  echo $ldif_file_name
 done
 RUNTIME=$[`date +%s` - $STARTTIME]
 echo "Finished! It took $RUNTIME seconds to run"
