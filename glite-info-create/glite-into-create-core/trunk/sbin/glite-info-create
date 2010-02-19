@@ -33,30 +33,24 @@
 # $1 Level: 0:ERROR, 1:WARNING, 2:INFO, 3:DEBUG
 # $2 Message
 function log() {
-  logger='/usr/bin/logger'
   tag='glite-info-create'
   case $1 in
     0)
       msg="[ERROR] $2"
       if [ $verbose -ge "0" ]; then echo $msg >&2; fi
-      $logger -t $tag -p user.error $msg
       exit 1;;
     1)
       msg="[WARNING] $2"
-      if [ $verbose -ge "1" ]; then echo $msg; fi
-      $logger -t $tag -p user.warning $msg;;
+      if [ $verbose -ge "1" ]; then echo $msg; fi;;
     2)
       msg="[INFO] $2"
-      if [ $verbose -ge "2" ]; then echo $msg; fi
-      $logger -t $tag -p user.info $msg;;
+      if [ $verbose -ge "2" ]; then echo $msg; fi;;
     3)
       msg="[DEBUG] $2"
-      if [ $verbose -ge "3" ]; then echo $msg; fi
-      $logger -t $tag -p user.debug $msg;;
+      if [ $verbose -ge "3" ]; then echo $msg; fi;;
     *)
       msg="[PROGRAM ERROR] Level $1 does not exist"
       echo $msg >&2
-      $logger -t $tag -p user.crit $msg
       exit 1;;
   esac
 }
