@@ -56,3 +56,9 @@ CHANGELOG
   - Now the default path for modules is hardcoded to: /etc/glite-info-create/
   - A new switch (-p) has been added to change the modules path
   - You can use several interfaces at once
+0.5 (19/02/2010):
+  - New option -o to change the output directory
+  - Check for output directory existance, if it doesn't exist, create it
+  - New option -v sets verbose mode: (0:ERROR, 1:WARNING, 2:INFO, 3:DEBUG)
+  - Now all messages will be copied to syslog
+  - Output successful messages: first the path, then list of files
