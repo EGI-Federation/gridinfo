@@ -3,10 +3,10 @@ function CommaFormatted(amount)
 {   
     var isInt=parseInt(amount);
     if (isNaN(isInt)) return amount; 
-    if (amount == 0) return amount;
-    amount=amount.toString().replace(/^0+/, ''); 
-	amount += '';
-	x = amount.split('.');
+    if (isInt == 0) return 0;
+    isInt=isInt.toString().replace(/^0+/, ''); 
+	isInt += '';
+	x = isInt.split('.');
 	x1 = x[0];
 	x2 = x.length > 1 ? '.' + x[1] : '';
 	var rgx = /(\d+)(\d{3})/;
