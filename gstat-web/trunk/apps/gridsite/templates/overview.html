@@ -215,17 +215,17 @@
       </thead> 
       <tbody>    
         <tr> 
-          <td><script type="text/javascript">document.write(CommaFormatted({{ installed_capacity.physicalcpus }})) </script></td> 
-          <td><script type="text/javascript">document.write(CommaFormatted({{ installed_capacity.logicalcpus }})) </script> </td> 
-          <td><script type="text/javascript">document.write(CommaFormatted({{ installed_capacity.totalonlinesize }})) </script></td> 
-          <td><script type="text/javascript">document.write(CommaFormatted({{ installed_capacity.usedonlinesize }})) </script></td> 
+          <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.physicalcpus }}')) </script></td> 
+          <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.logicalcpus }}')) </script> </td> 
+          <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.totalonlinesize }}')) </script></td> 
+          <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.usedonlinesize }}')) </script></td> 
           <td>
             <script>
             display('{{ installed_capacity.totalonlinesize }}', '{{ installed_capacity.usedonlinesize }}');
             </script>
           </td>
-          <td><script type="text/javascript">document.write(CommaFormatted({{ installed_capacity.totalnearlinesize }})) </script></td> 
-          <td><script type="text/javascript">document.write(CommaFormatted({{ installed_capacity.usednearlinesize }})) </script></td> 
+          <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.totalnearlinesize }}')) </script></td> 
+          <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.usednearlinesize }}')) </script></td> 
           <td>
             <script>
             display('{{ installed_capacity.totalnearlinesize }}', '{{ installed_capacity.usednearlinesize }}');
@@ -331,16 +331,16 @@
 	      <tbody>    
 	        <tr> 
 	          {% ifnotequal vo.totaljobs None %}
-	          <td><script type="text/javascript">document.write(CommaFormatted({{ vo.totaljobs }})) </script></td> 
-	          <td><script type="text/javascript">document.write(CommaFormatted({{ vo.runningjobs }})) </script></td>
-	          <td><script type="text/javascript">document.write(CommaFormatted({{ vo.waitingjobs }})) </script></td>
+	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.totaljobs }}')) </script></td> 
+	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.runningjobs }}')) </script></td>
+	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.waitingjobs }}')) </script></td>
               {% endifnotequal %}
               
               {% ifnotequal vo.totalonlinesize None %}
-	          <td><script type="text/javascript">document.write(CommaFormatted({{ vo.totalonlinesize }})) </script></td> 
-	          <td><script type="text/javascript">document.write(CommaFormatted({{ vo.usedonlinesize }})) </script></td>
-	          <td><script type="text/javascript">document.write(CommaFormatted({{ vo.totalnearlinesize }})) </script></td>
-	          <td><script type="text/javascript">document.write(CommaFormatted({{ vo.usednearlinesize }})) </script></td>
+	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.totalonlinesize }}')) </script></td> 
+	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.usedonlinesize }}')) </script></td>
+	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.totalnearlinesize }}')) </script></td>
+	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.usednearlinesize }}')) </script></td>
               {% endifnotequal %}
 	        </tr>
 	        <tr> 
