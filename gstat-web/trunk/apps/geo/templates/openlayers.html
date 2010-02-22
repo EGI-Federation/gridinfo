@@ -90,7 +90,8 @@
 			    map.addControl(select);
 			    select.activate();
             }
-            window.location='#/' + filtertype.value + '/' + filtervalue.value;
+            window.location.hash ='#/' + encodeURIComponent(filtertype.value) +
+                                  '/' + encodeURIComponent(filtervalue.value);
             return true;
         }
 
