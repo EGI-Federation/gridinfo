@@ -53,8 +53,8 @@ def main(request, type='GRID', value='ALL', output=None):
     se_instances = {}
     se_instances_sites = {}
     for se in  se_list:
-        if (se.implementationname ):
-            name=se.implementationname
+        if (se.implementationname.upper() ):
+            name=se.implementationname.upper()
         else:
             name="Unknown"
         if (not se_instances.has_key(name)):
