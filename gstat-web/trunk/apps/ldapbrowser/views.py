@@ -6,6 +6,7 @@ from django.shortcuts import render_to_response, get_object_or_404
 from topology.models import Entity
 import gsutils
 import string
+import operator
 
 def index(request, url="", ldapurl=""):
     query = Entity.objects.filter(type='bdii_top')
@@ -15,6 +16,7 @@ def index(request, url="", ldapurl=""):
         # Select the default host to show
         if (url == label): hostnames.append([label, bdii.uniqueid, 1])
         else: hostnames.append([label, bdii.uniqueid, 0])
+    hostnames = sorted(hostnames, key=operator.itemgetter(1))
     if ldapurl == "": display = 'block';
     else: display = 'none';
     return render_to_response('ldapbrowser.html',
@@ -25,8 +27,10 @@ def browse(request):
     # Parsing of needed attributes
     if 'dn' in request.GET: dn = request.GET['dn']
     else: return HttpResponse('')
+
     if 'entry' in request.GET: filter = 'base'
     else: filter = 'one dn'
+    
     if 'host' in request.GET:
         str = request.GET['host'][7:]
         [host, str] = str.split(':')
