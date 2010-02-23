@@ -38,6 +38,7 @@ sys.path.append(APPS_DIR)
 os.environ['DJANGO_SETTINGS_MODULE']='core.settings'
 from django.conf import settings
 from django.db import transaction
+from django.db import connection
 modulename='glue.models'
 __import__(modulename)
 module=sys.modules[modulename]
@@ -197,7 +198,7 @@ def delete_old_entries_raw():
     transaction.commit()
 
 # Define function to process tuple
-def process_tuple(dn,tuple,table_name,multivalues):
+def process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds):
     global command
     
     # Hack for GlueVOInfo being GlueSA
@@ -237,10 +238,7 @@ def process_tuple(dn,tuple,table_name,multivalues):
                     gluemultivalued.localid = tuple['GlueVOViewLocalID']
                 if ( tuple.has_key('GlueSALocalID') ):
                     gluemultivalued.localid = tuple['GlueSALocalID']
-                try:
-                    gluemultivalued.save()
-                except Exception, e:
-                    log.warn("%s, %s" % (dn,e) )
+                gluemultivalueds.append(gluemultivalued)
         # Exceptions on the uniqueid
         if ( table_name=='GlueLocation' or table_name=='GlueSoftware' or
              table_name=='GlueVOView'): 
@@ -335,13 +333,7 @@ def process_tuple(dn,tuple,table_name,multivalues):
                 inst.__setattr__(methodName, value)
 
         # Save the object    
-        try:
-            inst.save()
-        except ValueError, e:
-            log.warn("%s" % (e))
-        except Exception, e:
-            log.warn("%s: %s, %s" % (table_name.lower(), dn, e))
-            #sys.exit()
+        insts.append(inst)
 
 # Main function
 @transaction.commit_manually
@@ -365,6 +357,8 @@ def main():
     pipe=os.popen(ldap_command)
     
     log.debug("Doing translation loop ... ")
+    insts = []
+    gluemultivalueds = []
     for line in pipe:
     
         # Process tuple if new entry is found.
@@ -373,7 +367,7 @@ def main():
                 if ( objects.has_key(table_name) ):
                     dn = tuple['dn']        
                     tuple.pop('dn')
-                    process_tuple(dn,tuple,table_name,multivalues)
+                    process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds)
     
             # Set DN and reset loop variables    
             tuple={}  
@@ -436,20 +430,35 @@ def main():
     if ( tuple.has_key('dn') ):
         dn = tuple['dn']
         tuple.pop('dn')
-        process_tuple(dn,tuple,table_name,multivalues) 
+        process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds) 
     
     # Close the pipe for the ldapsearch
     pipe.close()
 
     # Finishing the transaction
-    log.info('Committing all changes to the database...')
+    log.info("Time taken so far: %s" % str(datetime.now() - start_time))
+    log.info('Committing to the database...')
+    for inst in insts:
+        try:
+            inst.save()
+        except ValueError, e:
+            log.warn("%s" % (e))
+        except Exception, e:
+            log.warn("%s: %s, %s" % (table_name.lower(), dn, e))
+    for gluemultivalued in gluemultivalueds:
+        try:
+            gluemultivalued.save()
+        except Exception, e:
+            log.warn("%s, %s" % (dn,e) )
     transaction.commit()
 
     # Delete old entries from the database
+    log.info("Time taken so far: %s" % str(datetime.now() - start_time))
     log.info('Deleting old entries...')
     delete_old_entries_raw()
+    transaction.commit()
     
     # Get time taken for the translation
-    log.info("Time taken: %s" % str(datetime.now() - start_time))
+    log.info("Total time taken: %s" % str(datetime.now() - start_time))
     
 main()
