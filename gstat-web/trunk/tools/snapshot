@@ -200,7 +200,7 @@ def delete_old_entries_raw():
 # Define function to process tuple
 def process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds):
     global command
-    
+
     # Hack for GlueVOInfo being GlueSA
     if (table_name == "GlueSA"):
         if ( tuple.has_key('Tag') ):
@@ -327,11 +327,11 @@ def process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds):
                 value = dn2[:dn2.find(',')]
                 methodName = 'gluesite_fk'
                 try:
-                    getattr(inst, methodName)
+                    valueTest = getattr(inst, methodName)
                 except AttributeError:
                     log.warn(table_name_lower + '.' + methodName + ' does not exist. Special ChunkKey from DN. Value:' + value)
-                inst.__setattr__(methodName, value)
-
+                if valueTest == '':
+                    inst.__setattr__(methodName, value)
         # Save the object    
         insts.append(inst)
 
