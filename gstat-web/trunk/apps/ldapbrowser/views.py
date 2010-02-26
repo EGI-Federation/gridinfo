@@ -8,20 +8,16 @@ import gsutils
 import string
 import operator
 
-def index(request, url="", ldapurl=""):
+def index(request):
     query = Entity.objects.filter(type='bdii_top')
     hostnames = []
     for bdii in query:
         label = bdii.uniqueid[7:string.rfind(bdii.uniqueid, ':')]
-        # Select the default host to show
-        if (url == label): hostnames.append([label, bdii.uniqueid, 1])
-        else: hostnames.append([label, bdii.uniqueid, 0])
+        server = bdii.uniqueid[:string.rfind(bdii.uniqueid, '/') + 1]
+        hostnames.append([label, server])
     hostnames = sorted(hostnames, key=operator.itemgetter(1))
-    if ldapurl == "": display = 'block';
-    else: display = 'none';
     return render_to_response('ldapbrowser.html',
-                              {'hostnames': hostnames, 'ldapurl': ldapurl,
-                               'display': display, 'ldapbrowser_active': 1})
+                              {'hostnames': hostnames, 'ldapbrowser_active': 1})
 
 def browse(request):
     # Parsing of needed attributes
