@@ -4,6 +4,9 @@ from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.utils import html
 from core.utils import *
+from topology.models import Entityrelationship
+from topology.models import Entity
+from glue.models import glueservice
 
 def main(request, type='GRID', value='ALL', output=None):
 
@@ -77,6 +80,17 @@ def main(request, type='GRID', value='ALL', output=None):
         row = [ name, se_instances[name], len(se_instances_sites[name]) ]
         se_types.append(row)
 
+    fts_instances = glueservice.objects.filter(type='org.glite.FileTransfer')
+    fts_versions = {}
+    for instance in fts_instances:
+        fts_versions[instance.uniqueid] = instance.version
+    relationship = Entityrelationship.objects.select_related('subject','object').filter(object__type='org.glite.FileTransfer')
+    fts_site_instances = []
+    for relation in relationship:
+        site_name=relation.subject.uniqueid
+        service_unique_id = relation.object.uniqueid
+        fts_site_instances.append([site_name, fts_versions[service_unique_id] ])
+    
 
     breadcrumbs_list = [{'name':'Stats', 'url':'/gstat/stats/'}]
      
@@ -88,6 +102,7 @@ def main(request, type='GRID', value='ALL', output=None):
                                              'data': data,
                                              'versions': versions,
                                              'se_types': se_types,
+                                             'fts_site_instances': fts_site_instances,
                                              'os': os})
 
 
