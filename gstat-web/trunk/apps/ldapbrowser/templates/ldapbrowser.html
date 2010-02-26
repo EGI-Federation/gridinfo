@@ -12,8 +12,9 @@
 {% block scripts-add %}
 <script type="text/javascript" src="/media/ldapbrowser/scripts/ldapbrowser.js"></script>
 <!-- Loading jQuery libraries -->
-<script src="/media/core/scripts/jquery.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.address-1.0.min.js"></script>
 <!-- Loading YUI libraries -->
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/yuiloader/yuiloader-min.js"></script>
 <script type="text/javascript"> 
@@ -59,36 +60,34 @@
         attributes = parseInt( $("#attributes").height() );
         proportion = parseInt( (attributes - 30) / attributes * 100 );
         $("#entrypage").css('height', proportion + '%');
-	});  
+	});
 </script>
 {% endblock %}
 
 {% block content-main %}
 	<form style="display: {{display}};" action="" onsubmit="inputHost(); return false" id="visiblecombo">
-		<select id="hosts" size="1" onchange="selectHost(this)">
-			<option value="default" style="background-color: #532900; color: white;">--SELECT A TOP LEVEL BDII--</option>
-			{% for label, hostname, sel in hostnames %}
-			    {% ifequal sel 1 %}<option value="{{hostname}}" selected="selected">{{label}}</option>
-	 			{% else %}<option value="{{hostname}}">{{label}}</option>{% endifequal %}
-			{% endfor %}
-		</select> &nbsp;
-		<input type='text' id='urltext' name='urltext' size='85' value='{{ldapurl}}'/> &nbsp;
-		<a id='urllink' href='/gstat/ldap' class='bold'>Permalink for this host</a>
-	</form>
-	
+        <select id="hosts" size="1" onchange="selectHost(this)">
+            <option value="default" style="background-color: #532900; color: white;">--SELECT A TOP LEVEL BDII--</option>
+            {% for label, hostname in hostnames %}
+                <option value="{{hostname}}">{{label}}</option>
+            {% endfor %}
+        </select> &nbsp;
+        <input type='text' id='urltext' name='urltext' size='85' value='{{ldapurl}}'/> &nbsp;
+    </form>
+    
     <div class="clear"></div> 
-	
+    
     <div id="layoutdiv">
     
-		<div id="ldaptree" class="board">
-		    <h2>LDAP Tree</h2>
-			<div id="tree"></div>
-		</div>
-		
-	    <div id="attributes" class="board rightboard">
-	        <h2>Viewing Entry</h2>
-			<div id="entrypage"></div>  
-	    </div>
+        <div id="ldaptree" class="board">
+            <h2>LDAP Tree</h2>
+            <div id="tree"></div>
+        </div>
+        
+        <div id="attributes" class="board rightboard">
+            <h2>Viewing Entry</h2>
+            <div id="entrypage"></div>  
+        </div>
 
-	</div>
+    </div>
 {% endblock %}
