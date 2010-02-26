@@ -84,7 +84,7 @@ def main(request, type='GRID', value='ALL', output=None):
     fts_versions = {}
     for instance in fts_instances:
         fts_versions[instance.uniqueid] = instance.version
-    relationship = Entityrelationship.objects.select_related('subject','object').filter(object__type='org.glite.FileTransfer')
+    relationship = Entityrelationship.objects.select_related('subject','object').filter(object__type='org.glite.FileTransfer',subject__in=site_list)
     fts_site_instances = []
     for relation in relationship:
         site_name=relation.subject.uniqueid
