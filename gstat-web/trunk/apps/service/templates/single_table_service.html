@@ -13,6 +13,8 @@
 {% block scripts-add %}
 <script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.dataTables.js"></script>
+<script type="text/javascript" src="/media/core/scripts/ZeroClipboard.js"></script>
+<script type="text/javascript" src="/media/core/scripts/TableTools.js"></script>
 <script type="text/javascript" src="/media/summary/scripts/summary.js" ></script>
 <script type="text/javascript" charset="utf-8">
 
@@ -22,41 +24,41 @@ $(document).ready(function() {
         "bProcessing": true,
         "iDisplayLength":25,
         "sAjaxSource": 'json',
-        "sDom": 'T<"clear">lfrtip',
-	"aoColumns": [
+        "sDom": 'lfTrtip',
+	    "aoColumns": [
             { "fnRender": function(oObj) {
-	    var link = '<a href="/gstat/service/{{type}}/' + oObj.aData[0]+'">'+oObj.aData[0]+'</a>';
-             return link;
-             },
-             "bUseRendered": false
+	          var link = '<a href="/gstat/service/{{type}}/' + oObj.aData[0]+'">'+oObj.aData[0]+'</a>';
+              return link;
+              },
+              "bUseRendered": false
             },
             { "fnRender": function(oObj) {
-	    var link = '<a href="/gstat/service/{{type}}/' + oObj.aData[1]+'">'+oObj.aData[1]+'</a>';
-             return link;
-             },
-             "bUseRendered": false
+	          var link = '<a href="/gstat/service/{{type}}/' + oObj.aData[1]+'">'+oObj.aData[1]+'</a>';
+              return link;
+              },
+              "bUseRendered": false
             },
-null, 
-        { "fnRender": function(oObj) {
-            var status = '<span class="NagiosStatus_'+oObj.aData[3]+'">'+oObj.aData[3]+'</span>';
-	    return status;
-	    },
-         "bUseRendered": false,
-         "sType": "status" }, 
-        { "fnRender": function(oObj) {
-            var status = '<span class="NagiosStatus_'+oObj.aData[4]+'">'+oObj.aData[4]+'</span>';
-	    return status;
-	    },
-         "bUseRendered": false,
-         "sType": "status" } 
+            null, 
+            { "fnRender": function(oObj) {
+              var status = '<span class="NagiosStatus_'+oObj.aData[3]+'">'+oObj.aData[3]+'</span>';
+	          return status;
+	          },
+              "bUseRendered": false,
+              "sType": "status" 
+            }, 
+            { "fnRender": function(oObj) {
+              var status = '<span class="NagiosStatus_'+oObj.aData[4]+'">'+oObj.aData[4]+'</span>';
+	          return status;
+	          },
+              "bUseRendered": false,
+              "sType": "status" } 
+       ] });
+       
+      $('#single_table_processing').prepend( $('<img></img>').attr({'src':'/media/core/css/img/loading.gif'}).css({padding: '0px 8px'}) );
 
- ] 
-        });
 });
 
 $('#content-main a').attr({"target":"_self"});      // here you can set up default targets for all heperlinks in content section
-
-    
 
 </script>
 {% endblock %}

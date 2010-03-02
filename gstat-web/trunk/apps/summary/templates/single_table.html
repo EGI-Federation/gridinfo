@@ -55,6 +55,15 @@ $(document).ready(function() {
 {% endblock %}
 
 {% block content-main %}
+
+
+<select id="sites" onchange="directToSiteView(event);" style="margin-left: 0.5em;">
+  <option value="-1">Select a site name</option>
+  {% for site in sites %}
+    <option value="{{ site }}">{{ site }}</option>
+  {% endfor %}
+</select>
+
 <div id="TableContainer">
   <table cellpadding="0" cellspacing="1" border="0" class="display" id="single_table">
     <thead>

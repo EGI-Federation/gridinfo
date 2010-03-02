@@ -68,9 +68,13 @@ jQuery.fn.dataTableExt.oSort['status-desc'] = function(a,b) {
 function changeFilterValue(event) {
     filtertype = document.getElementById('filtertype').value;
     filtervalue = document.getElementById('filtervalue').value;
-    window.location.href = '/gstat/summary/' + filtertype + '/' + filtervalue;
+    window.location.href = '/gstat/summary/' + filtertype + '/' + encodeURIComponent(filtervalue);
 }
 
+function directToSiteView(event) {
+    sitename = document.getElementById('sites').value;
+    window.open('/gstat/site/' + sitename, '_self')
+}
 
 function loadTable(event) {
     filtertype = document.getElementById('filtertype').value;
@@ -78,11 +82,12 @@ function loadTable(event) {
     
     var oTable;
     var theads = $('#single_table > thead');
+    $('body').append( $('#sites') );
     $('#TableContainer').html('<table cellpadding="0" cellspacing="1" border="0" class="display" id="single_table"><thead>'+theads.html()+'</thead><tbody></tbody><tfoot><tr><th>Total</th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr></tfoot></table>');
     var oTable = $('#single_table').dataTable({
         "iDisplayLength": 25, 
         "bProcessing": true, 
-        "sDom": 'T<"clear">lfrtip',
+        "sDom": 'lfTrtip',
         "aoColumns": [
             { sWidth: '50px', sClass: 'orderAction',
               "fnRender": function(oObj) {
@@ -90,9 +95,9 @@ function loadTable(event) {
                  var type = $('#filtertype :selected').val();
                  var value = $('#filtervalue :selected').val();
                  if (value=="" || value=="-1" || value=="ALL") 
-                   link = '<a href="/gstat/summary/'+type+'/'+oObj.aData[0]+'/">'+oObj.aData[0]+'</a>';
+                   link = '<a href="/gstat/summary/'+type+'/'+encodeURIComponent(oObj.aData[0])+'/">'+oObj.aData[0]+'</a>';
                  else 
-                   link = '<a href="/gstat/site/'+oObj.aData[0]+'/">'+oObj.aData[0]+'</a>';
+                   link = '<a href="/gstat/site/'+encodeURIComponent(oObj.aData[0])+'/">'+oObj.aData[0]+'</a>';
    
                  return link;
                 },
@@ -221,6 +226,10 @@ function loadTable(event) {
     
     if (!event) 
         setTimeout('loadTable();',300000); //Reload Ajax every 5 minutes
+    
+    $('#single_table_processing').prepend( $('<img></img>').attr({'src':'/media/core/css/img/loading.gif'}).css({padding: '0px 8px'}) );
+    $('#single_table_length').append( '&nbsp;|&nbsp;Go To:' );
+    $('#single_table_length').append( $('#sites') );
 
 }
 

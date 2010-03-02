@@ -3,11 +3,15 @@
  * TableTools styles
  */
 .TableTools {
-	padding: 3px 0 3px 3px;
+	padding: 1px 0 1px 1px;
 	border: 1px solid #d0d0d0;
 	background-color: #f0f0f0;
 	float: right;
-	margin-bottom: 1em;
+	margin-right: 1em;
+	-moz-border-radius-bottomleft:4px;
+	-moz-border-radius-bottomright:4px;
+	-moz-border-radius-topleft:4px;
+	-moz-border-radius-topright:4px;
 }
 
 .TableTools_button {
