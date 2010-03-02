@@ -141,7 +141,8 @@ def overview(request, site_name):
                                'count_dict'         : count_dict,
                                'last_update'        : last_update,
                                'installed_capacity' : installed_capacity,
-                               'vo_resources'       : vo_resources})
+                               'vo_resources'       : vo_resources,
+                               'summary_active'     : 1})
     
 def status(request, site_name, type_name, host_name, check_name):
     site_entity = get_unique_entity(site_name, 'Site')
@@ -372,4 +373,5 @@ def treeview(request, site_name, type, attribute=""):
                                'tree_se':          tree_se,
                                'tree_service':     tree_service,
                                'tree_vo':          tree_vo,
-                               'url':              url})
+                               'url':              url,
+                               'summary_active':   1})

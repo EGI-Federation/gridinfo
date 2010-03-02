@@ -26,25 +26,30 @@ table.nested tr {
 }
 
 .dataTables_processing {
+    display: table-cell;
 	position: absolute;
-	top: 0px;
+	top: 30%;
 	left: 50%;
 	width: 250px;
 	margin-left: -125px;
-	border: 1px solid #ddd;
+	border: 1px solid #fbcb09;
 	text-align: center;
-	color: #999;
-	font-size: 11px;
+	vertical-align: middle;
+	font-size: 18px;
+	color: #ce5c00;
+	background-color: #fdf5ce;
 	padding: 2px 0;
+	-moz-border-radius-bottomleft:4px;
+	-moz-border-radius-bottomright:4px;
+	-moz-border-radius-topleft:4px;
+	-moz-border-radius-topright:4px;
 }
 
 .dataTables_length {
-	width: 40%;
 	float: left;
 }
 
 .dataTables_filter {
-	width: 50%;
 	float: right;
 	text-align: right;
 }

@@ -11,11 +11,12 @@ from core.utils import *
 import time
 
 def main(request, type='GRID', value='ALL'):
-
+    sites = sorted([site.uniqueid for site in Entity.objects.filter(type='Site')])
     return render_to_response('single_table.html', 
                               {'summary_active'  : 1,
                                'type'            : type,
                                'value'           : value,
+                               'sites'           : sites,
                                'filters_enabled' : True})
 
 @cache_page(60 * 10)

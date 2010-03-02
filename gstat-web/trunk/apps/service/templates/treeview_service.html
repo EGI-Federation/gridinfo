@@ -71,7 +71,7 @@
               <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
                 <span class="ce">
                   <a target="frame" href="/gstat/service/bdii_top/{{ hostname }}/all/">&nbsp;{{ hostname }}</a>
-                  <a href="/gstat/ldap/site/{{ hostname }}" class="glue"> LDAP </a>
+                  <a href="/gstat/ldap/site/{{ hostname }}"> <img border=0 src="/media/core/css/img/ldap.png" title="Linking to LDAP Browser for querying to this BDII"/> </a>
                 </span>
                 <ul>
                   {% for check in checks %}
@@ -116,7 +116,7 @@
               <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
                 <span class="ce">
                   <a target="frame" href="/gstat/service/bdii_site/{{ hostname }}/all/">&nbsp;{{ hostname }}</a>
-                  <a href="/gstat/ldap/server/ldap://{{ hostname }}:2170/mds-vo-name=local,o=grid" class="glue"> LDAP </a>
+                  <a href="/gstat/ldap/server/ldap://{{ hostname }}:2170/mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Linking to LDAP Browser for querying to this BDII"/> </a>
                 </span>
                 <ul>
                   {% for check in checks %}
