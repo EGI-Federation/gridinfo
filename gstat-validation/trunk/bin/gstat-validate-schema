@@ -60,11 +60,11 @@ def start_slapd():
         file=open(config['tmp_dir'] + '/slapd.conf','w')
         file.write('''
 include /etc/openldap/schema/core.schema
-include /opt/glue/schema/openldap-2.1/Glue-CORE.schema
-include /opt/glue/schema/openldap-2.1/Glue-CE.schema
-include /opt/glue/schema/openldap-2.1/Glue-CESEBind.schema
-include /opt/glue/schema/openldap-2.1/Glue-SE.schema
-include /opt/glue/schema/openldap-2.1/Glue-MDS.schema
+include /etc/ldap/schema/Glue-CORE.schema
+include /etc/ldap/schema/Glue-CE.schema
+include /etc/ldap/schema/Glue-CESEBind.schema
+include /etc/ldap/schema/Glue-SE.schema
+include /etc/ldap/schema/Glue-MDS.schema
 
 schemacheck     on
 pidfile         ''' + config['tmp_dir'] + '''/slapd.pid
