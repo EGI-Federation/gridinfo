@@ -19,7 +19,7 @@
     function changeFilterValue(event) {
         filtertype = document.getElementById('filtertype').value;
         filtervalue = document.getElementById('filtervalue').value;
-        window.location.href = '/gstat/vo/' + filtervalue;
+        window.location.href = '/gstat/vo/' + encodeURIComponent(filtervalue);
     }
 
 

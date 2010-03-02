@@ -34,7 +34,7 @@
     function changeFilterValue(event) {
         filtertype = document.getElementById('filtertype');
         filtervalue = document.getElementById('filtervalue');
-    window.location='/gstat/stats/' + filtertype.value + '/' + filtervalue.value;
+    window.location='/gstat/stats/' + filtertype.value + '/' + encodeURIComponent(filtervalue.value);
 	}
 </script>
 
