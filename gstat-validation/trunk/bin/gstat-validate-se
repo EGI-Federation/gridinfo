@@ -736,9 +736,6 @@ if __name__ == "__main__":
 
      # GlueSEControlProtocol object existence
      logging.debug("Testing for existence of GlueSEControlProtocol objects")
-     if (len(SECP) <= 0):
-        my_errors.log('GlueSEUniqueID='+Id,'SEControlProtocol.Exist',
-           'No GlueSEControlProtocol objects defined for this SE', gsutils.get_site(key))
 
      # GlueVOInfoTag attribute existence
      logging.debug("Testing for existence of VOInfo objects")
