@@ -65,14 +65,14 @@
       <li>
         <span class="folder">&nbsp;{{ site_name }}
           {% if tree_sitebdii %}
-            <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
+            <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this entity"/> </a>
           {% endif %}
         </span>
         <ul>
           {% if tree_topbdii %}
           <li class='{{ collapse.bdii_top|default:"closed" }}'>
             <span class="folder"> 
-              <a target="frame" href="/gstat/site/{{ site_name }}/bdii_top/all/all/">&nbsp; Top BDII </a>
+              <a target="frame" href="/gstat/site/{{ site_name }}/bdii_top/all/all/">&nbsp;Top BDII </a>
             </span>
             <ul>
               {% for hostname,checks in tree_topbdii %}
@@ -119,7 +119,7 @@
           {% if tree_sitebdii %}
           <li class='{{ collapse.bdii_site|default:"closed" }}'>
             <span class="folder"> 
-              <a target="frame" href="/gstat/site/{{ site_name }}/bdii_site/all/all/">&nbsp; Site BDII </a>
+              <a target="frame" href="/gstat/site/{{ site_name }}/bdii_site/all/all/">&nbsp;Site BDII </a>
             </span>
             <ul>
               {% for hostname,checks in tree_sitebdii %}
@@ -166,32 +166,32 @@
           
           {% if tree_cluster_cpu or tree_cluster_job %}
             <li class='{% firstof collapse.cluster collapse.subcluster_cpu "closed" %}'>
-              <span class="folder">&nbsp; Cluster </span>
+              <span class="folder">&nbsp;Cluster </span>
               <ul>
                 {% if tree_cluster_cpu %}
                 <li class='{% firstof collapse.cluster collapse.subcluster_cpu "closed" %}'>
                   <span class="folder">
-                  <a target="frame" href="/gstat/rrd/Site/{{ site_name }}/cpu/">&nbsp; CPU Numbers </a>
+                  <a target="frame" href="/gstat/rrd/Site/{{ site_name }}/cpu/">&nbsp;CPU Numbers </a>
                   </span>
                   <ul>
                     {% for cluster,subclusters in tree_cluster_cpu %}
                     
                     <li class='{{ collapse.subcluster_cpu|default:"closed" }}'>
-                      <span class="ce">&nbsp; {{ cluster }} 
+                      <span class="ce">&nbsp;{{ cluster }} 
                         {% if tree_sitebdii %}
-                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
+                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this entity"/> </a>
                         {% endif %}
                       </span>
                       <ul>
                         <li class='{{ collapse.subcluster_cpu|default:"closed" }}'>
-                          <span class="folder">&nbsp; SubCluster </span>
+                          <span class="folder">&nbsp;SubCluster </span>
                           <ul>
 		                    {% for subcluster in subclusters %}
 		                    <li>
 		                      <span class="ce">
 		                        <a target="frame" href="/gstat/rrd/SubCluster/{{ subcluster }}/cpu/">&nbsp;{{ subcluster }}</a>
 		                        {% if tree_sitebdii %}
-		                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesubclusteruniqueid={{ subcluster }},glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
+		                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesubclusteruniqueid={{ subcluster }},glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this entity"/> </a>
 		                        {% endif %}
 		                      </span>
 		                    </li>
@@ -209,7 +209,7 @@
                 {% if tree_cluster_job %}
                 <li class='closed'>
                   <span class="folder"> 
-                    <a target="frame" href="/gstat/rrd/Site/{{ site_name }}/job/">&nbsp; Job Numbers </a>
+                    <a target="frame" href="/gstat/rrd/Site/{{ site_name }}/job/">&nbsp;Job Numbers </a>
                   </span>
                   <ul>
                     {% for cluster,vos in tree_cluster_job %}
@@ -218,17 +218,18 @@
                       <span class="ce">
                         <a target="frame" href="/gstat/rrd/Cluster/{{ cluster }}/job/">&nbsp;{{ cluster }}</a>
                         {% if tree_sitebdii %}
-                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
+                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this entity"/> </a>
                         {% endif %}
                       </span>
                       <ul>
                         <li class='closed'>
-                          <span class="folder">&nbsp; Supported VO </span>
+                          <span class="folder">&nbsp;Supported VO </span>
                           <ul>
-		                    {% for vo in vos %}
+		                    {% for vo,ce in vos %}
 		                    <li>
 		                      <span class="vo">
 		                        <a target="frame" href="/gstat/rrd/VOCluster/{{ vo }}/{{ cluster }}/job/">&nbsp;{{ vo }}</a>
+		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueCE entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -250,12 +251,12 @@
           
           {% if tree_se %}
             <li class='{% firstof collapse.se collapse.se_online collapse.se_nearline "closed" %}'>
-              <span class="folder">&nbsp; SE </span>
+              <span class="folder">&nbsp;SE </span>
               <ul>
               
                 <li class='{% firstof collapse.se collapse.se_online "closed" %}'>
                   <span class="folder">
-                    <a target="frame" href="/gstat/rrd/Site/{{ site_name }}/online/">&nbsp; Online Storage </a>
+                    <a target="frame" href="/gstat/rrd/Site/{{ site_name }}/online/">&nbsp;Online Storage </a>
                   </span>
                   <ul>
                     {% for se,vos in tree_se %}
@@ -263,17 +264,18 @@
                       <span class="se">
                         <a target="frame" href="/gstat/rrd/SE/{{ se }}/online/">&nbsp;{{ se }}</a>
                         {% if tree_sitebdii %}
-                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
+                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this entity"/> </a>
                         {% endif %}
                       </span>
                       <ul>
                         <li class="closed">
-                          <span class="folder">&nbsp; Supported VO </span>
+                          <span class="folder">&nbsp;Supported VO </span>
                           <ul>
-		                    {% for vo in vos %}
+		                    {% for vo,sa in vos %}
 		                    <li>
 		                      <span class="vo">
 		                        <a target="frame" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/online/">&nbsp;{{ vo }}</a>
+		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -287,7 +289,7 @@
                 
                 <li class='{{ collapse.se_nearline|default:"closed" }}'>
                   <span class="folder">
-                    <a target="frame" href="/gstat/rrd/Site/{{ site_name }}/nearline/">&nbsp; Nearline Storage </a>
+                    <a target="frame" href="/gstat/rrd/Site/{{ site_name }}/nearline/">&nbsp;Nearline Storage </a>
                   </span>
                   <ul>
                     {% for se,vos in tree_se %}
@@ -295,12 +297,12 @@
                       <span class="se">
                         <a target="frame" href="/gstat/rrd/SE/{{ se }}/nearline/">&nbsp;{{ se }}</a>
                         {% if tree_sitebdii %}
-                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
+                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this entity"/> </a>
                         {% endif %}
                       </span>
                       <ul>
                         <li class='closed'>
-                          <span class="folder">&nbsp; Supported VO </span>
+                          <span class="folder">&nbsp;Supported VO </span>
                           <ul>
 		                    {% for vo in vos %}
 		                    <li>
@@ -324,17 +326,17 @@
           
           {% if tree_service %}
             <li class='{% firstof collapse.service "closed" %}'>
-              <span class="folder">&nbsp; Service </span>
+              <span class="folder">&nbsp;Service </span>
               <ul>
                 {% for type,uniqueids in tree_service %}
                 <li class="closed">
-                  <span class="folder">&nbsp; {{ type }} </span>
+                  <span class="folder">&nbsp;{{ type }} </span>
                   <ul>
                     {% for uniqueid in uniqueids %}
                     <li>
-                      <span class="ce">&nbsp; {{ uniqueid }}
+                      <span class="ce">&nbsp;{{ uniqueid }} 
                         {% if tree_sitebdii %}
-                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueserviceuniqueid={{ uniqueid }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
+                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueserviceuniqueid={{ uniqueid }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this entity"/> </a>
                         {% endif %}
                       </span>
                     </li>
@@ -348,25 +350,26 @@
           
           {% if tree_vo %}
             <li class='{% firstof collapse.vo_job collapse.vo_online collapse.vo_nearline "closed" %}'>
-              <span class="folder">&nbsp; Supported VO </span>
+              <span class="folder">&nbsp;Supported VO </span>
               <ul>
                 {% for vo, clusters, ses in tree_vo %}
                 <li class='{{ collapse|dict_get:vo|default:"closed" }}'>
-                  <span class="folder">&nbsp; {{ vo }} </span>
+                  <span class="folder">&nbsp;{{ vo }} </span>
                   <ul>
                     {% if clusters %}
                     <li class='{{ collapse.vo_job|default:"closed" }}'>
-                      <span class="folder">&nbsp; Cluster </span>
+                      <span class="folder">&nbsp;Cluster </span>
                       <ul>
                         <li class='{{ collapse.vo_job|default:"closed" }}'>
                           <span class="folder"> 
-                            <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/job/">&nbsp; Grid Jobs </a>
+                            <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/job/">&nbsp;Grid Jobs </a>
                           </span>
                           <ul>
-		                    {% for cluster in clusters %}
+		                    {% for cluster,ce in clusters %}
 		                    <li>
 		                      <span class="ce">
 		                        <a target="frame" href="/gstat/rrd/VOCluster/{{ vo }}/{{ cluster }}/job/">&nbsp;{{ cluster }}</a>
+		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueCE entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -378,17 +381,18 @@
                     
                     {% if ses %}
                     <li class='{% firstof collapse.vo_online collapse.vo_nearline "closed" %}'>
-                      <span class="folder">&nbsp; SE </span>
+                      <span class="folder">&nbsp;SE </span>
                       <ul>
                         <li class='{{ collapse.vo_online|default:"closed" }}'>
                           <span class="folder"> 
-                            <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/online/">&nbsp; Online Storage </a>
+                            <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/online/">&nbsp;Online Storage </a>
                           </span>
                           <ul>
-		                    {% for se in ses %}
+		                    {% for se,sa in ses %}
 		                    <li>
 		                      <span class="se">
 		                        <a target="frame" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/online/">&nbsp;{{ se }}</a>
+		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -396,13 +400,14 @@
                         </li>
                         <li class='{{ collapse.vo_nearline|default:"closed" }}'>
                           <span class="folder">
-                          <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/nearline/">&nbsp; Nearline Storage </a>
+                          <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/nearline/">&nbsp;Nearline Storage </a>
                           </span>
                           <ul>
-		                    {% for se in ses %}
+		                    {% for se,sa in ses %}
 		                    <li>
 		                      <span class="se">
 		                        <a target="frame" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/nearline/">&nbsp;{{ se }}</a>
+		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}

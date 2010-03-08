@@ -69,8 +69,8 @@ function buildTree() {
 /** Builds a tree when a host is selected in the combobox */
 function selectHost(selectobj){
     selectedHost = selectobj.options[selectobj.selectedIndex].value;
-    var urllink = document.getElementById('urllink');
-    urllink.href = '/gstat/ldap/site/' + selectobj.options[selectobj.selectedIndex].text;
+    //var urllink = document.getElementById('urllink');
+    //urllink.href = '/gstat/ldap/site/' + selectobj.options[selectobj.selectedIndex].text;
     var urltext = document.getElementById('urltext');
     urltext.value = selectedHost;
     resetAttributesTable();
@@ -81,8 +81,8 @@ function selectHost(selectobj){
 function inputHost(){
     var urltext = document.getElementById('urltext');
     selectedHost = urltext.value;
-    var urllink = document.getElementById('urllink');
-    urllink.href = '/gstat/ldap/server/' + selectedHost;
+    //var urllink = document.getElementById('urllink');
+    //urllink.href = '/gstat/ldap/server/' + selectedHost;
     var hosts = document.getElementById('hosts');
     hosts.selectedIndex = 0;
     resetAttributesTable();

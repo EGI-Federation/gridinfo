@@ -239,7 +239,7 @@
                 if (r != 'N/A') {
                   $('#cpu').append(
                     $('<a></a>').attr({'href':'/gstat/site/{{ site_name }}/treeview/subcluster_cpu/'}).append(
-                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/cpu/e-3h/small/'})
+                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/cpu/e-3h/small/', 'border':'0'})
                     )
                   );
                 } else {
@@ -254,7 +254,7 @@
                 if (r != 'N/A') {
                   $('#online').append(
                     $('<a></a>').attr({'href':'/gstat/site/{{ site_name }}/treeview/se_online/'}).append(
-                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/online/e-3h/small/'})
+                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/online/e-3h/small/', 'border':'0'})
                     )
                   );
                 } else {
@@ -269,7 +269,7 @@
                 if (r != 'N/A') {
                   $('#nearline').append(
                     $('<a></a>').attr({'href':'/gstat/site/{{ site_name }}/treeview/se_nearline/'}).append(
-                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/nearline/e-3h/small/'})
+                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/nearline/e-3h/small/', 'border':'0'})
                     )
                   );
                 } else {
@@ -347,7 +347,7 @@
 	          {% ifnotequal vo.totaljobs None %}
 	          <td colspan="3">
 	            <a href="/gstat/site/{{ site_name }}/treeview/vo_job/{{ vo.voname }}/">
-	              <img src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/job/e-3h/small/"/>
+	              <img src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/job/e-3h/small/" border=0/>
 	            </a>
 	          </td>
               {% endifnotequal %}
@@ -355,12 +355,12 @@
               {% ifnotequal vo.totalonlinesize None %}
 	          <td colspan="2">
 	            <a href="/gstat/site/{{ site_name }}/treeview/vo_online/{{ vo.voname }}/">
-	              <img src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/online/e-3h/small/"/>
+	              <img src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/online/e-3h/small/" border=0/>
 	            </a>
 	          </td>
 	          <td colspan="2">
 	            <a href="/gstat/site/{{ site_name }}/treeview/vo_nearline/{{ vo.voname }}/">
-	              <img src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/nearline/e-3h/small/"/>
+	              <img src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/nearline/e-3h/small/" border=0/>
 	            </a>
 	          </td>
               {% endifnotequal %}

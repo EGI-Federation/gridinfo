@@ -58,13 +58,13 @@
     <div id="treediv">
     <ul id="tree" class="filetree treeview">
       <li>
-        <span class="folder">&nbsp; Service </span>
+        <span class="folder">&nbsp;Service </span>
         <ul>
         
         
           {% if tree_topbdii %}
           <li class='{{ collapse.bdii_top|default:"closed" }}'>
-            <span class="folder"> &nbsp; Top BDII </span>
+            <span class="folder"> &nbsp;Top BDII </span>
             <ul>
               {% for hostname,checks in tree_topbdii %}
               
@@ -109,7 +109,7 @@
           
           {% if tree_sitebdii %}
           <li class='{{ collapse.bdii_site|default:"closed" }}'>
-            <span class="folder"> &nbsp; Site BDII </span>
+            <span class="folder"> &nbsp;Site BDII </span>
             <ul>
               {% for hostname,checks in tree_sitebdii %}
               

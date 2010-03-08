@@ -69,7 +69,7 @@ def get_gluevoviews(service_list, vo_name=None):
             try:
                 voname = vo_to_voview_mapping[voview.glueceuniqueid][voview.localid]
             except KeyError, e:
-                    continue
+                continue
             if voname == vo_name:
                 voview_list.append(voview)
         voviews = voview_list
