@@ -19,7 +19,7 @@
     function changeFilterValue(event) {
         filtertype = document.getElementById('filtertype').value;
         filtervalue = document.getElementById('filtervalue').value;
-        window.location.href = '/gstat/vo/' + encodeURIComponent(filtervalue);
+        window.location.href = '/gstat/vo/' + filtervalue;
     }
 
 
@@ -81,31 +81,31 @@
     <ul id="tree" class="filetree treeview">
 <!--     
       <li>
-        <span class="folder">&nbsp; VO</span>
+        <span class="folder">&nbsp;VO</span>
         <ul>
 --> 
           {% if tree_vo %}
             {% for vo, job, storage in tree_vo %}
             <li class='{{ collapse|dict_get:vo|default:"closed" }}'>
-              <span class="folder">&nbsp; {{ vo }} </span>
+              <span class="folder">&nbsp;{{ vo }} </span>
               <ul>
               
                 {% if job %}
                 <li class='closed'>
                   <span class="folder">
-                    <a target="frame" href="/gstat/rrd/VO/{{ vo }}/job/">&nbsp; Grid Jobs </a>
+                    <a target="frame" href="/gstat/rrd/VO/{{ vo }}/job/">&nbsp;Grid Jobs </a>
                   </span>
                   <ul>
                     
                     {% for site_name, clusters in job %}
                     <li class='closed'>
                       <span class="folder">
-                        <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/job/">&nbsp; {{ site_name }} </a>
+                        <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/job/">&nbsp;{{ site_name }} </a>
                         <a target="frame" href="/gstat/ldap/browse?host=ldap://lcg-bdii.cern.ch:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
                       </span>
                       <ul>
                         <li class='closed'>
-                          <span class="folder">&nbsp; Cluster </span>
+                          <span class="folder">&nbsp;Cluster </span>
                           <ul>
 		                    {% for cluster in clusters %}
 		                    <li>
@@ -131,19 +131,19 @@
                 
                 <li class='closed'>
                   <span class="folder">
-                    <a target="frame" href="/gstat/rrd/VO/{{ vo }}/online/">&nbsp; Online Storage  </a>
+                    <a target="frame" href="/gstat/rrd/VO/{{ vo }}/online/">&nbsp;Online Storage  </a>
                   </span>
                   <ul>
                   
                     {% for site_name, ses in storage %}
                     <li class='closed'>
                       <span class="folder">
-                        <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/online/">&nbsp; {{ site_name }} </a>
+                        <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/online/">&nbsp;{{ site_name }} </a>
                         <a target="frame" href="/gstat/ldap/browse?host=ldap://lcg-bdii.cern.ch:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
                       </span>
                       <ul>
                         <li class='closed'>
-                          <span class="folder">&nbsp; SE </span>
+                          <span class="folder">&nbsp;SE </span>
                           <ul>
 		                    {% for se in ses %}
 		                    <li>
@@ -164,19 +164,19 @@
                 
                 <li class='closed'>
                   <span class="folder">
-                    <a target="frame" href="/gstat/rrd/VO/{{ vo }}/nearline/">&nbsp; Nearline Storage </a>
+                    <a target="frame" href="/gstat/rrd/VO/{{ vo }}/nearline/">&nbsp;Nearline Storage </a>
                   </span>
                   <ul>
                   
                     {% for site_name, ses in storage %}
                     <li class='closed'>
                       <span class="folder">
-                        <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/nearline/">&nbsp; {{ site_name }} </a>
+                        <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/nearline/">&nbsp;{{ site_name }} </a>
                         <a target="frame" href="/gstat/ldap/browse?host=ldap://lcg-bdii.cern.ch:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
                       </span>
                       <ul>
                         <li class='closed'>
-                          <span class="folder">&nbsp; SE </span>
+                          <span class="folder">&nbsp;SE </span>
                           <ul>
 		                    {% for se in ses %}
 		                    <li>

@@ -2,7 +2,7 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.http import HttpResponse, Http404
 from django.core.urlresolvers import reverse
 from django.utils import html
-from glue.models import glueservice
+from glue.models import glueservice,gluece, gluevoview
 from core.utils import *
 import gsutils
 import socket
@@ -18,11 +18,11 @@ def overview(request, site_name):
     # Get all the service and entity at site from topology database
     site_entity = get_unique_entity(site_name, 'Site')
     service_list = get_services([site_entity])
-    topbdii_list, sitebdii_list, ce_list, se_list  = [], [], [], []
+    topbdii_list, sitebdii_list, cluster_list, se_list  = [], [], [], []
     for service in service_list:
         if   service.type == 'bdii_top':  topbdii_list.append(service)
         elif service.type == 'bdii_site': sitebdii_list.append(service)
-        elif service.type == 'CE':        ce_list.append(service)
+        elif service.type == 'CE':        cluster_list.append(service)
         elif service.type == 'SE':        se_list.append(service)
 
     # Get the overall monitoring and validation results
@@ -55,7 +55,7 @@ def overview(request, site_name):
                 status_list_site.append(dict)
     # Count the numbers of entities
     count_dict            = {}
-    count_dict['ce']      = len(ce_list)
+    count_dict['ce']      = len(cluster_list)
     count_dict['se']      = len(se_list)
     count_dict['service'] = len(service_list)
 
@@ -187,11 +187,11 @@ def treeview(request, site_name, type, attribute=""):
     # Get service list from topology database
     site_entity = get_unique_entity(site_name, 'Site')
     service_list = get_services([site_entity])
-    topbdii_list, sitebdii_list, ce_list, se_list, others_list  = [], [], [], [], []
+    topbdii_list, sitebdii_list, cluster_list, se_list, others_list  = [], [], [], [], []
     for service in service_list:
         if   service.type == 'bdii_top':  topbdii_list.append(service)
         elif service.type == 'bdii_site': sitebdii_list.append(service)
-        elif service.type == 'CE':        ce_list.append(service)
+        elif service.type == 'CE':        cluster_list.append(service)
         elif service.type == 'SE':        se_list.append(service)
         else:                             others_list.append(service)
 
@@ -209,8 +209,6 @@ def treeview(request, site_name, type, attribute=""):
         hostnames_topbdii = [topbdii.hostname for topbdii in topbdii_list]
         hostnames_all_topbdii = get_hosts_from_aliases(hostnames_topbdii)        
         for hostname in hostnames_all_topbdii:
-            #tree_topbdii[hostname] = get_check_list(nagios_status, hostname)
-            #tree_topbdii.append( [hostname, get_check_list(nagios_status, hostname)] )
             tree_topbdii.append( ( hostname, tuple(get_check_list(nagios_status, hostname)) ) )
         # decide expanded tree node
         if type == "bdii_top":
@@ -225,8 +223,6 @@ def treeview(request, site_name, type, attribute=""):
         hostnames_sitebdii = [sitebdii.hostname for sitebdii in sitebdii_list]
         hostnames_all_sitebdii = get_hosts_from_aliases(hostnames_sitebdii)   
         for hostname in hostnames_all_sitebdii:
-            #tree_sitebdii[hostname] = get_check_list(nagios_status, hostname)
-            #tree_sitebdii.append( [hostname, get_check_list(nagios_status, hostname)] )
             tree_sitebdii.append( ( hostname, tuple(get_check_list(nagios_status, hostname)) ) )
         # decide expanded tree node
         if type == "bdii_site":
@@ -234,13 +230,43 @@ def treeview(request, site_name, type, attribute=""):
             for hostname_expand in hostnames_expand:
                 collapse[hostname_expand] = "expanded"
 
+    # Get entity mapping information
+    #start_time = time.time()
+    ces = gluece.objects.filter(gluecluster_fk__in = [cluster.uniqueid for cluster in cluster_list])
+    voviews = gluevoview.objects.filter(gluece_fk__in = [ce.uniqueid for ce in ces])
+    vo_voview_mapping = get_vo_to_voview_mapping(voviews)
+    ce_cluster_mapping = {}
+    for ce in ces:
+        ce_cluster_mapping[ce.uniqueid] = ce.gluecluster_fk
+    #for voview in voviews:
+    #    voview_ce_mapping[voview.localid] = voview.gluece_fk
+    cluster_vo_mapping = {}
+    for cluster in cluster_list:
+        for voview in voviews:
+            if voview.gluece_fk in ce_cluster_mapping.keys() and ce_cluster_mapping[voview.gluece_fk] == cluster.uniqueid:
+                if cluster.uniqueid not in cluster_vo_mapping:
+                    cluster_vo_mapping[cluster.uniqueid] = {}
+                # cluster_vo_mapping[cluster.uniqueid][vo] = ce
+                cluster_vo_mapping[cluster.uniqueid][ vo_voview_mapping[voview.gluece_fk][voview.localid] ] = voview.gluece_fk
+    
+    sas = gluesa.objects.filter(gluese_fk__in = [se.uniqueid for se in se_list])
+    vo_sa_mapping = get_vo_to_sa_mapping(sas)
+    se_vo_mapping = {}
+    for se in se_list:
+        for sa in sas:
+            if sa.gluese_fk == se.uniqueid:
+                if se.uniqueid not in se_vo_mapping:
+                    se_vo_mapping[se.uniqueid] = {}
+                se_vo_mapping[se.uniqueid][ vo_sa_mapping[se.uniqueid][sa.localid] ] = sa.localid
+    #print "Time taken = %d" %(time.time() - start_time)
+    
+
+
     # Get subtree of Clusters and associated SubClusters for static cpu numbers
     # ("cluster hostname", ("subcluster list"))
     tree_cluster_cpu = []
-    if ce_list:
-        for cluster in ce_list:
-            #tree_cluster_cpu[cluster.hostname] = [subcluster.uniqueid for subcluster in get_gluesubclusters([cluster])]
-            #tree_cluster_cpu.append( [cluster.hostname, [subcluster.uniqueid for subcluster in get_gluesubclusters([cluster])].sort()] )
+    if cluster_list:
+        for cluster in cluster_list:
             tree_cluster_cpu.append( ( cluster.hostname, tuple(sorted(subcluster.uniqueid for subcluster in get_gluesubclusters([cluster]))) ) )
     tree_cluster_cpu.sort()
     
@@ -249,63 +275,49 @@ def treeview(request, site_name, type, attribute=""):
     
     # Get subtree of Clusters and supported VOs for job numbers
     # ("cluster hostname", ("vo list"))
-    
-    """
-    queues = {}
-    glueces = get_glue_entities(model_name='gluece')
-    if glueces:
-        for gluece in glueces:
-            if gluece.gluecluster_fk not in queues:
-                queues[gluece.gluecluster_fk] = {}
-            queues[gluece.gluecluster_fk][gluece.name] = gluece.uniqueid
-    """
-    
     tree_cluster_job = []
-    if ce_list:
-        for cluster in ce_list:
-            #tree_cluster_job[cluster.hostname] = [vo.uniqueid for vo in get_vos([cluster])]
-            #vos = [vo.uniqueid for vo in get_vos([cluster])]
-            #tree_cluster_job.append( [cluster.hostname, vos.sort()] )
-            vos = tuple(sorted(vo.uniqueid for vo in get_vos([cluster])))
-            """
-            vos = []
-            vo_names = [vo.uniqueid for vo in get_vos([cluster])]
-            vo_names.sort()
-            for vo_name in vo_names:
-                try:
-                    print cluster.uniqueid, vo_name
-                    gluece_uniqueid = queues[cluster.uniqueid][vo_name]
-                except:
-                    gluece_uniqueid = ""
-                vos.append( (vo_name, gluece_uniqueid)  )
-            vos = tuple(vos)   
-            """
-
-            tree_cluster_job.append( (cluster.hostname, vos) )
+    if cluster_list:
+        for cluster in cluster_list:
+            #vos = tuple(sorted(vo.uniqueid for vo in get_vos([cluster])))
+            #tree_cluster_job.append( (cluster.hostname, vos) )
+            vo_ce_list = []
+            vos = cluster_vo_mapping[cluster.uniqueid].keys()
+            vos.sort()
+            for vo in vos:
+                vo_ce_list.append( (vo, cluster_vo_mapping[cluster.uniqueid][vo]) )
+            tree_cluster_job.append( (cluster.hostname, tuple(vo_ce_list) ) )
+        
             # Gather information of VOs
             for vo in vos:
                 try:
-                    dict_vo[vo][0].append(cluster.hostname)
+                    dict_vo[vo][0].append( (cluster.hostname, cluster_vo_mapping[cluster.uniqueid][vo]) )
                 except:
-                    dict_vo[vo] = [[cluster.hostname], []]
-    
+                    dict_vo[vo] = [[ (cluster.hostname, cluster_vo_mapping[cluster.uniqueid][vo]) ], []]
+        tree_cluster_job.sort()
+        
     # Get subtree of SEs and supported VOs for static and shared storage space
     # ("se hostname", ("vo list"))
     tree_se = []
     if se_list:
         for se in se_list:
-            #tree_se[se.hostname] = [vo.uniqueid for vo in get_vos([se])]
-            #vos = [vo.uniqueid for vo in get_vos([se])]
-            #tree_se.append( [se.hostname, vos.sort()] )
-            vos = tuple(sorted(vo.uniqueid for vo in get_vos([se])))
-            tree_se.append( (se.hostname, vos) )
+            #vos = tuple(sorted(vo.uniqueid for vo in get_vos([se])))
+            #tree_se.append( (se.hostname, vos) )
+            
+            vo_sa_list = []
+            vos = se_vo_mapping[se.uniqueid].keys()
+            vos.sort()
+            for vo in vos:
+                vo_sa_list.append( (vo, se_vo_mapping[se.uniqueid][vo]) )
+            tree_se.append( (se.hostname, tuple(vo_sa_list)) )
+            
+            
             # Gather information of VOs
             for vo in vos:
                 try:
-                    dict_vo[vo][1].append(se.hostname)
+                    dict_vo[vo][1].append( (se.hostname, se_vo_mapping[se.uniqueid][vo]) )
                 except:
-                    dict_vo[vo] = [[], [se.hostname]]
-                        
+                    dict_vo[vo] = [[], [ (se.hostname, se_vo_mapping[se.uniqueid][vo]) ]]
+        tree_se.sort()
             
     # Get subtree of service type and associated Services
     # ("service type", ("service list"))
@@ -320,7 +332,6 @@ def treeview(request, site_name, type, attribute=""):
     keys = dict_service.keys()
     keys.sort()
     for key in keys:
-        #tree_service.append( [key, dict_service[key].sort()] )
         tree_service.append( (key, tuple(sorted(dict_service[key]))) )
     
     # Get subtree of VO and shared resource
