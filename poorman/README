@@ -1,0 +1,4 @@
+You need to provide a list of certificates in the file:
+certificates/httpd.passwd
+
+This file might not be created if you just checked out this application.
