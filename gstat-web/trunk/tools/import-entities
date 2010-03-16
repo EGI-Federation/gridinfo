@@ -114,21 +114,21 @@ def save_entities():
 
     #Get a dictionary of the existing unique IDs
     cursor = connection.cursor()
-    cursor.execute("SELECT uniqueid FROM topology_entity;")
+    cursor.execute("SELECT uniqueid, type FROM topology_entity;")
     row = cursor.fetchall()
     unique_ids = {}
     for tuple in row:
-        unique_ids[tuple[0].lower()] = None
+        unique_ids[tuple[0].lower() + tuple[1].lower()] = None
 
-    for entity_id in entity_store.keys():
+    for entity_id, type in entity_store.iteritems():
         entity_hostname = get_hostname(entity_id)
-        if ( unique_ids.has_key(entity_id.lower()) ):
+        if ( unique_ids.has_key(entity_id.lower() + type.lower()) ):
             update_data = "type='%s', hostname='%s', updated_at='%s' where uniqueid='%s'" %(entity_id, entity_store[entity_id], entity_hostname, date_time)   
             cursor.execute("UPDATE topology_entity set %s;"% update_data)
         else:
             insert_data = "('%s','%s','%s','%s','%s','%s')" %(entity_id, entity_store[entity_id], entity_hostname, date_time, date_time, date_time)   
             cursor.execute('INSERT into topology_entity(uniqueid, type, hostname, timestamp, created_at, updated_at) value %s;'% insert_data)
-            unique_ids[entity_id.lower()] = None
+            unique_ids[entity_id.lower() + type.lower()] = None
     transaction.commit_unless_managed()
 
 def save_relationships():
