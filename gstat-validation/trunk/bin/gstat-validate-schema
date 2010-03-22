@@ -43,6 +43,9 @@ error_messages = {
     "Constraint violation" : ["Constraint violation", "WARNING"],
     "Type or value exists" : ["Type or value exists", "WARNING"],
     "Invalid syntax" : ["Invalid syntax", "WARNING"],
+    "Undefined attribute type" : ["Invalid syntax", "WARNING"],
+    "Server is unwilling to perform" : ["Constraint violation", "ERROR"],
+    "Invalid DN syntax": ["Invalid syntax", "WARNING"], 
 }
 
 def start_slapd():
