@@ -285,7 +285,7 @@ def check_site_other_info(site):
    site_id= site["GlueSiteUniqueID"]
    error_found=False
  
-   ROC_names = ['AP', 'FR', 'CERN','CE','DECH', 'Italy', 'LatinAmerica', 'NE', 'North', 'Russia', 'SEE', 'SWE', 'UK/I']
+   ROC_names = ['AP', 'FR', 'CERN','CE','DECH', 'Italy', 'LatinAmerica', 'NE', 'North', 'Russia', 'SEE', 'SWE', 'UK/I', 'ROC_Canada']
    SERVICE_names = ["prod", "pps", "cert"]
    
    #try:
