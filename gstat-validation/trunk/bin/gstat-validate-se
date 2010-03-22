@@ -753,9 +753,6 @@ if __name__ == "__main__":
         if (obj == "GlueVOInfo" and
            ldifSE[v].has_key('GlueVOInfoTag')):
            found=1
-     if (found == 0):
-        my_errors.log(gsutils.get_unique_id(key),'VOInfo.Tag',
-                          'No VOInfoTags defined at this site', gsutils.get_site(key))
 
      for key in ldifSE.keys(): 
          for objectClass in ldif[key]['objectClass']:
