@@ -320,8 +320,6 @@ def test_SA_Path(key,entry):
    if (SAPathFound == 1 and VOInfoPathFound == 1):
       my_errors.log(gsutils.get_unique_id(key),'VOInfo.Path', 'GlueSAPath must not be published', gsutils.get_site(key))
       return
-   if (SAPathFound == 0 and VOInfoPathFound == 0):
-      my_errors.log(gsutils.get_unique_id(key),'VOInfo.Path', 'GlueSAPath must be published since there is no VOInfoPath associated', gsutils.get_site(key))
  
 def test_SA_ExpirationMode(key,entry):
    logging.debug("Testing SA ExpirationMode")
