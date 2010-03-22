@@ -270,7 +270,7 @@ def check_valid_url(site):
    try:
       if site.has_key("GlueSiteWeb"):
             url=site["GlueSiteWeb"][0]
-            url = url.replace('http://','')
+            url = url.replace('http://','').replace('https://','')
             index = url.find("/")
             if ( index != -1):
                   url = url[0:index]
