@@ -12,6 +12,7 @@ import dns.resolver
 import gsutils
 
 error_messages= {
+      "connection.error":      ["Connection Error","ERROR"],
       "site.mandatory_attrs.missing_attr":      ["A mandatory attribute is missing. ","ERROR"],
       "site.mandatory_attrs.exception":         ["Unexpected error finding attributes. ","ERROR"],
       "site.values.attribute_empty":            ["One of the attributes have no values. ","ERROR"],
@@ -436,6 +437,11 @@ if __name__ == "__main__":
    
             # Check that the info in the GlueSiteOtherInfo field is correct
             check_site_other_info(entry)
+
+   if (len(dns_dict) == 0 ):
+      details = "No results returned."
+      my_errors.log(config['bind'], "connection.error", details, 'Unknown')
+   
    gsutils.do_output(my_errors,config)   
    gsutils.do_exit(my_errors)   
    

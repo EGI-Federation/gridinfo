@@ -8,6 +8,7 @@ import xml.sax.handler
 
 # Define the errors
 error_messages= {
+   "connection.error":      ["Connection Error","ERROR"],
    "service.attribute.missing": ["The GlueService object is missing an attribute","ERROR"],
    "service.published": ["The Service is not published.","ERROR"],
    "service.registered": ["The Service is not registered in the GOC","ERROR"],
@@ -195,6 +196,11 @@ for site in goc_services.keys():
                goc_services[site][host].index(service)
             except:
                my_errors.log(service + "_" + host,'service.published', 'The Service %s on %s is not registered in the GOC DB.' %(service, host), site)
+
+if (len(dns) == 0 ):
+   details = "No results returned."
+   my_errors.log(config['bind'], "connection.error", details, 'Unknown')
+
 gsutils.do_output(my_errors,config)   
 gsutils.do_exit(my_errors)   
             

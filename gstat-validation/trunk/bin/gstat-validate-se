@@ -36,6 +36,7 @@ import logging
 import gsutils
 
 error_messages = {
+   "connection.error":      ["Connection Error","ERROR"],
     "gstat.value.error": ["A value is invalid","ERROR"],
    "SE.Attribute.Exist": ["Manditory attribute does not exist in the GlueSE entry.","ERROR"],
    "SE.Attribute.OptionalExist": ["Optional attribute does not exist in the Glue SE entry.","WARNING"],
@@ -766,6 +767,10 @@ if __name__ == "__main__":
                 test_glue_SEControlProtocol(key,ldifSE[key])
              if ( objectClass == "GlueSEAccessProtocol" ):
                 test_glue_SEAccessProtocol(key,ldifSE[key])
+
+   if (len(ldif) == 0 ):
+      details = "No results returned."
+      my_errors.log(config['bind'], "connection.error", details, 'Unknown')
 
    gsutils.do_output(my_errors,config)   
    gsutils.do_exit(my_errors)   
