@@ -68,7 +68,7 @@ if __name__ == "__main__":
    my_errors=gsutils.error_logger('gstat-validate-service-check',error_messages)
 
    # Set filter to reduced the amount of information 
-   filter = "'(|(objectclass=GlueService)(objectClass=GlueSite)(objectClass=GlueCluster))'"
+   filter = "'(|(objectclass=GlueService)(objectClass=GlueSite)(objectClass=GlueCE))'"
 
    if config.has_key('file'):
       source = "file://%s" % (config['file'])
@@ -86,9 +86,9 @@ if __name__ == "__main__":
       entry = ldif[dns[dn][0]:dns[dn][1]].strip()
       entry = gsutils.convert_entry(entry)
       for object_class in entry['objectClass']:
-         if ( object_class == "GlueCluster" ):
+         if ( object_class == "GlueCE" ):
             type = 'CE'
-            attribute = 'GlueClusterName'
+            attribute = 'GlueCEInfoHostName'
             try:
                host = entry[attribute][0]
 
