@@ -225,7 +225,7 @@ if __name__ == "__main__":
     bdiis = get_site_bdiis_from_list(bdiis)
     test_published(bdiis,"site")
     test_goc(bdiis,"site")
-                
+
    gsutils.do_output(my_errors,config)   
    gsutils.do_exit(my_errors)   
 
