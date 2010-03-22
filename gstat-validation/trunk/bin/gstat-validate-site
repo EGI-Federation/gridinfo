@@ -341,7 +341,7 @@ def check_site_other_info(site):
                     my_errors.log(site_id[0], "site.OhterInfo.missing_WLCG", details, site_id[0])
                     error_found = True
             else:
-                if (other_info.has_key("WLCG_TIER") and not  other_info['WLCG_TIER'][0] == 3 ):
+                if (other_info.has_key("WLCG_TIER") and not  other_info['WLCG_TIER'][0] == "3" ):
                     details = "%s is not an official WLCG Tier!" %(site_id[0])
                     my_errors.log(site_id[0], "site.OhterInfo.missing_WLCG", details, site_id[0])
                     error_found = True
