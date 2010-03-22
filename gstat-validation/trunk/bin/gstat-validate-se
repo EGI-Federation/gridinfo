@@ -85,6 +85,7 @@ error_messages = {
    "SEAccessProtocol.LocalID.Unique": ["GlueSEAccessProtocolLocalID is not unique within SE","ERROR"],
    "SEAccessProtocol.LocalID.Exist": ["GlueSEAccessProtocolLocalID does not exist","ERROR"],
    "Service.Status": ["has unknown value","ERROR"],
+   "Service.Attribute.Exist": ["Service entry is missing an attribute.","ERROR"],
 }
 
 def test_glue_initID(ldif,attr):
@@ -487,7 +488,7 @@ def test_SEControlProtocol_Endpoint(key,entry):
          # GlueServiceUniqueID attribute must exist and must be set
          logging.debug("Testing GlueService for existence of GlueServiceUniqueID")
          if not ldifSRM[kkey].has_key('GlueServiceUniqueID'):
-            my_errors.log(kkey,'Service.UniqueID.Exist',
+            my_errors.log(kkey,'Service.Attribute.Exist',
                     'GlueServiceUniqueID does not exist in the entry', gsutils.get_site(key))
 
          # Test for unique GlueServiceUniqueID value
@@ -501,14 +502,14 @@ def test_SEControlProtocol_Endpoint(key,entry):
          if ldifSRM[kkey].has_key('GlueServiceVersion'):
             test_SRM_Version(kkey,ldifSRM[kkey],"GlueServiceVersion")
          else:
-            my_errors.log(kkey,'Service.Version.Exist',
+            my_errors.log(kkey,'Service.Attribute.Exist',
                     'GlueServiceVersion does not exist in the entry', gsutils.get_site(key))
 
          # GlueServiceStatus must be set to one of the allowed statuses
          if (ldifSRM[kkey].has_key('GlueServiceStatus')):
              test_Service_Status(kkey,ldifSRM[kkey])
          else:
-             my_errors.log(kkey,'Service.Status.Exist',
+             my_errors.log(kkey,'Service.Attribute.Exist',
                     'GlueServiceStatus does not exist in the entry', gsutils.get_site(key))
 
          # GlueServiceAccessControlBaseRule should be set; check value format
