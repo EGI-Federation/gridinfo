@@ -10,6 +10,7 @@ import xml.sax.handler
 error_messages= {
    "connection.error":      ["Connection Error","ERROR"],
    "service.attribute.missing": ["The GlueService object is missing an attribute","ERROR"],
+   "service.attribute.syntax": ["GlueService object attribute syntax error","ERROR"],
    "service.published": ["The Service is not published.","ERROR"],
    "service.registered": ["The Service is not registered in the GOC","ERROR"],
    }
@@ -132,14 +133,20 @@ if __name__ == "__main__":
                   FKs = entry[attribute]
                   site = None
                   for FK in FKs:
-                     index = FK.index('=')
-                     key = FK[:index]
-                     value = FK[index+1:]
-                     if ( key == 'GlueSiteUniqueID'):
-                        site = value.lower()
-                  if ( site == None ):
-                     my_errors.log(gsutils.get_unique_id(dn),'service.attribute.missing', 'The GlueService entry is missing the attribute, %s' %(attribute), gsutils.get_site(dn))
-                     site = gsutils.get_site(dn)
+                     try:
+                        index = FK.index('=')
+                        key = FK[:index]
+                        value = FK[index+1:]
+                        if ( key == 'GlueSiteUniqueID'):
+                           site = value.lower()
+                     except ValueError:
+                        my_errors.log(gsutils.get_unique_id(dn),
+                                      'service.attribute.syntax',
+                                      'The GlueService entry %s attribute has a syntax error, expect key=value syntax' %(attribute),
+gsutils.get_site(dn))
+                     if ( site == None ):
+                        my_errors.log(gsutils.get_unique_id(dn),'service.attribute.missing', 'The GlueService entry is missing the attribute, %s' %(attribute), gsutils.get_site(dn))
+                        site = gsutils.get_site(dn)
                   if services.has_key(site):
                      if services[site].has_key(host):
                         services[site][host].append(service_types[type])
