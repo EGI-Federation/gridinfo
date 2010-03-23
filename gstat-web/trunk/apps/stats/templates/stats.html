@@ -11,12 +11,15 @@
 
 {% block scripts-add %}
 <script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="/media/core/scripts/utils.js"></script>
 
 <script type="text/javascript" charset="utf-8">
     $(document).ready(function() { 
-        $("#overviewTable").tablesorter({sortList:[], widgets: ['zebra']}); 
+        $("#overviewTable").tablesorter({sortList:[[0,0]], widgets: ['zebra']}); 
         $("#osTable").tablesorter({sortList:[[0,0],[1,0]], widgets: ['zebra']}); 
         $("#serviceTable").tablesorter({sortList:[[0,0],[1,0]], widgets: ['zebra']}); 
+        $("#seTable").tablesorter({sortList:[[0,0]], widgets: ['zebra']}); 
+        $("#ftsTable").tablesorter({sortList:[[0,0]], widgets: ['zebra']}); 
     filtertype = document.getElementById('filtertype')
     filtertype.value = "{{ type }}";
     try {
@@ -72,52 +75,58 @@
   
   <div id="middle-board" class="board" >
     <h2>OS Information</h2>
-    <table id="osTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
-      <thead> 
-        <tr> 
-          <th>OS Name</th> 
-          <th>OS Release</th> 
-          <th>Physical CPUs</th>
-          <th>Logical CPUs</th>
-        </tr> 
-      </thead> 
-      <tbody> 
-        {% for row in os %}
-        <tr >
-          {% for col in row %}
-          <td >{{ col }}</td>
-          {% endfor %}
-        </tr>
-        {% endfor %}
-      </tbody> 
-    </table> 
+      <div style="overflow: auto; height: 420px;">
+	    <table id="osTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
+	      <thead> 
+	        <tr> 
+	          <th>OS Name</th> 
+	          <th>OS Release</th> 
+	          <th>Physical CPUs</th>
+	          <th>Logical CPUs</th>
+	        </tr> 
+	      </thead> 
+	      <tbody> 
+	        {% for row in os %}
+	        <tr >
+	          {% for col in row %}
+	          <td >{{ col }}</td>
+	          {% endfor %}
+	        </tr>
+	        {% endfor %}
+	      </tbody> 
+	    </table> 
+	  </div>
   </div>
   
   <div id="right-board" class="board rightboard">
     <h2>Service Version Information</h2>
-    <table id="serviceTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
-      <thead> 
-        <tr> 
-          <th>Service</th> 
-          <th>Version</th> 
-          <th>Instances</th>
-        </tr> 
-      </thead> 
-      <tbody> 
-        {% for row in versions %}
-        <tr >
-          {% for col in row %}
-          <td >{{ col }}</td>
-          {% endfor %}
-        </tr>
-        {% endfor %}      
-      </tbody> 
+    <div style="overflow: auto; height: 420px;">
+	    <table id="serviceTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
+	      <thead> 
+	        <tr> 
+	          <th>Service</th> 
+	          <th>Version</th> 
+	          <th>Instances</th>
+	        </tr> 
+	      </thead> 
+	      <tbody> 
+	        {% for row in versions %}
+	        <tr >
+	          {% for col in row %}
+	          <td >{{ col }}</td>
+	          {% endfor %}
+	        </tr>
+	        {% endfor %}      
+	      </tbody> 
     </table> 
+    </div>
   </div>
 
-  <div id="right-board" class="board rightboard">
+  <div class="clear"></div>
+
+  <div class="board" style="float:left; width:30%;">
     <h2>Number of Deployed SE Instances</h2>
-    <table id="SETable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
+    <table id="seTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
       <thead> 
         <tr> 
           <th>Implementation</th> 
@@ -137,9 +146,9 @@
     </table> 
   </div>
 
-  <div id="right-board" class="board rightboard">
+  <div class="board" style="float:left; width:20%;">
     <h2>FTS Versions</h2>
-    <table id="SETable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
+    <table id="ftsTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
       <thead> 
         <tr> 
           <th>Site</th> 

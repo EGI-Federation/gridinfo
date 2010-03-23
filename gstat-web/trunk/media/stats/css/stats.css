@@ -36,17 +36,17 @@
 
 #left-board {
 	float:left;
-	width:25%;	
+	width:20%;	
 }
 
 
 #middle-board {
 	float:left;
-	width:34%;
+	width:40%;
 }
 
 #right-board {
 	float:left;
-	width:34%;
+	width:33%;
 }
 
