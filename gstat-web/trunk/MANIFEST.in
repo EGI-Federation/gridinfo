@@ -12,6 +12,8 @@ include media/geo/css/*
 include media/geo/css/img/*
 include media/geo/scripts/*
 include media/geo/scripts/img/*
+include media/geo/scripts/theme/default/*.css
+include media/geo/scripts/theme/default/img/*
 include media/geo/img/*
 include media/gridmap/css/*
 include media/gridmap/img/*
@@ -30,10 +32,6 @@ include media/service/css/*
 include media/service/css/img/*
 include media/service/scripts/*
 include media/service/scripts/img/*
-include media/stats/css/*
-include media/stats/css/img/*
-include media/stats/scripts/*
-include media/stats/scripts/img/*
 include media/vo/css/*
 include media/vo/css/img/*
 include media/vo/scripts/*
