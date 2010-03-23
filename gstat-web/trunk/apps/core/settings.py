@@ -115,7 +115,6 @@ INSTALLED_APPS = (
     'ldapbrowser',
     'rrd',
     'service',
-    'stats',
     'summary',
     'topology',
     'vo',
