@@ -120,19 +120,35 @@ def save_entities():
     for tuple in row:
         unique_ids[tuple[0].lower() + tuple[1].lower()] = None
 
-    for entity_id, type in entity_store.iteritems():
+    for entity in entity_store.keys():
+        entity_id, type =  entity_store[entity]
         entity_hostname = get_hostname(entity_id)
         if ( unique_ids.has_key(entity_id.lower() + type.lower()) ):
-            update_data = "type='%s', hostname='%s', updated_at='%s' where uniqueid='%s'" %(entity_id, entity_store[entity_id], entity_hostname, date_time)   
+            update_data = "type='%s', hostname='%s', updated_at='%s' where uniqueid='%s'" %(entity_id, type, entity_hostname, date_time)   
             cursor.execute("UPDATE topology_entity set %s;"% update_data)
         else:
-            insert_data = "('%s','%s','%s','%s','%s','%s')" %(entity_id, entity_store[entity_id], entity_hostname, date_time, date_time, date_time)   
+            insert_data = "('%s','%s','%s','%s','%s','%s')" %(entity_id, type, entity_hostname, date_time, date_time, date_time)   
             cursor.execute('INSERT into topology_entity(uniqueid, type, hostname, timestamp, created_at, updated_at) value %s;'% insert_data)
             unique_ids[entity_id.lower() + type.lower()] = None
     transaction.commit_unless_managed()
 
 def save_relationships():
     
+    # Predicate entity mappings 
+    mappings = { 'SiteCountry' : ('Site', 'Country'),
+                 'SiteEgeeRoc' : ('Site', 'EGEE_ROC'),
+                 'SiteEgeeService' : ('Site', 'EGEE_SERVICE'),
+                 'SiteGrid' : ('Site', 'GRID'),
+                 'SiteWlcgTier' : ('Site', 'WLCG_TIER'),
+                 'SiteWlcgParent' : ('Site', 'WLCG_PARENT'),
+                 'SiteService' : ('Site', 'Service'),
+                 'ServiceVO' : ('Service', 'VO')
+                 }
+
+    types = { 'VO' : None, 'WLCG_TIER' : None, 'Site' : None, 'EGEE_ROC': None,
+              'GRID' : None, 'County': None, 'WLCG_PARENT' : None,
+              'EGEE_SERVICE' : None }
+
     #Get the current time
     date_time = str(datetime.utcnow())
     index = date_time.index(".")
@@ -140,11 +156,15 @@ def save_relationships():
 
     #Get a dictionary of the existing IDs
     cursor = connection.cursor()
-    cursor.execute("SELECT uniqueid, id FROM topology_entity;")
+    cursor.execute("SELECT uniqueid, type, id FROM topology_entity;")
     row = cursor.fetchall()
     ids = {}
     for tuple in row:
-        ids[tuple[0].lower()] = tuple[1]
+        type =  tuple[1]
+        if ( types.has_key(type) ) :
+            ids[tuple[0].lower() + type] = tuple[2]
+        else:
+            ids[tuple[0].lower()] = tuple[2]
 
     #Get a dictionary of the existing relationships
     cursor = connection.cursor()
@@ -160,10 +180,19 @@ def save_relationships():
 
     for tuple in relationship_store:
         try:
-            sub = ids[tuple[0].lower()]
-            obj = ids[tuple[1].lower()]
             predicate = tuple[2]
-        except KeyError:
+            sub_type = mappings[predicate][0]
+            obj_type = mappings[predicate][1]
+            if ( types.has_key(sub_type) ):
+                sub = ids[tuple[0].lower() + sub_type]
+            else:
+                sub = ids[tuple[0].lower()]
+            if ( types.has_key(obj_type) ):
+                obj = ids[tuple[1].lower() + obj_type]
+            else:
+                obj = ids[tuple[1].lower()]
+
+        except KeyError, e:
             continue
         if ( relationships.has_key(sub) and relationships[sub].has_key(obj) and relationships[sub][obj].has_key(predicate)):
             update_data = "updated_at='%s' where subject_id='%s'AND object_id='%s' AND predicate='%s'" %(date_time, sub, obj, predicate)   
@@ -194,13 +223,13 @@ def get_sites():
     for object in objects:
         unique_id = object.name
         type = "Site"
-        entity_store[unique_id] = type
+        entity_store[unique_id + type] = (unique_id, type)
 
         #Store country locations and relationships
         location = object.location
         country = location.split(',')[-1].strip()
         type="Country"
-        entity_store[country]=type
+        entity_store[country + type] = (country, type)
         relationship_store.append( ( unique_id, country, "SiteCountry" ) )
         
 def get_site_topologies():
@@ -209,7 +238,7 @@ def get_site_topologies():
     # Get and store GlueSite objects and relationships
     objects=gluemultivalued.objects.filter(attribute='GlueSiteOtherInfo')
     for object in objects:
-        if ( not entity_store.has_key(object.uniqueid) ):
+        if ( not entity_store.has_key(object.uniqueid + 'Site') ):
             if( not errors.has_key(object.uniqueid)):
                 log.info("No site found for %s" % object.uniqueid)
                 errors[object.uniqueid] = None
@@ -219,19 +248,19 @@ def get_site_topologies():
             key=object.value[:index]
             value=object.value[index + 1:]
             if ( key == 'EGEE_ROC'):
-                entity_store[value] = key
-                relationship_store.append( ( object.uniqueid, value, "SiteEgeeRoc" ) )
+                entity_store[value + key] = (value, key)
+                relationship_store.append(( object.uniqueid, value, "SiteEgeeRoc" ) )
             if ( key == 'EGEE_SERVICE'):
-                entity_store[value] = key
+                entity_store[value + key] = (value, key)
                 relationship_store.append( ( object.uniqueid, value, "SiteEgeeService" ) )
             if ( key == 'GRID'):
-                entity_store[value] = key
+                entity_store[value + key] = (value, key)
                 relationship_store.append( ( object.uniqueid, value, "SiteGrid" ) )
             if ( key == 'WLCG_TIER'):
-                entity_store[value] = key
+                entity_store[value + key] = (value, key)
                 relationship_store.append( ( object.uniqueid, value, "SiteWlcgTier" ) )
             if ( key == 'WLCG_PARENT'):
-                entity_store[value] = key
+                entity_store[value + key] = (value, key)
                 relationship_store.append( ( object.uniqueid, value, "SiteWlcgParent" ) )
         
 def get_services():        
@@ -244,10 +273,10 @@ def get_services():
         type = object.type
         if ( type == 'bdii_site' or type == 'bdii_top'):
             unique_id = object.endpoint
-        entity_store[unique_id] = type
+        entity_store[unique_id] = (unique_id, type)
     
         # Store Site Service relationship
-        if ( entity_store.has_key(object.gluesite_fk)):
+        if ( entity_store.has_key(object.gluesite_fk + 'Site')):
             relationship_store.append( ( object.gluesite_fk, unique_id, "SiteService" ) )
         else:
             if( not errors.has_key(object.gluesite_fk)):
@@ -261,10 +290,10 @@ def get_CEs():
     for object in objects:
         unique_id = object.uniqueid
         type = "CE"
-        entity_store[unique_id] = type
+        entity_store[unique_id] = (unique_id, type)
         
         # Store Site Service relationship
-        if ( entity_store.has_key(object.gluesite_fk)):
+        if ( entity_store.has_key(object.gluesite_fk + 'Site')):
             relationship_store.append( ( object.gluesite_fk, unique_id, "SiteService" ) )
         else:
             if( not errors.has_key(object.gluesite_fk)):
@@ -278,10 +307,10 @@ def get_SEs():
     for object in objects:
         unique_id = object.uniqueid
         type = "SE"
-        entity_store[unique_id] = type
+        entity_store[unique_id] = (unique_id, type)
         
         # Store Site Service relationship
-        if ( entity_store.has_key(object.gluesite_fk)):
+        if ( entity_store.has_key(object.gluesite_fk + 'Site')):
             relationship_store.append( ( object.gluesite_fk, unique_id, "SiteService" ) )
         else:
             if( not errors.has_key(object.gluesite_fk)):
@@ -316,8 +345,8 @@ def get_service_VO():
             vo = vo.strip().lower()
             if (vo == ""): vo = 'unidentified'
             
-            if ( not entity_store.has_key(vo) ):
-                entity_store[vo] = 'VO'
+            if ( not entity_store.has_key(vo + 'VO') ):
+                entity_store[vo + 'VO'] =  (vo, 'VO')
             if (attribute == 'GlueCEAccessControlBaseRule'):
                 if ( glueces.has_key(unique_id) ):
                     unique_id = glueces[unique_id]
@@ -325,7 +354,7 @@ def get_service_VO():
                     continue
             else:
                 unique_id = unique_id
-            if ( entity_store.has_key(unique_id) ): # Ensure that exists
+            if ( entity_store.has_key(unique_id + 'Service') ): # Ensure that exists
                 if ( relationships.has_key(unique_id) ):
                     if ( not relationships[unique_id].has_key(vo) ):
                         relationship_store.append( ( unique_id, vo, "ServiceVO" ) )
