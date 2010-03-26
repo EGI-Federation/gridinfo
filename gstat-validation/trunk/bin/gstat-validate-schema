@@ -145,16 +145,21 @@ def test_ldif(entry):
         object_class = value[:index]
         object_class = object_class.replace("LocalID","")
         object_class = object_class.replace("UniqueID","")
-        if (object_class == 'GlueServiceDataKey'):
+
+        if (object_class == 'o'):
+            object_class = 'organization'
+        elif (object_class.lower() == 'mds-vo-name'):
+            object_class = 'MDS'
+        elif (object_class == 'GlueServiceDataKey'):
             object_class = 'GlueServiceData'
         elif (object_class == 'GlueCESEBindGroupCE'):
             object_class = 'GlueCESEBindGroup'
         elif (object_class == 'GlueCESEBindSE'):
             object_class = 'GlueCESEBind'
             entry['GlueCESEBindCEUniqueID'] = "dummy"
-        entry['objectClass']=['GlueTop',object_class]
+        entry['objectClass']=[object_class]
         entry[value[:index]]=value[index + 1:]
-                
+
         # Try to create stub for rejected entry
         try:
             connect.add(dn, modlist.addModlist(entry))
@@ -195,11 +200,6 @@ if __name__ == "__main__":
 
    for dn in ordered_dns:  
        entry = ldif[dns[dn][0]:dns[dn][1]].strip()
-       if  ( dn[:11].lower() == "mds-vo-name" ):
-           value = dn[12:dn.index(",")]
-           entry = "dn: %s\nObjectClass: MDS\nObjectClass: GlueTop\nMds-Vo-Name: %s\n" %(dn,value)
-       if  ( dn[:6].lower() == "o=grid" ):
-           entry = "dn: o=grid\nObjectClass: organization\nObjectClass: GlueTop\no: grid\n"
        entry = gsutils.convert_entry(entry)
        test_ldif(entry)
 
