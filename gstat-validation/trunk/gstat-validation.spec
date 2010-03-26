@@ -37,7 +37,7 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/gstat 
 
 %changelog
-* Tue Mar 26 2009 Laurence Field <laurence.field@cern.ch>  - 2.0.28-1
+* Tue Mar 26 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.28-1
 - A number of minor bugs found in the tests have been fixed
 * Tue Dec 1 2009 Steve Traylen <steve.traylen@cern.ch>  - 2.0.25-1
 - Don't ask.
