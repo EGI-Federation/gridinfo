@@ -72,7 +72,6 @@ if __name__ == "__main__":
 
    official_service_types = {}
    service_types_file = "/usr/share/gstat/service_types"
-   service_types_file = "../data/service-types"
    if ( os.path.exists(service_types_file)):
       for line in open(service_types_file).readlines():
          official_service_types[line.strip()] = None
