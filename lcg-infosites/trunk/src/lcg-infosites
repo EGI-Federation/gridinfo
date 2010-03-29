@@ -1,0 +1,1163 @@
+#!/usr/bin/perl
+use Net::LDAP;
+use Net::LDAP::Entry;
+
+$ENV{PATH} = "$ENV{GLOBUS_LOCATION}/bin:$ENV{PATH}"; 
+$ENV{LD_LIBRARY_PATH} = "$ENV{GLOBUS_LOCATION}/lib:$ENV{LD_LIBRARY_PATH}"; 
+
+# GETTING THE EXTERNAL ARGUMENTS
+
+for ($i = 0; $i<=$#ARGV; $i++){
+
+    if ($ARGV[$i] =~ /^--vo$/) {
+	for($j = $i + 1; $j <= $#ARGV; $j++) {
+
+	    last if ($ARGV[$j] =~ /^-/ || "$ARGV[$j]" eq "closeSE");
+	    last if ("$ARGV[$j]" eq "se" || "$ARGV[$j]" eq "ce" || "$ARGV[$j]" eq "rb" || "$ARGV[$j]" eq "vobox" || "$ARGV[$j]" eq "lb");
+	    last if ("$ARGV[$j]" eq "all" || "$ARGV[$j]" eq "tag" || "$ARGV[$j]" eq "lfcLocal" || "$ARGV[$j]" eq "gridice");
+	    last if ("$ARGV[$j]" eq "rmc" || "$ARGV[$j]" eq "lrc" || "$ARGV[$j]" eq "lfc" || "$ARGV[$j]" eq "fts" || "$ARGV[$j]" eq "wms");
+	    last if ("$ARGV[$j]" eq "sitenames" || "$ARGV[$j]" eq "dli" || "$ARGV[$j]" eq "dliLocal" || "$ARGV[$j]" eq "voview");
+	    push (@vos,$ARGV[$j]);
+	    $i = $j-1;
+
+	}
+	$vo = "@vos";
+    }
+
+    if ($ARGV[$i] =~ /^-v$/) {
+	for($j = $i + 1; $j <= $#ARGV; $j++) {
+
+	    last if ($ARGV[$j] =~ /^-/ || "$ARGV[$j]" eq "closeSE");
+	    last if ("$ARGV[$j]" eq "se" || "$ARGV[$j]" eq "ce" || "$ARGV[$j]" eq "rb" || "$ARGV[$j]" eq "vobox");
+	    last if ("$ARGV[$j]" eq "all" || "$ARGV[$j]" eq "tag" || "$ARGV[$j]" eq "gridice" || "$ARGV[$j]" eq "lb");
+	    last if ("$ARGV[$j]" eq "lfcLocal" || "$ARGV[$j]" eq "lfc" || "$ARGV[$j]" eq "fts"|| "$ARGV[$j]" eq "wms");
+	    last if ("$ARGV[$j]" eq "rmc" || "$ARGV[$j]" eq "lrc" || "$ARGV[$j]" eq "dli");
+	    last if ("$ARGV[$j]" eq "sitenames" || "$ARGV[$j]" eq "dliLocal" || "$ARGV[$j]" eq "voview");
+	    push (@verbose,$ARGV[$j]);
+	    $i = $j-1;
+
+	}
+	$v = "@verbose";
+
+    }
+
+    if ($ARGV[$i] =~ /^-f$/) {
+        for($j = $i + 1; $j <= $#ARGV; $j++) {
+
+            last if ($ARGV[$j] =~ /^-/ || "$ARGV[$j]" eq "closeSE");
+            last if ("$ARGV[$j]" eq "se" || "$ARGV[$j]" eq "ce" || "$ARGV[$j]" eq "rb" || "$ARGV[$j]" eq "vobox");
+            last if ("$ARGV[$j]" eq "all" || "$ARGV[$j]" eq "tag" || "$ARGV[$j]" eq "gridice" || "$ARGV[$j]" eq "lb");
+            last if ("$ARGV[$j]" eq "lfcLocal" || "$ARGV[$j]" eq "lfc" || "$ARGV[$j]" eq "fts" || "$ARGV[$j]" eq "wms");
+            last if ("$ARGV[$j]" eq "rmc" || "$ARGV[$j]" eq "lrc" || "$ARGV[$j]" eq "dli");
+	    last if ("$ARGV[$j]" eq "sitenames" || "$ARGV[$j]" eq "dliLocal" || "$ARGV[$j]" eq "voview");
+            push (@filtro,$ARGV[$j]);
+            $i = $j-1;
+
+        }
+        $f = "@filtro";
+    }
+
+    if ($ARGV[$i] =~ /^--is$/) {
+	for($j = $i + 1; $j <= $#ARGV; $j++) {
+	    
+	    last if ($ARGV[$j] =~ /^-/ || "$ARGV[$j]" eq "closeSE" || "$ARGV[$j]" eq "voview" || "$ARGV[$j]" eq "lb");
+	    last if ("$ARGV[$j]" eq "se" || "$ARGV[$j]" eq "ce" || "$ARGV[$j]" eq "rb" || "$ARGV[$j]" eq "vobox");
+	    last if ("$ARGV[$j]" eq "all" || "$ARGV[$j]" eq "tag" || "$ARGV[$j]" eq "lfcLocal" || "$ARGV[$j]" eq "gridice");
+	    last if ("$ARGV[$j]" eq "rmc" || "$ARGV[$j]" eq "lrc" || "$ARGV[$j]" eq "lfc" || "$ARGV[$j]" eq "fts");
+	    last if ("$ARGV[$j]" eq "sitenames" || "$ARGV[$j]" eq "dli" || "$ARGV[$j]" eq "dliLocal" || "$ARGV[$j]" eq "wms");
+	    push (@elbdii,$ARGV[$j]);
+	    $i = $j-1;
+	    
+	}
+	$is = "@elbdii";
+    }
+
+
+
+    if ($ARGV[$i] =~ /^ce$/) {
+	push (@elementce,$ARGV[$i]);
+	$ce = "@elementce";
+    }
+
+    if ($ARGV[$i] =~ /^sitenames$/) {
+	push (@elementsn,$ARGV[$i]);
+	$sitenames = "@elementsn";
+    }
+
+
+    if ($ARGV[$i] =~ /^rb$/) {
+	push (@elementrb,$ARGV[$i]);
+	$rb = "@elementrb";
+    }
+    if ($ARGV[$i] =~ /^wms$/) {
+	push (@elementwms,$ARGV[$i]);
+	$wms = "@elementwms";
+    }
+
+if ($ARGV[$i] =~ /^lb$/) {
+        push (@elementlb,$ARGV[$i]);
+        $lb = "@elementlb";
+    }
+
+    if ($ARGV[$i] =~ /^vobox$/) {
+        push (@elementvobox,$ARGV[$i]);
+        $vobox = "@elementvobox";
+    }
+
+    if ($ARGV[$i] =~ /^voview$/) {
+        push (@elementvoview,$ARGV[$i]);
+        $voview = "@elementvoview";
+    }
+
+    if ($ARGV[$i] =~ /^dli$/) {
+        push (@elementdli,$ARGV[$i]);
+        $dli = "@elementdli";
+    }
+    if ($ARGV[$i] =~ /^dliLocal$/) {
+        push (@elementdlilo,$ARGV[$i]);
+        $dliLocal = "@elementdlilo";
+    }
+    
+
+    if ($ARGV[$i] =~ /^fts$/) {
+        push (@elementfts,$ARGV[$i]);
+        $fts = "@elementfts";
+    }
+
+    if ($ARGV[$i] =~ /^tag$/) {
+	push (@elementtag,$ARGV[$i]);
+	$tag = "@elementtag";
+    }
+
+    if ($ARGV[$i] =~ /^closeSE$/) {
+	push (@elementcloseSE,$ARGV[$i]);
+	$closeSE = "@elementcloseSE";
+    }
+
+    if ($ARGV[$i] =~ /^se$/) {
+	push (@elementse,$ARGV[$i]);
+	$se = "@elementse";
+    }
+
+    if ($ARGV[$i] =~ /^all$/) {
+	push (@elementall,$ARGV[$i]);
+	$all = "@elementall";
+    }
+
+
+    if ($ARGV[$i] =~ /^lrc$/) {
+	push (@elementlrc,$ARGV[$i]);
+	$lrc = "@elementlrc";
+    }
+
+     if ($ARGV[$i] =~ /^gridice$/) {
+	push (@elementice,$ARGV[$i]);
+	$gridice = "@elementice";
+    }
+
+    if ($ARGV[$i] =~ /^rmc$/) {
+	push (@elementrmc,$ARGV[$i]);
+	$rmc = "@elementrmc";
+    }
+
+    if ($ARGV[$i] =~ /^lfc$/) {
+	push (@elementcentral,$ARGV[$i]);
+	$lfc = "@elementcentral";
+    }
+
+    if ($ARGV[$i] =~ /^lfcLocal$/) {
+	push (@elementlocal,$ARGV[$i]);
+	$lfcLocal = "@elementlocal";
+    }
+
+    if ($ARGV[$i] =~ /^--help$/ || $ARGV[$i] =~ /^-h$/) {
+	for($j = $i + 1; $j <= $#ARGV; $j++) {
+	    last if $ARGV[$j] =~ /^-/;
+	    $i = $j-1;
+	}
+	
+	$help = $ARGV[$i];
+	
+    }
+
+}
+
+
+################## DEFINITION OF THE BDII TO USE
+
+my $BDII;
+my $mesg;
+my $base="o=grid";
+my @BDII_list=();
+
+if (!$is){
+    $BDII=$ENV{LCG_GFAL_INFOSYS};
+}
+
+push @BDII_list, split (/,/,$BDII);
+
+foreach my $thisBDII (@BDII_list){
+    
+    if (my $ldap = Net::LDAP->new($thisBDII)){
+	$BDII = $thisBDII;
+	last;
+    } 
+    else{print STDERR "Impossible the connection to this BDII: Error contacting ldap: $@\n";
+     }
+}
+
+if ($is){
+    $BDII=$is.":"."2170";
+}
+
+############### SOME CHECKS
+
+unless ($vo){
+    &HelpElement;
+    die "You have not introduced the VO name or the --vo flag, please do it again\n";
+}
+
+if ($help){
+    &HelpElement;
+}
+
+if ($tag){
+    &TagsPublication;
+}
+
+if ($closeSE){
+    &closeSE;
+}
+
+
+if ($voview){
+    &voview;
+}
+if ($rb || $vobox || $gridice || $lb || $fts || $dli || $dliLocal || $lfc || $lfcLocal || $wms){
+    &ServicesInfo;
+}
+
+if ($sitenames){
+    &names;
+}
+
+if ($ce || $all){
+    if (!$f){
+	&CEsInfo;
+    }
+    if ($f){
+	&CEsInfo2;
+    }
+}
+
+if ($se || $all){
+    if (!$f){
+	&SEsInfo;
+    }
+    if ($f){
+	&SEsInfo2;
+    }
+}
+
+unless ($se || $ce || $closeSE || $all || $lb || $lrc || $rmc || $lfc || $lfcLocal || $tag || $rb || $vobox || $gridice || $fts || $sitenames || $dli || $dliLocal || $voview || $wms){
+    &HelpElement;
+    die "You have not introduced the correct option name, please do it again\n";
+}
+
+
+# QUERIES TO LRC AND RMC
+########################################################################################################################
+if ($lrc || $all){
+
+    my $name;
+
+    my $ldap = Net::LDAP->new($BDII) or
+	print STDERR "Error contacting ldap: $@" and return;
+    
+    $ldap->bind or print STDERR "Error binding to LDAP" and return;
+    
+    my $mesg = $ldap->search( base   => "$base", 
+			      filter => "(&(&(objectClass=GlueService)(GlueServiceType=edg-local-replica-catalog))(|(GlueServiceAccessControlBaseRule=VO:$vo)(GlueServiceAccessControlRule=$vo)))"
+			      );
+    
+    my $total = $mesg->count;
+
+    foreach my $serv ($mesg->entries) {
+        $name=($serv->get_value("GlueServiceURI"));
+        push (@uri,$name);
+	$tmp_lrc = @uri;
+    }
+
+    for ($p=0;$p<$tmp_lrc;$p++){
+	print "$uri[$p]\n";
+    }
+
+    $ldap->unbind;
+}
+
+
+if ($rmc || $all){
+    my $ldap = Net::LDAP->new($BDII) or
+	print STDERR "Error contacting ldap: $@" and return;
+    
+    $ldap->bind or print STDERR "Error binding to LDAP" and return;
+    
+    my $mesg = $ldap->search( base   => "$base", 
+			      filter => "(&(&(objectClass=GlueService)(GlueServiceType=edg-replica-metadata-catalog))(|(GlueServiceAccessControlBaseRule=VO:$vo)(GlueServiceAccessControlRule=$vo)))"
+			      );    
+    my $total = $mesg->count;
+
+    foreach my $serv ($mesg->entries) {
+        $name=($serv->get_value("GlueServiceURI"));
+        push (@uri,$name);
+        $tmp_lrc = @uri;
+    }
+    
+    for ($p=0;$p<$tmp_lrc;$p++){
+        print "$uri[$p]\n";
+    }
+    
+    $ldap->unbind;
+}
+
+
+
+######################################################################################################################
+sub CEsInfo2{
+    &CEsInfo;
+
+    my $ldap = Net::LDAP->new($BDII) or
+	print STDERR "Error contacting ldap: $@" and return;
+  
+
+  
+    my $base_tmp = "mds-vo-name=$f,mds-vo-name=local,o=grid";
+
+   
+ 
+
+
+    $ldap->bind or print STDERR "Error binding to LDAP" and return;
+    
+    $mesg = $ldap->search( base   => "$base_tmp", 
+			   filter => "(ObjectClass=GlueCluster)"
+			   );	
+    
+    my $total = $mesg->count;
+    
+    foreach my $serv ($mesg->entries) {
+
+
+#	@values=$serv->get_value("GlueClusterService");
+	@values=$serv->get_value("GlueForeignKey");
+	$tmp_vals = @values;
+
+	@values = sort(@values);
+	@allces = sort(@allces);
+
+	for($i=0;$i<$tmp_vals;$i++){
+
+	    $values[$i] =~ s/GlueCEUniqueID\=//g;
+	  top:for ($j=0;$j<$tmp1;$j++){
+
+	      if ("$values[$i]" eq "$allces[$j]"){
+		  if ("$values[$i]" eq "$values[$i-1]"){
+		      next top;
+		  }
+		  else{
+		
+#		      printf "%4d\t%4d\t%4d\t%11d\t%4d\t%s\n",$totalcpus[$j],$freecpus[$j],$totaljobs[$j],$runningjobs[$j],$waitingjobs[$j],$allces[$j];
+		      printf "%4d\t%4d\t%4d\t%11d\t%4d\t%s\n",$totalcpus[$j],$freecpus[$j],$totaljobs[$j],$runningjobs[$j],$waitingjobs[$j],$values[$i];
+		  }
+	      }   
+	  }
+	}
+    }
+    
+    $ldap->unbind;
+}
+######################################################################################################################
+#option of the close SE and the CE
+
+sub closeSE{
+    &CEsInfo;
+    &SEsInfo;
+
+    my $ldap = Net::LDAP->new($BDII) or
+	print STDERR "Error contacting ldap: $@" and return;
+    
+    $ldap->bind or print STDERR "Error binding to LDAP" and return;
+    
+  pat:for($i=0;$i<$tmp1;$i++){
+
+      print "Name of the CE: $allces[$i]\n";
+      my $mesg = $ldap->search( base   => "$base",
+				filter => "(&(objectClass=GlueCESEBindGroup)(GlueCESEBindGroupCEUniqueID=$allces[$i]))"
+				);
+      my $total = $mesg->count;
+      
+      if ("$total" eq "0"){
+	  next pat;
+      }
+
+      @values=$mesg->entry(0)->get_value("GlueCESEBindGroupSEUniqueID");
+      $tmp_vals = @values;
+      
+      for ( $t = 0 ; $t < $tmp_vals ; $t++ ) {
+	  if (!$values[$t]){
+	      $values[$t] = "n.a";
+	  }
+	top:for ($j = 0 ; $j < $tmp8 ; $j++){
+	    if ("$values[$t]" eq "$finalses[$j]"){
+		print "\t$values[$t]\n";
+		
+	    }
+	}
+	  
+      }
+      print "\n";
+  }
+    
+    $ldap->unbind;
+    
+}
+#######################################################################################
+
+sub names{
+
+    my $ldap = Net::LDAP->new($BDII) or
+	print STDERR "Error contacting ldap: $@" and return;
+    
+    $ldap->bind or print STDERR "Error binding to LDAP" and return;
+    
+    my $mesg = $ldap->search( base   => "$base", 
+			      filter => "objectClass=GlueSite"
+			      );
+    
+    my $total = $mesg->count;
+
+    foreach my $serv ($mesg->entries) {
+	my $name=($serv->get_value("GlueSiteName"));
+	print "$name\n";
+
+    }
+
+    $ldap->unbind;
+}
+
+##############################################################################################
+
+sub ServicesInfo{
+
+    my $name_1;
+    my $name_2;
+    my $name_3;
+    my $name_4;
+    my $name_5;
+
+    my $ldap = Net::LDAP->new($BDII) or
+	print STDERR "Error contacting ldap: $@" and return;
+    
+    $ldap->bind or print STDERR "Error binding to LDAP" and return;
+    
+    if ($rb){
+	$mesg = $ldap->search( base   => "$base", 
+				  filter => "(&(&(objectClass=GlueTop)(|(GlueServiceAccessControlBaseRule=VO:$vo)(GlueServiceAccessControlRule=$vo)))(GlueServiceType=ResourceBroker))"
+				  );
+    }    
+    if ($vobox){
+	$mesg = $ldap->search( base   => "$base", 
+				  filter => "(&(&(objectClass=GlueTop)(|(GlueServiceAccessControlBaseRule=VO:$vo)(GlueServiceAccessControlRule=$vo)))(GlueServiceType=VOBOX))"
+				  );
+    }    
+    
+    if ($gridice){
+	$mesg = $ldap->search( base   => "$base", 
+				  filter => "(&(&(objectClass=GlueTop)(|(GlueServiceAccessControlBaseRule=VO:$vo)(GlueServiceAccessControlRule=$vo)))(GlueServiceType=gridice))"
+				  );
+    } 
+
+    if ($fts){
+	$mesg = $ldap->search( base   => "$base", 
+				  filter => "(&(&(objectClass=GlueTop)(|(GlueServiceAccessControlBaseRule=VO:$vo)(GlueServiceAccessControlRule=$vo)))(GlueServiceType=org.glite.FileTransfer))"
+				  );
+    }
+
+    if ($wms){
+	$mesg = $ldap->search( base   => "$base", 
+				  filter => "(&(&(objectClass=GlueTop)(|(GlueServiceAccessControlBaseRule=VO:$vo)(GlueServiceAccessControlRule=$vo)))(GlueServiceType=org.glite.wms.WMProxy))"
+				  );
+    }
+   
+   if ($lb){
+        $mesg = $ldap->search( base   => "$base",                                   
+				  filter => "(&(&(objectClass=GlueTop)(|(GlueServiceAccessControlBaseRule=VO:$vo)(GlueServiceAccessControlRule=$vo)))(GlueServiceType=org.glite.lb.Server))"
+                                  );
+    }	
+ 
+    if ($dliLocal){
+	$mesg = $ldap->search( base   => "$base", 
+			       filter => "(&(&(objectClass=GlueTop)(|(GlueServiceAccessControlBaseRule=VO:$vo)(GlueServiceAccessControlRule=$vo)))(GlueServiceType=local-data-location-interface))"
+				  );
+    }
+
+    if ($dli){
+	$mesg = $ldap->search( base   => "$base", 
+			       filter => "(&(&(objectClass=GlueTop)(|(GlueServiceAccessControlBaseRule=VO:$vo)(GlueServiceAccessControlRule=$vo)))(GlueServiceType=data-location-interface))"
+				  );
+    }
+
+    if ($lfc){
+	$mesg = $ldap->search( base   => "$base",
+			       filter => "(&(&(objectClass=GlueService)(|(GlueServiceAccessControlBaseRule=VO:$vo)(GlueServiceAccessControlRule=$vo)))(GlueServiceType=lcg-file-catalog))"
+			       );
+    }
+
+    if ($lfcLocal){
+	$mesg = $ldap->search( base   => "$base",
+                               filter => "(&(&(objectClass=GlueService)(|(GlueServiceAccessControlBaseRule=VO:$vo)(GlueServiceAccessControlRule=$vo)))(GlueServiceType=lcg-local-file-catalog))"
+			       );
+    }
+
+    my $total = $mesg->count;
+
+    foreach my $serv ($mesg->entries) {
+	$name_1=($serv->get_value("GlueServiceUniqueID"));
+	if (!$name_1){
+	    $name_1 = "n.a"; 
+	}
+	push (@service,$name_1);
+	$tmp_ser = @service;
+
+	$name_2=($serv->get_value("GlueForeignKey"));
+	if (!$name_2){
+	    $name_2 = "n.a"; 
+	}
+	push (@site,$name_2);
+	$tmp_2 = @site;
+
+	$name_3=($serv->get_value("GlueServiceEndpoint"));
+	if (!$name_3){
+	    $name_3 = "n.a"; 
+	}
+        push (@foreignkey,$name_3);
+	
+	$name_4=($serv->get_value("GlueServiceURI"));
+	if (!$name_4){
+	    $name_4 = "n.a"; 
+	}
+        push (@uri,$name_4);
+
+	$name_5=($serv->get_value("GlueServiceAccessPointURL"));
+	if (!$name_5){
+	    $name_5 = "n.a"; 
+	}
+        push (@accesspoint,$name_5);
+	$tmp_5 = @accesspoint;
+    }
+
+
+  pat:for ($p = 0; $p<$tmp_ser; $p++){
+#      if(("$service[$p+1]" eq "$service[$p]") && ("$site[$p+1]" eq "$site[$p]")){
+#	  next pat;
+#      }
+#      else{
+
+	  push(@the_service,$service[$p]);  
+	  push(@the_site,$site[$p]);
+	  push(@the_foreignkey,$foreignkey[$p]);
+	  push(@the_uri,$uri[$p]);
+	  $tmp_ser2 = @the_service;
+#      }
+  }
+
+    
+    if ($dli || $dliLocal){
+	for ($p = 0; $p<$tmp_5; $p++){
+	    if (!$f){
+		print "$accesspoint[$p]\n";
+	    }
+	    if ($f){
+		if ("$site[$p]" eq "GlueSiteUniqueID=$f"){
+		    print "$accesspoint[$p]\n";
+		}
+	    }
+	}
+	
+    }
+
+
+
+    if ($vobox || $gridice || $rb){
+	for ($p = 0; $p<$tmp_ser2; $p++){
+	    if (!$f){
+		print "$the_service[$p]\n";
+	    }
+	    if ($f){
+		if ("$the_site[$p]" eq "GlueSiteUniqueID=$f"){
+		    print "$the_service[$p]\n";
+		}
+	    }
+	}
+	
+    }
+    
+    if($fts){
+	for ($p = 0; $p<$tmp_ser2; $p++){
+	    if (!$f){
+		print "$the_foreignkey[$p]\n";
+	    }
+	    if ($f){
+		if ("$the_site[$p]" eq "GlueSiteUniqueID=$f"){
+		    print "$the_foreignkey[$p]\n";
+		}
+	    }
+	}
+	
+    }
+
+    if($wms){
+	for ($p = 0; $p<$tmp_ser2; $p++){
+	    if (!$f){
+		#$the_foreignkey[$p] =~ s/://g;
+		print "$the_foreignkey[$p]\n";
+	    }
+	    if ($f){
+		if ("$the_site[$p]" eq "GlueSiteUniqueID=$f"){
+		 #   $the_foreignkey[$p] =~ s/://g;
+		    print "$the_foreignkey[$p]\n";
+		}
+	    }
+	}
+	
+    }
+
+
+ if($lb){
+        for ($p = 0; $p<$tmp_ser2; $p++){
+            if (!$f){
+                print "$the_foreignkey[$p]\n";
+            }
+            if ($f){
+                if ("$the_site[$p]" eq "GlueSiteUniqueID=$f"){
+                    print "$the_foreignkey[$p]\n";
+                }
+            }
+        }
+
+    }
+
+    if($lfc || $lfcLocal){
+        for ($p = 0; $p<$tmp_ser2; $p++){
+            if (!$f){
+                print "$the_uri[$p]\n";
+            }
+            if ($f){
+                if ("$the_site[$p]" eq "GlueSiteUniqueID=$f"){
+                    print "$the_uri[$p]\n";
+                }
+            }
+        }
+
+    }
+
+ 
+   $ldap->unbind;
+}
+
+#################################################################################################
+
+sub CEsInfo{
+
+    my $name_1;
+    my $name_2;
+    my $name_3;
+    my $name_4;
+    my $name_5;
+
+    my $value_1;
+    my $value_2;
+    my $value_3;
+    my $value_4;
+
+    my $ldap = Net::LDAP->new($BDII) or
+	print STDERR "Error contacting ldap: $@" and return;
+    
+    $ldap->bind or print STDERR "Error binding to LDAP" and return;
+    $mesg = $ldap->search( base   => "$base", 
+			   filter => "(&(ObjectClass=GlueCE)(|(GlueServiceAccessControlBaseRule=VO:$vo)(GlueCEAccessControlBaseRule=VO:$vo)))"
+			   );
+        
+    my $total = $mesg->count;
+    
+    foreach my $serv ($mesg->entries) {
+	$name_1=($serv->get_value("GlueCEUniqueID"));
+	if (!$name_1){
+	    $name_1 = "n.a"; 
+	}
+	push (@allces,$name_1);
+	$tmp1 = @allces;
+
+	$name_2=($serv->get_value("GlueCEInfoTotalCPUs"));
+	if (!$name_2){
+	    $name_2 = "n.a";
+	}
+	push (@totalcpus,$name_2);
+
+	$name_3=($serv->get_value("GlueCEStateFreeCPUs"));
+	if (!$name_3){
+	    $name_3 = "n.a";
+	}
+	push (@freecpus,$name_3);
+
+	$name_4=($serv->get_value("GlueCEStateRunningJobs"));
+	if (!$name_4){
+	    $name_4 = "n.a";
+	}
+	push (@runningjobs,$name_4);
+
+	$name_5=($serv->get_value("GlueCEStateTotalJobs"));
+	if (!$name_5){
+	    $name_5 = "n.a";
+	}
+	push (@totaljobs,$name_5);
+
+	$name_6=($serv->get_value("GlueCEStateWaitingJobs"));
+	if (!$name_6){
+	    $name_6 = "n.a";
+	}
+	push (@waitingjobs,$name_6);
+    }
+    
+# WAY OF PRINTING THE RESULTS
+    
+    if ("$v" eq "1"){
+	for ($p = 0; $p<$tmp1; $p++){
+	    print "$allces[$p]\n";
+	}
+    }
+
+    if (!$v && !$closeSE && !$tag && !$f){
+	print "#CPU\tFree\tTotal Jobs\tRunning\tWaiting\tComputingElement\n";
+	print "----------------------------------------------------------\n";
+	pat:for($i=0;$i<$tmp1;$i++){
+	    if ("$allces[$i]" eq "n.a"){next pat;}
+	    else{
+		printf "%4d\t%4d\t%4d\t%11d\t%4d\t%s\n",$totalcpus[$i],$freecpus[$i],$totaljobs[$i],$runningjobs[$i],$waitingjobs[$i],$allces[$i];}
+	}    
+    }
+
+    for ($p = 0; $p<$tmp1; $p++){
+	@theCEnames = split/:/,$allces[$p];
+	$mycesname[$p] = $theCEnames[0];
+	push (@cesfinales,$mycesname[$p]);
+	$tmp11 = @cesfinales;
+    }
+    
+    for ($p = 0; $p<$tmp11; $p++){
+	if("$cesfinales[$p+1]" ne "$cesfinales[$p]"){
+	    push(@theCEsNames,$cesfinales[$p]);
+	    $tmp6 = @theCEsNames;
+	}
+    }
+    
+#######################################################################################################
+    if($ce && ("$v" eq "2")){
+
+      pat2:for($i=0;$i<$tmp6;$i++){
+	  my $mesg = $ldap->search( base   => "$base", 
+				    filter => "(&(objectClass=GlueSubCluster)(GlueChunkKey=GlueClusterUniqueID=$theCEsNames[$i]))"
+				    );
+	  
+	  my $total = $mesg->count;
+
+	  if ("$total" eq "0"){
+	      push (@operatingsystem,"n.a");
+	      push (@memoryram,"n.a");
+	      push (@systemversion,"n.a");
+	      push (@processormodel,"n.a");
+	      next pat2;
+	  }
+
+	  $value_1=$mesg->entry(0)->get_value("GlueHostOperatingSystemName");
+	  if (!$value_1){
+	      $value_1 = "n.a"; 
+	  }
+	  push (@operatingsystem,$value_1);
+	  
+	  $value_2=$mesg->entry(0)->get_value("GlueHostMainMemoryRAMSize");
+	  if (!$value_2){
+	      $value_2 = "n.a"; 
+	  }
+	  push (@memoryram,$value_2);
+	  
+	  $value_3=$mesg->entry(0)->get_value("GlueHostOperatingSystemVersion");
+	  if (!$value_3){
+	      $value_3 = "n.a"; 
+	  }
+	  push (@systemversion,$value_3);
+	  
+	  $value_4=$mesg->entry(0)->get_value("GlueHostProcessorModel");
+	  if (!$value_4){
+	      $value_4 = "n.a"; 
+	  }
+	  push (@processormodel,$value_4);
+	  
+      }
+	
+	printf "%1s%20s\t%15s\t%20s\t%15s\n", "RAMMemory","Operating System","System Version","Processor","Subcluster name";
+	print "-------------------------------------------------------------------------------------------------------------------------\n";
+	for ($p = 0; $p<$tmp6; $p++){
+	    printf "%7d\t%22s\t%5s\t%40s\t%35s\n",$memoryram[$p],$operatingsystem[$p],$systemversion[$p],$processormodel[$p],$theCEsNames[$p];  
+	}	
+    }
+
+    $ldap->unbind;
+
+}
+
+##########################################################################################################
+sub SEsInfo2{
+    my $name2_1;
+    my $name2_2;
+    my $name2_3;
+    my @pattest2;
+    
+    $base = "mds-vo-name=$f,mds-vo-name=local,o=grid";
+
+    my $ldap = Net::LDAP->new($BDII) or
+	print STDERR "Error contacting ldap: $@" and return;
+    
+    $ldap->bind or print STDERR "Error binding to LDAP" and return;
+    
+    $mesg = $ldap->search( base   => "$base", 
+			   filter => "(&(ObjectClass=GlueSA)(|(GlueSAAccessControlBaseRule=VO:$vo)(GlueSAAccessControlBaseRule=$vo)))"
+			   );
+    
+    my $total = $mesg->count;
+    
+    foreach my $serv ($mesg->entries) {
+	$name2_1=($serv->get_value("GlueSAStateAvailableSpace"));
+	if (!$name2_1){
+	    $name2_1 = "n.a"; 
+	}
+	push (@availablespace,$name2_1);
+	
+	$name2_2=($serv->get_value("GlueSAStateUsedSpace"));
+	if (!$name2_2){
+	    $name2_2 = "n.a"; 
+	}
+	push (@usedspace,$name2_2);
+	
+	$name2_3=($serv->get_value("GlueChunkKey"));
+	if (!$name2_3){
+	    $name2_3 = "n.a"; 
+	}
+	push (@sename,$name2_3);
+	$tmp_se = @sename;
+    }    
+    
+    for($i=0;$i<$tmp_se;$i++){
+	@pattest2 = split /GlueSEUniqueID=/, $sename[$i];
+	$pattest2[$i] = join ("", @pattest2);
+	push (@finalses,$pattest2[$i]);
+	$tmp8 = @finalses;	
+    }
+
+    printf "%-16s\%-16s\%-4s\t%s\n","Avail Space(Kb)","Used Space(Kb)", "Type", "SEs";
+    print "----------------------------------------------------------\n";
+    for($i=0;$i<$tmp8;$i++){
+	printf "%-16s\%-16s\%-4s\t%s\n",$availablespace[$i], $usedspace[$i],"n.a",$finalses[$i];
+    }
+
+    $ldap->unbind;
+}
+
+##########################################################################################################
+
+sub SEsInfo{
+
+    my $name_1;
+    my $name_2;
+    my $name_3;
+    my @pattest;
+
+    my $ldap = Net::LDAP->new($BDII) or
+	print STDERR "Error contacting ldap: $@" and return;
+    
+    $ldap->bind or print STDERR "Error binding to LDAP" and return;
+        
+    $mesg = $ldap->search( base   => "$base", 
+			   filter => "(&(ObjectClass=GlueSA)(|(GlueSAAccessControlBaseRule=VO:$vo)(GlueSAAccessControlBaseRule=$vo)))"
+			   );
+        
+    my $total = $mesg->count;
+    
+    foreach my $serv ($mesg->entries) {
+	$name_1=($serv->get_value("GlueSAStateAvailableSpace"));
+	if (!$name_1){
+	    $name_1 = "n.a"; 
+	}
+	push (@availablespace,$name_1);
+
+	$name_2=($serv->get_value("GlueSAStateUsedSpace"));
+	if (!$name_2){
+	    $name_2 = "n.a"; 
+	}
+	push (@usedspace,$name_2);
+
+	$name_3=($serv->get_value("GlueChunkKey"));
+	if (!$name_3){
+	    $name_3 = "n.a"; 
+	}
+	push (@sename,$name_3);
+	$tmp_se = @sename
+    }
+
+    for($i=0;$i<$tmp_se;$i++){
+	@pattest = split /GlueSEUniqueID=/, $sename[$i];
+	$pattest[$i] = join ("", @pattest);
+	push (@finalses,$pattest[$i]);
+	$tmp8 = @finalses;
+    }
+    if ("$v" eq "1"){
+	for($i=0;$i<$tmp8;$i++){
+	    print "$finalses[$i]\n";
+	}
+    }
+    
+    if (!$v && !$f && !$closeSE){
+	printf "%-16s\%-16s\%-4s\t%s\n","Avail Space(Kb)","Used Space(Kb)", "Type", "SEs";
+	print "----------------------------------------------------------\n";
+	for($i=0;$i<$tmp8;$i++){
+	    printf "%-16s\%-16s\%-4s\t%s\n",$availablespace[$i], $usedspace[$i],"n.a",$finalses[$i];
+	}
+    }
+    
+    $ldap->unbind;
+    
+}
+    
+############################################################################
+
+sub TagsPublication{
+
+    &CEsInfo;
+
+    my $ldap = Net::LDAP->new($BDII) or
+	print STDERR "Error contacting ldap: $@" and return;
+    
+    $ldap->bind or print STDERR "Error binding to LDAP" and return;
+    
+  pat3:for($i=0;$i<$tmp6;$i++){
+      print "Name of the CE: $theCEsNames[$i]\n";
+      my $mesg = $ldap->search( base   => "$base", 
+				filter => "(&(objectClass=GlueHostApplicationSoftware)(GlueSubClusterName=$theCEsNames[$i]))"
+				);
+      my $total = $mesg->count;
+      if ("$total" eq "0"){
+	  next pat3;
+      }
+      
+      @values=$mesg->entry(0)->get_value("GlueHostApplicationSoftwareRunTimeEnvironment");
+      $tmp_tags = @values;
+      
+    pat:for ( $s = 0 ; $s < $tmp_tags ; $s++ ){
+	if ($values[$s] =~ /$vo/){
+	    print "\t$values[$s]\n";
+	}
+	else{
+	    next pat;
+	}
+    }
+      
+      print "\n";
+      
+  }
+    $ldap->unbind;
+    
+}
+
+################################################################################################
+
+
+sub HelpElement{
+
+print "
+***************************************************************\n
+
+NAME:
+                                                                    
+This script is intented to provide the user with a tool able to
+gather information related to Grid services.
+
+USAGE:
+
+lcg-infosites --vo voname -[v] -f [site name] [option(s)] [-h| --help] [--is BDII]
+
+DESCRIPTION:
+
+--vo: VO name (mandatory)
+
+-h: help option
+
+--is: BDII user wishes to query. In case this argument is not 
+supplied, the BDII defined into the LCG_GFAL_INFOSYS environment
+variable will be interrogated.
+
+-f: (filter). Giving as input the name of the site, the chosen local
+service is provided
+
+OPTIONS:
+
+--> se: The names of the SEs supported by the user's VO together with
+        the available and used space are printed.
+        If -v 1: Only the names of the SEs are given.
+
+--> ce: The information relative to number of CPUs, running jobs, 
+        waiting jobs and names of the CEs are provided. All these data
+        group all VOs together. 
+        If -v 1: Only the names of the queues are given.
+        If -v 2: The names of the queues together with the RAMMemory,
+                 Operation system and its version and the processors
+                 are printed.
+
+--> closeSE: The names of the CEs where the user's VO is allowed to run 
+             together with their corresponding closest SEs are provided.
+
+--> wms: It publishes the names of the WMSs available for each VO
+
+--> lrc (rmc): The name of the lrc (rmc) corresponding to the user's VO.
+
+--> lfc (lfcLocal): Name of the LFC (local) servers        
+
+--> dli (dliLocal): Names od the DLIs per VO
+
+--> vobox: Names of the voboxes per VO
+
+--> fts: Names of the fts Endpoints per VO
+
+--> sitenames: Names of the LCG sites
+
+--> voview:  VOViews listing CE related parameters
+
+NOTE: The followingfeatures support the -f option:
+      rb, dli(dliLocal), vobox, fts, lfc(lfcLocal)
+
+--> tag: The names of the tags relative to the software installed in
+         site is printed together with the corresponding CE.
+
+--> all: It groups together the information provided by ce, se, lrc and rmc.
+
+
+AUTHOR and BUG REPORTS: 
+patricia.mendez\@cern.ch
+
+*****************************************************************\n
+";
+}
+
+sub voview{
+
+    my $name_1;
+    my $name_2;
+    my $name_3;
+    my $name_4;
+    my $name_5;
+    my $name_6;
+    my $name_7;
+    my $name_8;
+    my $name_9;
+    
+    
+    my $ldap = Net::LDAP->new($BDII) or
+	print STDERR "Error contacting ldap: $@" and return;
+    
+    $ldap->bind or print STDERR "Error binding to LDAP" and return;
+    $mesg = $ldap->search( base   => "$base", 
+			   filter => "(&(ObjectClass=GlueVOView)(|(GlueServiceAccessControlBaseRule=VO:$vo)(GlueCEAccessControlBaseRule=VO:$vo)))"
+			   );
+        
+    my $total = $mesg->count;
+    
+    foreach my $serv ($mesg->entries) {
+	$name_1=($serv->get_value("GlueCEStateRunningJobs"));
+	if (!$name_1){
+	    $name_1 = "n.a"; 
+	}
+	push (@running,$name_1);
+	$tmp1 = @running;
+
+	$name_2=($serv->get_value("GlueCEStateWaitingJobs"));
+	if (!$name_2){
+	    $name_2 = "n.a";
+	}
+	push (@waiting,$name_2);
+
+	$name_3=($serv->get_value("GlueCEStateTotalJobs"));
+	if (!$name_3){
+	    $name_3 = "n.a";
+	}
+	push (@total,$name_3);
+
+	$name_4=($serv->get_value("GlueCEStateFreeJobSlots"));
+	if (!$name_4){
+	    $name_4 = "n.a";
+	}
+	push (@free,$name_4);
+
+	$name_5=($serv->get_value("GlueCEStateEstimatedResponseTime"));
+	if (!$name_5){
+	    $name_5 = "n.a";
+	}
+	push (@responsetime,$name_5);
+
+	$name_6=($serv->get_value("GlueCEStateWorstResponseTime"));
+	if (!$name_6){
+	    $name_6 = "n.a";
+	}
+	push (@worstresponsetime,$name_6);
+
+	$name_7=($serv->get_value("GlueCEInfoDefaultSE"));
+	if (!$name_7){
+	    $name_7 = "n.a";
+	}
+	push (@defaultse,$name_7);
+
+	$name_8=($serv->get_value("GlueCEInfoApplicationDir"));
+	if (!$name_8){
+	    $name_8 = "n.a";
+	}
+	push (@swdir,$name_8);
+
+	$name_9=($serv->get_value("GlueChunkKey"));
+	if (!$name_9){
+	    $name_9 = "GlueCEUniqueID=n.a";
+	}
+	if (!($name_9 =~ /GlueCEUniqueID=/)){
+	    $name_9 = "GlueCEUniqueID=$name_9";
+	}
+	push (@cequeues,$name_9);
+    }
+    
+# WAY OF PRINTING THE RESULTS
+    
+    for ($p = 0; $p<$tmp1; $p++){
+
+	@cequeues2 = split/=/,$cequeues[$p];
+	$mycequeues[$p] = @cequeues2[1];
+	push (@cequeues3,$mycequeues[$p])
+	}
+    
+    if (!$v && !$closeSE && !$tag){
+	print "Running\tWaiting\tTotal\tFree\tResponseTime\tWorstResponseTime\tSE\tSWArea\tQueue\n";
+	print "----------------------------------------------------------\n";
+      pat:for($i=0;$i<$tmp1;$i++){
+	  if ("$cequeues3[$i]" eq "n.a"){next pat;}
+	    else{
+		printf "%4d\t%4d\t%4d\t%4d\t%10d\t%10d\t%30s\t%30s\t%12s\t%s\n",$running[$i],$waiting[$i],$total[$i],$free[$i],$responsetime[$i],$worstresponsetime[$i],$defaultse[$i],$swdir[$i],$cequeues3[$i];}
+      }    
+    }
+}
+
+
