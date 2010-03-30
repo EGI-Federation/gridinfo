@@ -14,7 +14,7 @@ use vars qw( $debug );
 # Print the usage message
 sub usage(){
     print STDERR "Usage: $0 -c <config file> -m <mds-vo-name> [-v validity]"
-               . " -[d dynamic] [-t timeout] [-s size] \n";
+               . " -[d dynamic] [-t timeout] [-s size] [-g glue 2.0]\n";
     print STDERR '
 This information provider takes a list of LDAP urls from the configuration
 file and queries the LDAP sources. It then merges the results and modifies
@@ -36,6 +36,9 @@ Options:
     -d  This option will change the search filter to only
         retrieve the dynamic information. (currently not supported)
 
+    -g  This option will modify the search endpoint to obtain glue 2.0 
+        information.
+
     -t  The timeout of the ldapsearch in seconds.
 
     -v  The validity of the cache files in seconds.
@@ -48,7 +51,7 @@ Options:
 
 # Parse the command line options
 my %options=();
-getopts("v:dhm:c:t:s:",\%options) or usage();
+getopts("v:dghm:c:t:s:",\%options) or usage();
 
 # Set configuration file
 my $config;
@@ -156,6 +159,9 @@ close (CONFIG);
 
 # Prepare the temporary directory
 my $file_name=fileparse($config);
+if ($options{g}){
+    $file_name=$file_name . '-glue2'
+}
 my $tmp_dir = "$var_dir/tmp/gip/$file_name";
 my $cache_dir = "$var_dir/cache/gip/$file_name";
 
@@ -210,6 +216,7 @@ print LOGFILE "=== $start_time START\n";
 my @pid;      # The pids of the forked processes.
 my $pid;      # A pid for one process.
 my $region;   # A region name for the ldif source.
+my $bind;     # The bind point for the search.
 my $command;  # A command that will return ldif.
 my $bunch=10;
 my $delay=5;
@@ -217,6 +224,7 @@ my $n=0;
 
 #Loop through for each ldif source
 foreach(@urls){
+
     if ($n++ >= $bunch) {
 	my $child = 0;
 	eval {
@@ -237,9 +245,25 @@ foreach(@urls){
     # Split the information from the url.
     if (m|^([-.\w]+)\s+ldap://(.+):([0-9]+)/(.+)|) {
 	$region  = $1;
-	$command = "ldapsearch -x -LLL -h $2 -p $3 -b $4 "
+
+	if ($options{g}){
+	    my $site = $4;
+	    $site =~s/,o=grid$//;
+	    $site =~s/^.*=//;
+	    if ( $site eq 'resource'){
+		$bind = 'GLUE2GroupID=resource,o=glue';
+	    }else{
+		$bind = "GLUE2AdminDomainUniqueID=$site,o=glue";
+	    }
+	    $filter = ''
+	}else{
+	    $bind = $4;
+	}
+	
+	$command = "ldapsearch -x -LLL -h $2 -p $3 -b $bind "
 	    . $filter
 	    . "> $tmp_dir/$region.ldif 2>$tmp_dir/$region.err";
+	print $command . "\n";
     } else {
 	chomp;
 	print LOGFILE "ignoring badly formatted line: '$_'\n";

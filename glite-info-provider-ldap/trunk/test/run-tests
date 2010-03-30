@@ -1,0 +1,28 @@
+#!/bin/sh
+
+echo "Preparing temporary directory ... "
+working_dir=$(mktemp -d)
+sed "s#var/run/bdii#$working_dir#" slapd.conf > ${working_dir}/slapd.conf
+mkdir -p ${working_dir}/db/glue2
+
+echo "Adding LDIF ... "
+cat ldif/*.ldif > ${working_dir}/test.ldif
+slapadd -f ${working_dir}/slapd.conf -l ${working_dir}/test.ldif
+if [ $? -gt 0 ]; then
+    echo "Error: Could not run slapadd." 1>&2
+    exit 1
+fi
+
+
+HOST=$(hostname -f)
+PORT=21700
+echo "Starting SLAPD  ... "
+/usr/sbin/slapd -h ${HOST} -p ${PORT} -f /opt/bdii/etc/bdii-slapd.conf
+
+echo "Running Tests ..."
+
+ldapsearch -x -h ${HOST} -p ${PORT} -b o-grid
+
+kill  ${working_dir}/db/slapd.pid
+
+echo "Cleaning the temporary directory ... "
