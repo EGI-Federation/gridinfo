@@ -1,28 +1,32 @@
 #!/bin/sh
 
-echo "Preparing temporary directory ... "
-working_dir=$(mktemp -d)
-sed "s#var/run/bdii#$working_dir#" slapd.conf > ${working_dir}/slapd.conf
-mkdir -p ${working_dir}/db/glue2
-
-echo "Adding LDIF ... "
-cat ldif/*.ldif > ${working_dir}/test.ldif
-slapadd -f ${working_dir}/slapd.conf -l ${working_dir}/test.ldif
-if [ $? -gt 0 ]; then
-    echo "Error: Could not run slapadd." 1>&2
-    exit 1
-fi
-
-
 HOST=$(hostname -f)
 PORT=21700
+command=../src/glite-info-provider-ldap
+
+echo "Preparing temporary directory ... "
+working_dir=$(mktemp -d)
+sed "s#/var/run/bdii#$working_dir#" slapd.conf > ${working_dir}/slapd.conf
+mkdir -p ${working_dir}/db/glue2
+mkdir ${working_dir}/config
+cp config/* ${working_dir}/config
+sed -i "s#hostname#$HOST#" ${working_dir}/config/*
+
+echo "Adding LDIF ... "
+cat ldif-v1.3/*.ldif > ${working_dir}/test-1.ldif
+slapadd -f ${working_dir}/slapd.conf -l ${working_dir}/test-1.ldif -b o=grid 2>/dev/null
+cat ldif-v2.0/*.ldif > ${working_dir}/test-2.ldif
+slapadd -f ${working_dir}/slapd.conf -l ${working_dir}/test-2.ldif -b o=glue 2>/dev/null
+
 echo "Starting SLAPD  ... "
-/usr/sbin/slapd -h ${HOST} -p ${PORT} -f /opt/bdii/etc/bdii-slapd.conf
+/usr/sbin/slapd -h ldap://${HOST}:${PORT} -f ${working_dir}/slapd.conf -u $(id -un)
+sleep 2
 
 echo "Running Tests ..."
+${command} -c ${working_dir}/config/site.conf -m Test-Site
 
-ldapsearch -x -h ${HOST} -p ${PORT} -b o-grid
-
-kill  ${working_dir}/db/slapd.pid
+echo "Stopping SLAPD ... "
+kill $(cat ${working_dir}/db/slapd.pid)
 
 echo "Cleaning the temporary directory ... "
+rm -rf ${working_dir}
