@@ -83,7 +83,7 @@ function loadTable(event) {
     var oTable;
     var theads = $('#single_table > thead');
     $('body').append( $('#sites') );
-    $('#TableContainer').html('<table cellpadding="0" cellspacing="1" border="0" class="display" id="single_table"><thead>'+theads.html()+'</thead><tbody></tbody><tfoot><tr><th>Total</th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr></tfoot></table>');
+    $('#TableContainer').html('<table cellpadding="0" cellspacing="1" border="0" class="display" id="single_table"><thead>'+theads.html()+'</thead><tbody></tbody><tfoot><tr><th>Total</th><th></th><th></th><th></th><th></th><th></th<th></th><th></th><th></th><th></th><th></th><th></th></tr></tfoot></table>');
     var oTable = $('#single_table').dataTable({
         "iDisplayLength": 25, 
         "bProcessing": true, 
@@ -125,49 +125,56 @@ function loadTable(event) {
               "bSearchable": false
             },
             { "fnRender": function(oObj) {
-                var total_online = CommaFormatted(oObj.aData[4]);
+                var si2000 = CommaFormatted(oObj.aData[4]);
+                return si2000
+                },
+              "bUseRendered": false,
+              "bSearchable": false
+            },
+            { "fnRender": function(oObj) {
+                var total_online = CommaFormatted(oObj.aData[5]);
                 return total_online;
                 },
               "bUseRendered": false,
               "bSearchable": false
             },
             { "fnRender": function(oObj) {
-                var used_online = display_string(oObj.aData[4], oObj.aData[5], "usedonline");
+                var used_online = display_string(oObj.aData[5], oObj.aData[6], "usedonline");
                 return used_online;
                 },
               "bSearchable": false,
               "sType": "num-html"
             },
             { "fnRender": function(oObj) {
-                var total_nearline = CommaFormatted(oObj.aData[6]);
+                var total_nearline = CommaFormatted(oObj.aData[7]);
                 return total_nearline;
                 },
               "bUseRendered": false,
               "bSearchable": false
             },
             { "fnRender": function(oObj) {
-                var used_nearline = display_string(oObj.aData[6], oObj.aData[7], "usednearline");
+                var used_nearline = display_string(oObj.aData[7], oObj.aData[8], "usednearline");
                 return used_nearline;
                 },
               "bSearchable": false,
               "sType": "num-html"
             },
             { "fnRender": function(oObj) {
-                var total_job = CommaFormatted(oObj.aData[8]);
+                var total_job = CommaFormatted(oObj.aData[9]);
                 return total_job;
                 },
               "bUseRendered": false,
               "bSearchable": false
             },
             { "fnRender": function(oObj) {
-                var running_job = display_string(oObj.aData[3], oObj.aData[9], "runningjobs");
+                var running_job = display_string(oObj.aData[3], oObj.aData[10], "runningjobs");
                 return running_job;
                 },
               "bSearchable": false,
               "sType": "num-html"
             },
             { "fnRender": function(oObj) {
-                var waiting_job = display_string(oObj.aData[8], oObj.aData[10], "waitingjobs");
+                var waiting_job = display_string(oObj.aData[9], oObj.aData[11], "waitingjobs");
                 return waiting_job;
                 },
               "bSearchable": false,
@@ -177,6 +184,7 @@ function loadTable(event) {
                 var site           = 0;
                 var physical_cpu   = 0;
                 var logical_cpu    = 0;
+                var si2000         = 0;
                 var total_online   = 0;
                 var used_online    = 0;
                 var total_nearline = 0;
@@ -193,26 +201,28 @@ function loadTable(event) {
                     if (calculate_site) site += parseInt(aaData[i][1].toString().replace( /<.*?>/g, "" ));
                     physical_cpu   += aaData[i][2];
                     logical_cpu    += aaData[i][3];
-                    total_online   += aaData[i][4];
-                    used_online    += parseInt(eval(aaData[i][5].split("title=")[1].split(" ")[0]));
-                    total_nearline += aaData[i][6];
-                    used_nearline  += parseInt(eval(aaData[i][7].split("title=")[1].split(" ")[0]));
-                    total_job      += aaData[i][8];
-                    running_job    += parseInt(eval(aaData[i][9].split("title=")[1].split(" ")[0]));
-                    waiting_job    += parseInt(eval(aaData[i][10].split("title=")[1].split(" ")[0]));
+                    si2000         += aaData[i][4];
+                    total_online   += aaData[i][5];
+                    used_online    += parseInt(eval(aaData[i][6].split("title=")[1].split(" ")[0]));
+                    total_nearline += aaData[i][7];
+                    used_nearline  += parseInt(eval(aaData[i][8].split("title=")[1].split(" ")[0]));
+                    total_job      += aaData[i][9];
+                    running_job    += parseInt(eval(aaData[i][10].split("title=")[1].split(" ")[0]));
+                    waiting_job    += parseInt(eval(aaData[i][11].split("title=")[1].split(" ")[0]));
                 }
                 
                 var nCells = nRow.getElementsByTagName('th');
                 if (calculate_site) nCells[1].innerHTML = CommaFormatted(site);
                 nCells[2].innerHTML = CommaFormatted(physical_cpu);
                 nCells[3].innerHTML = CommaFormatted(logical_cpu);
-                nCells[4].innerHTML = CommaFormatted(total_online);
-                nCells[5].innerHTML = CommaFormatted(used_online);
-                nCells[6].innerHTML = CommaFormatted(total_nearline);
-                nCells[7].innerHTML = CommaFormatted(used_nearline);
-                nCells[8].innerHTML = CommaFormatted(total_job);
-                nCells[9].innerHTML = CommaFormatted(running_job);
-                nCells[10].innerHTML = CommaFormatted(waiting_job);
+                nCells[4].innerHTML = CommaFormatted(si2000);
+                nCells[5].innerHTML = CommaFormatted(total_online);
+                nCells[6].innerHTML = CommaFormatted(used_online);
+                nCells[7].innerHTML = CommaFormatted(total_nearline);
+                nCells[8].innerHTML = CommaFormatted(used_nearline);
+                nCells[9].innerHTML = CommaFormatted(total_job);
+                nCells[10].innerHTML = CommaFormatted(running_job);
+                nCells[11].innerHTML = CommaFormatted(waiting_job);
 		    }
     });
     

@@ -198,25 +198,27 @@
     <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
       <thead> 
         <tr> 
-          <th colspan="2" align="center">Computing Resource</th>
+          <th colspan="3" align="center">Computing Resource</th>
           <th colspan="3" align="center">Online Storage Resource (GB)</th>
           <th colspan="3" align="center">Nearline Storage Resource (GB)</th>
         </tr>
         <tr>
-          <th>Physical CPUs</th> 
-          <th>Logical CPUs</th>
-          <th>TotalSize</th> 
-          <th>UsedSize</th>
-          <th>Usage Percentage</th>
-          <th>TotalSize</th>
-          <th>UsedSize</th>  
-          <th>Usage Percentage</th> 
+          <th align="center">Physical CPUs</th> 
+          <th align="center">Logical CPUs</th>
+          <th align="center">SI2000</th>
+          <th align="center">TotalSize</th> 
+          <th align="center">UsedSize</th>
+          <th align="center">Usage Percentage</th>
+          <th align="center">TotalSize</th>
+          <th align="center">UsedSize</th>  
+          <th align="center">Usage Percentage</th> 
         </tr>       
       </thead> 
       <tbody>    
         <tr> 
           <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.physicalcpus }}')) </script></td> 
           <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.logicalcpus }}')) </script> </td> 
+          <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.si2000 }}')) </script></td>
           <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.totalonlinesize }}')) </script></td> 
           <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.usedonlinesize }}')) </script></td> 
           <td>
@@ -233,7 +235,7 @@
           </td>
         </tr> 
         <tr> 
-          <td id="cpu" colspan="2">
+          <td id="cpu" colspan="3">
             <script type="text/javascript">
               $.get("/gstat/rrd/Site/{{ site_name }}/cpu/e-3h/small/", {}, function(r) {
                 if (r != 'N/A') {
@@ -315,16 +317,16 @@
 	        </tr> 
 	        <tr>
 	          {% ifnotequal vo.totaljobs None %}
-	          <th>Total</th> 
-	          <th>Running</th>
-	          <th>Waiting</th>
+	          <th align="center">Total</th> 
+	          <th align="center">Running</th>
+	          <th align="center">Waiting</th>
               {% endifnotequal %}
               
               {% ifnotequal vo.totalonlinesize None %}
-	          <th>TotalSize</th>
-	          <th>UsedSize</th> 
-	          <th>TotalSize</th>
-	          <th>UsedSize</th> 
+	          <th align="center">TotalSize</th>
+	          <th align="center">UsedSize</th> 
+	          <th align="center">TotalSize</th>
+	          <th align="center">UsedSize</th> 
               {% endifnotequal %}
 	        </tr> 
 	      </thead> 
