@@ -2,31 +2,88 @@
 
 HOST=$(hostname -f)
 PORT=21700
+RETVAL=0 
 command=../src/glite-info-provider-ldap
 
-echo "Preparing temporary directory ... "
+echo -n "Preparing temporary directory ... "
 working_dir=$(mktemp -d)
 sed "s#/var/run/bdii#$working_dir#" slapd.conf > ${working_dir}/slapd.conf
 mkdir -p ${working_dir}/db/glue2
 mkdir ${working_dir}/config
 cp config/* ${working_dir}/config
-sed -i "s#hostname#$HOST#" ${working_dir}/config/*
+sed -i "s#hostname#${HOST}#" ${working_dir}/config/*
+sed -i "s#2170#${PORT}#" ${working_dir}/config/*
+echo "OK"
 
-echo "Adding LDIF ... "
+echo -n "Adding LDIF ... "
 cat ldif-v1.3/*.ldif > ${working_dir}/test-1.ldif
 slapadd -f ${working_dir}/slapd.conf -l ${working_dir}/test-1.ldif -b o=grid 2>/dev/null
 cat ldif-v2.0/*.ldif > ${working_dir}/test-2.ldif
 slapadd -f ${working_dir}/slapd.conf -l ${working_dir}/test-2.ldif -b o=glue 2>/dev/null
+echo "OK"
 
-echo "Starting SLAPD  ... "
+echo -n "Starting SLAPD  ... "
 /usr/sbin/slapd -h ldap://${HOST}:${PORT} -f ${working_dir}/slapd.conf -u $(id -un)
 sleep 2
+echo "OK"
 
-echo "Running Tests ..."
-${command} -c ${working_dir}/config/site.conf -m Test-Site
+echo "Running Tests ... "
+echo -n "Testing site-level operation ... "
+${command} -c ${working_dir}/config/site.conf -m Test-Site | grep service_1 >/dev/null
+if [ $? -gt 0 ]; then 
+    echo "Fail"
+    RETVAL=1
+else
+    echo "OK"
+fi
+
+echo -n "Testing massaging resource dn ... "
+${command} -c ${working_dir}/config/site.conf -m Test-Site | grep Test-Site >/dev/null
+if [ $? -gt 0 ]; then 
+    echo "Fail"
+    RETVAL=1
+else
+    echo "OK"
+fi
+
+echo -n "Testing top-level operation ... "
+${command} -c ${working_dir}/config/grid.conf -m local | grep MySite >/dev/null
+if [ $? -gt 0 ]; then 
+    echo "Fail"
+    RETVAL=1
+else
+    echo "OK"
+fi
+
+echo -n "Testing massaging site dn ... "
+${command} -c ${working_dir}/config/grid.conf -m local | grep local >/dev/null
+
+if [ $? -gt 0 ]; then 
+    echo "Fail"
+    RETVAL=1
+else
+    echo "OK"
+fi
+
+echo -n "Testing recursion protection ... "
+${command} -c ${working_dir}/config/recursion.conf -m local | grep MySite_2 >/dev/null
+if [ ! $? -gt 0 ]; then 
+    echo "Fail"
+    RETVAL=1
+else
+    echo "OK"
+fi
 
 echo "Stopping SLAPD ... "
 kill $(cat ${working_dir}/db/slapd.pid)
 
 echo "Cleaning the temporary directory ... "
 rm -rf ${working_dir}
+
+if [ ${RETVAL} -eq 1 ]; then 
+    echo "Tests Failed"
+    exit 1
+else
+    echo "Tests Passed"
+    exit 0
+fi
