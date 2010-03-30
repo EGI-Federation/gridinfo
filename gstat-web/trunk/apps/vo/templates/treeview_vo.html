@@ -12,30 +12,39 @@
 
 {% block scripts-add %}
 <script type="text/javascript" src="/media/gridsite/scripts/site.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script>
 <script type="text/javascript">
 
-    function changeFilterValue(event) {
-        filtertype = document.getElementById('filtertype').value;
-        filtervalue = document.getElementById('filtervalue').value;
-        window.location.href = '/gstat/vo/' + filtervalue;
+    function selectedVO(event) {
+        vo_name = document.getElementById('vo_list').value;
+        window.location.href = '/gstat/vo/' + vo_name
     }
+    
+    //function changeFilterValue(event) {
+    //    filtertype = document.getElementById('filtertype').value;
+    //    filtervalue = document.getElementById('filtervalue').value;
+    //    window.location.href = '/gstat/vo/' + filtervalue;
+    //}
 
 
 	$(document).ready(function(){
-		filtertype = document.getElementById('filtertype');
-		filtertype.value = "VO";
-        try {
-            loadJSONDoc("/gstat/core/filter/" + "VO");
-        }
-        catch(e) {
-            var msg = (typeof e == "string") ? e : ((e.message) ? e.message : "Unknown Error");
-            alert("Unable to get JSON data:\n" + msg);
-            return;
-        }
-		filtervalue = document.getElementById('filtervalue');
-		filtervalue.value = '{{ vo_name|default:"-1" }}';
+		//filtertype = document.getElementById('filtertype');
+		//filtertype.value = "VO";
+        //try {
+        //    loadJSONDoc("/gstat/core/filter/" + "VO");
+        //}
+        //catch(e) {
+        //    var msg = (typeof e == "string") ? e : ((e.message) ? e.message : "Unknown Error");
+        //    alert("Unable to get JSON data:\n" + msg);
+        //    return;
+        //}
+		//filtervalue = document.getElementById('filtervalue');
+		//filtervalue.value = '{{ vo_name|default:"-1" }}';
+
+        vo_list = document.getElementById('vo_list');
+        vo_list.value = '{{ vo_name|default:"-1" }}';
 
 		$("#tree").treeview();
 		
@@ -52,7 +61,8 @@
         $("#content-main").css('height', proportion + '%');
         
         content_main = parseInt( $("#content-main").height() );
-        proportion = parseInt( (content_main - 10) / content_main * 100 );
+        vodiv = parseInt( $("#vodiv").height() );
+        proportion = parseInt( (content_main - vodiv - 10) / content_main * 100 );
         $("#layoutdiv").css('height', proportion + '%');
         
         left_board = parseInt( $("#left-board").height() );
@@ -73,6 +83,15 @@
 {% block content-main %}
 
 {% load dict_tags %}
+<div id="vodiv" style="margin-bottom:10px;">
+Current VO:
+	<select id="vo_list" onchange="selectedVO(event);" style="margin-left: 0.5em;">
+	  <option value="-1">Select a VO name</option>
+	  {% for vo in vo_list %}
+	    <option value="{{ vo.uniqueid }}">{{ vo.uniqueid }}</option>
+	  {% endfor %}
+	</select>
+</div>
 
 <div id="layoutdiv">
   <div id="left-board" class="board">
