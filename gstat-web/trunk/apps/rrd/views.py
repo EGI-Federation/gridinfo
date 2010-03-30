@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404, render_to_response
+from django.views.decorators.cache import cache_page
 from django.http import HttpResponse
 from core.utils import *
 import os, time
@@ -77,6 +78,7 @@ def rrdgraph_cmd_gprint(variable_name, small=False):
 # ----------------------------------
 # -- Graphs viewing page function --
 # ----------------------------------
+@cache_page(60 * 15)
 def graph_tabs(request):
     tabnames = ["Hourly", "Daily", "Weekly", "Monthly", "Yearly"]
     timestamps = ["e-3h", "e-1d", "e-1w", "e-1m", "e-1y"]
@@ -88,6 +90,7 @@ def graph_tabs(request):
 # ----------------------------------
 # -- Site-level graphing function --
 # ----------------------------------
+@cache_page(60 * 15)
 def site_level(request, site_name, attribute, start_time, small=False):
     """ Site-level summarized graph """
     if attribute in ['online', 'nearline']:
@@ -102,6 +105,7 @@ def site_level(request, site_name, attribute, start_time, small=False):
 # ------------------------------------
 # -- Entity-level graphing function --
 # ------------------------------------
+@cache_page(60 * 15)
 def entity_level(request, entity_type, uniqueid, attribute, start_time):
     """ Entity-level summarized graph """
     if entity_type == 'SE' and attribute in ['online', 'nearline']:
@@ -118,6 +122,7 @@ def entity_level(request, entity_type, uniqueid, attribute, start_time):
 # --------------------------------
 # -- VO-level graphing function --
 # --------------------------------
+@cache_page(60 * 15)
 def vo_level(request, vo, attribute, start_time, small=False):
     """ VO-level summarized graph """
     if attribute == 'job':
@@ -128,9 +133,10 @@ def vo_level(request, vo, attribute, start_time, small=False):
     return graph_render(graph_cmd)
 
 
-# --------------------------------
+# -------------------------------------
 # -- VO-Site-level graphing function --
-# --------------------------------
+# -------------------------------------
+@cache_page(60 * 15)
 def vo_site_level(request, site_name, vo, attribute, start_time, small=False):
     """ VO-Site-level summarized graph """
     if attribute == 'job':
@@ -140,9 +146,10 @@ def vo_site_level(request, site_name, vo, attribute, start_time, small=False):
         
     return graph_render(graph_cmd)
 
-# -----------------------------------
+# ----------------------------------------
 # -- VO-Cluster-level graphing function --
-# -----------------------------------
+# ----------------------------------------
+@cache_page(60 * 15)
 def vo_cluster_level(request, vo, cluster, attribute, start_time):
     """ VO-Cluster-level summarized graph """
     if attribute == 'job':
@@ -153,6 +160,7 @@ def vo_cluster_level(request, vo, cluster, attribute, start_time):
 # -----------------------------------
 # -- VO-SE-level graphing function --
 # -----------------------------------
+@cache_page(60 * 15)
 def vo_se_level(request, vo, se, attribute, start_time):
     """ VO-SE-level summarized graph """
     if attribute in ['online', 'nearline']:
@@ -160,9 +168,10 @@ def vo_se_level(request, vo, se, attribute, start_time):
         
     return graph_render(graph_cmd)
 
-# -----------------------------------
+# ------------------------------------
 # -- Nagios-level graphing function --
-# -----------------------------------
+# ------------------------------------
+@cache_page(60 * 15)
 def nagios_level(request, host_name, check_name, data_source, start_time):
     """ Nagios monitoring graph """
     rrd_dir = '/var/lib/pnp4nagios'
