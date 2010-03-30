@@ -1,4 +1,7 @@
+/** LDAP Host to connect to. Eg: ldap://bdii118.cern.ch:2170/ */
 var selectedHost = '';
+/** YUI TreeView object that represents the LDAP tree */
+var tree;
 
 /** Empty Attributes Table */
 function resetAttributesTable()  {
@@ -50,51 +53,71 @@ function showEntry(node, fnLoadComplete)  {
         }
     }
     var nodeLabel = encodeURI(node.title);
+    window.location.hash ='#' + selectedHost + nodeLabel;
     var url = "/gstat/ldap/browse?host=" + selectedHost + "&entry=true&dn=" + nodeLabel; 
-    //alert(url);
     var request = YAHOO.util.Connect.asyncRequest('GET', url, {success: handleSuccess});
 }
 
 /** Setup the tree when a host is selected */
 function buildTree() {
-    var tree = new YAHOO.widget.TreeView("tree");
+    tree = new YAHOO.widget.TreeView("tree");
     tree.setDynamicLoad(showNode, 1);
     var root = tree.getRoot();
-    var rootNode = new YAHOO.widget.MenuNode("o=grid", root, false);
+    var rootNode = new YAHOO.widget.MenuNode("o=grid", root, true);
     rootNode.title = "o=grid";
     tree.subscribe("expand", function(node){ showEntry(node) });
     tree.draw();
 }
 
+/** Updates a tree path from an LDAP Route. Eg: mds-vo-name=local,o=grid */
+function updateTree(ldapRoute) {
+    var values = ldapRoute.split(',');
+    var gridNode = tree.getRoot().children[0];
+    var currentNode = gridNode;
+    var currentText = 'o=grid';
+    for (var i = values.length-1; i >= 0; i--) {
+        if (values[i] != 'o=grid') {
+            currentNode.expand();
+            currentText = values[i] + ',' + currentText;
+            var newNode = new YAHOO.widget.TextNode(values[i], currentNode, true);
+            newNode.title = currentText;
+            currentNode = newNode;
+        }
+    }
+    showEntry(currentNode);
+}
+
 /** Builds a tree when a host is selected in the combobox */
-function selectHost(selectobj){
+function selectHost(selectobj) {
     selectedHost = selectobj.options[selectobj.selectedIndex].value;
-    //var urllink = document.getElementById('urllink');
-    //urllink.href = '/gstat/ldap/site/' + selectobj.options[selectobj.selectedIndex].text;
     var urltext = document.getElementById('urltext');
     urltext.value = selectedHost;
+    window.location.hash ='#' + selectedHost;
     resetAttributesTable();
     buildTree();
 }
 
-/** Builds a tree when a host is selected in the combobox */
-function inputHost(){
+/** Builds a tree when a host is typed manually */
+function inputHost() {
     var urltext = document.getElementById('urltext');
     selectedHost = urltext.value;
-    //var urllink = document.getElementById('urllink');
-    //urllink.href = '/gstat/ldap/server/' + selectedHost;
     var hosts = document.getElementById('hosts');
     hosts.selectedIndex = 0;
+    window.location.hash ='#' + urltext;
     resetAttributesTable();
     buildTree();
 }
 
-/** Select the default host if needed */
+/** To be executed when the page is loaded */
 function init() {
-    var selectobj = document.getElementById('hosts');
-    if (selectobj.options[selectobj.selectedIndex].value != "default") {
-        selectHost(selectobj);
-    } else {
-    	inputHost();
+    if (window.location.hash != '') {
+        var hash = window.location.hash;
+        var num = hash.indexOf('//');
+        num = hash.indexOf('/', num + 2);
+        selectedHost = hash.substring(1, num + 1);
+        document.getElementById('urltext').value = selectedHost;
+        var ldapRoute = hash.substring(num + 1, hash.length);
+        buildTree();
+        updateTree(ldapRoute);
     }
 };
