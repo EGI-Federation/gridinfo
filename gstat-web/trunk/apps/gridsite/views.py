@@ -67,11 +67,13 @@ def overview(request, site_name):
     # Calculate the CPU numbers through all SubCluster
     installed_capacity = {}
     sub_cluster_list = get_gluesubclusters(service_list)
-    physical_cpu, logical_cpu = "N/A", "N/A"
+    physical_cpu, logical_cpu, si2000 = "N/A", "N/A", "N/A"
     if sub_cluster_list:
         physical_cpu, logical_cpu = get_installed_capacity_cpu(sub_cluster_list)
+        si2000 = get_installed_capacity_si2000(sub_cluster_list)
     installed_capacity['physicalcpus'] = physical_cpu
     installed_capacity['logicalcpus']  = logical_cpu
+    installed_capacity['si2000']       = si2000
     
     # Calculate the storage space through all SE
     se_list = get_glueses(service_list)

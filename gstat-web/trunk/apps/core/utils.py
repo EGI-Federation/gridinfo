@@ -316,15 +316,24 @@ def get_vos(service_list):
 # -- Installed Capacity and Statistics related functions --
 # ---------------------------------------------------------
 
-def get_installed_capacity_cpu(sub_clusters_list):
+def get_installed_capacity_cpu(sub_cluster_list):
     """ calculate cpu numbers in glue subcluster entities """
     attributes = ["physicalcpus", "logicalcpus"]
     stats = [0, 0]
-    for sub_cluster in sub_clusters_list:
+    for sub_cluster in sub_cluster_list:
         for attr in attributes:
             value = sub_cluster.__getattribute__(attr)
             stats[attributes.index(attr)] += convert_to_integer(value)
     return  stats   
+
+def get_installed_capacity_si2000(sub_cluster_list):
+    """ calculate total installed computing capacity in glue subcluster entities """
+    attributes = ["benchmarksi00", "logicalcpus"]
+    si2000 = 0
+    for sub_cluster in sub_cluster_list:
+        product = convert_to_integer(sub_cluster.benchmarksi00) * convert_to_integer(sub_cluster.logicalcpus)
+        si2000 += product
+    return  si2000   
 
 def get_installed_capacity_storage(se_list):
     """ calculate storage space in glue se entities """
@@ -636,7 +645,7 @@ def get_installed_capacities(site_list, vo_name=None):
     site_data = {}
     for site in site_list:
         site_id = site.uniqueid
-        site_data[site_id] = [ 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
+        site_data[site_id] = [ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 ]
 
     # Get the list of clusters
     relationships = Entityrelationship.objects.select_related('object','subject').filter(predicate = 'SiteService', subject__in = site_list, object__type='CE')
@@ -652,6 +661,7 @@ def get_installed_capacities(site_list, vo_name=None):
             site_id = cluster_site_mapping[sub_cluster.gluecluster_fk]
             site_data[site_id][0] += convert_to_integer(sub_cluster.physicalcpus)
             site_data[site_id][1] += convert_to_integer(sub_cluster.logicalcpus)
+            site_data[site_id][2] += convert_to_integer(sub_cluster.logicalcpus) * convert_to_integer(sub_cluster.benchmarksi00)
         except KeyError, e:
             continue
 
@@ -680,9 +690,9 @@ def get_installed_capacities(site_list, vo_name=None):
                 continue
         try:
             site_id = cluster_site_mapping[ce_cluster_mapping[vo_view.glueceuniqueid]]
-            site_data[site_id][6] += convert_to_integer(vo_view.totaljobs)
-            site_data[site_id][7] += convert_to_integer(vo_view.waitingjobs)
-            site_data[site_id][8] += convert_to_integer(vo_view.runningjobs)
+            site_data[site_id][7] += convert_to_integer(vo_view.totaljobs)
+            site_data[site_id][8] += convert_to_integer(vo_view.waitingjobs)
+            site_data[site_id][9] += convert_to_integer(vo_view.runningjobs)
         except KeyError:
             continue
 
@@ -700,10 +710,10 @@ def get_installed_capacities(site_list, vo_name=None):
         for se in se_list:
             try:
                 site_id = se_site_mapping[se.uniqueid]
-                site_data[site_id][2] += convert_to_integer(se.totalonlinesize)
-                site_data[site_id][3] += convert_to_integer(se.usedonlinesize)
-                site_data[site_id][4] += convert_to_integer(se.totalnearlinesize)
-                site_data[site_id][5] += convert_to_integer(se.usednearlinesize)
+                site_data[site_id][3] += convert_to_integer(se.totalonlinesize)
+                site_data[site_id][4] += convert_to_integer(se.usedonlinesize)
+                site_data[site_id][5] += convert_to_integer(se.totalnearlinesize)
+                site_data[site_id][6] += convert_to_integer(se.usednearlinesize)
             except KeyError, e:
                 continue
     else:
@@ -723,10 +733,10 @@ def get_installed_capacities(site_list, vo_name=None):
                 continue
             try:
                 site_id = se_site_mapping[sa.gluese_fk]
-                site_data[site_id][2] += convert_to_integer(sa.totalonlinesize)
-                site_data[site_id][3] += convert_to_integer(sa.usedonlinesize)
-                site_data[site_id][4] += convert_to_integer(sa.totalnearlinesize)
-                site_data[site_id][5] += convert_to_integer(sa.usednearlinesize)
+                site_data[site_id][3] += convert_to_integer(sa.totalonlinesize)
+                site_data[site_id][4] += convert_to_integer(sa.usedonlinesize)
+                site_data[site_id][5] += convert_to_integer(sa.totalnearlinesize)
+                site_data[site_id][6] += convert_to_integer(sa.usednearlinesize)
             except KeyError, e:
                 pass
 

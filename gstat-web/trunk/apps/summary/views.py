@@ -37,10 +37,10 @@ def get_json(request, type='GRID', value='ALL'):
     if (value == "ALL"):
         site_data  = get_installed_capacities(site_list)
         for group in topology.keys():
-            group_summary = [group, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+            group_summary = [group, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
             for site_id in topology[group]:
                 group_summary[1] += 1
-                for i in range(9):
+                for i in range(10):
                     group_summary[i + 2] += site_data[site_id][i]
             data.append(group_summary)  
     else:
