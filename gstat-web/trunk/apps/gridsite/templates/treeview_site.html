@@ -80,7 +80,7 @@
               <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
                 <span class="ce">
                   <a target="frame" href="/gstat/site/{{ site_name }}/bdii_top/{{ hostname }}/all/">&nbsp;{{ hostname }}</a>
-                  <a href="/gstat/ldap#ldap://{{ hostname }}:2170"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Top BDII"/> </a>
+                  <a href="/gstat/ldap#ldap://{{ hostname }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Top BDII"/> </a>
                 </span>
                 <ul>
                   {% for check in checks %}
@@ -127,7 +127,7 @@
               <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
                 <span class="ce">
                   <a target="frame" href="/gstat/site/{{ site_name }}/bdii_site/{{ hostname }}/all/">&nbsp;{{ hostname }}</a>
-                  <a href="/gstat/ldap#ldap://{{ hostname }}:2170/mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Site BDII"/> </a>
+                  <a href="/gstat/ldap#ldap://{{ hostname }}:2170/mds-vo-name=local,o=grid/"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Site BDII"/> </a>
                 </span>
                 <ul>
                   {% for check in checks %}
@@ -225,11 +225,11 @@
                         <li class='closed'>
                           <span class="folder">&nbsp;Supported VO </span>
                           <ul>
-		                    {% for vo,ce in vos %}
+		                    {% for vo,ce,voview in vos %}
 		                    <li>
 		                      <span class="vo">
 		                        <a target="frame" href="/gstat/rrd/VOCluster/{{ vo }}/{{ cluster }}/job/">&nbsp;{{ vo }}</a>
-		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueCE entity"/> </a>
+		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluevoviewlocalid={{ voview }},glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueVOView entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -365,11 +365,11 @@
                             <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/job/">&nbsp;Grid Jobs </a>
                           </span>
                           <ul>
-		                    {% for cluster,ce in clusters %}
+		                    {% for cluster,ce,voview in clusters %}
 		                    <li>
 		                      <span class="ce">
 		                        <a target="frame" href="/gstat/rrd/VOCluster/{{ vo }}/{{ cluster }}/job/">&nbsp;{{ cluster }}</a>
-		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueCE entity"/> </a>
+		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluevoviewlocalid={{ voview }},glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueVOView entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}

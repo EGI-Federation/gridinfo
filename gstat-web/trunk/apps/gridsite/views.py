@@ -249,7 +249,8 @@ def treeview(request, site_name, type, attribute=""):
                 if cluster.uniqueid not in cluster_vo_mapping:
                     cluster_vo_mapping[cluster.uniqueid] = {}
                 # cluster_vo_mapping[cluster.uniqueid][vo] = ce
-                cluster_vo_mapping[cluster.uniqueid][ vo_voview_mapping[voview.gluece_fk][voview.localid] ] = voview.gluece_fk
+                #cluster_vo_mapping[cluster.uniqueid][ vo_voview_mapping[voview.gluece_fk][voview.localid] ] = voview.gluece_fk
+                cluster_vo_mapping[cluster.uniqueid][ vo_voview_mapping[voview.gluece_fk][voview.localid] ] = [voview.gluece_fk, voview.localid]
     
     sas = gluesa.objects.filter(gluese_fk__in = [se.uniqueid for se in se_list])
     vo_sa_mapping = get_vo_to_sa_mapping(sas)
@@ -286,15 +287,17 @@ def treeview(request, site_name, type, attribute=""):
             vos = cluster_vo_mapping[cluster.uniqueid].keys()
             vos.sort()
             for vo in vos:
-                vo_ce_list.append( (vo, cluster_vo_mapping[cluster.uniqueid][vo]) )
+                #vo_ce_list.append( (vo, cluster_vo_mapping[cluster.uniqueid][vo]) )
+                vo_ce_list.append( (vo, cluster_vo_mapping[cluster.uniqueid][vo][0], cluster_vo_mapping[cluster.uniqueid][vo][1]) )
             tree_cluster_job.append( (cluster.hostname, tuple(vo_ce_list) ) )
         
             # Gather information of VOs
             for vo in vos:
                 try:
-                    dict_vo[vo][0].append( (cluster.hostname, cluster_vo_mapping[cluster.uniqueid][vo]) )
+                    #dict_vo[vo][0].append( (cluster.hostname, cluster_vo_mapping[cluster.uniqueid][vo]) )
+                    dict_vo[vo][0].append( (cluster.hostname, cluster_vo_mapping[cluster.uniqueid][vo][0], cluster_vo_mapping[cluster.uniqueid][vo][1]) )
                 except:
-                    dict_vo[vo] = [[ (cluster.hostname, cluster_vo_mapping[cluster.uniqueid][vo]) ], []]
+                    dict_vo[vo] = [[ (cluster.hostname, cluster_vo_mapping[cluster.uniqueid][vo][0], cluster_vo_mapping[cluster.uniqueid][vo][1]) ], []]
         tree_cluster_job.sort()
         
     # Get subtree of SEs and supported VOs for static and shared storage space
