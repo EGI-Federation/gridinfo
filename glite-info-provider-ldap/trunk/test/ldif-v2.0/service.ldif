@@ -7,3 +7,4 @@ GLUE2ServiceType: Generic
 GLUE2ServiceQualityLevel: Test
 GLUE2ServiceStatusInfo: http://generic-service.mysite.com/get-status
 GLUE2ServiceAdminDomainForeignKey: mysite.com
+
