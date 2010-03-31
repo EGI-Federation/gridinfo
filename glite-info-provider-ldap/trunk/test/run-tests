@@ -75,7 +75,7 @@ else
 fi
 
 echo -n "Testing site-level operation for glue 2.0 ... "
-${command} -c ${working_dir}/config/site.conf -g -m Test-Site | grep gservice_1 >/dev/null
+${command} -c ${working_dir}/config/site.conf -g mydomain.com | grep gservice_1 >/dev/null
 if [ $? -gt 0 ]; then 
     echo "Fail"
     RETVAL=1
@@ -84,7 +84,7 @@ else
 fi
 
 echo -n "Testing massaging resource dn for glue 2.0 ... "
-${command} -c ${working_dir}/config/site.conf -g -m Test-Site | grep Test-Site >/dev/null
+${command} -c ${working_dir}/config/site.conf -g site_1 | grep site_1 >/dev/null
 if [ $? -gt 0 ]; then 
     echo "Fail"
     RETVAL=1
@@ -92,7 +92,44 @@ else
     echo "OK"
 fi
 
+echo -n "Testing top-level operation for glue 2.0 ... "
+${command} -c ${working_dir}/config/grid.conf -g local | grep site_1 >/dev/null
+if [ $? -gt 0 ]; then 
+    echo "Fail"
+    RETVAL=1
+else
+    echo "OK"
+fi
+
+echo -n "Testing top-level operation for glue 2.0 wo massaging ... "
+${command} -c ${working_dir}/config/grid.conf -g none | grep site_1,o=glue >/dev/null
+if [ $? -gt 0 ]; then 
+    echo "Fail"
+    RETVAL=1
+else
+    echo "OK"
+fi
+
+echo -n "Testing massaging site dn for glue 2.0 ... "
+${command} -c ${working_dir}/config/grid.conf -g MyNGI | grep MyNGI >/dev/null
+if [ $? -gt 0 ]; then 
+    echo "Fail"
+    RETVAL=1
+else
+    echo "OK"
+fi
+
+echo -n "Testing recursion protection for glite 2.0 ... "
+${command} -c ${working_dir}/config/recursion.conf -g site_2 | grep site_2 >/dev/null
+if [ ! $? -gt 0 ]; then 
+    echo "Fail"
+    RETVAL=1
+else
+    echo "OK"
+fi
+
 echo "Stopping SLAPD ... "
+
 kill $(cat ${working_dir}/db/slapd.pid)
 
 echo "Cleaning the temporary directory ... "

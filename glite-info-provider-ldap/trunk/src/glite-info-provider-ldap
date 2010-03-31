@@ -13,8 +13,8 @@ use vars qw( $debug );
 
 # Print the usage message
 sub usage(){
-    print STDERR "Usage: $0 -c <config file> -m <mds-vo-name> [-v validity]"
-               . " -[d dynamic] [-t timeout] [-s size] [-g glue 2.0]\n";
+    print STDERR "Usage: $0 -c <config file> [-m <mds-vo-name>] [-v validity]"
+               . " -[d dynamic] [-t timeout] [-s size] [-g site/region]\n";
     print STDERR '
 This information provider takes a list of LDAP urls from the configuration
 file and queries the LDAP sources. It then merges the results and modifies
@@ -37,7 +37,7 @@ Options:
         retrieve the dynamic information. (currently not supported)
 
     -g  This option will modify the search endpoint to obtain glue 2.0 
-        information.
+        information and dynamically modify the dn.
 
     -t  The timeout of the ldapsearch in seconds.
 
@@ -51,7 +51,7 @@ Options:
 
 # Parse the command line options
 my %options=();
-getopts("v:dghm:c:t:s:",\%options) or usage();
+getopts("v:dg:hm:c:t:s:",\%options) or usage();
 
 # Set configuration file
 my $config;
@@ -66,9 +66,8 @@ if ($options{c}){
 my $name;
 if ($options{m}){
     $name=$options{m};
-}else{
-    usage();
-    exit 1;
+}elsif ($options{g}){
+    $name=$options{g};
 }
 
 if ($options{h}){
@@ -253,7 +252,7 @@ foreach(@urls){
 	    if ( $site eq 'resource'){
 		$bind = 'GLUE2GroupID=resource,o=glue';
 	    }else{
-		$bind = "GLUE2AdminDomainUniqueID=$site,o=glue";
+		$bind = "GLUE2DomainId=$site,o=glue";
 	    }
 	    $filter = ''
 	}else{
@@ -377,19 +376,25 @@ for (<$cache_dir/*.ldif>) {
 	$dn =~ s/\n.*//s;
 	$dn =~ s/,\s+/,/g;
 
-	if ($dn =~ m/mds-vo-name=$name,/i) {
-	    print LOGFILE "ERROR: Skipping recursive entry '$dn'\n";
-	    next;
+	if ($options{m}){
+	    if ($dn =~ m/mds-vo-name=$name,/i) {
+		print LOGFILE "ERROR: Skipping recursive entry '$dn'\n";
+		next;
+	    }
+
+	    $dn =~ s/mds-vo-name=(local|resource),o=grid\s*$/o=grid/i;
+	    $dn =~ s/o=grid\s*$/mds-vo-name=$name,o=grid/i;
+
 	}
+	if ($options{g}){
+	    if ($dn =~ m/GLUE2DomainId=$name,/i) {
+		print LOGFILE "ERROR: Skipping recursive entry '$dn'\n";
+		next;
+	    }
 
-	$dn =~ s/mds-vo-name=(local|resource),o=grid\s*$/o=grid/i;
-	$dn =~ s/o=grid\s*$/mds-vo-name=$name,o=grid/i;
-
-	# Temporary fix for bug 26838
-	if ($dn =~ s/^(dn:\s+GlueVOViewLocalID=)([^,]+=[^,]+)(,.*)/$1/i) {
-	    (my $rest = $3);
-	    (my $FQAN = $2) =~ s/=/-/g;
-	    $dn .= "$FQAN$rest";
+	    if ( $name ne "none"){
+		$dn =~ s/o=glue/GLUE2DomainId=$name,o=glue/i;
+	    }
 	}
 
 	s/[^\n]*/$dn/;
