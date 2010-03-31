@@ -263,7 +263,6 @@ foreach(@urls){
 	$command = "ldapsearch -x -LLL -h $2 -p $3 -b $bind "
 	    . $filter
 	    . "> $tmp_dir/$region.ldif 2>$tmp_dir/$region.err";
-	print $command . "\n";
     } else {
 	chomp;
 	print LOGFILE "ignoring badly formatted line: '$_'\n";
