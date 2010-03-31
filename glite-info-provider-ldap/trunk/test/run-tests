@@ -75,7 +75,7 @@ else
 fi
 
 echo -n "Testing site-level operation for glue 2.0 ... "
-echo "${command} -c ${working_dir}/config/site.conf -g -m Test-Site | grep gservice_1 >/dev/null"
+${command} -c ${working_dir}/config/site.conf -g -m Test-Site | grep gservice_1 >/dev/null
 if [ $? -gt 0 ]; then 
     echo "Fail"
     RETVAL=1
