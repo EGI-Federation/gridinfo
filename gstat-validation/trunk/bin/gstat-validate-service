@@ -71,7 +71,7 @@ if __name__ == "__main__":
    my_errors=gsutils.error_logger('gstat-validate-service-check',error_messages)
 
    official_service_types = {}
-   service_types_file = "/usr/share/gstat/service_types"
+   service_types_file = "/usr/share/gstat/service-types"
    if ( os.path.exists(service_types_file)):
       for line in open(service_types_file).readlines():
          official_service_types[line.strip()] = None
