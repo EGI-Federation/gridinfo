@@ -273,7 +273,10 @@ def check_valid_url(site):
             url = url.replace('http://','').replace('https://','')
             index = url.find("/")
             if ( index != -1):
-                  url = url[0:index]
+                  url = url[:index]
+            index = url.find(":")
+            if ( index != -1):
+                  url = url[:index]
             socket.gethostbyname(url)
    
    except Exception, e:
