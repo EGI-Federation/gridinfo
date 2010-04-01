@@ -51,7 +51,6 @@ def rrdgraph_cmd_options(start_time, title, label, small=False):
         ' --font UNIT:8:Arial'
     else:
         graph_cmd += \
-        ' --units-exponent=0' +\
         ' --font TITLE:9:Arial' +\
         ' --font AXIS:8:Arial' +\
         ' --font LEGEND:9:Arial' +\
@@ -243,7 +242,7 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
         title= "%s Storage Space (GlueSE: %s)" %(attribute.capitalize(), uniqueids[0])
     else:
         title= "%s Storage Space (Site: %s)" %(attribute.capitalize(), site_name)
-    label = "GB"
+    label = "Capacity / Bytes"
     graph_cmd = rrdgraph_cmd_options(start_time, title, label, small)
 
     datasources = {'online':   ['totalonlinesize', 'usedonlinesize'],
@@ -263,8 +262,10 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
             cdef_total.append(vname_total)
             cdef_used.append(vname_used)
         else:
-            cdef_total += ['TIME', str(int(time.time())-900), 'GT', vname_total, vname_total, 'UN', '0', vname_total, 'IF', 'IF']
-            cdef_used += ['TIME', str(int(time.time())-900), 'GT', vname_used, vname_used, 'UN', '0', vname_used, 'IF', 'IF']
+            #cdef_total += ['TIME', str(int(time.time())-900), 'GT', vname_total, vname_total, 'UN', '0', vname_total, 'IF', 'IF']
+            #cdef_used += ['TIME', str(int(time.time())-900), 'GT', vname_used, vname_used, 'UN', '0', vname_used, 'IF', 'IF']
+            cdef_total += ['TIME', str(int(time.time())-900), 'GT', vname_total, '1024', '1024', '1024', '*', '*', '*', vname_total, 'UN', '0', vname_total, '1024', '1024', '1024', '*', '*', '*', 'IF', 'IF']
+            cdef_used += ['TIME', str(int(time.time())-900), 'GT', vname_used, '1024', '1024', '1024', '*', '*', '*', vname_used, 'UN', '0', vname_used, '1024', '1024', '1024', '*', '*', '*', 'IF', 'IF']
         if count != 1:
             cdef_total.append('+')
             cdef_used.append('+')
@@ -553,7 +554,7 @@ def vo_storage_graph_cmd(level, vose_dict, attribute, start_time, site_name='', 
     elif level == 'vo': # vo level
         title = "%s Storage Space (VO: %s)" %(attribute.capitalize(), vose_dict.keys()[0])
         
-    label = "GB"
+    label = "Capacity / Bytes"
     graph_cmd = rrdgraph_cmd_options(start_time, title, label, small)
 
     datasources = {'online':   ['totalonlinesize', 'usedonlinesize'],
@@ -576,8 +577,11 @@ def vo_storage_graph_cmd(level, vose_dict, attribute, start_time, site_name='', 
                 cdef_total.append(vname_total)
                 cdef_used.append(vname_used)
             else:
-                cdef_total += ['TIME', str(int(time.time())-900), 'GT', vname_total, vname_total, 'UN', '0', vname_total, 'IF', 'IF']
-                cdef_used  += ['TIME', str(int(time.time())-900), 'GT', vname_used,  vname_used,  'UN', '0', vname_used,  'IF', 'IF']
+                #cdef_total += ['TIME', str(int(time.time())-900), 'GT', vname_total, vname_total, 'UN', '0', vname_total, 'IF', 'IF']
+                #cdef_used  += ['TIME', str(int(time.time())-900), 'GT', vname_used,  vname_used,  'UN', '0', vname_used,  'IF', 'IF']
+                
+                cdef_total += ['TIME', str(int(time.time())-900), 'GT', vname_total, '1024', '1024', '1024', '*', '*', '*', vname_total, 'UN', '0', vname_total, '1024', '1024', '1024', '*', '*', '*', 'IF', 'IF']
+                cdef_used  += ['TIME', str(int(time.time())-900), 'GT', vname_used, '1024', '1024', '1024', '*', '*', '*', vname_used,  'UN', '0', vname_used, '1024', '1024', '1024', '*', '*', '*', 'IF', 'IF']
             if count != 1:
                 cdef_total.append('+')
                 cdef_used.append('+')
@@ -608,7 +612,7 @@ def attribute_graph_cmd(entity_type, uniqueid, attribute, start_time):
     rrd_file = '%s/%s/%s.rrd' %(rrd_dir, str(uniqueid).replace('/',''), attribute)
     
     title = "%s (%s)" %(attribute, uniqueid)
-    if   entity_type == 'SE':         label = 'GB'
+    if   entity_type == 'SE':         label = 'Capacity / Bytes'
     elif entity_type == 'SubCluster': label = 'CPU'
     elif entity_type == 'VO':         lable = 'Jobs'
     graph_cmd = rrdgraph_cmd_options(start_time, title, label, small=False)
