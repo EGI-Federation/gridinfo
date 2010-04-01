@@ -37,6 +37,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/gstat 
 
 %changelog
+* Thu Apr 1 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.29-1
+- Fixed two small bugs in the site and service tests
 * Tue Mar 26 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.28-1
 - A number of minor bugs found in the tests have been fixed
 * Tue Dec 1 2009 Steve Traylen <steve.traylen@cern.ch>  - 2.0.25-1
