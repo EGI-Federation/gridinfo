@@ -1,39 +1,37 @@
-%define topdir %(pwd)/rpmbuild
-%define _topdir %{topdir} 
-Summary: glite-info-provider-ldap
-Name: glite-info-provider-ldap
-Version: 1.2.4
-Vendor: EGEE
-Release: 2
-License: EGEE
-Group: EGEE
-Source: %{name}.src.tgz
-BuildArch: noarch
-Prefix: /opt/glite
-BuildRoot: %{_tmppath}/%{name}-%{version}-build
-Packager: EGEE
-Requires: glite-info-generic
+Name:		glite-info-provider-ldap
+Version:	1.3.0
+Release:	1%{?dist}
+Summary:	LDAP information provider
+Group:		System/Monitoring
+License:	ASL 2.0
+URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
+#               wget -O %{name}-%{version}-443.tar.gz "http://svnweb.cern.ch/world/wsvn/gridinfo/bdii/tags/R_5_1_0?op=dl&rev=443"
+Source:		%{name}-%{version}.tar.gz
+BuildArch:	noarch
+BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
 %description
-An information provider to be used with the Generic Information Provider.
-This provider will query a number of LDAP sources and return the result. 
+An informatio provider that queries a number of LDAP sources and return the result. 
 
 %prep
-
-%setup -c
+%setup -q
+#change to the one below if you are building against downloaded tarball from svnweb.cern.ch
+#%setup -q -n trunk.r443
 
 %build
-make install prefix=%{buildroot}%{prefix}
+# Nothing to build
 
-%post
-
-%preun
-
-%postun
-
-%files
-%defattr(-,root,root)
-%{prefix}/libexec/glite-info-provider-ldap
+%install
+rm -rf %{buildroot}
+make install prefix=%{buildroot}
 
 %clean
 rm -rf %{buildroot}
+
+%files
+%defattr(-,root,root,-)
+/opt/glite/libexec/glite-info-provider-ldap
+
+%changelog
+* Thu Apr 1 2010 Laurence Field <laurence.field@cern.ch> - 1.3.0-1
+- New version that can also obtain Glue 2.0 information

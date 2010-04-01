@@ -1,25 +1,47 @@
-prefix=/opt/glite
-package=glite-info-provider-ldap
+NAME= $(shell grep Name: *.spec | sed 's/^[^:]*:[^a-zA-Z]*//' )
+VERSION= $(shell grep Version: *.spec | sed 's/^[^:]*:[^0-9]*//' )
+RELEASE= $(shell grep Release: *.spec |cut -d"%" -f1 |sed 's/^[^:]*:[^0-9]*//')
+build=$(shell pwd)/build
+DATE=$(shell date "+%a, %d %b %Y %T %z")
 
-.PHONY: configure install clean rpm
+default: 
+	@echo "Nothing to do"
 
-all: configure
+test:
+	./test/run-tests
 
-install: 
+install:
 	@echo installing ...
-	@mkdir -p $(prefix)/libexec/
-	@install -m 0755 src/glite-info-provider-ldap $(prefix)/libexec
+	@mkdir -p $(prefix)/opt/glite/libexec/
+	@install -m 0755 src/glite-info-provider-ldap $(prefix)/opt/glite/libexec
+
+dist:
+	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
+	rsync -HaS --exclude ".svn" --exclude "$(build)" * $(build)/$(NAME)-$(VERSION)/
+	cd $(build); tar --gzip -cf $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)/; cd -
+
+sources: dist
+	cp $(build)/$(NAME)-$(VERSION).tar.gz .
+
+deb: dist
+	cd $(build)/$(NAME)-$(VERSION); dpkg-buildpackage -us -uc; cd -
+
+prepare: dist
+	@mkdir -p  $(build)/RPMS/noarch
+	@mkdir -p  $(build)/SRPMS/
+	@mkdir -p  $(build)/SPECS/
+	@mkdir -p  $(build)/SOURCES/
+	@mkdir -p  $(build)/BUILD/
+	cp $(build)/$(NAME)-$(VERSION).tar.gz $(build)/SOURCES 
+
+srpm: prepare
+	@rpmbuild -bs --define='_topdir ${build}' $(NAME).spec
+
+rpm: srpm
+	@rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE).src.rpm
 
 clean:
-	rm -f *~ 
-	rm -rf rpmbuild 
+	rm -f *~ $(NAME)-$(VERSION).tar.gz
+	rm -rf $(build)
 
-rpm:
-	@mkdir -p  rpmbuild/RPMS/noarch
-	@mkdir -p  rpmbuild/SRPMS/
-	@mkdir -p  rpmbuild/SPECS/
-	@mkdir -p  rpmbuild/SOURCES/
-	@mkdir -p  rpmbuild/BUILD/
-	@tar --gzip -cf rpmbuild/SOURCES/${package}.src.tgz *
-	@rpmbuild -ba ${package}.spec
-
+.PHONY: dist srpm rpm sources clean test
