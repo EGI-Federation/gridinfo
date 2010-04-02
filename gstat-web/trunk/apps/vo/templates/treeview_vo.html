@@ -21,28 +21,8 @@
         vo_name = document.getElementById('vo_list').value;
         window.location.href = '/gstat/vo/' + vo_name
     }
-    
-    //function changeFilterValue(event) {
-    //    filtertype = document.getElementById('filtertype').value;
-    //    filtervalue = document.getElementById('filtervalue').value;
-    //    window.location.href = '/gstat/vo/' + filtervalue;
-    //}
-
 
 	$(document).ready(function(){
-		//filtertype = document.getElementById('filtertype');
-		//filtertype.value = "VO";
-        //try {
-        //    loadJSONDoc("/gstat/core/filter/" + "VO");
-        //}
-        //catch(e) {
-        //    var msg = (typeof e == "string") ? e : ((e.message) ? e.message : "Unknown Error");
-        //    alert("Unable to get JSON data:\n" + msg);
-        //    return;
-        //}
-		//filtervalue = document.getElementById('filtervalue');
-		//filtervalue.value = '{{ vo_name|default:"-1" }}';
-
         vo_list = document.getElementById('vo_list');
         vo_list.value = '{{ vo_name|default:"-1" }}';
 
@@ -106,7 +86,9 @@ Current VO:
           {% if tree_vo %}
             {% for vo, job, storage in tree_vo %}
             <li class='{{ collapse|dict_get:vo|default:"closed" }}'>
-              <span class="folder">&nbsp;{{ vo }} </span>
+              <span class="folder">
+                <a target="frame" href="/gstat/vo/{{ vo }}/overview/">&nbsp;{{ vo }} </a>
+              </span>
               <ul>
               
                 {% if job %}
@@ -116,7 +98,7 @@ Current VO:
                   </span>
                   <ul>
                     
-                    {% for site_name, clusters in job %}
+                    {% for site_name, cluster_ce_voview in job %}
                     <li class='closed'>
                       <span class="folder">
                         <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/job/">&nbsp;{{ site_name }} </a>
@@ -126,11 +108,11 @@ Current VO:
                         <li class='closed'>
                           <span class="folder">&nbsp;Cluster </span>
                           <ul>
-		                    {% for cluster in clusters %}
+		                    {% for cluster,ce,voview in cluster_ce_voview %}
 		                    <li>
 		                      <span class="ce">
 		                        <a target="frame" href="/gstat/rrd/VOCluster/{{ vo }}/{{ cluster }}/job/">&nbsp;{{ cluster }}</a>
-		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://lcg-bdii.cern.ch:2170/mds-vo-name=local,o=grid&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
+		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://lcg-bdii.cern.ch:2170/mds-vo-name=local,o=grid&entry=true&dn=gluevoviewlocalid={{ voview }},glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueVOView entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -154,7 +136,7 @@ Current VO:
                   </span>
                   <ul>
                   
-                    {% for site_name, ses in storage %}
+                    {% for site_name, se_sa_list in storage %}
                     <li class='closed'>
                       <span class="folder">
                         <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/online/">&nbsp;{{ site_name }} </a>
@@ -164,11 +146,11 @@ Current VO:
                         <li class='closed'>
                           <span class="folder">&nbsp;SE </span>
                           <ul>
-		                    {% for se in ses %}
+		                    {% for se,sa in se_sa_list %}
 		                    <li>
 		                      <span class="se">
 		                        <a target="frame" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/online/">&nbsp;{{ se }}</a>
-		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://lcg-bdii.cern.ch:2170/mds-vo-name=local,o=grid&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
+		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://lcg-bdii.cern.ch:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -187,7 +169,7 @@ Current VO:
                   </span>
                   <ul>
                   
-                    {% for site_name, ses in storage %}
+                    {% for site_name, se_sa_list in storage %}
                     <li class='closed'>
                       <span class="folder">
                         <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/nearline/">&nbsp;{{ site_name }} </a>
@@ -197,11 +179,11 @@ Current VO:
                         <li class='closed'>
                           <span class="folder">&nbsp;SE </span>
                           <ul>
-		                    {% for se in ses %}
+		                    {% for se,sa in se_sa_list %}
 		                    <li>
 		                      <span class="se">
 		                        <a target="frame" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/nearline/">&nbsp;{{ se }}</a>
-		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://lcg-bdii.cern.ch:2170/mds-vo-name=local,o=grid&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
+		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://lcg-bdii.cern.ch:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -231,7 +213,7 @@ Current VO:
   <div id="right-board" class="board rightboard" >
     <h2>Viewing Statistics or Graphs</h2>
     <iframe id="frame" name="frame" src="{{ url }}" frameborder="0" width="100%" scrolling="yes" allowtransparency="true">
-    </iframe>
+    </iframe> 
   </div>
   <div class="clear"/>
 </div>

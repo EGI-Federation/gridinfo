@@ -120,6 +120,7 @@ def get_vo_to_voview_mapping(voview_list=None):
             
         if ( not vo_to_voview_mapping.has_key(object.uniqueid) ):
             vo_to_voview_mapping[object.uniqueid] = {}
+        # vo_to_voview_mapping[gluece_uniqueid][gluevoview_localid] = vo_name
         vo_to_voview_mapping[object.uniqueid][object.localid] = vo
     
     return vo_to_voview_mapping
@@ -152,6 +153,7 @@ def get_vo_to_sa_mapping(sa_list=None):
         
         if ( not vo_to_sa_mapping.has_key(object.uniqueid) ):
             vo_to_sa_mapping[object.uniqueid] = {}
+        # vo_to_sa_mapping[gluese_uniqueid][gluesa_localid] = vo_name
         vo_to_sa_mapping[object.uniqueid][object.localid] = vo
 
     return vo_to_sa_mapping
@@ -223,36 +225,33 @@ def get_services(site_list, service_type=None):
         services.append(relation.object)
     return services
 
-def get_vo_site_service(vo_name, service_type):
+def get_vo_services(vo_name, service_type):
     
     # vo_to_site_mapping[vo][service] = [site]
     site_service_rlp = Entityrelationship.objects.select_related('subject', 'object').filter(predicate = 'SiteService', object__type=service_type)
     service_vo_rlp = Entityrelationship.objects.select_related('subject', 'object').filter(predicate = 'ServiceVO', subject__type=service_type, object__uniqueid=vo_name)
 
     service_to_site_mapping = {}
-    # {"service_uniqueid": "site_name"}
+    # {"service entity": "site entity"}
     for site_service in site_service_rlp:
-        site_name = site_service.subject.uniqueid
-        service_uniqueid = site_service.object.uniqueid
-        if service_uniqueid not in service_to_site_mapping:
-            service_to_site_mapping[service_uniqueid] = site_name
+        site = site_service.subject
+        service = site_service.object
+        if service not in service_to_site_mapping:
+            service_to_site_mapping[service] = site
 
-    vo_site_service = {}
-    # {"vo_name": {"site_name": ["service_uniqueid_list"]}}
+    site_service = {}
+    # {"site entity": ["service_entity_list"]}
     for service_vo in service_vo_rlp:
-        service_uniqueid = service_vo.subject.uniqueid
-        vo = service_vo.object.uniqueid
-        if ( not vo_site_service.has_key(vo) ):
-            vo_site_service[vo] = {}
+        service = service_vo.subject
             
         try:
-            site_name = service_to_site_mapping[service_uniqueid]
+            site = service_to_site_mapping[service]
         except KeyError, e:
             continue
             
-        if site_name not in vo_site_service[vo]:
-            vo_site_service[vo][site_name] = []
-        vo_site_service[vo][site_name].append(service_uniqueid)
+        if site not in site_service:
+            site_service[site] = []
+        site_service[site].append(service)
 
 
     """
@@ -287,7 +286,7 @@ def get_vo_site_service(vo_name, service_type):
     """   
             
     
-    return vo_site_service
+    return site_service
     
 """
 def get_services_from_vo(vo_list, service_type=None):
