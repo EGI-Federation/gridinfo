@@ -2,6 +2,7 @@ import re
 import socket
 
 from django.db import models
+from django.conf import settings
 from topology.models import Entity
 from topology.models import Entityrelationship
 from glue.models import *
@@ -444,6 +445,8 @@ def get_nagios_status_dict():
     # config local access control permission to enable the file to be readbale by this script
     # Please note that it's HARD CODE for now!!!
     status_file="/var/nagios/status.dat"
+    if settings.NAGIOS_STATUS_FILE:
+        status_file = settings.NAGIOS_STATUS_FILE
     try:
         file = open(status_file)
     except(IOError):

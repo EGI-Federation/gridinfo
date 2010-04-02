@@ -22,6 +22,9 @@ try:
     TEMPLATE_DEBUG = config.getboolean('debug','TEMPLATE_DEBUG')
 
     PREFIX = config.get('server', 'PREFIX')
+    REFERENCE_BDII_FILE = config.get('server', 'REFERENCE_BDII_FILE')
+    
+    NAGIOS_STATUS_FILE = config.get('nagios', 'NAGIOS_STATUS_FILE')
 
     VIEW_TEST = config.getboolean('debug', 'VIEW_TEST')
     INTERNAL_IPS = tuple(config.get('debug', 'INTERNAL_IPS').split())

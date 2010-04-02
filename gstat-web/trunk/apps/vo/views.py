@@ -2,6 +2,7 @@ from django.shortcuts import get_object_or_404, render_to_response
 from django.views.decorators.cache import cache_page
 from django.http import HttpResponse, Http404
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.utils import html
 from django.utils import simplejson as json
 from core.utils import *
@@ -56,7 +57,6 @@ def treeview(request, vo_name=""):
         """ parse an object definition, return the directives """
         pattern = re.compile(directive+'[=]*([\S, ]*)\n')
         m = pattern.search(item)
-        print m
         if m:
             return m.group(1).strip() 
     
@@ -170,7 +170,9 @@ def treeview(request, vo_name=""):
 
     # get LDAP URI o reference BDII 
     ldapuri = "ldap://lcg-bdii.cern.ch:2170/mds-vo-name=local,o=grid"
-    ref_bdii_file="/etc/gstat/ref-bdii.conf"
+    ref_bdii_file = "/etc/gstat/ref-bdii.conf"
+    if settings.REFERENCE_BDII_FILE:
+        ref_bdii_file = settings.REFERENCE_BDII_FILE
     try:
         file = open(ref_bdii_file)
         content = file.read().replace("\t"," ")
