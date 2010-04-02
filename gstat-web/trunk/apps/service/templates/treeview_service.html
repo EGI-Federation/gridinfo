@@ -17,6 +17,10 @@
 <script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
+	    services = document.getElementById('services');
+        var service_type = window.location.href.split("/")[5];
+        services.value = service_type;
+	
 		$("#tree").treeview();
 		
 	    main_centeriser = parseInt( $("#main-centeriser").height() );
@@ -32,7 +36,8 @@
         $("#content-main").css('height', proportion + '%');
         
         content_main = parseInt( $("#content-main").height() );
-        proportion = parseInt( (content_main - 10) / content_main * 100 );
+        servicediv = parseInt( $("#servicediv").height() );
+        proportion = parseInt( (content_main - servicediv - 10) / content_main * 100 );
         $("#layoutdiv").css('height', proportion + '%');
         
         left_board = parseInt( $("#left-board").height() );
@@ -46,11 +51,23 @@
 </script>
 {% endblock %}
 
-{% block breadcrumbs %}{% endblock %}
+{% block breadcrumbs %}
+<a href="/gstat/">Home</a> :: <a href="/gstat/service/{{ type }}/">{{ title }}</a>
+{% endblock %}
 
 {% block content-main %}
 
 {% load dict_tags %}
+
+<div id="servicediv" style="margin-bottom:10px;">
+Current Service:
+<select id="services" onchange="changeServiceView(event);" style="margin-left: 0.5em;">
+  <option value="-1">Select a Service</option>
+  {% for service_type,service_title in services.items %}
+    <option value="{{ service_type }}">{{ service_title }}</option>
+  {% endfor %}
+</select>
+</div>
 
 <div id="layoutdiv">
   <div id="left-board" class="board">
