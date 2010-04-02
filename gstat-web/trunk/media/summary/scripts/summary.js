@@ -73,7 +73,8 @@ function changeFilterValue(event) {
 
 function directToSiteView(event) {
     sitename = document.getElementById('sites').value;
-    window.open('/gstat/site/' + sitename, '_self')
+    if (sitename != "-1")
+        window.open('/gstat/site/' + sitename, '_self');
 }
 
 function loadTable(event) {

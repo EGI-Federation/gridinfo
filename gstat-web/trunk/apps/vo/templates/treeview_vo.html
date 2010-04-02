@@ -11,16 +11,17 @@
 {% endblock %}
 
 {% block scripts-add %}
-<script type="text/javascript" src="/media/gridsite/scripts/site.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script>
+<script type="text/javascript" src="/media/gridsite/scripts/site.js"></script>
 <script type="text/javascript">
 
-    function selectedVO(event) {
-        vo_name = document.getElementById('vo_list').value;
-        window.location.href = '/gstat/vo/' + vo_name
-    }
+	function changeVOView(event) {
+	    vo_name = document.getElementById('vo_list').value;
+	    if (vo_name != "-1")
+	        window.location.href = '/gstat/vo/' + vo_name;
+	}
 
 	$(document).ready(function(){
         vo_list = document.getElementById('vo_list');
@@ -65,7 +66,7 @@
 {% load dict_tags %}
 <div id="vodiv" style="margin-bottom:10px;">
 Current VO:
-	<select id="vo_list" onchange="selectedVO(event);" style="margin-left: 0.5em;">
+	<select id="vo_list" onchange="changeVOView(event);" style="margin-left: 0.5em;">
 	  <option value="-1">Select a VO name</option>
 	  {% for vo in vo_list %}
 	    <option value="{{ vo.uniqueid }}">{{ vo.uniqueid }}</option>

@@ -15,10 +15,13 @@
 <script type="text/javascript" src="/media/core/scripts/jquery.dataTables.js"></script>
 <script type="text/javascript" src="/media/core/scripts/ZeroClipboard.js"></script>
 <script type="text/javascript" src="/media/core/scripts/TableTools.js"></script>
-<script type="text/javascript" src="/media/summary/scripts/summary.js" ></script>
+<script type="text/javascript" src="/media/service/scripts/service.js" ></script>
 <script type="text/javascript" charset="utf-8">
 
 $(document).ready(function() {
+        services = document.getElementById('services');
+        services.value = '{{ type|default:"-1" }}';
+
         // dataTable script initialization using jQuery selectors
         $('#single_table').dataTable( {
         "bProcessing": true,
@@ -55,6 +58,8 @@ $(document).ready(function() {
        ] });
        
       $('#single_table_processing').prepend( $('<img></img>').attr({'src':'/media/core/css/img/loading.gif'}).css({padding: '0px 8px'}) );
+      $('#single_table_length').append( '&nbsp;|&nbsp;Go To:' );
+      $('#single_table_length').append( $('#services') );
 
 });
 
@@ -64,16 +69,18 @@ $('#content-main a').attr({"target":"_self"});      // here you can set up defau
 {% endblock %}
 
 {% block breadcrumbs %}
-    {% for item in breadcrumbs_list %}
-        {% if forloop.last %}
-            <a href="{{ item.url }}">{{ item.name }}</a>
-        {% else %}
-            <a href="{{ item.url }}">{{ item.name }}</a>::
-        {% endif %}
-    {% endfor %}
+<a href="/gstat/">Home</a> :: <a href="/gstat/service/{{ type }}/">{{ title }}</a>
 {% endblock %}
 
 {% block content-main %}
+
+<select id="services" onchange="changeServiceView(event);" style="margin-left: 0.5em;">
+  <option value="-1">Select a Service</option>
+  {% for service_type,service_title in services.items %}
+    <option value="{{ service_type }}">{{ service_title }}</option>
+  {% endfor %}
+</select>
+
 <table cellpadding="0" cellspacing="1" border="0" class="display" id="single_table">
   <thead>
     <tr>{% for col in thead %}

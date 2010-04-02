@@ -9,6 +9,8 @@ import socket
 import sys
 
 def main(request, type, output=None):
+    services = {'bdii_top':  'Top BDII',
+                'bdii_site': 'Site BDII'}
 
     if (output == 'json'):
         data = []
@@ -38,27 +40,18 @@ def main(request, type, output=None):
         content = '{ "aaData": %s }' % (json.dumps(data))
         return HttpResponse(content, mimetype='application/json')  
     else:
+        title = services[type]
         if (type == 'bdii_top'):
-            title = "Top BDII View"
-            breadcrumbs_list = [{'name': 'Home',
-                                 'url':  '/gstat/'},
-                                {'name':'Site BDII View',
-                                 'url':'/gstat/service/bdii_site/'}]
             thead=["Alias", "Hostname", "Instances", "Freshness", "Sites"]
         else:
-            title = "Site BDII View"
-            breadcrumbs_list = [{'name': 'Home',
-                                 'url':  '/gstat/'},
-                                {'name':'Top BDII View',
-                                 'url':'/gstat/service/bdii_top/'}]
             thead=["Alias", "Hostname", "Instances", "Freshness", "Services"]
 
         return render_to_response('single_table_service.html',
                                   {'service_active': 1,
-                                   'breadcrumbs_list': breadcrumbs_list,
-                                   'title' : title,
-                                   'type' : type,
-                                   'thead': thead})
+                                   'services':       services,
+                                   'title':          title,
+                                   'type':           type,
+                                   'thead':          thead})
 
 def status(request, type_name, host_name, check_name):
     # Get testing results from TOP BDII    
@@ -88,6 +81,9 @@ def status(request, type_name, host_name, check_name):
 
 
 def treeview(request, type, uniqueid):
+    services = {'bdii_top':  'Top BDII',
+                'bdii_site': 'Site BDII'}
+    title = services[type]
 
     # decide expanded tree node
     collapse = {}
@@ -126,8 +122,6 @@ def treeview(request, type, uniqueid):
             print hostnames_expand
             for hostname_expand in hostnames_expand:
                 collapse[hostname_expand] = "expanded"
-
-
         
     # decide the default viewing content in iframe of treeview page
     url = ""
@@ -139,6 +133,9 @@ def treeview(request, type, uniqueid):
         url = "/".join(["", "gstat", "service", type, uniqueid, "all"])
 
     return render_to_response('treeview_service.html', {'service_active':   1,
+                                                        'services':         services,
+                                                        'type':             type,
+                                                        'title':            title,
                                                         'collapse':         collapse,
                                                         'tree_topbdii':     tree_topbdii,
                                                         'tree_sitebdii':    tree_sitebdii,
