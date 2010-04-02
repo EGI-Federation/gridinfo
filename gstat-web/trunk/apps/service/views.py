@@ -119,7 +119,6 @@ def treeview(request, type, uniqueid):
         # decide expanded tree node
         if type == "bdii_site":
             hostnames_expand = get_hosts_from_alias(uniqueid)
-            print hostnames_expand
             for hostname_expand in hostnames_expand:
                 collapse[hostname_expand] = "expanded"
         
