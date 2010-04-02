@@ -51,6 +51,15 @@ def get_json(request, vo_name="", type=""):
     return HttpResponse(content, mimetype='application/json')  
 
 def treeview(request, vo_name=""):
+    
+    def __getDirective(item, directive):
+        """ parse an object definition, return the directives """
+        pattern = re.compile(directive+'[=]*([\S, ]*)\n')
+        m = pattern.search(item)
+        print m
+        if m:
+            return m.group(1).strip() 
+    
     # get vo list
     vo_list = Entity.objects.filter(type="VO").order_by('uniqueid')
     
@@ -151,22 +160,35 @@ def treeview(request, vo_name=""):
                         se_sa_list.append( ( se.uniqueid, se_vo_mapping[se.uniqueid][vo_name] ) )
             storage.append( ( site.uniqueid, tuple( se_sa_list ) ) )
             
-    
     if vo_name:    
         tree_vo.append( ( vo_name, tuple(job), tuple(storage) ) )
-        
         
     # decide the default viewing content in iframe of treeview page
     url = ""
     if vo_name != "":
         url = "/gstat/vo/"+vo_name+"/overview/"
 
+    # get LDAP URI o reference BDII 
+    ldapuri = "ldap://lcg-bdii.cern.ch:2170/mds-vo-name=local,o=grid"
+    ref_bdii_file="/etc/gstat/ref-bdii.conf"
+    try:
+        file = open(ref_bdii_file)
+        content = file.read().replace("\t"," ")
+        file.close
+        BDII_HOST = __getDirective(content, "BDII_HOST")
+        BDII_PORT = __getDirective(content, "BDII_PORT")
+        BDII_BIND = __getDirective(content, "BDII_BIND")
+        ldapuri = "ldap://" + BDII_HOST + ":" + BDII_PORT + "/" + BDII_BIND
+    except(IOError):
+        print "GStat reference BDII file doesn't exist: %s" % ref_bdii_file
+        
     return render_to_response('treeview_vo.html', 
                               {'vo_active':        1,
                                'vo_list':          vo_list,
                                'vo_name':          vo_name,
                                'collapse':         collapse,
                                'tree_vo':          tree_vo,
-                               'url':              url})
+                               'url':              url,
+                               'ldapuri':          ldapuri})
 
 
