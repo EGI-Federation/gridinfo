@@ -354,7 +354,7 @@ def get_service_VO():
                     continue
             else:
                 unique_id = unique_id
-            if ( entity_store.has_key(unique_id + 'Service') ): # Ensure that exists
+            if ( entity_store.has_key(unique_id)): # Ensure that exists
                 if ( relationships.has_key(unique_id) ):
                     if ( not relationships[unique_id].has_key(vo) ):
                         relationship_store.append( ( unique_id, vo, "ServiceVO" ) )
