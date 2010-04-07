@@ -145,10 +145,7 @@ objects={ 'GlueCE' : None,
           }
 
 ignore={ 'GlueCEInfoGRAMVersion' : None,
-# Chunk Keys are now processed
-#         'GlueChunkKey' : None,
          'GlueClusterService' : None,
-#         'GlueForeignKey' : None,
          'GlueHostProcessorVersion' : None,
          'GlueInformationServiceURL' : None,
          'GlueSchemaVersionMajor' : None,
@@ -198,7 +195,7 @@ def delete_old_entries_raw():
     transaction.commit()
 
 # Define function to process tuple
-def process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds):
+def process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds, glueforeignkeys):
     global command
 
     # Hack for GlueVOInfo being GlueSA
@@ -239,6 +236,7 @@ def process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds):
                 if ( tuple.has_key('GlueSALocalID') ):
                     gluemultivalued.localid = tuple['GlueSALocalID']
                 gluemultivalueds.append(gluemultivalued)
+
         # Exceptions on the uniqueid
         if ( table_name=='GlueLocation' or table_name=='GlueSoftware' or
              table_name=='GlueVOView'): 
@@ -261,6 +259,41 @@ def process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds):
         # Import models and create instance from the class
         table_name_lower = table_name.lower()
         inst = getattr(module, table_name_lower)()
+        
+        # Iterate through the Chunk Keys and Foreign Keys
+        for tmpvalue in glueforeignkeys:
+            if (tmpvalue == 'unset' or tmpvalue == 'None'):
+                continue
+            fkvalues = tmpvalue.split('=')
+            fktable = fkvalues[0][:fkvalues[0].find('UniqueID')]
+            methodName = fktable.lower() + '_fk'
+            # Check for special cases on the values
+            try:
+                value = fkvalues[1]
+            except Exception, e:
+                log.warn('Wrong value for Key:' + key + '. Value:' + tuple[key] + ' in ' + table_name_lower + '.' + methodName)
+                continue #sys.exit()
+            # Check if method exists
+            try:
+                getattr(inst, methodName)
+            except AttributeError:
+                log.warn(table_name_lower + '.' + methodName + ' does not exist. Value:' + tmpvalue)
+            else:
+                inst.__setattr__(methodName, value) # Store the result
+
+        # Check ChunkKey/ForeignKey presence for the site and if not, take the relation from the dn
+        if (table_name_lower == 'glueservice' or 
+                table_name_lower == 'gluecluster' or 
+                table_name_lower == 'gluese'):
+            dn2 = dn[dn.find('Mds-Vo-name')+12:]
+            value = dn2[:dn2.find(',')]
+            methodName = 'gluesite_fk'
+            try:
+                valueTest = getattr(inst, methodName)
+            except AttributeError:
+                log.warn(table_name_lower + '.' + methodName + ' does not exist. Special ChunkKey from DN. Value:' + value)
+            if valueTest == '':
+                inst.__setattr__(methodName, value)
 
         # Iterate through all the keys and values and insert them        
         for key in tuple:
@@ -274,13 +307,6 @@ def process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds):
                 methodName = keylower
             elif (keylower == 'glueserviceuniqueid' and table_name_lower != 'glueservice'):
                 methodName = keylower
-            elif (keylower == 'gluechunkkey' or keylower == 'glueforeignkey'):
-                tmpvalue = tuple[key]
-                if (tmpvalue == 'unset' or tmpvalue == 'None'):
-                    continue
-                fkvalues = tmpvalue.split('=')
-                fktable = fkvalues[0][:fkvalues[0].find('UniqueID')]
-                methodName = fktable.lower() + '_fk'
             else:
                 # Test each prefix to get rid of it
                 for prefix in prefixes:
@@ -289,15 +315,7 @@ def process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds):
                         break
                 else:
                     methodName = key[table_name.__len__():key.__len__()].lower()
-            # Check for special cases on the values
-            if (keylower == 'gluechunkkey' or keylower == 'glueforeignkey'):
-                try:
-                    value = fkvalues[1]
-                except Exception, e:
-                    log.warn('Wrong value for Key:' + key + '. Value:' + tuple[key] + ' in ' + table_name_lower + '.' + methodName)
-                    continue #sys.exit()
-            else:
-                value = tuple[key]
+            value = tuple[key]
             # Special case of floats with trailing # -> take it out
             try:
               if (value[value.__len__()-1] == '#'):
@@ -308,30 +326,10 @@ def process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds):
             try:
                 getattr(inst, methodName)
             except AttributeError:
-                if (keylower == 'gluechunkkey' or keylower == 'glueforeignkey'):
-                    log.warn(table_name_lower + '.' + methodName + ' does not exist. Key:' + key + '. Value:' + value)
-                    #sys.exit()
-                else:
-                    log.warn(table_name_lower + '.' + methodName + ' does not exist. Key:' + key + '. Value:' + tuple[key])
-                    #sys.exit()
+                log.warn(table_name_lower + '.' + methodName + ' does not exist. Key:' + key + '. Value:' + tuple[key])
             else:
-                # Store the result
-                inst.__setattr__(methodName, value)
+                inst.__setattr__(methodName, value) # Store the result
 
-        # Check ChunkKey presence and if not, take the relation from the dn
-        if (table_name_lower == 'glueservice' or 
-                table_name_lower == 'gluecluster' or 
-                table_name_lower == 'gluese'):
-            if ('GlueChunkKey' not in tuple):
-                dn2 = dn[dn.find('Mds-Vo-name')+12:]
-                value = dn2[:dn2.find(',')]
-                methodName = 'gluesite_fk'
-                try:
-                    valueTest = getattr(inst, methodName)
-                except AttributeError:
-                    log.warn(table_name_lower + '.' + methodName + ' does not exist. Special ChunkKey from DN. Value:' + value)
-                if valueTest == '':
-                    inst.__setattr__(methodName, value)
         # Save the object    
         insts.append(inst)
 
@@ -346,6 +344,7 @@ def main():
     table_name=""
     tuple={}
     attribute = "#"
+    glueforeignkeys = []
     
     # Filter to use for debugging purposes
     #config['filter']="objectClass=GlueCE"
@@ -359,6 +358,7 @@ def main():
     log.debug("Doing translation loop ... ")
     insts = []
     gluemultivalueds = []
+
     for line in pipe:
     
         # Process tuple if new entry is found.
@@ -367,13 +367,14 @@ def main():
                 if ( objects.has_key(table_name) ):
                     dn = tuple['dn']        
                     tuple.pop('dn')
-                    process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds)
+                    process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds, glueforeignkeys)
     
             # Set DN and reset loop variables    
             tuple={}  
             multivalues = []
             table_name = ""
             attribute = "#"
+            glueforeignkeys = []
             
         # Deal with wrapped lines
         if ( line[0] == " "):
@@ -419,6 +420,9 @@ def main():
             # Add attribute and value to the multivalues list
             elif ( multivalued.has_key(attribute)):
                 multivalues.append( (attribute, value) )
+            # Process multivalued GlueChunkKeys and GlueForeignKeys
+            elif ( attribute == "GlueChunkKey" or attribute == "GlueForeignKey" ):
+                glueforeignkeys.append(value)
             # Add attribute and value to the tuple
             else:
                 try: 
@@ -430,7 +434,7 @@ def main():
     if ( tuple.has_key('dn') ):
         dn = tuple['dn']
         tuple.pop('dn')
-        process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds) 
+        process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds, glueforeignkeys)
     
     # Close the pipe for the ldapsearch
     pipe.close()
