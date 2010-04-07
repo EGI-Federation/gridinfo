@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/python
 ##############################################################################
 # Copyright (c) Members of the EGEE Collaboration. 2010.
 # See http://www.eu-egee.org/partners/ for details on the copyright
@@ -27,202 +27,214 @@
 # WEB:          http://cern.ch/gridinfo
 #
 ##############################################################################
+import os
+import sys
+import getopt
+import logging
 
-# 0. Functions
-
-# $1 Level: 0:ERROR, 1:WARNING, 2:INFO, 3:DEBUG
-# $2 Message
-function log() {
-  tag='glite-info-create'
-  case $1 in
-    0)
-      msg="[ERROR] $2"
-      if [ $verbose -ge "0" ]; then echo $msg >&2; fi
-      exit 1;;
-    1)
-      msg="[WARNING] $2"
-      if [ $verbose -ge "1" ]; then echo $msg; fi;;
-    2)
-      msg="[INFO] $2"
-      if [ $verbose -ge "2" ]; then echo $msg; fi;;
-    3)
-      msg="[DEBUG] $2"
-      if [ $verbose -ge "3" ]; then echo $msg; fi;;
-    *)
-      msg="[PROGRAM ERROR] Level $1 does not exist"
-      echo $msg >&2
-      exit 1;;
-  esac
-}
-
-function print_help() {
-  cat << EOF >&2
-Usage:
+# Funtion to print out the usage
+def usage():
+    sys.stderr.write('Usage: %s -m <module> [OPTIONS] \n' % (sys.argv[0]))
+    sys.stderr.write('''
   glite-info-create.sh -m <module> [-i <ifaces>] [-t <templates>] [-c <configs>]
-                       [-p <path>] [-o <outpath>] [-v verbose]
+                       [-p <path>] [-o <outpath>] [-d debug]
        
 Parameters:
-  <module>    The module you are using. E.g.: site
-  <ifaces>    The interface you want to use. E.g.: glue, wlcg (default)
-  <templates> The template you want to use. E.g.: glue1, glue2 (all default)
-  <configs>   The config file location if outside from the module directory
-  <path>      The path for the module directory. Default: /etc/glite-info-create
-  <outpath>   The path for the output directory. Default: <path>/output
-  <verbose>   Verbose level: 0:ERROR, 1:WARNING, 2:INFO, 3:DEBUG. Default: 0
+  -m <module>    The module you are using. E.g.: site
+  -i <ifaces>    The interface you want to use. E.g.: glue, wlcg (default)
+  -t <templates> The template you want to use. E.g.: glue1, glue2 (all default)
+  -c <config>    The config file location if outside from the module directory
+  -p <path>      The path for the module directory. Default: /etc/glite-info-static
+  -d <debug>     Debug level: 0:ERROR, 1:WARNING, 2:INFO, 3:DEBUG. Default: 0
 
 Examples:
   glite-info-create.sh -m site
   glite-info-create.sh -m site -i 'glue wlcg' -t glue2 -c /etc/site.cfg
 
 Web site: http://cern.ch/gridinfo
-EOF
-}
+''')
 
-# 1. Basic setup
-`unalias -a` # Remove all aliases from this new shell
-STARTTIME=`date +%s`
-VERSION='0.5'
-echo "Welcome to gLite Info Create v$VERSION"
-#fullpath="$(cd "${0%/*}" 2>/dev/null; echo "$PWD"/"${0##*/}")"
-if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "-help" ] || [ "$1" = "--help" ]; then
-  print_help
-  exit 1
-fi
+def parse_options():
+    global config
 
-# 2. Set default values and parse command line arguments
-interfaces='wlcg'
-templates='glue1 glue2'
-ldif_files=''
-fullpath='/etc/glite-info-create'
-verbose=0
-while getopts ":m:i:t:c:p:o:v:" opt; do
-  case $opt in
-    i) interfaces=$OPTARG;;
-    t) templates=$OPTARG;;
-    c) config_files=$OPTARG;;
-    m) module=$OPTARG;;
-    p) fullpath=${OPTARG%/};;
-    o) outputpath=${OPTARG%/};;
-    v) verbose=$OPTARG;;
-    \?) log 0 "Invalid option: -$OPTARG";;
-    :) log 0 "Option -$OPTARG requires an argument.";;
-  esac
-done
-log 3 "Changing to $fullpath"
-cd $fullpath
+    config = {}
+    config['debug'] = 0
+    config['ifaces'] = []
+    config['templates'] = []
+    config['path'] = '/etc/glite-info-static'
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "i:t:c:m:p:d:h",
+          ["ifaces", "templates", "config", "module", "path", "debug", "help"])
+    except getopt.GetoptError:
+        sys.stderr.write("Error: Invalid option specified.\n")
+        usage()
+        sys.exit(2)
+    for o, a in opts:
+        if o in ("-i", "--ifaces"):
+            config['ifaces'].append(a)
+        if o in ("-t", "--templates"):
+            config['templates'].append(a)
+        if o in ("-c", "--configs"):
+            config['config'] = a
+        if o in ("-m", "--module"):
+            config['module'] = a
+        if o in ("-p", "--path"):
+            config['path'] = a
+        if o in ("-d", "--debug"):
+            config['debug'] = a
+        if o in ("-h", "--help"):
+            usage()
+            sys.exit(0)
 
-if [ -z $module ]; then
-  print_help
-  log 0 "Parameter -m <module> is mandatory"
-fi
-if [ -z $config_files ]; then config_files="$module.*.cfg"; fi
-if [ -z $outputpath ]; then outputpath="$fullpath/output"; fi
-if [ -d $outputpath ]; then
-  log 3 "Output directory exists: $outputpath"
-else
-  log 3 "Creating output path $outputpath"
-  mkdir $outputpath
-  if [ $? -ne 0 ]; then 
-    log 0 "You don't have permissions to create output directory"
-  fi
-fi
-touch $outputpath/test
-if [ $? -ne 0 ]; then
-  log 0 "You don't have permissions to write in the output directory"
-fi
-rm $outputpath/test
+    try:
+        config['debug'] = int(config['debug'])
+    except:
+        sys.stderr.write("Error: Invalid logging level.\n")
+        usage()
+        sys.exit(1)
+    if (config['debug'] > 3 or config['debug'] < 0 ):
+        sys.stderr.write("Error: Invalid logging level.\n")
+        usage()
+        sys.exit(1)
 
-# 3. Source the config file
-for config_file in $config_files; do
-  if [ ! -f $config_file ]; then
-    log 0 "$config_file is not a valid config file"
-  fi
-  source $config_file
-  log 3 "Using config file $config_file"
+    if ( not config.has_key('module') ):
+        sys.stderr.write("Error: Mandatory option -m <module> must be specified.\n")
+        usage()
+        sys.exit(1)
 
-  # 4. Check all needed variables are present using the interface
-  for interface in $interfaces; do
-    interface_file="$module/$module.$interface.ifc"    
-    log 3 "Checking interface $interface_file"
-    if [ ! -f $interface_file ]; then
-      log 0 "$interface_file is not a valid interface file"
-    fi
-    source $interface_file
-    MANDATORY_VARS="$MANDATORY_SINGLEVALUED_VARS $MANDATORY_MULTIVALUED_VARS"
-    OPTIONAL_VARS="$OPTIONAL_SINGLEVALUED_VARS $OPTIONAL_MULTIVALUED_VARS"
-    MULTIVALUED_VARS="$MANDATORY_MULTIVALUED_VARS $OPTIONAL_MULTIVALUED_VARS"
-    SINGLEVALUED_VARS="$MANDATORY_SINGLEVALUED_VARS $OPTIONAL_SINGLEVALUED_VARS"
-    for var in $MANDATORY_VARS; do
-      eval val=\$$var
-      if [ "x$val" = "x" ]; then
-        log 0 "$var has no value. Check $config_file"
-      fi
-    done
-    for var in $OPTIONAL_VARS; do
-      eval val=\$$var
-      if [ "x$val" = "x" ]; then
-        log 1 "$var has no value. Fix it in $config_file"
-      fi
-    done
-  done
+    if ( not config.has_key('config') ):
+        sys.stderr.write("Error: Mandatory option -c <config> must be specified.\n")
+        usage()
+        sys.exit(1)
 
-  # 5. Fill the templates so all variables are filled
-  log 2 "Generating files"
-  for template in $templates; do
-    template_file=$module/$module.$template.tpl
-    if [ ! -f $template_file ]; then
-      log 0 "$template_file is not a valid template file"
-    fi
-    line=${config_file#*$module.}
-    num=${line%%.cfg*}
-    ldif_file_name=$module.$num.$template.ldif
-    ldif_file_names="$ldif_file_names $ldif_file_name"
-    ldif_file=$outputpath/$ldif_file_name
-    if [ -f $ldif_file ]; then
-      log 1 "$ldif_file already existed. It has been overwritten."
-    fi
-    cp $template_file $ldif_file
-    # Substitute singlevalued attributes
-    for var in $SINGLEVALUED_VARS; do
-      eval val=\$$var
-      # If there is no value, delete the line. Otherwise, substitute it.
-      if [ "x$val" = "x" ]; then
-        sed -i "/$var/d" $ldif_file
-      else
-        sed -i "s|\$$var|$val|g" $ldif_file
-      fi
-    done
-    # Substitute mutivalued attributes
-    for var in $MULTIVALUED_VARS; do
-      eval multiple=\$$var
-      if [ "x$multiple" = "x" ]; then
-        sed -i "/\$$var/d" $ldif_file
-      else
-        # E.g.: GlueSiteLatitude: $SITE_LAT
-        line=`sed -n "/$var/p" $ldif_file` # Select line
-        # E.g.: GlueSiteLatitude: 
-        line=${line%\$$var} # Strip the value from the original line
-        output=''
-        for val in $multiple; do
-          if [ -z $output ]; then
-            output="$val\n"
-          else
-            output=$output$line$val"\n"
-          fi
-        done
-        output=${output%\\\n} # Remove trailing new line
-        sed -i "s|\$$var|$output|" $ldif_file
-      fi
-    done
-  done
-done
+    if ( len(config['ifaces']) == 0):
+        config['ifaces'] = ['glue','wlcg']
+    
+    if ( len(config['templates']) == 0):
+        config['templates'] = ['glue1','glue2']
 
-#6. Finalize
-echo "OUTPUT FOLDER:"
-echo $outputpath
-echo "NEW FILES GENERATED:"
-for ldif_file_name in $ldif_file_names; do
-  echo $ldif_file_name
-done
-RUNTIME=$[`date +%s` - $STARTTIME]
-echo "Finished! It took $RUNTIME seconds to run"
+    return
+
+
+def main():
+    global config, log
+
+    module = config['module']
+
+    # Get key-values from the configuration file.
+    config_file="%s/%s/%s" %(config['path'], module, config['config'])   
+    if ( not os.path.exists(config_file) ):
+        log.error("Config file %s does not exist."%(config_file))
+        sys.exit(1)
+    parameters = {}
+    for line in open(config_file).readlines():
+        index = line.find('=')
+        if ( index > 0 ):
+            key = line[:index].strip()
+            value = line[index+1:].strip()
+            if ( not parameters.has_key(key) ):
+                parameters[key] = []
+            parameters[key].append(value)
+            
+    # Get the mandatory and optional attributes from the interface file.
+    for interface in config['ifaces']:
+        interface_file="%s/%s/%s.%s.ifc" %(config['path'], module, module, interface)   
+        if ( not os.path.exists(interface_file) ):
+            log.error("Interface file %s does not exist."%(interface_file))
+            sys.exit(1)
+        interface_parameters = {}
+        for line in open(interface_file).readlines():
+            index = line.find('=')
+            if ( index > 0 ):
+                key = line[:index].strip()
+                value = line[index+1:].strip()
+                if ( not value == ''):
+                    values = value.split(" ")
+                else:
+                    values = []
+                if ( not interface_parameters.has_key(key) ):
+                    interface_parameters[key] = []
+                interface_parameters[key].extend(values)
+
+    # Check the configuration file for the mandatory and optional attributes.
+    mandatory_attributes = []
+    mandatory_attributes.extend(interface_parameters['MANDATORY_SINGLEVALUED_VARS'])
+    mandatory_attributes.extend(interface_parameters['MANDATORY_MULTIVALUED_VARS'])
+    for key in mandatory_attributes:
+        if ( parameters.has_key(key)):
+            for value in parameters[key]:
+                if ( value == '' ):
+                    log.error('Mandatory atribute %s does not have a value.' %(key))
+                    sys.exit(1)
+        else:
+            log.error('Mandatory attribute %s is not specified in the configuration file' % (key))
+            sys.exit(1)
+
+    optional_attributes = []
+    optional_attributes.extend(interface_parameters['OPTIONAL_SINGLEVALUED_VARS'])
+
+    optional_attributes.extend(interface_parameters['OPTIONAL_MULTIVALUED_VARS'])
+
+    for key in optional_attributes:
+        if ( parameters.has_key(key)):
+            for value in parameters[key]:
+                if ( value  == '' ):
+                    log.error('Optional atribute %s does not have a value.' %(key))
+                    sys.exit(1)
+
+    # Check that single valued attributes are really single
+    singlevalued_attributes = []
+    singlevalued_attributes.extend(interface_parameters['MANDATORY_SINGLEVALUED_VARS'])
+    singlevalued_attributes.extend(interface_parameters['OPTIONAL_SINGLEVALUED_VARS'])
+    for key in singlevalued_attributes:
+        if ( parameters.has_key(key)):
+            if ( len(parameters[key]) > 1 ):
+                log.error('Single valued atribute %s has more than one value.' %(key))
+                sys.exit(1)
+
+    ldif = ""
+
+    # Get the default ldif from the template.
+    for template in config['templates']:
+        template_file = "%s/%s/%s.%s.tpl" %(config['path'], module, module, template) 
+        if ( not os.path.exists(template_file) ):
+            log.error("Template file %s does not exist."%(template_file))
+            sys.exit(1)
+
+        ldif = open(template_file).read()
+
+    multivalued_attributes = []
+    multivalued_attributes.extend(interface_parameters['MANDATORY_MULTIVALUED_VARS'])
+    multivalued_attributes.extend(interface_parameters['OPTIONAL_MULTIVALUED_VARS'])
+
+    all_attributes = []
+    all_attributes.extend(singlevalued_attributes)
+    all_attributes.extend(multivalued_attributes)
+    # Do the Substitution
+    for attribute in all_attributes:
+        # If there is no value then delete the line, otherwise substitute it.
+        if ( parameters.has_key(attribute) ):
+            chunk = ""
+            for value in parameters[attribute]:
+                if ( not parameters[attribute] == ''):
+                    ldif = ldif.replace('$'+attribute, value)
+            else:
+                ldif = ldif.replace('$'+attribute, '')
+        else:
+            ldif = ldif.replace('$'+attribute, '')
+
+    print ldif
+
+
+if __name__ == "__main__":
+    global config, log
+         
+    parse_options()
+
+    log = logging.getLogger('%s' %(sys.argv[0]))
+    hdlr = logging.StreamHandler(sys.stderr)
+    formatter = logging.Formatter('[%(levelname)s]: %(message)s')
+    hdlr.setFormatter(formatter)
+    log.addHandler(hdlr)
+    log.setLevel(config['debug'])
+    main()
