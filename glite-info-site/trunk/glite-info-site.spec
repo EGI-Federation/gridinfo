@@ -26,9 +26,12 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%attr(0644,root,root) /etc/glite-info-static/site
-%attr(0644,root,root) %config(noreplace) /etc/glite-info-static/site.cfg
-
+%dir /etc/glite-info-static/site
+%config(noreplace) /etc/glite-info-static/site/site.cfg
+%config /etc/glite-info-static/site/site.glue.ifc
+%config /etc/glite-info-static/site/site.glue1.tpl
+%config /etc/glite-info-static/site/site.glue2.tpl
+%config /etc/glite-info-static/site/site.wlcg.ifc
 
 %changelog
 * Thu Apr 08 2010 Laurence Field <laurence.field@cern.ch> - 0.2.0-1
