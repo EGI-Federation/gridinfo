@@ -11,6 +11,8 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 Requires:	bdii
 Requires:	glite-info-provider-ldap
 Requires:	glite-info-provider-service
+Requires:	glite-info-static
+Requires:	glite-info-site
 
 %description
 Configration files for the Site BDII.
