@@ -46,4 +46,4 @@ if [ ! -f ${CONFIG} ]; then
 
 fi
 
-${SCRIPT} ${CONFIG} ${SITE_NAME}
+${SCRIPT}-glue2 ${CONFIG} ${SITE_NAME}
