@@ -9,8 +9,8 @@ default:
 
 install:
 	@echo installing ...
-	@mkdir -p ${prefix}/etc/glite-info-static/site
-	@install -m 0644 etc/glite-info-static/site.cfg ${prefix}/etc/glite-info-static
+	@mkdir -p ${prefix}/etc/glite-info-static/site/
+	@install -m 0644 etc/glite-info-static/site.cfg ${prefix}/etc/glite-info-static/site
 	@install -m 0644 etc/glite-info-static/site/*.tpl ${prefix}/etc/glite-info-static/site
 	@install -m 0644 etc/glite-info-static/site/*.ifc ${prefix}/etc/glite-info-static/site
 
