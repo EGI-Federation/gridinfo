@@ -259,8 +259,8 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
         vname_total = 't_%s' %(count)
         vname_used  = 'u_%s' %(count)
         if len(uniqueids) == 1:
-            cdef_total.append(vname_total)
-            cdef_used.append(vname_used)
+            cdef_total.extend([vname_total, '1024', '1024', '1024', '*', '*', '*'])
+            cdef_used.extend([vname_used, '1024', '1024', '1024', '*', '*', '*'])
         else:
             #cdef_total += ['TIME', str(int(time.time())-900), 'GT', vname_total, vname_total, 'UN', '0', vname_total, 'IF', 'IF']
             #cdef_used += ['TIME', str(int(time.time())-900), 'GT', vname_used, vname_used, 'UN', '0', vname_used, 'IF', 'IF']
@@ -574,8 +574,8 @@ def vo_storage_graph_cmd(level, vose_dict, attribute, start_time, site_name='', 
             vname_total = 't_%s' %(count)
             vname_used  = 'u_%s' %(count)
             if len(ses) == 1: 
-                cdef_total.append(vname_total)
-                cdef_used.append(vname_used)
+                cdef_total.extend([vname_total, '1024', '1024', '1024', '*', '*', '*'])
+                cdef_used.extend([vname_used, '1024', '1024', '1024', '*', '*', '*'])
             else:
                 #cdef_total += ['TIME', str(int(time.time())-900), 'GT', vname_total, vname_total, 'UN', '0', vname_total, 'IF', 'IF']
                 #cdef_used  += ['TIME', str(int(time.time())-900), 'GT', vname_used,  vname_used,  'UN', '0', vname_used,  'IF', 'IF']
