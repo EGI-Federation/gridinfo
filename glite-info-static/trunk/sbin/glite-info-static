@@ -207,19 +207,30 @@ def main():
     multivalued_attributes.extend(interface_parameters['MANDATORY_MULTIVALUED_VARS'])
     multivalued_attributes.extend(interface_parameters['OPTIONAL_MULTIVALUED_VARS'])
 
-    all_attributes = []
-    all_attributes.extend(singlevalued_attributes)
-    all_attributes.extend(multivalued_attributes)
-    # Do the Substitution
-    for attribute in all_attributes:
+    # Do the substitution for single valued attributes
+    for attribute in singlevalued_attributes:
         # If there is no value then delete the line, otherwise substitute it.
         if ( parameters.has_key(attribute) ):
-            chunk = ""
             for value in parameters[attribute]:
                 if ( not parameters[attribute] == ''):
                     ldif = ldif.replace('$'+attribute, value)
             else:
                 ldif = ldif.replace('$'+attribute, '')
+        else:
+            ldif = ldif.replace('$'+attribute, '')
+
+    # Do the substitution for multivalued attributes
+    for attribute in multivalued_attributes:
+        # If there is no value then delete the line, otherwise substitute it.
+        if ( parameters.has_key(attribute) ):
+            end = ldif.find('$'+attribute)
+            start = ldif[:end].rfind('\n') + 1
+            glue_attribute = ldif[start:end]
+            chunk = ""
+            for value in parameters[attribute]:
+                if ( not parameters[attribute] == ''):
+                    chunk += glue_attribute + value + '\n'
+            ldif = ldif.replace(glue_attribute+'$'+attribute, chunk[:-1])
         else:
             ldif = ldif.replace('$'+attribute, '')
 
