@@ -11,6 +11,7 @@ install:
 	@echo installing ...
 	@mkdir -p $(prefix)/var/lib/bdii/gip/provider/
 	@install -m 0755 provider/glite-info-provider-service-bdii-site $(prefix)/var/lib/bdii/gip/provider/
+	@install -m 0755 provider/glite-info-provider-site $(prefix)/var/lib/bdii/gip/provider/
 
 dist:
 	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
