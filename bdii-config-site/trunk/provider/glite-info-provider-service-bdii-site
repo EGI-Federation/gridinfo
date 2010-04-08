@@ -22,7 +22,7 @@ export PATH=$PATH:${GLITE_HOME}/libexec
 CONFIG=${GLITE_HOME}/etc/glite-info-service-bdii-site.conf
 SCRIPT=${GLITE_HOME}/libexec/glite-info-service
 DEFAULTS=${GLITE_HOME}/etc/glite-info-site-defaults.conf
-
+set -x 
 # Check for the existence of the configuration file.
 if [ -f ${DEFAULTS} ]; then
     source ${DEFAULTS}
@@ -31,7 +31,7 @@ fi
 SITE_NAME=${SITE_NAME:-$(hostname -d) }
 BDII_HOST=${SITE_BDII_HOST:-$(hostname -f) }
 export BDII_HOST
-
+set +x
 # Check for the existence of the configuration file.
 if [ ! -f ${CONFIG} ]; then
 
@@ -47,4 +47,3 @@ if [ ! -f ${CONFIG} ]; then
 fi
 
 ${SCRIPT} ${CONFIG} ${SITE_NAME}
-${SCRIPT}-glue2 ${CONFIG} ${SITE_NAME}
