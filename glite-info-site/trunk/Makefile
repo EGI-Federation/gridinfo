@@ -1,29 +1,46 @@
-NAME=${shell grep ^Name *.spec | cut -d ":" -f 2 | sed 's/^[^a-zA-Z0-9]*//'}
-VERSION=${shell grep ^Version *.spec | cut -d ":" -f 2 | sed 's/^[^a-zA-Z0-9]*//'}
-PWD=$(shell pwd)
-SCRATCH=${PWD}/scratch
-topdir:=$(shell rpm --eval %_topdir 2>/dev/null || ${SCRATCH} )
-prefix=""
+NAME= $(shell grep Name: *.spec | sed 's/^[^:]*:[^a-zA-Z]*//' )
+VERSION= $(shell grep Version: *.spec | sed 's/^[^:]*:[^0-9]*//' )
+RELEASE= $(shell grep Release: *.spec |cut -d"%" -f1 |sed 's/^[^:]*:[^0-9]*//')
+build=$(shell pwd)/build
+DATE=$(shell date "+%a, %d %b %Y %T %z")
 
 default: 
 	@echo "Nothing to do"
 
 install:
-	mkdir -p ${prefix}
-	cp -r etc ${prefix}
+	@echo installing ...
+	@mkdir -p ${prefix}/etc/glite-info-static/site
+	@install -m 0644 etc/glite-info-static/site.cfg ${prefix}/etc/glite-info-static
+	@install -m 0644 etc/glite-info-static/site/*.tpl ${prefix}/etc/glite-info-static/site
+	@install -m 0644 etc/glite-info-static/site/*.ifc ${prefix}/etc/glite-info-static/site
+
+dist:
+	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
+	rsync -HaS --exclude ".svn" --exclude "$(build)" * $(build)/$(NAME)-$(VERSION)/
+	cd $(build); tar --gzip -cf $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)/; cd -
+
+sources: dist
+	cp $(build)/$(NAME)-$(VERSION).tar.gz .
+
+deb: dist
+	cd $(build)/$(NAME)-$(VERSION); dpkg-buildpackage -us -uc; cd -
+
+prepare: dist
+	@mkdir -p  $(build)/RPMS/noarch
+	@mkdir -p  $(build)/SRPMS/
+	@mkdir -p  $(build)/SPECS/
+	@mkdir -p  $(build)/SOURCES/
+	@mkdir -p  $(build)/BUILD/
+	cp $(build)/$(NAME)-$(VERSION).tar.gz $(build)/SOURCES 
+
+srpm: prepare
+	@rpmbuild -bs --define='_topdir ${build}' $(NAME).spec
+
+rpm: srpm
+	@rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE).src.rpm
+
 clean:
-	rm -f *~ 
-	rm -rf ${SCRATCH}
+	rm -f *~ $(NAME)-$(VERSION).tar.gz
+	rm -rf $(build)
 
-sdist:
-	@mkdir -p  ${SCRATCH}/SOURCES/
-	tar --gzip --exclude ".svn" --exclude "scratch" -cf ${SCRATCH}/${NAME}-${VERSION}.src.tgz *
-
-rpm: sdist
-	mkdir -p ${topdir}/BUILD
-	mkdir -p ${topdir}/RPMS
-	mkdir -p ${topdir}/SRPMS
-	mkdir -p ${topdir}/SOURCES
-	mkdir -p ${topdir}/SPECS
-	cp ${SCRATCH}/${NAME}-${VERSION}.src.tgz ${topdir}/SOURCES
-	rpmbuild --define "_topdir ${topdir}" -ba ${NAME}.spec
+.PHONY: dist srpm rpm sources clean 
