@@ -1,24 +1,22 @@
-Application:  gLite Info Static Create
+Application:  gLite Info Static
 Authors:      David.Horat@cern.ch
               Laurence.Field@cern.ch
 Version:      0.4 (16/02/2010)
 ********************************************************************
 
 DESCRIPTION
-This application allows the system administrators and developers to create
-static information in LDIF format for the BDII.
+This application is an information provider that generates information in LDIF format from combining an LDIF template with configuration values.
 
 
 USAGE
-Edit the corresponding .cfg file(s) for your module and fill in the parameters
-needed. Invoke glite-info-create.sh without arguments for help if needed.
+Edit the corresponding .cfg file for your module and fill in the parameters
+needed. Invoke glite-info-static without arguments for help if needed.
 The resulting LDIF files will be created in the output/ directory.
 
 
 CORE STRUCTURE
-  glite-info-create.sh          The main script to invoke
+  glite-info-static             The main script to invoke
   README.txt                    This file
-  output/                       This directory will contain the final ldif files
 
 
 MODULE STRUCTURE
@@ -34,7 +32,6 @@ TODO
 None. :)
 Do you have more suggestions?
 Send us an email to: project-grid-info-support@cern.ch
-
 
 CHANGELOG
 0.1 (02/02/2010):
