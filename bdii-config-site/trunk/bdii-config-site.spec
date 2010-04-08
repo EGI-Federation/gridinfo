@@ -31,6 +31,7 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 /var/lib/bdii/gip/provider/glite-info-provider-service-bdii-site
+/var/lib/bdii/gip/provider/glite-info-provider-site
 
 %changelog
 * Wed Apr 07 2010 Laurence Field <laurence.field@cern.ch> - 1.0.0-1

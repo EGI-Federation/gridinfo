@@ -20,7 +20,7 @@
 GLITE_HOME=${GLITE_HOME:-/opt/glite}
 export PATH=$PATH:${GLITE_HOME}/libexec
 CONFIG=${GLITE_HOME}/etc/glite-info-service-bdii-site.conf
-SCRIPT=${INSTALL_ROOT}/libexec/glite-info-service
+SCRIPT=${GLITE_HOME}/libexec/glite-info-service
 DEFAULTS=${GLITE_HOME}/etc/glite-info-site-defaults.conf
 
 # Check for the existence of the configuration file.
