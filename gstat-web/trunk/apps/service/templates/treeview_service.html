@@ -7,21 +7,34 @@
 {% block css-add %}
 <link rel="stylesheet" type="text/css" href="/media/service/css/service.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/tablesorter.css" />
-<link rel="stylesheet" type="text/css" href="/media/core/css/jquery.treeview.css" />
+<!-- <link rel="stylesheet" type="text/css" href="/media/core/css/jquery.treeview.css" /> -->
 {% endblock %}
 
 {% block scripts-add %}
 <script type="text/javascript" src="/media/gridsite/scripts/site.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
-<script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script>
+<!-- <script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script> -->
+<script type="text/javascript" src="/media/core/scripts/jquery.jstree.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
 	    services = document.getElementById('services');
         var service_type = window.location.href.split("/")[5];
         services.value = service_type;
 	
-		$("#tree").treeview();
+		//$("#tree").treeview();
+		$("#treediv").tree({
+		    ui: { theme_path: "/media/core/css/jquery.jstree.css", 
+		          theme_name: "default",
+		        },
+		    callback : {
+		          onchange: function (NODE) {
+		            var iframe = document.getElementById("frame");
+		            iframe.src = $(NODE).children("span").children("a").attr("href");
+		            iframe.window.location.reload(); 
+		          }
+		    }
+		});
 		
 	    main_centeriser = parseInt( $("#main-centeriser").height() );
 	    header = parseInt( $("#header").height() );
@@ -74,7 +87,7 @@ Current Service:
     <h2>Service Components</h2>
     <div id="treediv">
     <ul id="tree" class="filetree treeview">
-      <li>
+      <li class="open">
         <span class="folder">&nbsp;Service </span>
         <ul>
         

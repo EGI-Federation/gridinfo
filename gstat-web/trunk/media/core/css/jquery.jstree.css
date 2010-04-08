@@ -1,0 +1,56 @@
+/* LOCKED */
+.tree-default .locked li a { color:black; }
+/* DOTS */
+.tree-default ul { background-position:6px 1px; background-repeat:repeat-y; background-image:url(data:img/; _background-image:url("img/jstree_dot_for_ie.gif"); *background-image:url("img/jstree_dot_for_ie.gif"); }
+.tree-default li { background-image:none; background-color:transparent; cursor: pointer; display: block;}
+.tree-default li:hover, .tree-default li.closed:hover{background-color: #e7f4f9; }
+/* NO DOTS */
+.tree-default .no_dots, .tree-default .no_dots ul { background:transparent; }
+.tree-default .no_dots li.leaf { background-image:none; background-color:transparent; }
+/* OPEN or CLOSED */
+.tree-default li.open { background:url("img/jstree_icons.png") -32px -48px no-repeat; display: block;}
+.tree-default li.closed, #jstree-dragged.tree-default li li.open { background:url("img/jstree_icons.png") -48px -32px no-repeat;}
+#jstree-marker { background-image:url("img/jstree_icons.png"); }
+/* DEFAULT, HOVER, CLICKED, LOADING STATES */
+.tree-default li a { border-radius:3px; -moz-border-radius:3px; -webkit-border-radius:3px; }
+.tree-default li a:hover, .tree-default li a.hover { background: #beebff; border:1px solid #d8f0fa; padding:0px 3px 0px 3px; }
+.tree-default li a.clicked, .tree-default li a.clicked:hover { background: #beebff; border:1px solid #99defd; padding:0px 3px 0px 3px; }
+/* ICONS */
+.tree-default ins { background-image:url("img/jstree_icons.png"); background-position:0 0; background-repeat:no-repeat; }
+.tree-default ul li a.loading ins { background-image:url("img/jstree_throbber.gif") !important; background-position:0 0 !important; } /* UL is added to make selector stronger */
+.tree-default li a ins.forbidden { background-position:-16px -16px; }
+.tree-default .locked li a ins { background-position:0 -48px; }
+.tree-default li span ins { background-position:-16px 0; }
+.tree-default ul span { color:#3D3D3D; }
+#jstree-dragged.tree-default ins { background:url("img/jstree_icons.png") -16px -32px no-repeat; }
+#jstree-dragged.tree-default ins.forbidden { background:url("img/jstree_icons.png") -16px -16px no-repeat; }
+.tree-default span.site { background: url(img/jstree_site.png) 0 0 no-repeat; padding: 1px 0 1px 16px;}
+.tree-default span.vo { background: url(img/jstree_vo.png) 0 0 no-repeat;  padding: 1px 0 1px 16px;}
+.tree-default span.ce { background: url(img/jstree_ce.png) 0 0 no-repeat;  padding: 1px 0 1px 16px;}
+.tree-default span.se { background: url(img/jstree_se.png) 0 0 no-repeat;  padding: 1px 0 1px 16px;}
+.tree-default span.monitoring { background: url(img/jstree_monitoring.png) 0 0 no-repeat;  padding: 1px 0 1px 16px;}
+.tree-default span.validation { background: url(img/jstree_validation.png) 0 0 no-repeat;  padding: 1px 0 1px 16px;}
+.tree-default span.datasource { background: url(img/jstree_datasource.png) 0 0 no-repeat;  padding: 1px 0 1px 16px;}
+
+/* CONTEXT MENU */
+.tree-default-context a ins { background-image:url("img/jstree_icons.png"); background-repeat:no-repeat; background-position:-64px -64px; }
+.tree-default-context a ins.create { background-position:0 -16px; }
+.tree-default-context a ins.rename { background-position:-16px 0px; }
+.tree-default-context a ins.remove { background-position:0 -32px; }
+
+/* LINK */
+.tree-default li a:link { text-decoration: none; color: #0C6DFF;}
+.tree-default li a:visited {text-decoration: none; color: #0C6DFF;}
+.tree-default li a.bold { font-weight: bold;}
+.tree-default li a:focus { background: #beebff; border:1px solid #99defd; padding:0px 3px 0px 3px;}
+
+/** Tree **/
+.tree {
+	font-family: Verdana, helvetica, arial, sans-serif;
+	font-size: 8pt;
+	background: #fff;
+	color: #3D3D3D;
+	line-height:1.4em;
+}
+
+.tree li { padding:1px 0 1px 18px; }

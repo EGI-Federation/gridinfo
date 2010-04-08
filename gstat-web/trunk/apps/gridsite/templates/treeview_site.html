@@ -10,17 +10,30 @@
 <link rel="stylesheet" type="text/css" href="/media/gridsite/css/site.css" />
 <link rel="stylesheet" type="text/css" href="/media/gridsite/css/layout_treeview.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/tablesorter.css" />
-<link rel="stylesheet" type="text/css" href="/media/core/css/jquery.treeview.css" />
+<!-- <link rel="stylesheet" type="text/css" href="/media/core/css/jquery.treeview.css" /> -->
 {% endblock %}
 
 {% block scripts-add %}
 <script type="text/javascript" src="/media/gridsite/scripts/site.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
-<script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script>
+<!-- <script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script> -->
+<script type="text/javascript" src="/media/core/scripts/jquery.jstree.js"></script>
 <script type="text/javascript">
 	$(document).ready(function(){
-		$("#tree").treeview();
+		//$("#tree").treeview();
+		$("#treediv").tree({
+		    ui: { theme_path: "/media/core/css/jquery.jstree.css", 
+		          theme_name: "default",
+		        },
+		    callback : {
+		          onchange: function (NODE) {
+		            var iframe = document.getElementById("frame");
+		            iframe.src = $(NODE).children("span").children("a").attr("href");
+		            iframe.window.location.reload(); 
+		          }
+		    }
+		});
 		
 	    main_centeriser = parseInt( $("#main-centeriser").height() );
 	    header = parseInt( $("#header").height() );
@@ -62,8 +75,8 @@
     <h2>Site Resource Components</h2>
     <div id="treediv">
     <ul id="tree" class="filetree treeview">
-      <li>
-        <span class="folder">&nbsp;{{ site_name }}
+      <li class="open">
+        <span class="site">&nbsp;{{ site_name }}
           {% if tree_sitebdii %}
             <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSite entity"/> </a>
           {% endif %}
@@ -354,7 +367,7 @@
               <ul>
                 {% for vo, clusters, ses in tree_vo %}
                 <li class='{{ collapse|dict_get:vo|default:"closed" }}'>
-                  <span class="folder">&nbsp;{{ vo }} </span>
+                  <span class="vo">&nbsp;{{ vo }} </span>
                   <ul>
                     {% if clusters %}
                     <li class='{{ collapse.vo_job|default:"closed" }}'>

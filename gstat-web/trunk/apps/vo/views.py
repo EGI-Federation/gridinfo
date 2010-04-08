@@ -75,7 +75,7 @@ def treeview(request, vo_name=""):
         
     # decide expanded tree node
     collapse = {}
-    collapse[vo_name] = "expanded"
+    collapse[vo_name] = "open"
 
 
     #print "Starting Mapping...."
