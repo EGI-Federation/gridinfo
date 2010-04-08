@@ -1,5 +1,5 @@
 Name:		bdii-config-site
-Version:	1.0.0
+Version:	0.1.0
 Release:	1%{?dist}
 Summary:	Site BDII configration files
 Group:		System/Monitoring
@@ -34,5 +34,5 @@ rm -rf %{buildroot}
 /var/lib/bdii/gip/provider/glite-info-provider-site
 
 %changelog
-* Wed Apr 07 2010 Laurence Field <laurence.field@cern.ch> - 1.0.0-1
+* Wed Apr 07 2010 Laurence Field <laurence.field@cern.ch> - 0.1.0-1
 - New package

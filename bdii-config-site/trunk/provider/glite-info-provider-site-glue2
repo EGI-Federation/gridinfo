@@ -18,9 +18,8 @@
 ##############################################################################
 
 GLITE_HOME=${GLITE_HOME:-/opt/glite}
-export PATH=$PATH:${GLITE_HOME}/libexec
-CONFIG=${GLITE_HOME}/etc/glite-info-service-bdii-site.conf
-SCRIPT=${GLITE_HOME}/libexec/glite-info-service
+CONFIG=${GLITE_HOME}/etc/gip/site-urls.conf
+SCRIPT=${GLITE_HOME}/libexec/glite-info-provider-ldap
 DEFAULTS=${GLITE_HOME}/etc/glite-info-site-defaults.conf
 
 # Check for the existence of the configuration file.
@@ -29,21 +28,18 @@ if [ -f ${DEFAULTS} ]; then
 fi
 
 SITE_NAME=${SITE_NAME:-$(hostname -d) }
-BDII_HOST=${SITE_BDII_HOST:-$(hostname -f) }
-export BDII_HOST
 
 # Check for the existence of the configuration file.
 if [ ! -f ${CONFIG} ]; then
+    echo "Error: The configuration file ${CONFIG} does not exist." 1>&2
+    exit 1
+fi 
 
-   # Check for the existence of the template.
-    if [ ! -f ${TEMPLATE} ]; then
-        echo "Error: The template file ${TEMPLATE} does not exist." 1>&2
-	exit 1
-    fi 
+# Check for the existence of the provider.
+if [ ! -f ${SCRIPT} ]; then
+    echo "Error: The provider ${SCRIPT} does not exist." 1>&2
+    exit 1
+fi 
 
-    # Create the config file.
-    cp ${TEMPLATE} ${CONFIG}
+${SCRIPT} -c ${CONFIG} -g ${SITE_NAME}
 
-fi
-
-${SCRIPT} ${CONFIG} ${SITE_NAME}
