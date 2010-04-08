@@ -7,13 +7,14 @@
 {% block css-add %}
 <link rel="stylesheet" type="text/css" href="/media/vo/css/vo.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/tablesorter.css" />
-<link rel="stylesheet" type="text/css" href="/media/core/css/jquery.treeview.css" />
+<!-- <link rel="stylesheet" type="text/css" href="/media/core/css/jquery.treeview.css" /> -->
 {% endblock %}
 
 {% block scripts-add %}
 <script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
-<script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script>
+<!-- <script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script> -->
+<script type="text/javascript" src="/media/core/scripts/jquery.jstree.js"></script>
 <script type="text/javascript" src="/media/gridsite/scripts/site.js"></script>
 <script type="text/javascript">
 
@@ -27,7 +28,20 @@
         vo_list = document.getElementById('vo_list');
         vo_list.value = '{{ vo_name|default:"-1" }}';
 
-		$("#tree").treeview();
+		//$("#tree").treeview();
+		$("#treediv").tree({
+		    ui: { theme_path: "/media/core/css/jquery.jstree.css", 
+		          theme_name: "default",
+		        },
+		    callback : {
+		          onchange: function (NODE) {
+		            var iframe = document.getElementById("frame");
+		            iframe.src = $(NODE).children("span").children("a").attr("href");
+		            iframe.window.location.reload(); 
+		          }
+		    }
+		});
+		
 		
 	    main_centeriser = parseInt( $("#main-centeriser").height() );
 	    header = parseInt( $("#header").height() );
@@ -87,7 +101,7 @@ Current VO:
           {% if tree_vo %}
             {% for vo, job, storage in tree_vo %}
             <li class='{{ collapse|dict_get:vo|default:"closed" }}'>
-              <span class="folder">
+              <span class="vo">
                 <a target="frame" href="/gstat/vo/{{ vo }}/overview/">&nbsp;{{ vo }} </a>
               </span>
               <ul>
@@ -101,7 +115,7 @@ Current VO:
                     
                     {% for site_name, cluster_ce_voview in job %}
                     <li class='closed'>
-                      <span class="folder">
+                      <span class="site">
                         <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/job/">&nbsp;{{ site_name }} </a>
                         <a target="frame" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
                       </span>
@@ -139,7 +153,7 @@ Current VO:
                   
                     {% for site_name, se_sa_list in storage %}
                     <li class='closed'>
-                      <span class="folder">
+                      <span class="site">
                         <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/online/">&nbsp;{{ site_name }} </a>
                         <a target="frame" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
                       </span>
@@ -172,7 +186,7 @@ Current VO:
                   
                     {% for site_name, se_sa_list in storage %}
                     <li class='closed'>
-                      <span class="folder">
+                      <span class="site">
                         <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/nearline/">&nbsp;{{ site_name }} </a>
                         <a target="frame" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
                       </span>

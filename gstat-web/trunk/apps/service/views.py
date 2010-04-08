@@ -88,7 +88,8 @@ def treeview(request, type, uniqueid):
     # decide expanded tree node
     collapse = {}
     # type: bdii_top, bdii_site, subcluster_cpu, se_online, se_nearline, vo_job, vo_online, vo_nearline
-    collapse[type] = "expanded"
+    #collapse[type] = "expanded"
+    collapse[type] = "open"
 
     # Get subtree of TOP BDIIs and associated Nagios check names for testing results
     # ["top bdii hostname", ["check list"]]
@@ -105,7 +106,8 @@ def treeview(request, type, uniqueid):
         if type == "bdii_top":
             hostnames_expand = get_hosts_from_alias(uniqueid)
             for hostname_expand in hostnames_expand:
-                collapse[hostname_expand] = "expanded"
+                #collapse[hostname_expand] = "expanded"
+                collapse[hostname_expand] = "open"
         
     # Get subtree of Site BDIIs and associated Nagios check names for testing results
     # ["site bdii hostname", ["check list"]]
@@ -120,7 +122,8 @@ def treeview(request, type, uniqueid):
         if type == "bdii_site":
             hostnames_expand = get_hosts_from_alias(uniqueid)
             for hostname_expand in hostnames_expand:
-                collapse[hostname_expand] = "expanded"
+                #collapse[hostname_expand] = "expanded"
+                collapse[hostname_expand] = "open"
         
     # decide the default viewing content in iframe of treeview page
     url = ""
