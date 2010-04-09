@@ -1,12 +1,22 @@
 import re
 import socket
+import time
+import sys
+import logging
 
 from django.db import models
 from django.conf import settings
 from topology.models import Entity
 from topology.models import Entityrelationship
 from glue.models import *
-import time
+
+# Set logging
+log = logging.getLogger(sys.argv[0])
+hdlr = logging.StreamHandler(sys.stderr)
+formatter = logging.Formatter('[%(levelname)s]: %(message)s')
+hdlr.setFormatter(formatter)
+log.addHandler(hdlr)
+log.setLevel(2)
 
 # ---------------------------------------
 # -- Glue data model related functions --
@@ -450,7 +460,7 @@ def get_nagios_status_dict():
     try:
         file = open(status_file)
     except(IOError):
-        print "Nagios realtime status file doesn't exist: %s" % status_file
+        log.error( "apps/core/utils.py: Nagios realtime status file doesn't exist: %s" % status_file )
         return status_dict
     content = file.read().replace("\t"," ")
     file.close

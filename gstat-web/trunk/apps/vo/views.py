@@ -12,7 +12,16 @@ import gsutils
 import socket
 import re
 import time
+import sys
+import logging
 
+# Set logging
+log = logging.getLogger(sys.argv[0])
+hdlr = logging.StreamHandler(sys.stderr)
+formatter = logging.Formatter('[%(levelname)s]: %(message)s')
+hdlr.setFormatter(formatter)
+log.addHandler(hdlr)
+log.setLevel(2)
 
 def overview(request, vo_name=""):
 
@@ -182,7 +191,7 @@ def treeview(request, vo_name=""):
         BDII_BIND = __getDirective(content, "BDII_BIND")
         ldapuri = "ldap://" + BDII_HOST + ":" + BDII_PORT + "/" + BDII_BIND
     except(IOError):
-        print "GStat reference BDII file doesn't exist: %s" % ref_bdii_file
+        log.error( "apps/vo/views.py: GStat reference BDII file doesn't exist: %s" % ref_bdii_file )
         
     return render_to_response('treeview_vo.html', 
                               {'vo_active':        1,
