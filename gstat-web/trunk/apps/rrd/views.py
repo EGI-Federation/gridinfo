@@ -242,7 +242,7 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
         title= "%s Storage Space (GlueSE: %s)" %(attribute.capitalize(), uniqueids[0])
     else:
         title= "%s Storage Space (Site: %s)" %(attribute.capitalize(), site_name)
-    label = "Capacity / Bytes"
+    label = "Bytes"
     graph_cmd = rrdgraph_cmd_options(start_time, title, label, small)
 
     datasources = {'online':   ['totalonlinesize', 'usedonlinesize'],
@@ -554,7 +554,7 @@ def vo_storage_graph_cmd(level, vose_dict, attribute, start_time, site_name='', 
     elif level == 'vo': # vo level
         title = "%s Storage Space (VO: %s)" %(attribute.capitalize(), vose_dict.keys()[0])
         
-    label = "Capacity / Bytes"
+    label = "Bytes"
     graph_cmd = rrdgraph_cmd_options(start_time, title, label, small)
 
     datasources = {'online':   ['totalonlinesize', 'usedonlinesize'],
@@ -612,7 +612,7 @@ def attribute_graph_cmd(entity_type, uniqueid, attribute, start_time):
     rrd_file = '%s/%s/%s.rrd' %(rrd_dir, str(uniqueid).replace('/',''), attribute)
     
     title = "%s (%s)" %(attribute, uniqueid)
-    if   entity_type == 'SE':         label = 'Capacity / Bytes'
+    if   entity_type == 'SE':         label = 'Bytes'
     elif entity_type == 'SubCluster': label = 'CPU'
     elif entity_type == 'VO':         lable = 'Jobs'
     graph_cmd = rrdgraph_cmd_options(start_time, title, label, small=False)
