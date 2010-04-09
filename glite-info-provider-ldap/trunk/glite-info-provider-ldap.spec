@@ -31,6 +31,9 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 /opt/glite/libexec/glite-info-provider-ldap
+%attr(-, ldap, ldap) /opt/glite/var/tmp/gip/
+%attr(-, ldap, ldap) /opt/glite/var/tmp/log/
+%attr(-, ldap, ldap) /opt/glite/var/cache/gip/
 
 %changelog
 * Thu Apr 1 2010 Laurence Field <laurence.field@cern.ch> - 1.3.0-1

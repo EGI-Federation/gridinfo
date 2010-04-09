@@ -13,6 +13,9 @@ test:
 install:
 	@echo installing ...
 	@mkdir -p $(prefix)/opt/glite/libexec/
+	@mkdir -p $(prefix)/opt/glite/var/tmp/gip/
+	@mkdir -p $(prefix)/opt/glite/var/tmp/log/
+	@mkdir -p $(prefix)/opt/glite/var/cache/gip/
 	@install -m 0755 src/glite-info-provider-ldap $(prefix)/opt/glite/libexec
 
 dist:
