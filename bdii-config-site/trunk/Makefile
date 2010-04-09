@@ -10,6 +10,7 @@ default:
 install:
 	@echo installing ...
 	@mkdir -p $(prefix)/var/lib/bdii/gip/provider/
+	@mkdir -p $(prefix)/opt/glite/etc/
 	@install -m 0755 provider/glite-info-provider-* $(prefix)/var/lib/bdii/gip/provider/
 	@install -m 0644 etc/site-urls.conf $(prefix)/opt/glite/etc/
 
