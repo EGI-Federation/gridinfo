@@ -34,6 +34,13 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 /var/lib/bdii/gip/provider/glite-info-provider-service-bdii-site
 /var/lib/bdii/gip/provider/glite-info-provider-site
+/opt/glite/etc/site-urls.conf
+/var/lib/bdii/gip/provider/glite-info-provider-service-bdii-site-glue2
+/var/lib/bdii/gip/provider/glite-info-provider-site-entry
+/var/lib/bdii/gip/provider/glite-info-provider-site-entry-glue2
+/var/lib/bdii/gip/provider/glite-info-provider-site-glue2
+
+
 
 %changelog
 * Wed Apr 07 2010 Laurence Field <laurence.field@cern.ch> - 0.1.0-1
