@@ -11,7 +11,16 @@
 #
 
 import math
+import sys
+import logging
 
+# Set logging
+log = logging.getLogger(sys.argv[0])
+hdlr = logging.StreamHandler(sys.stderr)
+formatter = logging.Formatter('[%(levelname)s]: %(message)s')
+hdlr.setFormatter(formatter)
+log.addHandler(hdlr)
+log.setLevel(2)
 
 class TreeMap:
 
@@ -41,7 +50,7 @@ class TreeMap:
         self.l = []
         for obj, size in sorted_data:
             if size <= 0:
-                print "warning: size=%d, %s ignored!" % (size, obj)
+                log.warn( "apps/gridmap/gridmap.py: warning: size=%d, %s ignored!" % (size, obj) )
             else:
                 s = s + size
                 self.l.append((size, s, obj))
@@ -125,14 +134,14 @@ class TreeMap:
                 (wj, qj) = self.quality(j, len(self.l)-1, h-(len(self.l)-j)*th)
                 if qi+qj >= q:
                     break
-                print "heuristic a) applied: [%d..%d] [%d..%d]" % (i, j-1, j, len(self.l)-1)
+                #print "heuristic a) applied: [%d..%d] [%d..%d]" % (i, j-1, j, len(self.l)-1)
                 p[-2] = (i, j-i, wi, qi, True)
                 p[-1] = (j, len(self.l)-j, wj, qj, True)
 
             # heuristic b) -> merge the last two columns into one column
             (wi, qi) = self.quality(i, len(self.l)-1, h-(len(self.l)-i)*th)
             if qi < q:
-                print "heuristic b) applied: [%d..%d]" % (i, len(self.l)-1)
+                #print "heuristic b) applied: [%d..%d]" % (i, len(self.l)-1)
                 p[-2] = (i, len(self.l)-i, wi, qi, True)
                 del p[-1]
         return p
@@ -292,7 +301,7 @@ def create_GridMap_layout(posx, posy, width, height, th, topology, sitedata, siz
         for (x, y, w, h), sitesize, sitename in rects2:
             # assert not out_sites.has_key(sitename)
             if out_sites.has_key(sitename):
-                print "warning: out_sites.has_key(%s), %s will be ignored!" % (sitename, out_sites[sitename])
+                log.warn( "apps/gridmap/gridmap.py: warning: out_sites.has_key(%s), %s will be ignored!" % (sitename, out_sites[sitename]) )
 
             # save site rectangle information [x, y, w, h, sitesize]
             out_sites[sitename] = [x, y, w, h, sitesize]
