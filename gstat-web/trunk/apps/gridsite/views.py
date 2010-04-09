@@ -32,27 +32,33 @@ def overview(request, site_name):
     for hostname in hostnames:
         hosts_from_alias = get_hosts_from_alias(hostname)
         for host in hosts_from_alias:
+            dict = {}
+            dict['alias']    = hostname
+            dict['host']     = host
+            dict['instance'] = len(hosts_from_alias)
             if host in nagios_status.keys():
                 (status, has_been_checked) = get_overall_check_status(nagios_status[host])
-                dict = {}
-                dict['alias']    = hostname
-                dict['host']     = host
-                dict['instance'] = len(hosts_from_alias)
                 dict['status']   = get_nagios_status_str(status, has_been_checked)
-                status_list_top.append(dict)
+            else:
+                dict['status']   = "N/A"
+            status_list_top.append(dict)
+            
     status_list_site = []
     hostnames = [sitebdii.hostname for sitebdii in sitebdii_list]
     for hostname in hostnames:
         hosts_from_alias = get_hosts_from_alias(hostname)
         for host in hosts_from_alias:
+            dict = {}
+            dict['alias']    = hostname
+            dict['host']     = host
+            dict['instance'] = len(hosts_from_alias)
             if host in nagios_status.keys():
                 (status, has_been_checked) = get_overall_check_status(nagios_status[host])
-                dict = {}
-                dict['alias']    = hostname
-                dict['host']     = host
-                dict['instance'] = len(hosts_from_alias)
                 dict['status']   = get_nagios_status_str(status, has_been_checked)
-                status_list_site.append(dict)
+            else:
+                dict['status']   = "N/A"
+            status_list_site.append(dict)
+                
     # Count the numbers of entities
     count_dict            = {}
     count_dict['ce']      = len(cluster_list)
