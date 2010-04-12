@@ -46,7 +46,8 @@
 	    main_centeriser = parseInt( $("#main-centeriser").height() );
 	    header = parseInt( $("#header").height() );
 	    menu = parseInt( $("#menu").height() );
-	    footer = parseInt( $("#footer").height() );
+	    //footer = parseInt( $("#footer").height() );
+	    footer = 0;
 	    proportion = parseInt( (main_centeriser - header - menu - footer) / main_centeriser * 100 );
 	    $("#content").css('height', proportion + '%');
 
@@ -56,7 +57,7 @@
         $("#content-main").css('height', proportion + '%');
         
         content_main = parseInt( $("#content-main").height() );
-        vodiv = parseInt( $("#vodiv").height() );
+        vodiv = parseInt( $("#vodiv").height() ) + 20;
         proportion = parseInt( (content_main - vodiv - 10) / content_main * 100 );
         $("#layoutdiv").css('height', proportion + '%');
         
