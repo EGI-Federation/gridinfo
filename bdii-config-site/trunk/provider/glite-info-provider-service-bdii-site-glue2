@@ -20,7 +20,8 @@
 GLITE_HOME=${GLITE_HOME:-/opt/glite}
 export PATH=$PATH:${GLITE_HOME}/libexec
 CONFIG=${GLITE_HOME}/etc/glite-info-service-bdii-site.conf
-SCRIPT=${GLITE_HOME}/libexec/glite-info-service
+TEMPLATE=${GLITE_HOME}/etc/glite-info-service-bdii-site.conf.template
+SCRIPT=${GLITE_HOME}/libexec/glite-info-service-gllue2
 DEFAULTS=${GLITE_HOME}/etc/glite-info-site-defaults.conf
 
 # Check for the existence of the configuration file.
@@ -39,11 +40,13 @@ if [ ! -f ${CONFIG} ]; then
     if [ ! -f ${TEMPLATE} ]; then
         echo "Error: The template file ${TEMPLATE} does not exist." 1>&2
 	exit 1
+    else
+	${SCRIPT} ${TEMPLATE} ${SITE_NAME}
     fi 
+else
 
-    # Create the config file.
-    cp ${TEMPLATE} ${CONFIG}
+${SCRIPT} ${CONFIG} ${SITE_NAME}
 
 fi
 
-${SCRIPT}-glue2 ${CONFIG} ${SITE_NAME}
+
