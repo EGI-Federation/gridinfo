@@ -209,15 +209,15 @@
           <th colspan="3" align="center">Nearline Storage Resource (GB)</th>
         </tr>
         <tr>
-          <th align="center">Physical CPUs</th> 
-          <th align="center">Logical CPUs</th>
-          <th align="center">SI2000</th>
-          <th align="center">TotalSize</th> 
-          <th align="center">UsedSize</th>
-          <th align="center">Usage Percentage</th>
-          <th align="center">TotalSize</th>
-          <th align="center">UsedSize</th>  
-          <th align="center">Usage Percentage</th> 
+          <th align="center" title="The sum of PhysicalCPUs over all SubClusters">Physical CPUs</th> 
+          <th align="center" title="The sum of LogicalCPUs over all SubClusters">Logical CPUs</th>
+          <th align="center" title="The sum of the product of GlueSubClusterBenchmarkSI00 by GlueSubClusterLogicalCPUs over all SubClusters">SI2000</th>
+          <th align="center" title="The sum of TotalOnlineSize over all SEs">TotalSize</th> 
+          <th align="center" title="The sum of UsedOnlineSize over all SEs">UsedSize</th>
+          <th align="center" title="The quotient of UsedSize and TotalSize">Usage Percentage</th>
+          <th align="center" title="The sum of TotalNearlineSize over all SEs">TotalSize</th>
+          <th align="center" title="The sum of UsedNearlineSize over all SEs">UsedSize</th>  
+          <th align="center" title="The quotient of UsedSize and TotalSize">Usage Percentage</th> 
         </tr>       
       </thead> 
       <tbody>    
@@ -323,16 +323,16 @@
 	        </tr> 
 	        <tr>
 	          {% ifnotequal vo.totaljobs None %}
-	          <th align="center">Total</th> 
-	          <th align="center">Running</th>
-	          <th align="center">Waiting</th>
+	          <th align="center" title="The sum of TotalJobs over all VOViews related to this VO">Total</th> 
+	          <th align="center" title="The sum of RunningJobs over all VOViews related to this VO">Running</th>
+	          <th align="center" title="The sum of WaitingJobs over all VOViews related to this VO">Waiting</th>
               {% endifnotequal %}
               
               {% ifnotequal vo.totalonlinesize None %}
-	          <th align="center">TotalSize</th>
-	          <th align="center">UsedSize</th> 
-	          <th align="center">TotalSize</th>
-	          <th align="center">UsedSize</th> 
+	          <th align="center" title="The sum of TotalOnlineSize over all SAs related to this VO">TotalSize</th>
+	          <th align="center" title="The sum of UsednlineSize over all SAs related to this VO">UsedSize</th> 
+	          <th align="center" title="The sum of TotalNearlineSize over all SAs related to this VO">TotalSize</th>
+	          <th align="center" title="The sum of UsedNearlineSize over all SAs related to this VO">UsedSize</th> 
               {% endifnotequal %}
 	        </tr> 
 	      </thead> 

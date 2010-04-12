@@ -31,7 +31,8 @@
 	    main_centeriser = parseInt( $("#main-centeriser").height() );
 	    header = parseInt( $("#header").height() );
 	    menu = parseInt( $("#menu").height() );
-	    footer = parseInt( $("#footer").height() );
+	    //footer = parseInt( $("#footer").height() );
+	    footer = 0;
 	    proportion = parseInt( (main_centeriser - header - menu - footer) / main_centeriser * 100 );
 	    $("#content").css('height', proportion + '%');
 
