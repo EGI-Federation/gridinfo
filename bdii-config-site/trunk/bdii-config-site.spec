@@ -1,5 +1,5 @@
 Name:		bdii-config-site
-Version:	0.3.0
+Version:	0.4.0
 Release:	1%{?dist}
 Summary:	Site BDII configration files
 Group:		System/Monitoring
