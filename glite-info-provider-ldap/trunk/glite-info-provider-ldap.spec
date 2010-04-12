@@ -1,5 +1,5 @@
 Name:		glite-info-provider-ldap
-Version:	1.3.0
+Version:	1.3.1
 Release:	1%{?dist}
 Summary:	LDAP information provider
 Group:		System/Monitoring
