@@ -7,7 +7,6 @@ sources: dist
 dist:
 	python setup.py sdist
 	tar -zxvf dist/${name}-${version}.tar.gz 
-	cp ChangeLog ${name}-${version}
 	tar -zcvf ${name}-${version}.tar.gz ${name}-${version} 
 	mv ${name}-${version}.tar.gz dist
 	rm -rf ${name}-${version} 
