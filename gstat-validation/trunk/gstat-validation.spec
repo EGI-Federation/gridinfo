@@ -1,6 +1,6 @@
 Summary: Gstat Valiation Scripts
 Name: gstat-validation
-Version: 2.0.29
+Version: 2.0.30
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: EGEE
@@ -37,6 +37,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/gstat 
 
 %changelog
+* Thu Apr 13 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.30-1
+- Removed constraint on generic CE Capabilities
 * Thu Apr 1 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.29-1
 - Fixed two small bugs in the site and service tests
 * Tue Mar 26 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.28-1
