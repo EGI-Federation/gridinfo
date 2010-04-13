@@ -128,9 +128,6 @@ def test_CE_Capability(key,entry):
    scale=0
    share=0
    for val in entry['GlueCECapability']:
-      if ( val.find("CPUScalingReferenceSI00") == -1 and
-           val.find("Share") == -1):
-         my_errors.log(gsutils.get_unique_id(key),'CE.Capability.Exist', '', gsutils.get_site(key))
       if ( val.find("CPUScalingReferenceSI00") >= 0 or 
            val.find("Share") >= 0 ):
          if val.find("CPUScalingReferenceSI00") >= 0 :
