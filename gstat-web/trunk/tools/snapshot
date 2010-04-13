@@ -385,7 +385,10 @@ def main():
             elif ( multivalued.has_key(attribute) and len(multivalues) > 0):
                 attribute, value = multivalues[len(multivalues) - 1]
                 value += line[1:]
-                multivalues.append( (attribute, value) )                        
+                multivalues.append( (attribute, value) )
+            # Process multivalued GlueChunkKeys and GlueForeignKeys
+            elif ( attribute == "GlueChunkKey" or attribute == "GlueForeignKey" ):
+                glueforeignkeys[len(glueforeignkeys) - 1] += value
             continue
         
         # Ignore comments
