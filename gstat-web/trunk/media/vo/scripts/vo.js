@@ -21,7 +21,9 @@ $.fn.dataTableExt.oApi.fnReloadAjax = function (oSettings, sNewSource, fnCallbac
     } );
 }
 
-function loadTable(table) {
+function loadTable(table, title) {
+    var vo_name = window.location.href.split("/")[5];
+    TableToolsInit.sPrintMessage = title + " Report for VO " + vo_name + " Provided by <a href='https://svnweb.cern.ch/trac/gridinfo/'> GStat 2.0 </a>";
     var oTable;
     var oTable = table.dataTable({
         "bProcessing": true,
@@ -49,7 +51,6 @@ function loadTable(table) {
        
        });
 
-    var vo_name = window.location.href.split("/")[5];
     oTable.fnReloadAjax("/gstat/vo/"+vo_name+"/"+table.attr('name')+"/json/");
     $('#'+table.attr('id')+'_processing').prepend( $('<img></img>').attr({'src':'/media/core/css/img/loading.gif'}).css({padding: '0px 8px'}) );
 

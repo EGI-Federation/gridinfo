@@ -278,7 +278,7 @@ function TableTools ( oInit )
 			var nInfo = document.createElement( "div" );
 			nInfo.className = "TableTools_PrintInfo";
 			nInfo.innerHTML = "<h6>Print view</h6><p>Please use your browser's print function to "+
-				"print this table. Press escape when finished.";
+				"print this table. Press <b style='color: #CE5C00;'>escape</b> when finished.";
 			document.body.appendChild( nInfo );
 			
 			/* Add a message at the top of the page */
@@ -300,7 +300,7 @@ function TableTools ( oInit )
 				$(nInfo).fadeOut( "normal", function() {
 					document.body.removeChild( nInfo );
 				} );
-			}, 2000 );
+			}, 4000 );
 		} );
 	}
 	

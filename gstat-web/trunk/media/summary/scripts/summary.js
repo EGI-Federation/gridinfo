@@ -85,6 +85,7 @@ function loadTable(event) {
     var theads = $('#single_table > thead');
     $('body').append( $('#sites') );
     $('#TableContainer').html('<table cellpadding="0" cellspacing="1" border="0" class="display" id="single_table"><thead>'+theads.html()+'</thead><tbody></tbody><tfoot><tr><th>Total</th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th><th></th></tr></tfoot></table>');
+    TableToolsInit.sPrintMessage = "Summary Report for " + filtertype + " " + filtervalue + " Provided by <a href='https://svnweb.cern.ch/trac/gridinfo/'> GStat 2.0 </a>";
     var oTable = $('#single_table').dataTable({
         "iDisplayLength": 25, 
         "bProcessing": true, 
