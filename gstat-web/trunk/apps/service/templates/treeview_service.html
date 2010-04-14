@@ -17,6 +17,13 @@
 <!-- <script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script> -->
 <script type="text/javascript" src="/media/core/scripts/jquery.jstree.js"></script>
 <script type="text/javascript">
+   function changeServiceView(event) {
+     service_type = document.getElementById('services').value;
+     if (service_type != "-1")
+        window.open('/gstat/service/' + service_type + '/treeview/', '_self')
+   }
+
+
 	$(document).ready(function(){
 	    services = document.getElementById('services');
         var service_type = window.location.href.split("/")[5];

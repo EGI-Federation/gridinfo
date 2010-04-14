@@ -36,13 +36,13 @@ $(document).ready(function() {
         "sDom": 'lfTrtip',
 	    "aoColumns": [
             { "fnRender": function(oObj) {
-	          var link = '<a href="/gstat/service/{{type}}/' + oObj.aData[0]+'">'+oObj.aData[0]+'</a>';
+	          var link = '<a href="/gstat/service/{{type}}/treeview/' + oObj.aData[0]+'">'+oObj.aData[0]+'</a>';
               return link;
               },
               "bUseRendered": false
             },
             { "fnRender": function(oObj) {
-	          var link = '<a href="/gstat/service/{{type}}/' + oObj.aData[1]+'">'+oObj.aData[1]+'</a>';
+	          var link = '<a href="/gstat/service/{{type}}/treeview/' + oObj.aData[1]+'">'+oObj.aData[1]+'</a>';
               return link;
               },
               "bUseRendered": false
