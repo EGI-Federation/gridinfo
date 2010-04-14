@@ -179,12 +179,20 @@ def status(request, site_name, type_name, host_name, check_name):
             for hostname in hostname_list_all:
                 status_list.append( get_nagios_status(nagios_status, check_name, hostname) )
     
-    # Sort status list
-    unsorted_list = status_list
-    sorted_list = [(dict['hostname'], dict) for dict in unsorted_list]
-    sorted_list.sort()
-    result_list = [dict for (hostname, dict) in sorted_list]
-    status_list = result_list   
+    if status_list:
+        # Sort status list
+        unsorted_list = status_list
+        sorted_list = [(dict['hostname'], dict) for dict in unsorted_list]
+        sorted_list.sort()
+        result_list = [dict for (hostname, dict) in sorted_list]
+        status_list = result_list   
+    else:
+        status_list.append({'hostname': 'N/A',
+                            'check': 'N/A',
+                            'current_state': 'N/A',
+                            'plugin_output': 'N/A',
+                            'long_plugin_output': '',
+                            'last_check': 'N/A'})
 
     return render_to_response('status.html', {'status_list' : status_list})
 
