@@ -39,10 +39,13 @@ def browse(request):
     result = gsutils.read_ldif(host, port, dn, "-s " + filter)
     if (filter == "base" ):
         table = []
-        tuple = result.values()[0] # Only 1 tuple is present
-        for key in tuple.keys():
-            for value in tuple[key]:
-                table.append([key, value])
+        if result.values():
+            tuple = result.values()[0] # Only 1 tuple is present
+            for key in tuple.keys():
+                for value in tuple[key]:
+                    table.append([key, value])
+        else:
+            table.append(["N/A", "N/A"])
         return render_to_response('entrypage.html', {'table':table, 'dn':dn})
     else:
         keys = [x.lower() for x in result.keys()]
