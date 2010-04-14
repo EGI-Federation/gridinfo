@@ -79,7 +79,7 @@
       <li class="open">
         <span class="site">&nbsp;{{ site_name }}
           {% if tree_sitebdii %}
-            <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSite entity"/> </a>
+            <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSite entity"/> </a>
           {% endif %}
         </span>
         <ul>
@@ -141,7 +141,7 @@
               <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
                 <span class="ce">
                   <a target="frame" href="/gstat/site/{{ site_name }}/bdii_site/{{ hostname }}/all/">&nbsp;{{ hostname }}</a>
-                  <a href="/gstat/ldap#ldap://{{ hostname }}:2170/mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Site BDII"/> </a>
+                  <a href="/gstat/ldap#ldap://{{ hostname }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Site BDII"/> </a>
                 </span>
                 <ul>
                   {% for check in checks %}
@@ -193,7 +193,7 @@
                     <li class='{{ collapse.subcluster_cpu|default:"closed" }}'>
                       <span class="ce">&nbsp;{{ cluster }} 
                         {% if tree_sitebdii %}
-                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueCluster entity"/> </a>
+                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueCluster entity"/> </a>
                         {% endif %}
                       </span>
                       <ul>
@@ -205,7 +205,7 @@
 		                      <span class="ce">
 		                        <a target="frame" href="/gstat/rrd/SubCluster/{{ subcluster }}/cpu/">&nbsp;{{ subcluster }}</a>
 		                        {% if tree_sitebdii %}
-		                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesubclusteruniqueid={{ subcluster }},glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSubCluster entity"/> </a>
+		                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesubclusteruniqueid={{ subcluster }},glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSubCluster entity"/> </a>
 		                        {% endif %}
 		                      </span>
 		                    </li>
@@ -232,7 +232,7 @@
                       <span class="ce">
                         <a target="frame" href="/gstat/rrd/Cluster/{{ cluster }}/job/">&nbsp;{{ cluster }}</a>
                         {% if tree_sitebdii %}
-                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueCluster entity"/> </a>
+                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueCluster entity"/> </a>
                         {% endif %}
                       </span>
                       <ul>
@@ -243,7 +243,7 @@
 		                    <li>
 		                      <span class="vo">
 		                        <a target="frame" href="/gstat/rrd/VOCluster/{{ vo }}/{{ cluster }}/job/">&nbsp;{{ vo }}</a>
-		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluevoviewlocalid={{ voview }},glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueVOView entity"/> </a>
+		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluevoviewlocalid={{ voview }},glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueVOView entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -278,7 +278,7 @@
                       <span class="se">
                         <a target="frame" href="/gstat/rrd/SE/{{ se }}/online/">&nbsp;{{ se }}</a>
                         {% if tree_sitebdii %}
-                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSE entity"/> </a>
+                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSE entity"/> </a>
                         {% endif %}
                       </span>
                       <ul>
@@ -289,7 +289,7 @@
 		                    <li>
 		                      <span class="vo">
 		                        <a target="frame" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/online/">&nbsp;{{ vo }}</a>
-		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
+		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -311,7 +311,7 @@
                       <span class="se">
                         <a target="frame" href="/gstat/rrd/SE/{{ se }}/nearline/">&nbsp;{{ se }}</a>
                         {% if tree_sitebdii %}
-                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSE entity"/> </a>
+                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSE entity"/> </a>
                         {% endif %}
                       </span>
                       <ul>
@@ -350,7 +350,7 @@
                     <li>
                       <span class="ce">&nbsp;{{ uniqueid }} 
                         {% if tree_sitebdii %}
-                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=glueserviceuniqueid={{ uniqueid }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueService entity"/> </a>
+                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=glueserviceuniqueid={{ uniqueid }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueService entity"/> </a>
                         {% endif %}
                       </span>
                     </li>
@@ -383,7 +383,7 @@
 		                    <li>
 		                      <span class="ce">
 		                        <a target="frame" href="/gstat/rrd/VOCluster/{{ vo }}/{{ cluster }}/job/">&nbsp;{{ cluster }}</a>
-		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluevoviewlocalid={{ voview }},glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueVOView entity"/> </a>
+		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluevoviewlocalid={{ voview }},glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueVOView entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -406,7 +406,7 @@
 		                    <li>
 		                      <span class="se">
 		                        <a target="frame" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/online/">&nbsp;{{ se }}</a>
-		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
+		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -421,7 +421,7 @@
 		                    <li>
 		                      <span class="se">
 		                        <a target="frame" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/nearline/">&nbsp;{{ se }}</a>
-		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/mds-vo-name=local,o=grid&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
+		                        <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}
