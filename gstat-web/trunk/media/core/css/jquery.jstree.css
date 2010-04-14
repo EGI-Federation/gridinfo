@@ -15,6 +15,7 @@
 .tree-default li a { border-radius:3px; -moz-border-radius:3px; -webkit-border-radius:3px; }
 .tree-default li a:hover, .tree-default li a.hover { background: #beebff; border:1px solid #d8f0fa; padding:0px 3px 0px 3px; }
 .tree-default li a.clicked, .tree-default li a.clicked:hover { background: #beebff; border:1px solid #99defd; padding:0px 3px 0px 3px; }
+.tree-default ul li a.disable { color: #3D3D3D; text-decoration: none; }
 /* ICONS */
 .tree-default ins { background-image:url("img/jstree_icons.png"); background-position:0 0; background-repeat:no-repeat; }
 .tree-default ul li a.loading ins { background-image:url("img/jstree_throbber.gif") !important; background-position:0 0 !important; } /* UL is added to make selector stronger */

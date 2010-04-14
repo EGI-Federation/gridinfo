@@ -43,6 +43,10 @@ $(document).ready(function() {
             },
             { "fnRender": function(oObj) {
 	          var link = '<a href="/gstat/service/{{type}}/treeview/' + oObj.aData[1]+'">'+oObj.aData[1]+'</a>';
+	          if (services.value =='bdii_top')
+	              link += '&nbsp;<a href="/gstat/ldap#ldap://' + oObj.aData[1] + ':2170/"><img border="0" title="Directing to LDAP Browser for querying to this Top BDII" src="/media/core/css/img/ldap.png"/></a>';
+	          else
+	              link += '&nbsp;<a href="/gstat/ldap#ldap://' + oObj.aData[1] + ':2170/o=grid"><img border="0" title="Directing to LDAP Browser for querying to this Site BDII" src="/media/core/css/img/ldap.png"/></a>';
               return link;
               },
               "bUseRendered": false
