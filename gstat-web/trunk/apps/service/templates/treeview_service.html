@@ -96,19 +96,19 @@ Current Service:
     <div id="treediv">
     <ul id="tree" class="filetree treeview">
       <li class="open">
-        <span class="folder">&nbsp;Service </span>
+        <span class="folder"> <a class="disable" href='javascript:void(0)'> Service </a> </span>
         <ul>
         
         
           {% if tree_topbdii %}
           <li class='{{ collapse.bdii_top|default:"closed" }}'>
-            <span class="folder"> &nbsp;Top BDII </span>
+            <span class="folder"> <a class="disable" href='javascript:void(0)'> Top BDII </a> </span>
             <ul>
               {% for hostname,checks in tree_topbdii %}
               
               <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
                 <span class="ce">
-                  <a target="frame" href="/gstat/service/bdii_top/{{ hostname }}/all/">&nbsp;{{ hostname }}</a>
+                  <a target="frame" href="/gstat/service/bdii_top/{{ hostname }}/all/"> {{ hostname }}</a>
                   <a href="/gstat/ldap#ldap://{{ hostname }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Linking to LDAP Browser for querying to this BDII"/> </a>
                 </span>
                 <ul>
@@ -122,7 +122,7 @@ Current Service:
                       <script>
 		                var datasources = DataSources("{{ check }}");
 		                for (datasource in datasources) {
-		                    var link = '<a target="frame" href="/gstat/rrd/Nagios/{{ hostname }}/{{ check }}/'+datasources[datasource]+'/">&nbsp;'+datasources[datasource]+'</a>'
+		                    var link = '<a target="frame" href="/gstat/rrd/Nagios/{{ hostname }}/{{ check }}/'+datasources[datasource]+'/"> '+datasources[datasource]+'</a>'
 		                    $('#ul_{{ forloop.counter }}').append(
 		                       $('<li></li>').append(
 		                         $('<span></span>').attr({'className':'datasource'}).html(link)
@@ -147,13 +147,13 @@ Current Service:
           
           {% if tree_sitebdii %}
           <li class='{{ collapse.bdii_site|default:"closed" }}'>
-            <span class="folder"> &nbsp;Site BDII </span>
+            <span class="folder"> <a class="disable" href='javascript:void(0)'> Site BDII </a> </span>
             <ul>
               {% for hostname,checks in tree_sitebdii %}
               
               <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
                 <span class="ce">
-                  <a target="frame" href="/gstat/service/bdii_site/{{ hostname }}/all/">&nbsp;{{ hostname }}</a>
+                  <a target="frame" href="/gstat/service/bdii_site/{{ hostname }}/all/"> {{ hostname }}</a>
                   <a href="/gstat/ldap#ldap://{{ hostname }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Linking to LDAP Browser for querying to this BDII"/> </a>
                 </span>
                 <ul>
@@ -161,13 +161,13 @@ Current Service:
                   
                   <li class="closed">
                     <span class="validation">
-                      <a target="frame" href="/gstat/service/bdii_site/{{ hostname }}/{{ check }}/">&nbsp;{{ check }}</a>
+                      <a target="frame" href="/gstat/service/bdii_site/{{ hostname }}/{{ check }}/"> {{ check }}</a>
                     </span>
                     <ul id="ul_{{ forloop.counter }}">
                       <script>
 		                var datasources = DataSources("{{ check }}");
 		                for (datasource in datasources) {
-		                    var link = '<a target="frame" href="/gstat/rrd/Nagios/{{ hostname }}/{{ check }}/'+datasources[datasource]+'/">&nbsp;'+datasources[datasource]+'</a>'
+		                    var link = '<a target="frame" href="/gstat/rrd/Nagios/{{ hostname }}/{{ check }}/'+datasources[datasource]+'/"> '+datasources[datasource]+'</a>'
 		                    $('#ul_{{ forloop.counter }}').append(
 		                       $('<li></li>').append(
 		                         $('<span></span>').attr({'className':'datasource'}).html(link)
