@@ -8,6 +8,11 @@
 <link rel="stylesheet" type="text/css" href="/media/core/css/dataTables.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/TableTools.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/nagios.css" />
+<style media="screen" type="text/css"> 
+a:link { text-decoration: none;}
+a:visited {text-decoration: none;}
+a:hover {text-decoration: underline;}
+</style>
 {% endblock %}
 
 {% block scripts-add %}
@@ -23,6 +28,7 @@ $(document).ready(function() {
         services.value = '{{ type|default:"-1" }}';
 
         // dataTable script initialization using jQuery selectors
+        TableToolsInit.sPrintMessage = "Service Report for {{ title }} Provided by <a href='https://svnweb.cern.ch/trac/gridinfo/'> GStat 2.0 </a>";
         $('#single_table').dataTable( {
         "bProcessing": true,
         "iDisplayLength":25,

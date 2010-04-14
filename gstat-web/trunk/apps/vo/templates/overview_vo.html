@@ -6,7 +6,15 @@
 <title>VO View</title>
 <link rel="stylesheet" type="text/css" href="/media/core/css/jquery.tabs.css" />
 <style media="screen" type="text/css">
-body, table, tr, td {font-family:Arial;font-size:9pt;color: #3D3D3D;}
+body, table, tr, td {
+  font-family:Arial;
+  color: #184262;
+  font-size:9pt;
+}
+a {color: #0C6DFF;}
+a:link {text-decoration: none;}
+a:visited {text-decoration: none;}
+a:hover {text-decoration: underline; color:#66A3FF;}
 tr.Separator {height: 15px;}
 </style>
 <link rel="stylesheet" type="text/css" href="/media/core/css/dataTables.css" />
@@ -21,7 +29,7 @@ tr.Separator {height: 15px;}
 <script type="text/javascript">
 	$(document).ready(function(){
 		$('#tabs_container').tabs();
-		loadTable( $('#ce_status_table') );
+		loadTable( $('#ce_status_table'), "CE Status");
 	});
 </script>
 </head>
