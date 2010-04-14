@@ -388,7 +388,7 @@ def main():
                 multivalues.append( (attribute, value) )
             # Process multivalued GlueChunkKeys and GlueForeignKeys
             elif ( attribute == "GlueChunkKey" or attribute == "GlueForeignKey" ):
-                glueforeignkeys[len(glueforeignkeys) - 1] += value
+                glueforeignkeys[len(glueforeignkeys) - 1] += line[1:]
             continue
         
         # Ignore comments
