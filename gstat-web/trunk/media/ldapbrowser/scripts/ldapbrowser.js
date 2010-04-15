@@ -18,8 +18,12 @@ function showNode(node, fnLoadComplete)  {
 		    var Results =  eval("(" + Response.responseText + ")");
 		    if (Results && (Results.length > 0)) {
 		        for (var i=0, j=Results.length; i<j; i++) {
-                    label = Results[i].substring(0, Results[i].indexOf(node.label)-1);
-		            var newNode = new YAHOO.widget.TextNode(label, node, false);
+		            var idx = Results[i].indexOf(node.label);
+		            if (idx == 0) {
+		                idx = Results[i].indexOf(node.label + ',');
+		            }
+                    label = Results[i].substring(0, idx-1);
+                    var newNode = new YAHOO.widget.TextNode(label, node, false);
                     newNode.title = Results[i];
                 }
             }
