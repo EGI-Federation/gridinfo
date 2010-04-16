@@ -1,0 +1,403 @@
+#!/usr/bin/python
+##############################################################################
+# Copyright (c) Members of the EGEE Collaboration. 2004.
+# See http://www.eu-egee.org/partners/ for details on the copyright
+# holders.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at #
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS
+# OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+#
+# NAME :        import-entites
+
+# DESCRIPTION : This creates a topology model from the snapshot DB.
+#
+# AUTHORS :     Laurence.Field@cern.ch
+#               David.Horat@cern.ch
+#
+#
+##############################################################################
+
+import os
+import re
+import sys
+import getopt
+import string
+import logging
+import time
+from datetime import datetime
+
+DIR = os.path.dirname(__file__)
+APPS_DIR = os.path.join(DIR, '..','apps')
+sys.path.append(APPS_DIR)
+os.environ['DJANGO_SETTINGS_MODULE']='core.settings'
+from django.db import transaction
+from topology.models import Entity
+from topology.models import Entityrelationship
+from glue.models import glueservice
+from glue.models import gluecluster
+from glue.models import gluese
+from glue.models import gluece
+from glue.models import gluesite
+from glue.models import gluemultivalued
+from django.db import connection, transaction
+
+modulename='topology.models'
+__import__(modulename)
+module=sys.modules[modulename]
+
+global log
+global entity_store 
+global relationship_store
+
+def setup():
+    global config, log
+    # Parse input parameters using getopt and assign to config hash
+    config={}
+    config['debug'] = 0
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "t:d:h", ["ttl","debug",
+                                                           "help"])
+    except getopt.GetoptError:
+        sys.stderr.write("Error: Invalid option specified.\n")
+        usage()
+        sys.exit(2)
+    for o, a in opts:
+        if o in ("-h", "--help"):
+            usage()
+            sys.exit(0)
+        if o in ("-t", "--ttl"):
+            config['ttl'] = a
+        if o in ("-d", "--debug"):
+            config['debug'] = a
+
+    if ( 'ttl' in config ):
+        try:
+            int(config['ttl'])
+        except:
+            sys.stderr.write("ttl should be the number of whole days.\n")
+            sys.exit(1)
+ 
+    # Set logging
+    log = logging.getLogger(sys.argv[0])
+    hdlr = logging.StreamHandler(sys.stderr)
+    formatter = logging.Formatter('[%(levelname)s]: %(message)s')
+    hdlr.setFormatter(formatter)
+    log.addHandler(hdlr)
+    log.setLevel(2)
+
+# Funtion to print out the usage
+def usage():
+    sys.stderr.write('Usage: %s [OPTIONS]\n' % (sys.argv[0]))
+    sys.stderr.write('''
+
+Options:
+-t --ttl       Remove entries older than the ttl from the topology [day]
+
+''')
+    
+def save_entities():
+    
+    #Get the current time
+    date_time = str(datetime.utcnow())
+    index = date_time.index(".")
+    date_time = date_time[:index]
+
+    #Get a dictionary of the existing unique IDs
+    cursor = connection.cursor()
+    cursor.execute("SELECT uniqueid, type FROM topology_entity;")
+    row = cursor.fetchall()
+    unique_ids = {}
+    for tuple in row:
+        unique_ids[tuple[0].lower() + tuple[1].lower()] = None
+
+    for entity in entity_store.keys():
+        entity_id, type =  entity_store[entity]
+        entity_hostname = get_hostname(entity_id)
+        if ( unique_ids.has_key(entity_id.lower() + type.lower()) ):
+            update_data = "type='%s', hostname='%s', updated_at='%s' where uniqueid='%s'" %(entity_id, type, entity_hostname, date_time)   
+            cursor.execute("UPDATE topology_entity set %s;"% update_data)
+        else:
+            insert_data = "('%s','%s','%s','%s','%s','%s')" %(entity_id, type, entity_hostname, date_time, date_time, date_time)   
+            cursor.execute('INSERT into topology_entity(uniqueid, type, hostname, timestamp, created_at, updated_at) value %s;'% insert_data)
+            unique_ids[entity_id.lower() + type.lower()] = None
+    transaction.commit_unless_managed()
+
+def save_relationships():
+    
+    # Predicate entity mappings 
+    mappings = { 'SiteCountry' : ('Site', 'Country'),
+                 'SiteEgeeRoc' : ('Site', 'EGEE_ROC'),
+                 'SiteEgeeService' : ('Site', 'EGEE_SERVICE'),
+                 'SiteGrid' : ('Site', 'GRID'),
+                 'SiteWlcgTier' : ('Site', 'WLCG_TIER'),
+                 'SiteWlcgParent' : ('Site', 'WLCG_PARENT'),
+                 'SiteService' : ('Site', 'Service'),
+                 'ServiceVO' : ('Service', 'VO')
+                 }
+
+    types = { 'VO' : None, 'WLCG_TIER' : None, 'Site' : None, 'EGEE_ROC': None,
+              'GRID' : None, 'County': None, 'WLCG_PARENT' : None,
+              'EGEE_SERVICE' : None }
+
+    #Get the current time
+    date_time = str(datetime.utcnow())
+    index = date_time.index(".")
+    date_time = date_time[:index]
+
+    #Get a dictionary of the existing IDs
+    cursor = connection.cursor()
+    cursor.execute("SELECT uniqueid, type, id FROM topology_entity;")
+    row = cursor.fetchall()
+    ids = {}
+    for tuple in row:
+        type =  tuple[1]
+        if ( types.has_key(type) ) :
+            ids[tuple[0].lower() + type] = tuple[2]
+        else:
+            ids[tuple[0].lower()] = tuple[2]
+
+    #Get a dictionary of the existing relationships
+    cursor = connection.cursor()
+    cursor.execute("SELECT subject_id, object_id, predicate FROM topology_entityrelationship;")
+    row = cursor.fetchall()
+    relationships = {}
+    for tuple in row:
+        if ( not relationships.has_key(tuple[0])):
+            relationships[tuple[0]] = {}
+        if ( not relationships[tuple[0]].has_key(tuple[1])):
+            relationships[tuple[0]][tuple[1]] = {}
+        relationships[tuple[0]][tuple[1]][tuple[2]] = None         
+
+    for tuple in relationship_store:
+        try:
+            predicate = tuple[2]
+            sub_type = mappings[predicate][0]
+            obj_type = mappings[predicate][1]
+            if ( types.has_key(sub_type) ):
+                sub = ids[tuple[0].lower() + sub_type]
+            else:
+                sub = ids[tuple[0].lower()]
+            if ( types.has_key(obj_type) ):
+                obj = ids[tuple[1].lower() + obj_type]
+            else:
+                obj = ids[tuple[1].lower()]
+
+        except KeyError, e:
+            continue
+        if ( relationships.has_key(sub) and relationships[sub].has_key(obj) and relationships[sub][obj].has_key(predicate)):
+            update_data = "updated_at='%s' where subject_id='%s'AND object_id='%s' AND predicate='%s'" %(date_time, sub, obj, predicate)   
+            cursor.execute("UPDATE topology_entityrelationship set %s;" % update_data)
+        else:
+            insert_data = "('%s','%s','%s','%s','%s','%s')" %(sub, obj, predicate, date_time, date_time, date_time) 
+            if ( not relationships.has_key(sub)):
+                relationships[sub] = {}
+            if ( not relationships[sub].has_key(obj)):
+                relationships[sub][obj] = {}
+            relationships[sub][obj][predicate] = None
+            cursor.execute('INSERT into topology_entityrelationship(subject_id, object_id, predicate, timestamp, created_at, updated_at) value %s;'% insert_data)
+    transaction.commit_unless_managed()
+
+def get_hostname(UniqueID):
+    hostname=UniqueID
+    hostname=re.sub("^.*://","",hostname)
+    hostname=re.sub(":.*","",hostname)
+    hostname=re.sub("_[^_]*$","",hostname)
+    hostname=re.sub("^.*_","",hostname)
+    hostname=re.sub("/.*","",hostname)
+    return hostname
+
+def get_sites():
+
+    # Get and store GlueSite Objects
+    objects = gluesite.objects.all()
+    for object in objects:
+        unique_id = object.name
+        type = "Site"
+        entity_store[unique_id + type] = (unique_id, type)
+
+        #Store country locations and relationships
+        location = object.location
+        country = location.split(',')[-1].strip()
+        type="Country"
+        entity_store[country + type] = (country, type)
+        relationship_store.append( ( unique_id, country, "SiteCountry" ) )
+        
+def get_site_topologies():
+    errors = {}
+    
+    # Get and store GlueSite objects and relationships
+    objects=gluemultivalued.objects.filter(attribute='GlueSiteOtherInfo')
+    for object in objects:
+        if ( not entity_store.has_key(object.uniqueid + 'Site') ):
+            if( not errors.has_key(object.uniqueid)):
+                log.info("No site found for %s" % object.uniqueid)
+                errors[object.uniqueid] = None
+            continue
+        index=object.value.find("=")
+        if ( index > -1 ):
+            key=object.value[:index]
+            value=object.value[index + 1:]
+            if ( key == 'EGEE_ROC'):
+                entity_store[value + key] = (value, key)
+                relationship_store.append(( object.uniqueid, value, "SiteEgeeRoc" ) )
+            if ( key == 'EGEE_SERVICE'):
+                entity_store[value + key] = (value, key)
+                relationship_store.append( ( object.uniqueid, value, "SiteEgeeService" ) )
+            if ( key == 'GRID'):
+                entity_store[value + key] = (value, key)
+                relationship_store.append( ( object.uniqueid, value, "SiteGrid" ) )
+            if ( key == 'WLCG_TIER'):
+                entity_store[value + key] = (value, key)
+                relationship_store.append( ( object.uniqueid, value, "SiteWlcgTier" ) )
+            if ( key == 'WLCG_PARENT'):
+                entity_store[value + key] = (value, key)
+                relationship_store.append( ( object.uniqueid, value, "SiteWlcgParent" ) )
+        
+def get_services():        
+    errors = {}
+ 
+    # Get and store GlueService Objects
+    objects = glueservice.objects.all().exclude(type='org.glite.ChannelAgent').exclude(type = 'org.glite.RTEPublisher').exclude(type__startswith='org.glite.rgma.')
+    for object in objects:
+        unique_id = object.uniqueid
+        type = object.type
+        if ( type == 'bdii_site' or type == 'bdii_top'):
+            unique_id = object.endpoint
+        entity_store[unique_id] = (unique_id, type)
+    
+        # Store Site Service relationship
+        if ( entity_store.has_key(object.gluesite_fk + 'Site')):
+            relationship_store.append( ( object.gluesite_fk, unique_id, "SiteService" ) )
+        else:
+            if( not errors.has_key(object.gluesite_fk)):
+                log.info("No site found for %s" % object.gluesite_fk)
+                errors[object.gluesite_fk] = None
+
+def get_CEs(): 
+    errors = {}
+    # Get and store GlueCluster Objects
+    objects = gluecluster.objects.all()
+    for object in objects:
+        unique_id = object.uniqueid
+        type = "CE"
+        entity_store[unique_id] = (unique_id, type)
+        
+        # Store Site Service relationship
+        if ( entity_store.has_key(object.gluesite_fk + 'Site')):
+            relationship_store.append( ( object.gluesite_fk, unique_id, "SiteService" ) )
+        else:
+            if( not errors.has_key(object.gluesite_fk)):
+                log.info("No site found for %s" % object.gluesite_fk)
+                errors[object.gluesite_fk] = None
+
+def get_SEs():
+    errors = {}
+    # Get and store GlueSE Objects
+    objects = gluese.objects.all()
+    for object in objects:
+        unique_id = object.uniqueid
+        type = "SE"
+        entity_store[unique_id] = (unique_id, type)
+        
+        # Store Site Service relationship
+        if ( entity_store.has_key(object.gluesite_fk + 'Site')):
+            relationship_store.append( ( object.gluesite_fk, unique_id, "SiteService" ) )
+        else:
+            if( not errors.has_key(object.gluesite_fk)):
+                log.info("No site found for %s" % object.gluesite_fk)
+                errors[object.gluesite_fk] = None
+
+def get_service_VO():
+    # Create CE to Cluster mapping
+    glueces = {}
+    objects = gluece.objects.all()
+    for object in objects:
+        if ( not glueces.has_key(object.uniqueid) ):
+             glueces[object.uniqueid] = object.gluecluster_fk
+    
+    #objects=gluemultivalued.objects.filter(attribute='GlueServiceAccessControlBaseRule') | gluemultivalued.objects.filter(attribute='GlueSAAccessControlBaseRule') | gluemultivalued.objects.filter(attribute='GlueCEAccessControlBaseRule')
+    cursor = connection.cursor()
+    cursor.execute("SELECT uniqueid, attribute, value FROM glue_gluemultivalued WHERE attribute='GlueSAAccessControlBaseRule' OR attribute='GlueServiceAccessControlBaseRule' OR attribute='GlueCEAccessControlBaseRule'")
+    row = cursor.fetchall()
+    relationships = {} # Used to remove duplicates
+    for tuple in row:
+        unique_id=tuple[0]
+        attribute = tuple[1]
+        value = tuple[2]
+        vo = None
+        if ( value[:3] == "VO:" ):
+            vo = value[3:]
+        if ( value[:5] == "VOMS:" ):
+            vo = value[5:]
+            vo = vo.split('/')[1]
+        if ( not vo == None ):
+            # clean up the vo name
+            vo = vo.strip().lower()
+            if (vo == ""): vo = 'unidentified'
+            
+            if ( not entity_store.has_key(vo + 'VO') ):
+                entity_store[vo + 'VO'] =  (vo, 'VO')
+                print vo
+
+            if (attribute == 'GlueCEAccessControlBaseRule'):
+                if ( glueces.has_key(unique_id) ):
+                    unique_id = glueces[unique_id]
+                else:
+                    continue
+            else:
+                unique_id = unique_id
+            if ( entity_store.has_key(unique_id)): # Ensure that exists
+                if ( relationships.has_key(unique_id) ):
+                    if ( not relationships[unique_id].has_key(vo) ):
+                        relationship_store.append( ( unique_id, vo, "ServiceVO" ) )
+                        if ( not relationships.has_key(unique_id)):
+                            relationships[unique_id] = {}
+                        relationships[unique_id][vo] = None
+                else:   
+                    relationship_store.append( ( unique_id, vo, "ServiceVO" ) )
+                    if ( not relationships.has_key(unique_id)):
+                        relationships[unique_id] = {}
+                    relationships[unique_id][vo] = None
+
+            
+
+def delete_old_objects():
+
+    # Delete old objects
+    if ( 'ttl' in config): 
+        deadline = start_time - ( int(config['ttl']) * 3600 * 24 )
+        deadline = datetime.fromtimestamp(deadline)
+        tables=[ 'Entity', 'Entityrelationship' ]
+        for table_name in tables:
+            inst = getattr(module, table_name)
+            oldies = inst.objects.filter(updated_at__lt = deadline)
+            for row in oldies:
+                row.delete()    
+
+if __name__ == "__main__":
+
+    start_time = time.time()
+    setup()
+    entity_store = {}
+    relationship_store = []
+    get_sites()
+    get_site_topologies()
+    get_services()
+    get_CEs()
+    get_SEs()
+    get_service_VO()
+    save_entities()
+    save_relationships()
+    delete_old_objects()
+    log.info("Time taken = %d" %(time.time() - start_time))
+

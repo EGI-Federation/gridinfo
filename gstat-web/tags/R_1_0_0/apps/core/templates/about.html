@@ -1,0 +1,40 @@
+{%  extends "base_gstat.html"  %}
+
+{% block breadcrumbs %}<a href="/gstat/">Home</a> :: <a href="/gstat/about">About</a>{% endblock %}
+
+{% block content-main %}
+<div style="float: right; width: 150px; margin-left: 10px;">
+  <p style="text-align: center;"><strong>Developers</strong></p>
+  <div style="text-align: center;">
+    <img src="/media/core/img/JoannaHuang.jpg" />
+    <p style="text-align: center;">Joanna Huang</p>
+  </div>
+  <div style="text-align: center;">
+    <img src="/media/core/img/LaurenceField.jpg" />
+    <p style="text-align: center;">Laurence Field</p>
+  </div>
+  <div style="text-align: center;">
+    <img src="/media/core/img/DavidHorat.jpg" />
+    <p style="text-align: center;"><a href="http://cern.ch/horat">David Horat</a></p>
+  </div>
+</div>
+<div>
+  <h2>About</h2>
+This document describes the high level technical architecture of the GStat system and its implementation. The main aim of GStat is to display information about grid services, the grid information system itself and related metrics. The system is designed in modular way so that the software can be reused in different application scenarios.
+
+Gstat has evolved over the past few years from a simple cgi script that displayed the summary of a grid infrastructure to a production quality service providing rich features such as information content testing and infrastructure monitoring. An evolutionary approach to its development has enabled GStat to add functionally in response to real use cases and to become an key operational tool. GStat 2.0 is a major redesign of the original version which will ensure that it will meet the future demands of an evolving infrastructure and easily integrate with other operational tools.
+
+GStat is the result of a collaboration between <a href="http://www.sinica.edu.tw/">Academia Sinica</a> and the <a href="http://it-dep.web.cern.ch/it-dep/gt/">Grid Technology Group</a> at <a href="http://cern.ch">CERN</a>. The main purpose of the joint project is to align GStat with direction taken by the <a href="https://twiki.cern.ch/twiki/bin/view/LCG/GridServiceMonitoringInfo">WLCG monitoring group</a> with respect to operational tools and in addition ensure that GStat can make a contribution to middleware certification and site validation.
+
+To provide feedback, such as problems encountered and suggestions for echancement, please email <a href="mailto:project-grid-info-support@cern.ch">project-grid-info-support@cern.ch</a>. 
+ 
+  <h3>High-Level System Architecture</h3>
+Gstat provides a method to visualize a grid infrastructure from an operational perspective based on information found in the grid information system. Even in the absence of a information system, information about the existence of grid services needs to be communicated. The communication of the existence of grid services defines the grid infrastructure. As such, GStat 2.0 should be bootstrapped by the information system endpoints of those grid services. It periodically takes a snapshot of the information system and maintains a cache of the main entities found in the infrastructure which provides the basic structure for the visualization. The main entities cache is also used to configure monitoring framework that monitors the information system and reports the health of the various components from which the information system is composed along with further metrics about the performance. The resulting information from both the information system itself and the monitoring thereof is use to produce various displays that address specific use cases. 
+  <p>
+  <img src="/media/core/img/architecture.jpg" style="display: block; margin-left: auto; margin-right: auto;" />
+  <p>
+The GStat architecture makes a clear separation between data, infrastructure monitoring, content validation and visualization. At the core is the data model used to maintain a snapshot of the information system and a cache of the main entities. Probes are used to monitor the information system components and validation checks are used ensure that the information content is correct. A visualization visualization framework used for displaying the resulting data. The modular approach enables the software to be reused in other application scenarios.
+<h3>Implementation</h3>
+The GStat architecture is implemented using two main frameworks;  Django and  Nagios. Django is an open source web application framework, written in Python, which follows the model-view-controller architectural pattern. Django models are used to provide the core data model of the system. The snapshot script takes a snapshot of the information system and uses the Django framework to store the information. The import-entities script extracts the main entities, such as Sites and Services, from the snapshot and maintains a cache of entities. In addition, certain attributes are extracted from the snapshot and stored in rrd databases using the gstat-update-rrd script. Nagios is an open source monitoring framework an is used in GStat to both monitor the information system components and validate the information content via the use of custom probes. These monitoring probes can be re-used by other Nagios based monitoring tools and also executed on the command line, which enables them to be easily incorporated in other test suites. Django is also leveraged for the visualization aspects of GStat. The entity cache is used to provide the main structure for the displays. The snapshot and result from testing are used to provide more detailed information. 
+</div>
+{% endblock %}

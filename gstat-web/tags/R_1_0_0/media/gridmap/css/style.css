@@ -1,0 +1,254 @@
+body {
+    background-color:#FFFFFF;
+}
+
+.wait {
+    cursor: wait
+}
+
+#gridmapCanvasLoading {
+    z-index:50;
+    display: none;
+    position:relative;
+    background-color: #ffffff;
+    text-align: center;
+    font-family: Helvetica,Arial,sans-serif;
+    overflow:hidden;
+    /* for IE */
+    filter:alpha(opacity=40);
+    /* CSS3 standard */
+    opacity:0.4;
+}
+
+h1, h2 {
+    font-family: Helvetica,Arial,sans-serif;
+}
+
+img {
+    border: none;
+}
+
+.color-maint {
+    color: #0000ff;
+}
+
+/*.color-ok {
+    color: #00FF00;
+}
+
+.color-degraded {
+    color: #FFAA00;
+}*/
+
+.color-na {
+    color: #ff0000;
+}
+
+.color-down {
+    color: #ff0000;
+}
+
+
+.color-Logical {
+    color: #880044;
+}
+
+.color-Physical {
+    color: #0000FF;
+}
+
+.color-Total {
+    color: #000000;
+}
+
+
+.general-text {
+    font-size: 12px;
+    font-family: sans-serif;
+}
+
+.caption {
+    font-weight: bold;
+    font-size:   16px;
+    font-family: Helvetica,Arial,sans-serif;
+    margin-top:  .5em;
+}
+
+.group {
+    font-size: 12px;
+    font-family: Helvetica,Arial,sans-serif;
+    border:1px outset gray; margin:.5em; padding-top:.5em; padding-left:.5em; padding-right:.5em; background-color:#EEEEFF;
+}
+
+.group-title {
+    font-size: 14px;
+    font-family: Helvetica,Arial,sans-serif;
+    font-weight: bold;
+    text-align: center;
+}
+
+.small-text {
+    font-size: 11px;
+    font-family: sans-serif;
+}
+
+.ext-button {
+    font-size: 10px;
+    font-family: Helvetica,Arial,sans-serif;
+    color: blue;
+    cursor: hand;
+    text-decoration:underline;
+    padding-left: 25px;
+}
+
+.hidden {
+    display: none;
+}
+
+.bold:not(:root:root) { color: #228888; }   /* Safari */
+.bold { font-weight: bold; }
+.normal { font-weight: normal; }
+
+.loading {
+    color: #888888;
+}
+
+.title-text {
+    font-size: 14px;
+    font-family: Helvetica,Arial,sans-serif;
+    margin: 4px;
+}
+
+.topo-button {
+    font-size: 12px;
+    width: 60px;
+    margin: 1px;
+    cursor: hand;
+    padding: 0px;
+}
+
+.vo-button {
+    font-size: 12px;
+    width: 60px;
+    margin: 1px;
+    padding: 0px;
+    cursor: hand;
+}
+
+.vo-text {
+    font-size: 12px;
+    text-align: center;
+    width: 60px;
+    margin: 1px;
+}
+
+.serv-button {
+    font-size: 12px;
+    width: 60px;
+    margin: 1px;
+    padding: 0px;
+    cursor: hand;
+}
+
+.serv-superbutton {
+    font-size: 12px;
+    width: 90px;
+    margin: 1px;
+    padding: 0px;
+    cursor: hand;
+}
+
+#serv-select {
+    font-size: 12px;
+    width: 60px;
+    margin: 1px;
+}
+
+.serv-text {
+    font-size: 12px;
+    text-align: center;
+    width: 60px;
+    margin: 1px;
+}
+
+.period-button {
+    font-size: 12px;
+    width: 60px;
+    margin: 1px;
+    padding: 0px;
+    cursor: hand;
+}
+
+.period-long-button {
+    font-size: 12px;
+    width: 155px;
+    margin: 1px;
+    padding: 0px;
+    cursor: hand;
+}
+
+.period-updn {
+    font-size: 12px;
+    text-align:center;
+    width: 18px;
+    margin: 1px;
+    padding: 0px;
+    cursor: hand;
+}
+
+.period-ts {
+    font-weight: bold;
+    font-size: 12px;
+    border-style: none;
+    margin: 1px;
+}
+
+.bdii-button {
+    font-size: 12px;
+    width: 60px;
+    margin: 1px;
+    padding: 0px;
+    cursor: hand;
+}
+
+.layout-button {
+    font-size: 12px;
+    width: 90px;
+    margin: 1px;
+    padding: 0px;
+    cursor: hand;
+}
+
+.bookmark {
+    font-size: 9px;
+    font-family: Helvetica,Arial,sans-serif;
+    margin-right: .5em;
+    text-align: right;
+}
+
+.tiptable {
+    font-family: Verdana,Geneva,sans-serif;
+    font-size: 8pt;
+    line-height: 8pt;
+}
+
+.tiptable th, .tiptable td {
+    padding: 0px;
+    padding-right: 1px;
+    margin: 0px;
+}
+
+.smalltext {
+    font-size: 6pt;
+    text-align: right;
+}
+
+/* new tootip table styles */
+.tooltiptable {
+    width: 100%;
+    font-size: 8pt;
+}
+
+.right {
+    text-align: right;
+}
