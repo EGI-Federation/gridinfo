@@ -27,7 +27,7 @@ tr.Separator {height: 15px;}
   {% for timestamp in timestamps %}
   <div id="fragment-{{ forloop.counter }}">
     <script>
-      document.write('<img src="'+document.URL+'{{ timestamp }}/" />');
+      document.write('<img src="'+document.URL+'{{ timestamp }}/" alt=" " />');
     </script>
   </div>
   {% endfor %}
