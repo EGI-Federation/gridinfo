@@ -3,6 +3,7 @@ from django.http import HttpResponse, Http404
 from django.core.urlresolvers import reverse
 from django.utils import html
 from glue.models import glueservice,gluece, gluevoview
+from topology.models import Entity
 from core.utils import *
 import gsutils
 import socket
@@ -10,6 +11,7 @@ import re
 import time
    
 def overview(request, site_name):     
+    sites = sorted([site.uniqueid for site in Entity.objects.filter(type='Site')])
     # Get the site information from glue database
     gluesite = get_unique_gluesite(site_name)
     if not gluesite:
@@ -142,7 +144,8 @@ def overview(request, site_name):
     vo_resources = [dict_ for (key, dict_) in sorted_list]
     
     return render_to_response('overview.html', 
-                              {'site_name'          : site_name,
+                              {'sites'              : sites,
+                               'site_name'          : site_name,
                                'gluesite'           : gluesite,
                                'status_list_top'    : status_list_top,
                                'status_list_site'   : status_list_site,
@@ -197,7 +200,9 @@ def status(request, site_name, type_name, host_name, check_name):
     return render_to_response('status.html', {'status_list' : status_list})
 
 
-def treeview(request, site_name, type, attribute=""):
+def treeview(request, site_name, type="", attribute=""):
+    sites = sorted([site.uniqueid for site in Entity.objects.filter(type='Site')])
+    
     site = get_unique_gluesite(site_name)
     
     # Get service list from topology database
@@ -409,7 +414,8 @@ def treeview(request, site_name, type, attribute=""):
         url = "/".join(["", "gstat", "rrd", "VOSite", site_name, attribute, "nearline"])
 
     return render_to_response('treeview_site.html', 
-                              {'site_name':        site_name,
+                              {'sites':            sites,
+                               'site_name':        site_name,
                                'collapse':         collapse,
                                'tree_topbdii':     tree_topbdii,
                                'tree_sitebdii':    tree_sitebdii,

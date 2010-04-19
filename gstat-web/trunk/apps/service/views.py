@@ -8,7 +8,7 @@ import gsutils
 import socket
 import sys
 
-def main(request, type, output=None):
+def main(request, type='', output=None):
     services = {'bdii_top':  'Top BDII',
                 'bdii_site': 'Site BDII'}
 
@@ -40,7 +40,8 @@ def main(request, type, output=None):
         content = '{ "aaData": %s }' % (json.dumps(data))
         return HttpResponse(content, mimetype='application/json')  
     else:
-        title = services[type]
+        try:    title = services[type]
+        except: title = ""
         if (type == 'bdii_top'):
             thead=["Alias", "Hostname", "Instances", "Freshness", "Sites"]
         else:

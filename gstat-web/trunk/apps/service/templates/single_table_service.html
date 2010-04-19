@@ -68,7 +68,7 @@ $(document).ready(function() {
        ] });
        
       $('#single_table_processing').prepend( $('<img></img>').attr({'src':'/media/core/css/img/loading.gif'}).css({padding: '0px 8px'}) );
-      $('#single_table_length').append( '&nbsp;|&nbsp;Go To:' );
+      $('#single_table_length').append( '&nbsp;|&nbsp;Go to a service:' );
       $('#single_table_length').append( $('#services') );
 
 });
@@ -85,7 +85,7 @@ $('#content-main a').attr({"target":"_self"});      // here you can set up defau
 {% block content-main %}
 
 <select id="services" onchange="changeServiceView(event);" style="margin-left: 0.5em;">
-  <option value="-1">Select a Service</option>
+  <option value="-1">--SELECT A SERVICE--</option>
   {% for service_type,service_title in services.items %}
     <option value="{{ service_type }}">{{ service_title }}</option>
   {% endfor %}

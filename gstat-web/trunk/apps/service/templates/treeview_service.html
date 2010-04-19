@@ -57,8 +57,7 @@
         $("#content-main").css('height', proportion + '%');
         
         content_main = parseInt( $("#content-main").height() );
-        servicediv = parseInt( $("#servicediv").height() ) + 20;
-        proportion = parseInt( (content_main - servicediv - 10) / content_main * 100 );
+        proportion = parseInt( (content_main - 10) / content_main * 100 );
         $("#layoutdiv").css('height', proportion + '%');
         
         left_board = parseInt( $("#left-board").height() );
@@ -74,21 +73,20 @@
 
 {% block breadcrumbs %}
 <a href="/gstat/">Home</a> :: <a href="/gstat/service/{{ type }}/">{{ title }}</a>
+<div style='display: inline; text-align: right; position: absolute; right: 0px;'>
+  <strong>Go To Another Service:</strong>
+  <select id="services" onchange="changeServiceView(event);" style="margin-left: 0.5em;">
+    <option value="-1">--SELECT A SERVICE--</option>
+    {% for service_type,service_title in services.items %}
+      <option value="{{ service_type }}">{{ service_title }}</option>
+    {% endfor %}
+  </select>
+</div>
 {% endblock %}
 
 {% block content-main %}
 
 {% load dict_tags %}
-
-<div id="servicediv" style="margin-bottom:10px;">
-Current Service:
-<select id="services" onchange="changeServiceView(event);" style="margin-left: 0.5em;">
-  <option value="-1">Select a Service</option>
-  {% for service_type,service_title in services.items %}
-    <option value="{{ service_type }}">{{ service_title }}</option>
-  {% endfor %}
-</select>
-</div>
 
 <div id="layoutdiv">
   <div id="left-board" class="board">

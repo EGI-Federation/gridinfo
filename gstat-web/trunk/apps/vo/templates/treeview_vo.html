@@ -35,9 +35,15 @@
 		        },
 		    callback : {
 		          onchange: function (NODE) {
-		            var iframe = document.getElementById("frame");
-		            iframe.src = $(NODE).children("span").children("a").attr("href");
-		            iframe.window.location.reload(); 
+		            var frame = document.getElementById("frame");
+		            frame.src = $(NODE).children("span").children("a").attr("href");
+		            try {
+		            frame.window.location.reload(); 
+		            }catch(err) {
+
+		            }
+		            //frame.contentDocument.location.reload(true);
+		            //frame.window.location.reload(); 
 		          }
 		    }
 		});
@@ -57,8 +63,7 @@
         $("#content-main").css('height', proportion + '%');
         
         content_main = parseInt( $("#content-main").height() );
-        vodiv = parseInt( $("#vodiv").height() ) + 20;
-        proportion = parseInt( (content_main - vodiv - 10) / content_main * 100 );
+        proportion = parseInt( (content_main - 10) / content_main * 100 );
         $("#layoutdiv").css('height', proportion + '%');
         
         left_board = parseInt( $("#left-board").height() );
@@ -74,20 +79,20 @@
 
 {% block breadcrumbs %}
 <a href="/gstat/">Home</a> :: <a href="/gstat/vo/">VO</a>
+<div style='display: inline; text-align: right; position: absolute; right: 0px;'>
+  <strong>Go To Another VO:</strong>
+  <select id="vo_list" onchange="changeVOView(event);" style="margin-left: 0.5em;">
+    <option value="-1">--SELECT A VO NAME--</option>
+    {% for vo in vo_list %}
+      <option value="{{ vo.uniqueid }}">{{ vo.uniqueid }}</option>
+    {% endfor %}
+   </select>
+</div>
 {% endblock %}
 
 {% block content-main %}
 
 {% load dict_tags %}
-<div id="vodiv" style="margin-bottom:10px;">
-Current VO:
-	<select id="vo_list" onchange="changeVOView(event);" style="margin-left: 0.5em;">
-	  <option value="-1">Select a VO name</option>
-	  {% for vo in vo_list %}
-	    <option value="{{ vo.uniqueid }}">{{ vo.uniqueid }}</option>
-	  {% endfor %}
-	</select>
-</div>
 
 <div id="layoutdiv">
   <div id="left-board" class="board">
@@ -217,6 +222,8 @@ Current VO:
               </ul>
             </li>
             {% endfor %}
+          {% else %}
+          <strong style="font-size: 10pt;">Please select a VO first!</strong>
           {% endif %}
 <!--  
         </ul>
@@ -228,8 +235,12 @@ Current VO:
   </div>
   <div id="right-board" class="board rightboard" >
     <h2>Viewing Statistics or Graphs</h2>
-    <iframe id="frame" name="frame" src="{{ url }}" frameborder="0" width="100%" scrolling="yes" allowtransparency="true">
-    </iframe> 
+    {% if url %}
+      <iframe id="frame" name="frame" src="{{ url }}" frameborder="0" width="100%" scrolling="yes" allowtransparency="true">
+      </iframe> 
+    {% else %}
+      <strong style="color: #4C7898;">Please select a VO first!</strong>
+    {% endif %} 
   </div>
   <div class="clear"/>
 </div>

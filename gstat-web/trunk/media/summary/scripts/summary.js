@@ -240,7 +240,7 @@ function loadTable(event) {
         setTimeout('loadTable();',300000); //Reload Ajax every 5 minutes
     
     $('#single_table_processing').prepend( $('<img></img>').attr({'src':'/media/core/css/img/loading.gif'}).css({padding: '0px 8px'}) );
-    $('#single_table_length').append( '&nbsp;|&nbsp;Go To:' );
+    $('#single_table_length').append( '&nbsp;|&nbsp;Go to a site:' );
     $('#single_table_length').append( $('#sites') );
 
 }

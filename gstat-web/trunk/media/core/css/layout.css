@@ -73,8 +73,8 @@ body { background-image:url(../images/BG-main-top-menu.jpg); }
 
 /* BLOCK/breadcrumbs=BEGIN */
 /* uncomment display property to turn it off */
-#breadcrumbs { /*display:none;*/ border-bottom:1px #1E4866 dotted; line-height:25px; color:#8EBDE1; font-size:10pt; background-color:#FFFFFF; }
-#breadcrumbs a { color:#184262; text-decoration:none; }
+#breadcrumbs { /*display:none;*/ border-bottom:1px #1E4866 dotted; line-height:25px; font-size:10pt; background-color:#FFFFFF; }
+#breadcrumbs a { color:#0C6DFF; text-decoration:none; }
 #breadcrumbs a:hover { text-decoration:underline; }
 /* BLOCK/breadcrumbs=END */
 
