@@ -6,7 +6,7 @@ function loadJSONDoc(url) {
 	    success: function(data){
 		    clearList('filtervalue');
 		    var select = document.getElementById('filtervalue');
-		    appendToSelect(select, '-1', document.createTextNode('Select a value'));
+		    appendToSelect(select, '-1', document.createTextNode('--SELECT A VALUE--'));
 	        $.each(data.options, function(i,option){
 	          if (option != null) {
 	            appendToSelect(select, option.value, document.createTextNode(option.key));

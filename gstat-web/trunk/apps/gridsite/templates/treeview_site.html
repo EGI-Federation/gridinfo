@@ -20,7 +20,17 @@
 <!-- <script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script> -->
 <script type="text/javascript" src="/media/core/scripts/jquery.jstree.js"></script>
 <script type="text/javascript">
+    function changeSiteView(event) {
+        sitename = document.getElementById('sites').value;
+        if (sitename != "-1")
+            window.open('/gstat/site/' + sitename + '/treeview/', '_self');
+    }
+    
 	$(document).ready(function(){
+	    sites = document.getElementById('sites');
+        var site_name = '{{ site_name }}';
+        sites.value = site_name;
+        
 		//$("#tree").treeview();
 		$("#treediv").tree({
 		    ui: { theme_path: "/media/core/css/jquery.jstree.css", 
@@ -65,6 +75,15 @@
 
 {% block breadcrumbs %}
 <a href="/gstat/">Home</a> :: <a href="/gstat/summary/">Site Summary</a> :: <a href="/gstat/site/{{site_name}}">{{site_name}}</a>
+<div style='display: inline; text-align: right; position: absolute; right: 0px;'>
+  <strong>Go To Another Site:</strong>
+  <select id="sites" onchange="changeSiteView(event);" style="margin-left: 0.5em;">
+    <option value="-1">--SELECT A SITE NAME--</option>
+    {% for site in sites %}
+      <option value="{{ site }}">{{ site }}</option>
+    {% endfor %}
+  </select>
+</div>
 {% endblock %}
 
 {% block content-main %}

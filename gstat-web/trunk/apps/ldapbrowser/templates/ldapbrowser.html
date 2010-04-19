@@ -7,8 +7,6 @@
 <link rel="stylesheet" type="text/css" href="/media/core/css/tablesorter.css" />
 {% endblock %}
 
-{% block breadcrumbs %}<a href="/gstat/">Home</a> :: <a href="/gstat/ldap">LDAP Browser</a>{% endblock %}
-
 {% block scripts-add %}
 <script type="text/javascript" src="/media/ldapbrowser/scripts/ldapbrowser.js"></script>
 <!-- Loading jQuery libraries -->
@@ -43,16 +41,13 @@
 
         content_main = parseInt( $("#content-main").height() );
         visiblecombo = parseInt( $("#visiblecombo").height() );
-        proportion = parseInt( (content_main - visiblecombo - 10) / content_main * 100 );
+        proportion = parseInt( (content_main - visiblecombo) / content_main * 100 );
         $("#layoutdiv").css('height', proportion + '%');
         
         layoutdiv = parseInt( $("#layoutdiv").height() );
-        proportion = parseInt( (layoutdiv - 20) / layoutdiv * 100 );
+        proportion = parseInt( (layoutdiv) / layoutdiv * 100 );
         $("#ldaptree").css('height', proportion + '%');
-        
-        layoutdiv = parseInt( $("#layoutdiv").height() );
-        proportion = parseInt( (layoutdiv - 20) / layoutdiv * 100 );
-        $("#attributes").css('height', proportion + '%');
+        $("#attributes").css('height', proportion + '%');        
         
         ldaptree = parseInt( $("#ldaptree").height() );
         proportion = parseInt( (ldaptree - 30) / ldaptree * 100 );
@@ -65,28 +60,38 @@
 </script>
 {% endblock %}
 
-{% block content-main %}
-	<form style="display: {{display}};" action="" onsubmit="inputHost(); return false" id="visiblecombo">
+{% block breadcrumbs %}
+<a href="/gstat/">Home</a> :: <a href="/gstat/ldap">LDAP Browser</a>
+	<form style="display: inline; text-align: right; position: absolute; right: 0px;" action="" onsubmit="inputHost(); return false" id="visiblecombo">
+	    <strong>Query a BDII:</strong> 
         <select id="hosts" size="1" onchange="selectHost(this)">
             <option value="default" style="background-color: #532900; color: white;">--SELECT A TOP LEVEL BDII--</option>
             {% for label, hostname in hostnames %}
                 <option value="{{hostname}}">{{label}}</option>
             {% endfor %}
         </select> &nbsp;
-        <input type='text' id='urltext' name='urltext' size='80' value='{{ldapurl}}'/> &nbsp;
+        <input type='text' id='urltext' name='urltext' size='40' value='{{ldapurl}}'/> &nbsp;
     </form>
+{% endblock %}
+
+{% block content-main %}
+
     <div class="clear"></div> 
     
     <div id="layoutdiv">
     
         <div id="ldaptree" class="board">
             <h2>LDAP Tree</h2>
-            <div id="tree"></div>
+            <div id="tree">
+            <strong style="font-size: 10pt; color: #4C7898;">Please select a BDII first!</strong>
+            </div>
         </div>
         
         <div id="attributes" class="board rightboard">
             <h2>Viewing Entry</h2>
-            <div id="entrypage"></div>  
+            <div id="entrypage">
+            <strong style="font-size: 10pt; color: #4C7898;">Please select a BDII first!</strong>
+            </div>  
         </div>
 
     </div>
