@@ -26,7 +26,7 @@ def graph_render(graph_cmd):
 # -------------------------------------------
 def rrdgraph_cmd_options(start_time, title, label, small=False):
     graph_cmd = ''
-    if small: width=250
+    if small: width=225
     else:     width=450
     
     graph_cmd = \
