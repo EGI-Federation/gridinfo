@@ -23,6 +23,10 @@
 	    if (vo_name != "-1")
 	        window.location.href = '/gstat/vo/' + vo_name;
 	}
+	
+	function setSRC(href) {
+	  document.getElementById('frame').src = href;
+	}
 
 	$(document).ready(function(){
         vo_list = document.getElementById('vo_list');
@@ -36,14 +40,7 @@
 		    callback : {
 		          onchange: function (NODE) {
 		            var frame = document.getElementById("frame");
-		            frame.src = $(NODE).children("span").children("a").attr("href");
-		            try {
-		            frame.window.location.reload(); 
-		            }catch(err) {
-
-		            }
-		            //frame.contentDocument.location.reload(true);
-		            //frame.window.location.reload(); 
+		            try { frame.window.location.reload(); }catch(err) {}
 		          }
 		    }
 		});
@@ -80,7 +77,7 @@
 {% block breadcrumbs %}
 <a href="/gstat/">Home</a> :: <a href="/gstat/vo/">VO</a>
 <div style='display: inline; text-align: right; position: absolute; right: 0px;'>
-  <strong>Go To Another VO:</strong>
+  <strong>Go to another VO:</strong>
   <select id="vo_list" onchange="changeVOView(event);" style="margin-left: 0.5em;">
     <option value="-1">--SELECT A VO NAME--</option>
     {% for vo in vo_list %}
@@ -108,22 +105,22 @@
             {% for vo, job, storage in tree_vo %}
             <li class='{{ collapse|dict_get:vo|default:"closed" }}'>
               <span class="vo">
-                <a target="frame" href="/gstat/vo/{{ vo }}/overview/"> {{ vo }} </a>
+                <a target="frame" onClick="setSRC(this.href);" href="/gstat/vo/{{ vo }}/overview/"> {{ vo }} </a>
               </span>
               <ul>
               
                 {% if job %}
                 <li class='closed'>
                   <span class="folder">
-                    <a target="frame" href="/gstat/rrd/VO/{{ vo }}/job/"> Grid Jobs </a>
+                    <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VO/{{ vo }}/job/"> Grid Jobs </a>
                   </span>
                   <ul>
                     
                     {% for site_name, cluster_ce_voview in job %}
                     <li class='closed'>
                       <span class="site">
-                        <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/job/"> {{ site_name }} </a>
-                        <a target="frame" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
+                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/job/"> {{ site_name }} </a>
+                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
                       </span>
                       <ul>
                         <li class='closed'>
@@ -132,8 +129,8 @@
 		                    {% for cluster,ce,voview in cluster_ce_voview %}
 		                    <li>
 		                      <span class="ce">
-		                        <a target="frame" href="/gstat/rrd/VOCluster/{{ vo }}/{{ cluster }}/job/"> {{ cluster }}</a>
-		                        <a target="frame" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluevoviewlocalid={{ voview }},glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueVOView entity"/> </a>
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOCluster/{{ vo }}/{{ cluster }}/job/"> {{ cluster }}</a>
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluevoviewlocalid={{ voview }},glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueVOView entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -153,15 +150,15 @@
                 
                 <li class='closed'>
                   <span class="folder">
-                    <a target="frame" href="/gstat/rrd/VO/{{ vo }}/online/"> Online Storage  </a>
+                    <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VO/{{ vo }}/online/"> Online Storage  </a>
                   </span>
                   <ul>
                   
                     {% for site_name, se_sa_list in storage %}
                     <li class='closed'>
                       <span class="site">
-                        <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/online/"> {{ site_name }} </a>
-                        <a target="frame" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
+                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/online/"> {{ site_name }} </a>
+                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
                       </span>
                       <ul>
                         <li class='closed'>
@@ -170,8 +167,8 @@
 		                    {% for se,sa in se_sa_list %}
 		                    <li>
 		                      <span class="se">
-		                        <a target="frame" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/online/"> {{ se }}</a>
-		                        <a target="frame" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/online/"> {{ se }}</a>
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -186,15 +183,15 @@
                 
                 <li class='closed'>
                   <span class="folder">
-                    <a target="frame" href="/gstat/rrd/VO/{{ vo }}/nearline/"> Nearline Storage </a>
+                    <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VO/{{ vo }}/nearline/"> Nearline Storage </a>
                   </span>
                   <ul>
                   
                     {% for site_name, se_sa_list in storage %}
                     <li class='closed'>
                       <span class="site">
-                        <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/nearline/"> {{ site_name }} </a>
-                        <a target="frame" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
+                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/nearline/"> {{ site_name }} </a>
+                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
                       </span>
                       <ul>
                         <li class='closed'>
@@ -203,8 +200,8 @@
 		                    {% for se,sa in se_sa_list %}
 		                    <li>
 		                      <span class="se">
-		                        <a target="frame" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/nearline/"> {{ se }}</a>
-		                        <a target="frame" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/nearline/"> {{ se }}</a>
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                      </span>
 		                    </li>
 		                    {% endfor %}

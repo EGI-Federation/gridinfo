@@ -23,7 +23,10 @@
         window.open('/gstat/service/' + service_type + '/treeview/', '_self')
    }
 
-
+	function setSRC(href) {
+	  document.getElementById('frame').src = href;
+	}
+	
 	$(document).ready(function(){
 	    services = document.getElementById('services');
         var service_type = window.location.href.split("/")[5];
@@ -36,9 +39,8 @@
 		        },
 		    callback : {
 		          onchange: function (NODE) {
-		            var iframe = document.getElementById("frame");
-		            iframe.src = $(NODE).children("span").children("a").attr("href");
-		            iframe.window.location.reload(); 
+		            var frame = document.getElementById("frame");
+		            try { frame.window.location.reload(); }catch(err) {}
 		          }
 		    }
 		});
@@ -74,7 +76,7 @@
 {% block breadcrumbs %}
 <a href="/gstat/">Home</a> :: <a href="/gstat/service/{{ type }}/">{{ title }}</a>
 <div style='display: inline; text-align: right; position: absolute; right: 0px;'>
-  <strong>Go To Another Service:</strong>
+  <strong>Go to another service:</strong>
   <select id="services" onchange="changeServiceView(event);" style="margin-left: 0.5em;">
     <option value="-1">--SELECT A SERVICE--</option>
     {% for service_type,service_title in services.items %}
@@ -106,7 +108,7 @@
               
               <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
                 <span class="ce">
-                  <a target="frame" href="/gstat/service/bdii_top/{{ hostname }}/all/"> {{ hostname }}</a>
+                  <a target="frame" onClick="setSRC(this.href);" href="/gstat/service/bdii_top/{{ hostname }}/all/"> {{ hostname }}</a>
                   <a href="/gstat/ldap#ldap://{{ hostname }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Linking to LDAP Browser for querying to this BDII"/> </a>
                 </span>
                 <ul>
@@ -114,13 +116,13 @@
                   
                   <li class="closed">
                     <span class="validation">
-                      <a target="frame" href="/gstat/service/bdii_top/{{ hostname }}/{{ check }}/">{{ check }}</a>
+                      <a target="frame" onClick="setSRC(this.href);" href="/gstat/service/bdii_top/{{ hostname }}/{{ check }}/">{{ check }}</a>
                     </span>
                     <ul id="ul_{{ forloop.counter }}">
                       <script>
 		                var datasources = DataSources("{{ check }}");
 		                for (datasource in datasources) {
-		                    var link = '<a target="frame" href="/gstat/rrd/Nagios/{{ hostname }}/{{ check }}/'+datasources[datasource]+'/"> '+datasources[datasource]+'</a>'
+		                    var link = '<a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/Nagios/{{ hostname }}/{{ check }}/'+datasources[datasource]+'/"> '+datasources[datasource]+'</a>'
 		                    $('#ul_{{ forloop.counter }}').append(
 		                       $('<li></li>').append(
 		                         $('<span></span>').attr({'className':'datasource'}).html(link)
@@ -151,7 +153,7 @@
               
               <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
                 <span class="ce">
-                  <a target="frame" href="/gstat/service/bdii_site/{{ hostname }}/all/"> {{ hostname }}</a>
+                  <a target="frame" onClick="setSRC(this.href);" href="/gstat/service/bdii_site/{{ hostname }}/all/"> {{ hostname }}</a>
                   <a href="/gstat/ldap#ldap://{{ hostname }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Linking to LDAP Browser for querying to this BDII"/> </a>
                 </span>
                 <ul>
@@ -159,13 +161,13 @@
                   
                   <li class="closed">
                     <span class="validation">
-                      <a target="frame" href="/gstat/service/bdii_site/{{ hostname }}/{{ check }}/"> {{ check }}</a>
+                      <a target="frame" onClick="setSRC(this.href);" href="/gstat/service/bdii_site/{{ hostname }}/{{ check }}/"> {{ check }}</a>
                     </span>
                     <ul id="ul_{{ forloop.counter }}">
                       <script>
 		                var datasources = DataSources("{{ check }}");
 		                for (datasource in datasources) {
-		                    var link = '<a target="frame" href="/gstat/rrd/Nagios/{{ hostname }}/{{ check }}/'+datasources[datasource]+'/"> '+datasources[datasource]+'</a>'
+		                    var link = '<a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/Nagios/{{ hostname }}/{{ check }}/'+datasources[datasource]+'/"> '+datasources[datasource]+'</a>'
 		                    $('#ul_{{ forloop.counter }}').append(
 		                       $('<li></li>').append(
 		                         $('<span></span>').attr({'className':'datasource'}).html(link)
