@@ -1,0 +1,337 @@
+#!/usr/bin/python
+##############################################################################
+# Copyright (c) Members of the EGEE Collaboration. 2004.
+# See http://www.eu-egee.org/partners/ for details on the copyright
+# holders.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at #
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS
+# OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+#
+# NAME :        gstat-update-rrd
+#
+# DESCRIPTION : This script updates the rrd from the snapshot database
+#
+# AUTHORS :     Laurence.Field@cern.ch
+#               Joanna@twgrid.org
+#
+# EXAMPLE :     ./gstat-update-rrd
+#
+##############################################################################
+
+import os
+import sys
+import time
+import logging
+from datetime import datetime
+DIR = os.path.dirname(__file__)
+APPS_DIR = os.path.join(DIR, '..','apps')
+sys.path.append(APPS_DIR)
+os.environ['DJANGO_SETTINGS_MODULE']='core.settings'
+from glue.models import gluece, gluese, gluesubcluster, gluevoview, gluesa, gluemultivalued
+from core.utils import *
+
+modulename='topology.models'
+__import__(modulename)
+module=sys.modules[modulename]
+start_time=datetime.now()
+
+# Set logging
+log = logging.getLogger(sys.argv[0])
+hdlr = logging.StreamHandler(sys.stderr)
+formatter = logging.Formatter('[%(levelname)s]: %(message)s')
+hdlr.setFormatter(formatter)
+log.addHandler(hdlr)
+log.setLevel(2)
+
+# Welcome
+log.info('Welcome to the gstat-update-rrd script')
+log.info('Processing started ...')
+
+data_dir='/var/cache/gstat/rrd'
+
+
+def createDir(dir_path):
+    # check if path exists. if not, create
+    if (not os.path.exists(dir_path)):
+        os.makedirs(dir_path)
+            
+def createArchive(archive_dir, archive_path, archive_type, archive_period, data_names):
+    """If archive is not present, create new RRD archive
+
+    Name of archive is: rrd/node_type/node_uniqueid/dataname.rrd
+    Historic data is kept for 1000 sample periods of:
+        5min    ~3.5 days
+        30min   ~20.8 days  
+        2hr     ~83.3 days
+        1day    1000 days
+    For each period the data is conslidated into MIN, MAX and AVG
+    """
+
+    # create archive directory if not exists
+    createDir(archive_dir)
+
+    # check if archive exists. if not, create
+    if(not os.path.exists(archive_path)):
+        create_cmd = "rrdtool create %s" % (archive_path)
+        for data_name in data_names:
+            create_cmd += \
+            " DS:%s:%s:%s:U:U" % (data_name, archive_type, archive_period*2)
+        create_cmd += \
+            " RRA:AVERAGE:0.5:1:1000"+\
+            " RRA:AVERAGE:0.5:2:1000"+\
+            " RRA:AVERAGE:0.5:8:1000"+\
+            " RRA:AVERAGE:0.5:96:1000"
+            
+        os.system(create_cmd)
+        #print "create RRD: "+create_cmd+"\nResults: "+query_res
+
+def archiveData(archive_path, data_list):
+    """Archives data for long term storage
+
+    """
+
+    # update archive with detailed data
+    # CAUTION! make sure how many datasources they have in their database, 
+    # and in what order these were defined
+    update_cmd = "rrdtool update %s N" %(archive_path)
+    for data in data_list:
+        update_cmd += ":%s" %(data)
+    os.system(update_cmd)
+    #print "updated RRD: "+update_cmd+"\nResults: "+query_res
+
+
+# -----------------------------------------
+# -- GlueSE storage space size archiving --
+# -----------------------------------------
+#start_time_se=datetime.now()
+sub_data_dir='%s/SE' %(data_dir)
+createDir(sub_data_dir)
+
+distinct = {}
+objects = gluese.objects.all()
+for obj in objects:
+    if (not distinct.has_key(obj.uniqueid)):
+        obj_unique_data_dir = '%s/%s' %(sub_data_dir, str(obj.uniqueid).replace('/',''))
+        
+        datasources = {'storage':   ['totalonlinesize', 'usedonlinesize', 'totalnearlinesize', 'usednearlinesize']}
+        
+        for key in datasources.keys():
+            obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, key)
+            
+            # Create RRD file
+            createArchive(archive_dir    = obj_unique_data_dir, 
+                          archive_path   = obj_data_file, 
+                          archive_type   = 'GAUGE', 
+                          archive_period = 900, 
+                          data_names     = datasources[key])
+        
+            # Store RRD data
+            data_list = []
+            for attr in datasources[key]:
+                data = obj.__getattribute__(attr)
+                if (data == "unset" or data == ""):
+                    data = "0"
+                data_list.append(data)
+            #print obj_data_file, data
+            archiveData(archive_path = obj_data_file, 
+                        data_list    = data_list)
+            distinct[obj.uniqueid] = None
+#print "Time taken (SE finished): %s" % str(datetime.now() - start_time_se)
+
+# ------------------------------------------
+# -- GlueSubCluster CPU numbers archiving --
+# ------------------------------------------
+#start_time_subcluster=datetime.now()
+sub_data_dir='%s/SubCluster' %(data_dir)
+createDir(sub_data_dir)
+
+distinct = {}
+objects = gluesubcluster.objects.all()
+
+for obj in objects:
+    if (not distinct.has_key(obj.uniqueid)):
+        obj_unique_data_dir = '%s/%s' %(sub_data_dir, str(obj.uniqueid).replace('/',''))
+        
+        datasources = {'cpu':   ['physicalcpus', 'logicalcpus']}
+        
+        for key in datasources.keys():
+            obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, key)
+            
+            # Create RRD file
+            createArchive(archive_dir    = obj_unique_data_dir, 
+                          archive_path   = obj_data_file, 
+                          archive_type   = 'GAUGE', 
+                          archive_period = 900, 
+                          data_names     = datasources[key])
+        
+            # Store RRD data
+            data_list = []
+            for attr in datasources[key]:
+                data = obj.__getattribute__(attr)
+                if (data == "unset" or data == ""):
+                    data = "0"
+                data_list.append(data)
+            #print obj_data_file, data
+            archiveData(archive_path = obj_data_file, 
+                        data_list    = data_list)            
+            distinct[obj.uniqueid] = None
+#print "Time taken (SubCluster finished): %s" % str(datetime.now() - start_time_subcluster)
+
+# -------------------------------------------------
+# -- GlueVOView job numbers archiving (VO-based) --
+# -------------------------------------------------
+#start_time_vo_job=datetime.now()
+sub_data_dir='%s/VO' %(data_dir)
+createDir(sub_data_dir)
+
+# Create CE to Cluster mapping
+#start_time_get_cetoclustermapping=datetime.now()
+ce_to_cluster_mapping= {}
+objects = gluece.objects.all()
+for object in objects:
+    if ( not ce_to_cluster_mapping.has_key(object.uniqueid) ):
+         ce_to_cluster_mapping[object.uniqueid] = object.gluecluster_fk
+#print "Time taken (get ce_to_cluster_mapping): %s" % str(datetime.now() - start_time_get_cetoclustermapping)
+
+#start_time_get_votovoviewmapping=datetime.now()
+vo_to_voview_mapping = get_vo_to_voview_mapping()
+#print "Time taken (get vo_to_voview_mapping): %s" % str(datetime.now() - start_time_get_votovoviewmapping)
+
+#start_time_get_voviewjobnumber=datetime.now()
+data = {}
+datasources = {'job':   ['totaljobs', 'runningjobs', 'waitingjobs']}
+# Store Total, Running, Waiting Jobs
+objects = gluevoview.objects.all()
+for voview in objects:
+    try:
+        vo = vo_to_voview_mapping[voview.glueceuniqueid][voview.localid]
+    except KeyError, e:
+        #print "Could not get vo mapping for %s %s" %(voview.glueceuniqueid, voview.localid)
+        continue
+
+    try:
+        cluster = ce_to_cluster_mapping[str(voview.glueceuniqueid)]
+    except KeyError, e:
+        #print "Could not get cluster mapping for %s" %(voview.glueceuniqueid)
+        continue
+
+    if ( not data.has_key(cluster) ):
+        data[cluster] = {}
+    if ( not data[cluster].has_key(vo) ):
+        data[cluster][vo] = [0,0,0]
+    
+    for attr in datasources['job']:
+        value = voview.__getattribute__(attr)
+        if (attr == "waitingjobs" and value == "444444"): value = "0"
+        data[cluster][vo][datasources['job'].index(attr)] += convert_to_integer(value)    
+#print "Time taken (get voview job number): %s" % str(datetime.now() - start_time_get_voviewjobnumber)
+        
+#start_time_archive_data=datetime.now()
+for cluster in data.keys():
+    for vo in data[cluster].keys():
+        try:
+            obj_unique_data_dir = '%s/%s/%s' %(sub_data_dir, 
+                                               str(vo).replace('/',''), 
+                                               str(cluster).replace('/',''))
+            
+            for key in datasources.keys():
+                obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, key)
+                
+                # Create RRD file
+                createArchive(archive_dir    = obj_unique_data_dir, 
+                              archive_path   = obj_data_file, 
+                              archive_type   = 'GAUGE', 
+                              archive_period = 900, 
+                              data_names     = datasources[key])
+            
+                # Store RRD data
+                data_list = data[cluster][vo]
+                archiveData(archive_path = obj_data_file, 
+                            data_list    = data_list)   
+            
+        except KeyError:
+          pass
+#print "Time taken (archive data): %s" % str(datetime.now() - start_time_archive_data)
+#print "Time taken (VO Job finished): %s" % str(datetime.now() - start_time_vo_job)
+
+# ----------------------------------------------------
+# -- GlueSA storage space size archiving (VO-based) --
+# ----------------------------------------------------
+#start_time_vo_storage=datetime.now()
+sub_data_dir='%s/VO' %(data_dir)
+createDir(sub_data_dir)
+
+#start_time_get_votosamapping=datetime.now()
+vo_to_sa_mapping = get_vo_to_sa_mapping()
+#print "Time taken (get vo_to_sa_mapping): %s" % str(datetime.now() - start_time_get_votosamapping)
+
+#start_time_get_sastoragespace=datetime.now()
+data = {}
+# A ds-name must be 1 to 19 characters long in the characters [a-zA-Z0-9_].
+# consequently, too long attribute name is not allowed.
+datasources = {'storage':   ['totalonlinesize', 'usedonlinesize', 'totalnearlinesize', 'usednearlinesize']}
+# Store Total, Used, Reserved storage space
+objects = gluesa.objects.all()
+for sa in objects:
+    try:
+        vo = vo_to_sa_mapping[sa.gluese_fk][sa.localid]
+    except KeyError, e:
+        continue
+
+    se = sa.gluese_fk
+    
+    for key in datasources.keys():
+        if ( not data.has_key(se) ):
+            data[se] = {}
+        if ( not data[se].has_key(vo) ):
+            data[se][vo] = {}
+        if ( not data[se][vo].has_key(key) ):   
+            data[se][vo][key] = [0,0,0,0]        
+        
+        for attr in datasources[key]:
+            value = sa.__getattribute__(attr)
+            if (value != "999999"): 
+                data[se][vo][key][datasources[key].index(attr)] += convert_to_integer(value)    
+#print "Time taken (get sa storage space): %s" % str(datetime.now() - start_time_get_sastoragespace)
+        
+#start_time_archivedata=datetime.now()
+for se in data.keys():
+    for vo in data[se].keys():
+        try:
+            obj_unique_data_dir = '%s/%s/%s' %(sub_data_dir, 
+                                               str(vo).replace('/',''), 
+                                               str(se).replace('/',''))
+            
+            for key in datasources.keys():
+                obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, key)
+                
+                # Create RRD file
+                createArchive(archive_dir    = obj_unique_data_dir, 
+                              archive_path   = obj_data_file, 
+                              archive_type   = 'GAUGE', 
+                              archive_period = 900, 
+                              data_names     = datasources[key])
+            
+                # Store RRD data
+                data_list = data[se][vo][key]
+                archiveData(archive_path = obj_data_file, 
+                            data_list    = data_list)   
+            
+        except KeyError:
+          pass
+#print "Time taken (archive data): %s" % str(datetime.now() - start_time_archivedata)
+#print "Time taken (VO Storage finished): %s" % str(datetime.now() - start_time_vo_storage)
+# Get time taken for the archiving
+log.info("Time taken: %s" % str(datetime.now() - start_time))
+
+

@@ -1,0 +1,98 @@
+{%extends "base_gstat.html"%}
+
+{% block title %}GStat 2.0 - LDAP Browser{% endblock %}
+
+{% block css-add %}
+<link rel="stylesheet" href="/media/ldapbrowser/css/ldapbrowser.css" type="text/css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/tablesorter.css" />
+{% endblock %}
+
+{% block scripts-add %}
+<script type="text/javascript" src="/media/ldapbrowser/scripts/ldapbrowser.js"></script>
+<!-- Loading jQuery libraries -->
+<script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.address-1.0.min.js"></script>
+<!-- Loading YUI libraries -->
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/yui/2.6.0/build/yuiloader/yuiloader-min.js"></script>
+<script type="text/javascript"> 
+	var loader = new YAHOO.util.YUILoader({ 
+	    require: ["treeview", "connection"],
+	    loadOptional: true,
+	    onSuccess: function() {YAHOO.util.Event.onDOMReady(init);}, 
+	    timeout: 10000,
+	    combine: true 
+	}); 
+	loader.insert();
+	
+	$(document).ready(function() {
+	    main_centeriser = parseInt( $("#main-centeriser").height() );
+	    header = parseInt( $("#header").height() );
+	    menu = parseInt( $("#menu").height() );
+	    //footer = parseInt( $("#footer").height() );
+	    footer = 0;
+	    proportion = parseInt( (main_centeriser - header - menu - footer) / main_centeriser * 100 );
+	    $("#content").css('height', proportion + '%');
+
+        content = parseInt( $("#content").height() );
+        breadcrumbs = parseInt( $("#breadcrumbs").height() );
+        proportion = parseInt( (content - breadcrumbs) / content * 100 );
+        $("#content-main").css('height', proportion + '%');
+
+        content_main = parseInt( $("#content-main").height() );
+        visiblecombo = parseInt( $("#visiblecombo").height() );
+        proportion = parseInt( (content_main - visiblecombo) / content_main * 100 );
+        $("#layoutdiv").css('height', proportion + '%');
+        
+        layoutdiv = parseInt( $("#layoutdiv").height() );
+        proportion = parseInt( (layoutdiv) / layoutdiv * 100 );
+        $("#ldaptree").css('height', proportion + '%');
+        $("#attributes").css('height', proportion + '%');        
+        
+        ldaptree = parseInt( $("#ldaptree").height() );
+        proportion = parseInt( (ldaptree - 30) / ldaptree * 100 );
+        $("#tree").css('height', proportion + '%');
+        
+        attributes = parseInt( $("#attributes").height() );
+        proportion = parseInt( (attributes - 30) / attributes * 100 );
+        $("#entrypage").css('height', proportion + '%');
+	});
+</script>
+{% endblock %}
+
+{% block breadcrumbs %}
+<a href="/gstat/">Home</a> :: <a href="/gstat/ldap">LDAP Browser</a>
+	<form style="display: inline; text-align: right; position: absolute; right: 0px;" action="" onsubmit="inputHost(); return false" id="visiblecombo">
+	    <strong>Query a BDII:</strong> 
+        <select id="hosts" size="1" onchange="selectHost(this)">
+            <option value="default" style="background-color: #532900; color: white;">--SELECT A TOP LEVEL BDII--</option>
+            {% for label, hostname in hostnames %}
+                <option value="{{hostname}}">{{label}}</option>
+            {% endfor %}
+        </select> &nbsp;
+        <input type='text' id='urltext' name='urltext' size='40' value='{{ldapurl}}'/> &nbsp;
+    </form>
+{% endblock %}
+
+{% block content-main %}
+
+    <div class="clear"></div> 
+    
+    <div id="layoutdiv">
+    
+        <div id="ldaptree" class="board">
+            <h2>LDAP Tree</h2>
+            <div id="tree">
+            <strong style="font-size: 10pt; color: #4C7898;">Please select a BDII first!</strong>
+            </div>
+        </div>
+        
+        <div id="attributes" class="board rightboard">
+            <h2>Viewing Entry</h2>
+            <div id="entrypage">
+            <strong style="font-size: 10pt; color: #4C7898;">Please select a BDII first!</strong>
+            </div>  
+        </div>
+
+    </div>
+{% endblock %}

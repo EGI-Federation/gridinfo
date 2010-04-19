@@ -1,0 +1,40 @@
+#!/bin/sh
+
+GSTAT_LOCK_FILE=${GSTAT_LOCK_FILE:-/var/lock/subsys/gstat-update}
+
+# Check status
+if [ -f "${GSTAT_LOCK_FILE}" ] ; then
+    let x=$(date +%s)-$(stat --format=%Z ${GSTAT_LOCK_FILE})
+    echo ${x}
+    if [ ${x} -gt 3600 ]; then
+        echo "Stale lock file found. Removing ..."
+        rm -f ${GSTAT_LOCK_FILE}
+    else
+        echo "gstat-update already running"
+        exit 0
+    fi
+fi
+
+touch ${GSTAT_LOCK_FILE}
+
+if [ -f /etc/gstat/ref-bdii.conf ] ; then
+   
+   . /etc/gstat/ref-bdii.conf 2>&1   
+   
+   /usr/bin/snapshot -h ${BDII_HOST} -p ${BDII_PORT} -b ${BDII_BIND} > /var/log/gstat/snapshot.stdout 2>/var/log/gstat/snapshot.stderr 
+      
+   if [ ! "x${GSTAT_PROD}" = "x" ]; then
+       /usr/bin/import-prod-bdii >/var/log/gstat/prod.stdout 2>/var/log/gstat/prod.stderr 
+   fi
+   
+   /usr/bin/import-entities -t 1 >/var/log/gstat/topology.stdout 2>/var/log/gstat/topology.stderr 
+
+   /usr/bin/gstat-update-rrd >/var/log/gstat/gstat-update-rrd.stdout 2>/var/log/gstat/gstat-update-rrd.stderr 
+ 
+fi 
+
+rm -f ${GSTAT_LOCK_FILE}
+
+
+
+
