@@ -1,0 +1,108 @@
+{%  extends "base_gstat.html" %}
+
+{% block description %}Here you can put short description what application does, authors list and whatever you can come up with.{% endblock %}
+
+{% block app-info %}{% endblock %}
+
+{% block css-add %}
+<link rel="stylesheet" type="text/css" href="/media/core/css/dataTables.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/TableTools.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/nagios.css" />
+<style media="screen" type="text/css"> 
+a:link { text-decoration: none;}
+a:visited {text-decoration: none;}
+a:hover {text-decoration: underline;}
+</style>
+{% endblock %}
+
+{% block scripts-add %}
+<script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.dataTables.js"></script>
+<script type="text/javascript" src="/media/core/scripts/ZeroClipboard.js"></script>
+<script type="text/javascript" src="/media/core/scripts/TableTools.js"></script>
+<script type="text/javascript" src="/media/service/scripts/service.js" ></script>
+<script type="text/javascript" charset="utf-8">
+
+$(document).ready(function() {
+        services = document.getElementById('services');
+        services.value = '{{ type|default:"-1" }}';
+
+        // dataTable script initialization using jQuery selectors
+        TableToolsInit.sPrintMessage = "Service Report for {{ title }} Provided by <a href='https://svnweb.cern.ch/trac/gridinfo/'> GStat 2.0 </a>";
+        $('#single_table').dataTable( {
+        "bProcessing": true,
+        "iDisplayLength":25,
+        "sAjaxSource": 'json',
+        "sDom": 'lfTrtip',
+	    "aoColumns": [
+            { "fnRender": function(oObj) {
+	          var link = '<a href="/gstat/service/{{type}}/treeview/' + oObj.aData[0]+'">'+oObj.aData[0]+'</a>';
+              return link;
+              },
+              "bUseRendered": false
+            },
+            { "fnRender": function(oObj) {
+	          var link = '<a href="/gstat/service/{{type}}/treeview/' + oObj.aData[1]+'">'+oObj.aData[1]+'</a>';
+	          if (services.value =='bdii_top')
+	              link += '&nbsp;<a href="/gstat/ldap#ldap://' + oObj.aData[1] + ':2170/"><img border="0" title="Directing to LDAP Browser for querying to this Top BDII" src="/media/core/css/img/ldap.png"/></a>';
+	          else
+	              link += '&nbsp;<a href="/gstat/ldap#ldap://' + oObj.aData[1] + ':2170/o=grid"><img border="0" title="Directing to LDAP Browser for querying to this Site BDII" src="/media/core/css/img/ldap.png"/></a>';
+              return link;
+              },
+              "bUseRendered": false
+            },
+            null, 
+            { "fnRender": function(oObj) {
+              var status = '<span class="NagiosStatus_'+oObj.aData[3]+'">'+oObj.aData[3]+'</span>';
+	          return status;
+	          },
+              "bUseRendered": false,
+              "sType": "status" 
+            }, 
+            { "fnRender": function(oObj) {
+              var status = '<span class="NagiosStatus_'+oObj.aData[4]+'">'+oObj.aData[4]+'</span>';
+	          return status;
+	          },
+              "bUseRendered": false,
+              "sType": "status" } 
+       ] });
+       
+      $('#single_table_processing').prepend( $('<img></img>').attr({'src':'/media/core/css/img/loading.gif'}).css({padding: '0px 8px'}) );
+      $('#single_table_length').append( '&nbsp;|&nbsp;Go to a service:' );
+      $('#single_table_length').append( $('#services') );
+
+});
+
+$('#content-main a').attr({"target":"_self"});      // here you can set up default targets for all heperlinks in content section
+
+</script>
+{% endblock %}
+
+{% block breadcrumbs %}
+<a href="/gstat/">Home</a> :: <a href="/gstat/service/{{ type }}/">{{ title }}</a>
+{% endblock %}
+
+{% block content-main %}
+
+<select id="services" onchange="changeServiceView(event);" style="margin-left: 0.5em;">
+  <option value="-1">--SELECT A SERVICE--</option>
+  {% for service_type,service_title in services.items %}
+    <option value="{{ service_type }}">{{ service_title }}</option>
+  {% endfor %}
+</select>
+
+<table cellpadding="0" cellspacing="1" border="0" class="display" id="single_table">
+  <thead>
+    <tr>{% for col in thead %}
+      <th>{{col}}</th>
+      {% endfor %}
+    </tr>
+  </thead>
+  <tbody>
+    
+    </tbody>
+</table>
+
+<div class="spacer"></div>
+{% endblock %}
+
