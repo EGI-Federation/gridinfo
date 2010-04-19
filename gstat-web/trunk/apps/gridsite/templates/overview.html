@@ -44,7 +44,7 @@
 {% block breadcrumbs %}
 <a href="/gstat/">Home</a> :: <a href="/gstat/summary/">Site Summary</a> :: <a href="/gstat/site/{{site_name}}">{{site_name}}</a>
 <div style='display: inline; text-align: right; position: absolute; right: 0px;'>
-  <strong>Go To Another Site:</strong>
+  <strong>Go to another site:</strong>
   <select id="sites" onchange="changeSiteView(event);" style="margin-left: 0.5em;">
     <option value="-1">--SELECT A SITE NAME--</option>
     {% for site in sites %}

@@ -26,6 +26,10 @@
             window.open('/gstat/site/' + sitename + '/treeview/', '_self');
     }
     
+    function setSRC(href) {
+	  document.getElementById('frame').src = href;
+	}
+	
 	$(document).ready(function(){
 	    sites = document.getElementById('sites');
         var site_name = '{{ site_name }}';
@@ -38,9 +42,8 @@
 		        },
 		    callback : {
 		          onchange: function (NODE) {
-		            var iframe = document.getElementById("frame");
-		            iframe.src = $(NODE).children("span").children("a").attr("href");
-		            iframe.window.location.reload(); 
+		            var frame = document.getElementById("frame");
+		            try { frame.window.location.reload(); }catch(err) {}
 		          }
 		    }
 		});
@@ -76,7 +79,7 @@
 {% block breadcrumbs %}
 <a href="/gstat/">Home</a> :: <a href="/gstat/summary/">Site Summary</a> :: <a href="/gstat/site/{{site_name}}">{{site_name}}</a>
 <div style='display: inline; text-align: right; position: absolute; right: 0px;'>
-  <strong>Go To Another Site:</strong>
+  <strong>Go to another site:</strong>
   <select id="sites" onchange="changeSiteView(event);" style="margin-left: 0.5em;">
     <option value="-1">--SELECT A SITE NAME--</option>
     {% for site in sites %}
@@ -98,21 +101,21 @@
       <li class="open">
         <span class="site"> <a class="disable" href='javascript:void(0)'>{{ site_name }}</a>
           {% if tree_sitebdii %}
-            <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSite entity"/> </a>
+            <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSite entity"/> </a>
           {% endif %}
         </span>
         <ul>
           {% if tree_topbdii %}
           <li class='{{ collapse.bdii_top|default:"closed" }}'>
             <span class="folder"> 
-              <a target="frame" href="/gstat/site/{{ site_name }}/bdii_top/all/all/"> Top BDII </a>
+              <a target="frame" onClick="setSRC(this.href);" href="/gstat/site/{{ site_name }}/bdii_top/all/all/"> Top BDII </a>
             </span>
             <ul>
               {% for hostname,checks in tree_topbdii %}
               
               <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
                 <span class="ce">
-                  <a target="frame" href="/gstat/site/{{ site_name }}/bdii_top/{{ hostname }}/all/"> {{ hostname }}</a>
+                  <a target="frame" onClick="setSRC(this.href);" href="/gstat/site/{{ site_name }}/bdii_top/{{ hostname }}/all/"> {{ hostname }}</a>
                   <a href="/gstat/ldap#ldap://{{ hostname }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Top BDII"/> </a>
                 </span>
                 <ul>
@@ -120,13 +123,13 @@
                   
                   <li class="closed">
                     <span class="validation">
-                      <a target="frame" href="/gstat/site/{{ site_name }}/bdii_top/{{ hostname }}/{{ check }}/">{{ check }}</a>
+                      <a target="frame" onClick="setSRC(this.href);" href="/gstat/site/{{ site_name }}/bdii_top/{{ hostname }}/{{ check }}/">{{ check }}</a>
                     </span>
                     <ul id="ul_{{ forloop.counter }}">
                       <script>
 		                var datasources = DataSources("{{ check }}");
 		                for (datasource in datasources) {
-		                    var link = '<a target="frame" href="/gstat/rrd/Nagios/{{ hostname }}/{{ check }}/'+datasources[datasource]+'/"> '+datasources[datasource]+'</a>'
+		                    var link = '<a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/Nagios/{{ hostname }}/{{ check }}/'+datasources[datasource]+'/"> '+datasources[datasource]+'</a>'
 		                    $('#ul_{{ forloop.counter }}').append(
 		                       $('<li></li>').append(
 		                         $('<span></span>').attr({'className':'datasource'}).html(link)
@@ -152,14 +155,14 @@
           {% if tree_sitebdii %}
           <li class='{{ collapse.bdii_site|default:"closed" }}'>
             <span class="folder"> 
-              <a target="frame" href="/gstat/site/{{ site_name }}/bdii_site/all/all/"> Site BDII </a>
+              <a target="frame" onClick="setSRC(this.href);" href="/gstat/site/{{ site_name }}/bdii_site/all/all/"> Site BDII </a>
             </span>
             <ul>
               {% for hostname,checks in tree_sitebdii %}
               
               <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
                 <span class="ce">
-                  <a target="frame" href="/gstat/site/{{ site_name }}/bdii_site/{{ hostname }}/all/"> {{ hostname }}</a>
+                  <a target="frame" onClick="setSRC(this.href);" href="/gstat/site/{{ site_name }}/bdii_site/{{ hostname }}/all/"> {{ hostname }}</a>
                   <a href="/gstat/ldap#ldap://{{ hostname }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Site BDII"/> </a>
                 </span>
                 <ul>
@@ -167,13 +170,13 @@
                   
                   <li class="closed">
                     <span class="validation">
-                      <a target="frame" href="/gstat/site/{{ site_name }}/bdii_site/{{ hostname }}/{{ check }}/"> {{ check }}</a>
+                      <a target="frame" onClick="setSRC(this.href);" href="/gstat/site/{{ site_name }}/bdii_site/{{ hostname }}/{{ check }}/"> {{ check }}</a>
                     </span>
                     <ul id="ul_{{ forloop.counter }}">
                       <script>
 		                var datasources = DataSources("{{ check }}");
 		                for (datasource in datasources) {
-		                    var link = '<a target="frame" href="/gstat/rrd/Nagios/{{ hostname }}/{{ check }}/'+datasources[datasource]+'/"> '+datasources[datasource]+'</a>'
+		                    var link = '<a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/Nagios/{{ hostname }}/{{ check }}/'+datasources[datasource]+'/"> '+datasources[datasource]+'</a>'
 		                    $('#ul_{{ forloop.counter }}').append(
 		                       $('<li></li>').append(
 		                         $('<span></span>').attr({'className':'datasource'}).html(link)
@@ -204,7 +207,7 @@
                 {% if tree_cluster_cpu %}
                 <li class='{% firstof collapse.cluster collapse.subcluster_cpu "closed" %}'>
                   <span class="folder">
-                  <a target="frame" href="/gstat/rrd/Site/{{ site_name }}/cpu/"> CPU Numbers </a>
+                  <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/Site/{{ site_name }}/cpu/"> CPU Numbers </a>
                   </span>
                   <ul>
                     {% for cluster,subclusters in tree_cluster_cpu %}
@@ -212,7 +215,7 @@
                     <li class='{{ collapse.subcluster_cpu|default:"closed" }}'>
                       <span class="ce"> <a class="disable" href='javascript:void(0)'> {{ cluster }} </a>
                         {% if tree_sitebdii %}
-                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueCluster entity"/> </a>
+                          <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueCluster entity"/> </a>
                         {% endif %}
                       </span>
                       <ul>
@@ -222,9 +225,9 @@
 		                    {% for subcluster in subclusters %}
 		                    <li>
 		                      <span class="ce">
-		                        <a target="frame" href="/gstat/rrd/SubCluster/{{ subcluster }}/cpu/"> {{ subcluster }}</a>
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/SubCluster/{{ subcluster }}/cpu/"> {{ subcluster }}</a>
 		                        {% if tree_sitebdii %}
-		                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesubclusteruniqueid={{ subcluster }},glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSubCluster entity"/> </a>
+		                          <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesubclusteruniqueid={{ subcluster }},glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSubCluster entity"/> </a>
 		                        {% endif %}
 		                      </span>
 		                    </li>
@@ -242,16 +245,16 @@
                 {% if tree_cluster_job %}
                 <li class='closed'>
                   <span class="folder"> 
-                    <a target="frame" href="/gstat/rrd/Site/{{ site_name }}/job/"> Job Numbers </a>
+                    <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/Site/{{ site_name }}/job/"> Job Numbers </a>
                   </span>
                   <ul>
                     {% for cluster,vos in tree_cluster_job %}
                     
                     <li class='closed'>
                       <span class="ce">
-                        <a target="frame" href="/gstat/rrd/Cluster/{{ cluster }}/job/"> {{ cluster }}</a>
+                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/Cluster/{{ cluster }}/job/"> {{ cluster }}</a>
                         {% if tree_sitebdii %}
-                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueCluster entity"/> </a>
+                          <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueCluster entity"/> </a>
                         {% endif %}
                       </span>
                       <ul>
@@ -261,9 +264,9 @@
 		                    {% for vo,ce,voview in vos %}
 		                    <li>
 		                      <span class="vo">
-		                        <a target="frame" href="/gstat/rrd/VOCluster/{{ vo }}/{{ cluster }}/job/"> {{ vo }}</a>
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOCluster/{{ vo }}/{{ cluster }}/job/"> {{ vo }}</a>
 		                        {% if tree_sitebdii %}
-		                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluevoviewlocalid={{ voview }},glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueVOView entity"/> </a>
+		                          <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluevoviewlocalid={{ voview }},glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueVOView entity"/> </a>
 		                        {% endif %}
 		                      </span>
 		                    </li>
@@ -291,15 +294,15 @@
               
                 <li class='{% firstof collapse.se collapse.se_online "closed" %}'>
                   <span class="folder">
-                    <a target="frame" href="/gstat/rrd/Site/{{ site_name }}/online/"> Online Storage </a>
+                    <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/Site/{{ site_name }}/online/"> Online Storage </a>
                   </span>
                   <ul>
                     {% for se,vos in tree_se %}
                     <li class='closed'>
                       <span class="se">
-                        <a target="frame" href="/gstat/rrd/SE/{{ se }}/online/"> {{ se }}</a>
+                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/SE/{{ se }}/online/"> {{ se }}</a>
                         {% if tree_sitebdii %}
-                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSE entity"/> </a>
+                          <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSE entity"/> </a>
                         {% endif %}
                       </span>
                       <ul>
@@ -309,9 +312,9 @@
 		                    {% for vo,sa in vos %}
 		                    <li>
 		                      <span class="vo">
-		                        <a target="frame" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/online/"> {{ vo }}</a>
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/online/"> {{ vo }}</a>
 		                        {% if tree_sitebdii %}
-		                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
+		                          <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                        {% endif %}
 		                      </span>
 		                    </li>
@@ -326,15 +329,15 @@
                 
                 <li class='{{ collapse.se_nearline|default:"closed" }}'>
                   <span class="folder">
-                    <a target="frame" href="/gstat/rrd/Site/{{ site_name }}/nearline/"> Nearline Storage </a>
+                    <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/Site/{{ site_name }}/nearline/"> Nearline Storage </a>
                   </span>
                   <ul>
                     {% for se,vos in tree_se %}
                     <li class='closed'>
                       <span class="se">
-                        <a target="frame" href="/gstat/rrd/SE/{{ se }}/nearline/"> {{ se }}</a>
+                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/SE/{{ se }}/nearline/"> {{ se }}</a>
                         {% if tree_sitebdii %}
-                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSE entity"/> </a>
+                          <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid" > <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSE entity"/> </a>
                         {% endif %}
                       </span>
                       <ul>
@@ -344,9 +347,9 @@
 		                    {% for vo,sa in vos %}
 		                    <li>
 		                      <span class="vo">
-		                        <a target="frame" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/nearline/"> {{ vo }}</a>
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/nearline/"> {{ vo }}</a>
 		                        {% if tree_sitebdii %}
-		                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
+		                          <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                        {% endif %}
 		                      </span>
 		                    </li>
@@ -376,7 +379,7 @@
                     <li>
                       <span class="ce"> <a class="disable" href='javascript:void(0)'> {{ uniqueid }} </a>
                         {% if tree_sitebdii %}
-                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=glueserviceuniqueid={{ uniqueid }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueService entity"/> </a>
+                          <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=glueserviceuniqueid={{ uniqueid }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueService entity"/> </a>
                         {% endif %}
                       </span>
                     </li>
@@ -402,15 +405,15 @@
                       <ul>
                         <li class='{{ collapse.vo_job|default:"closed" }}'>
                           <span class="folder"> 
-                            <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/job/"> Grid Jobs </a>
+                            <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/job/"> Grid Jobs </a>
                           </span>
                           <ul>
 		                    {% for cluster,ce,voview in clusters %}
 		                    <li>
 		                      <span class="ce">
-		                        <a target="frame" href="/gstat/rrd/VOCluster/{{ vo }}/{{ cluster }}/job/"> {{ cluster }}</a>
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOCluster/{{ vo }}/{{ cluster }}/job/"> {{ cluster }}</a>
 		                        {% if tree_sitebdii %}
-		                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluevoviewlocalid={{ voview }},glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueVOView entity"/> </a>
+		                          <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluevoviewlocalid={{ voview }},glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueVOView entity"/> </a>
 		                        {% endif %}
 		                      </span>
 		                    </li>
@@ -427,15 +430,15 @@
                       <ul>
                         <li class='{{ collapse.vo_online|default:"closed" }}'>
                           <span class="folder"> 
-                            <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/online/"> Online Storage </a>
+                            <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/online/"> Online Storage </a>
                           </span>
                           <ul>
 		                    {% for se,sa in ses %}
 		                    <li>
 		                      <span class="se">
-		                        <a target="frame" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/online/"> {{ se }}</a>
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/online/"> {{ se }}</a>
 		                        {% if tree_sitebdii %}
-		                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
+		                          <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                        {% endif %}
 		                      </span>
 		                    </li>
@@ -444,15 +447,15 @@
                         </li>
                         <li class='{{ collapse.vo_nearline|default:"closed" }}'>
                           <span class="folder">
-                          <a target="frame" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/nearline/"> Nearline Storage </a>
+                          <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/nearline/"> Nearline Storage </a>
                           </span>
                           <ul>
 		                    {% for se,sa in ses %}
 		                    <li>
 		                      <span class="se">
-		                        <a target="frame" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/nearline/"> {{ se }}</a>
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/nearline/"> {{ se }}</a>
 		                        {% if tree_sitebdii %}
-		                          <a target="frame" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
+		                          <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                        {% endif %}
 		                      </span>
 		                    </li>
