@@ -116,7 +116,7 @@
               <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
                 <span class="ce">
                   <a target="frame" onClick="setSRC(this.href);" href="/gstat/site/{{ site_name }}/bdii_top/{{ hostname }}/all/"> {{ hostname }}</a>
-                  <a href="/gstat/ldap#ldap://{{ hostname }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Top BDII"/> </a>
+                  <a onClick="window.open(this.href, '_self');" href="/gstat/ldap#ldap://{{ hostname }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Top BDII"/> </a>
                 </span>
                 <ul>
                   {% for check in checks %}
@@ -163,7 +163,7 @@
               <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
                 <span class="ce">
                   <a target="frame" onClick="setSRC(this.href);" href="/gstat/site/{{ site_name }}/bdii_site/{{ hostname }}/all/"> {{ hostname }}</a>
-                  <a href="/gstat/ldap#ldap://{{ hostname }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Site BDII"/> </a>
+                  <a onClick="window.open(this.href, '_self');" href="/gstat/ldap#ldap://{{ hostname }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Site BDII"/> </a>
                 </span>
                 <ul>
                   {% for check in checks %}
