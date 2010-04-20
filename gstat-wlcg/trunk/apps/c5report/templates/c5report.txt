@@ -1,0 +1,68 @@
+Service Level Reports:
+======================
+
+Creation date: {{ date }}
+
+LCG service:
+------------
+
+LCG deployment:
+- Total number of Sites (1): {{ total_number_sites }}
+
+- Status -> Num. Sites (1):
+ ok            : {{ sites_ok|rjust:"5" }}
+ degraded      : {{ sites_degraded|rjust:"5" }}
+ down          : {{ sites_down|rjust:"5" }}
+ maintenance   : {{ sites_maint|rjust:"5" }}
+ not available : {{ sites_na|rjust:"5" }}
+
+- Software -> Num. Sites (2):
+ gLite 3.2.0 -> {{ sites_glite32 }}
+ gLite 3.1.0 -> {{ sites_glite31 }}
+
+- Number of jobs executed last month, {{ jobs_last_month_monthName }} {{ jobs_last_month_yearNumber }} (3): {{ jobs_last_month }}
+
+- Number of jobs executed since the beginning of this month, {{ jobs_this_month_monthName }} {{ jobs_this_month_yearNumber }} (3): {{ jobs_this_month }}
+
+- Number of sites running CREAM CEs (4): {{ sites_cream_ces }}
+
+- Number of CREAM CEs deployed (5): {{ cream_ces_deployed }}
+
+- Number of LCG-CEs deployed (6): {{ lcg_ces_deployed }}
+
+- Number of CEs and CREAM-CEs supporting MPI (7): {{ ces_mpi }}
+
+- Installed Capacity (8):
+
+{{ "OSName Version"|ljust:"15" }}{{ "SubClusters"|rjust:"15" }}{{ "Logical CPUs"|rjust:"15" }}{{ "Total SI2000"|rjust:"15" }}
+{% for row in ic_per_os %}{{ row.0|ljust:"15" }}{{ row.1|rjust:"15" }}{{ row.2|rjust:"15" }}{{ row.3|rjust:"15" }}
+{% endfor %}
+
+-------------------------------------------------
+Notes:
+-------------------------------------------------
+(1) Sites that are Certified, in Production and that have been monitored
+   by SAM during the last week under OPS credentials.
+   SAM is available at: https://lcg-sam.cern.ch:8443/sam/sam.py
+   To see this page one needs a grid certificate loaded in the browser.
+   The calculation of the Site availability (Status) is described at:
+   https://cern.ch/twiki/pub/LCG/GridView/Gridview_Service_Availability_Computation.pdf
+
+(2) Software version is coming from the 'CE-sft-softver' CE test. Sites
+   not supporting SAM 'CE' service, or not having sent results for this
+   particular test during the last week, are not counted.
+
+(3) Job statistics taken from EGEE Accounting Portal:
+    http://www3.egee.cesga.es/
+
+(4) Extracted from GStat 2.0.
+
+(5) Extracted from GStat 2.0. It can be checked with:
+    ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=grid '(&(objectClass=GlueCE)(GlueCEImplementationName=CREAM))' | grep 'dn: GlueCEUniqueID' | wc -l
+
+(6) Extracted from GStat 2.0. It can be checked with:
+    ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=grid '(&(objectClass=GlueCE)(GlueCEImplementationName=LCG-CE))' | grep 'dn: GlueCEUniqueID' | wc -l
+
+(7) SAM DB Query
+
+(8) Extracted from GStat 2.0.
