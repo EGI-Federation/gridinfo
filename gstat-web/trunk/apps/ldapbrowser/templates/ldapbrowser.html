@@ -26,34 +26,33 @@
 	loader.insert();
 	
 	$(document).ready(function() {
-	    main_centeriser = parseInt( $("#main-centeriser").height() );
-	    header = parseInt( $("#header").height() );
-	    menu = parseInt( $("#menu").height() );
-	    //footer = parseInt( $("#footer").height() );
-	    footer = 0;
-	    proportion = parseInt( (main_centeriser - header - menu - footer) / main_centeriser * 100 );
+	    var main_centeriser = parseInt( $("#main-centeriser").height() );
+	    var header = parseInt( $("#header").height() );
+	    var menu = parseInt( $("#menu").height() );
+	    //var footer = parseInt( $("#footer").height() );
+	    var footer = 0;
+	    var proportion = parseInt( (main_centeriser - header - menu - footer) / main_centeriser * 100 );
 	    $("#content").css('height', proportion + '%');
 
-        content = parseInt( $("#content").height() );
-        breadcrumbs = parseInt( $("#breadcrumbs").height() );
+        var content = parseInt( $("#content").height() );
+        var breadcrumbs = parseInt( $("#breadcrumbs").height() );
         proportion = parseInt( (content - breadcrumbs) / content * 100 );
         $("#content-main").css('height', proportion + '%');
 
-        content_main = parseInt( $("#content-main").height() );
-        visiblecombo = parseInt( $("#visiblecombo").height() );
-        proportion = parseInt( (content_main - visiblecombo) / content_main * 100 );
+        var content_main = parseInt( $("#content-main").height() );
+        proportion = parseInt( (content_main - 10) / content_main * 100 );
         $("#layoutdiv").css('height', proportion + '%');
         
-        layoutdiv = parseInt( $("#layoutdiv").height() );
+        var layoutdiv = parseInt( $("#layoutdiv").height() );
         proportion = parseInt( (layoutdiv) / layoutdiv * 100 );
         $("#ldaptree").css('height', proportion + '%');
         $("#attributes").css('height', proportion + '%');        
         
-        ldaptree = parseInt( $("#ldaptree").height() );
+        var ldaptree = parseInt( $("#ldaptree").height() );
         proportion = parseInt( (ldaptree - 30) / ldaptree * 100 );
         $("#tree").css('height', proportion + '%');
         
-        attributes = parseInt( $("#attributes").height() );
+        var attributes = parseInt( $("#attributes").height() );
         proportion = parseInt( (attributes - 30) / attributes * 100 );
         $("#entrypage").css('height', proportion + '%');
 	});
@@ -75,8 +74,6 @@
 {% endblock %}
 
 {% block content-main %}
-
-    <div class="clear"></div> 
     
     <div id="layoutdiv">
     

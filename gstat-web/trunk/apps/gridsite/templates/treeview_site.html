@@ -21,7 +21,7 @@
 <script type="text/javascript" src="/media/core/scripts/jquery.jstree.js"></script>
 <script type="text/javascript">
     function changeSiteView(event) {
-        sitename = document.getElementById('sites').value;
+        var sitename = document.getElementById('sites').value;
         if (sitename != "-1")
             window.open('/gstat/site/' + sitename + '/treeview/', '_self');
     }
@@ -31,7 +31,7 @@
 	}
 	
 	$(document).ready(function(){
-	    sites = document.getElementById('sites');
+	    var sites = document.getElementById('sites');
         var site_name = '{{ site_name }}';
         sites.value = site_name;
         
@@ -48,28 +48,28 @@
 		    }
 		});
 		
-	    main_centeriser = parseInt( $("#main-centeriser").height() );
-	    header = parseInt( $("#header").height() );
-	    menu = parseInt( $("#menu").height() );
-	    //footer = parseInt( $("#footer").height() );
-	    footer = 0;
-	    proportion = parseInt( (main_centeriser - header - menu - footer) / main_centeriser * 100 );
+	    var main_centeriser = parseInt( $("#main-centeriser").height() );
+	    var header = parseInt( $("#header").height() );
+	    var menu = parseInt( $("#menu").height() );
+	    //var footer = parseInt( $("#footer").height() );
+	    var footer = 0;
+	    var proportion = parseInt( (main_centeriser - header - menu - footer) / main_centeriser * 100 );
 	    $("#content").css('height', proportion + '%');
 
-        content = parseInt( $("#content").height() );
-        breadcrumbs = parseInt( $("#breadcrumbs").height() );
+        var content = parseInt( $("#content").height() );
+        var breadcrumbs = parseInt( $("#breadcrumbs").height() );
         proportion = parseInt( (content - breadcrumbs) / content * 100 );
         $("#content-main").css('height', proportion + '%');
         
-        content_main = parseInt( $("#content-main").height() );
+        var content_main = parseInt( $("#content-main").height() );
         proportion = parseInt( (content_main - 10) / content_main * 100 );
         $("#layoutdiv").css('height', proportion + '%');
         
-        left_board = parseInt( $("#left-board").height() );
+        var left_board = parseInt( $("#left-board").height() );
         proportion = parseInt( (left_board - 30) / left_board * 100 );
         $("#treediv").css('height', proportion + '%');
         
-        right_board = parseInt( $("#right-board").height() );
+        var right_board = parseInt( $("#right-board").height() );
         proportion = parseInt( (right_board - 30) / right_board * 100 );
         $("#frame").css('height', proportion + '%');
 	});

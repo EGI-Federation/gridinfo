@@ -33,7 +33,7 @@ function init(){
 	/* Adding layers
 	/*********************************/
 	// Attribution
-	attribution = 'Provided by <a href="https://svnweb.cern.ch/trac/gridinfo/">GStat 2.0</a>';
+	var attribution = 'Provided by <a href="https://svnweb.cern.ch/trac/gridinfo/">GStat 2.0</a>';
 
     // OpenLayer WMS
     var olwms = new OpenLayers.Layer.WMS( "OpenLayers",

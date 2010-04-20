@@ -55,11 +55,11 @@
     <div style='height: 400px;' id="blank"></div>
     <script type="text/javascript">
 		function changeFilterValue() {
-			kmllink = document.getElementById('kmllink');
-			kmlurl = "/gstat/geo/kml/" + combotype.getActualValue() + '/' + combovalue.getActualValue();
+			var kmllink = document.getElementById('kmllink');
+			var kmlurl = "/gstat/geo/kml/" + combotype.getActualValue() + '/' + combovalue.getActualValue();
 			kmllink.pathname = kmlurl;
-            map = new google.maps.Map(document.getElementById('map_canvas'), myOptions);
-	        geoXml = new geoXML3.parser({map: map, zoom: false});
+            var map = new google.maps.Map(document.getElementById('map_canvas'), myOptions);
+	        var geoXml = new geoXML3.parser({map: map, zoom: false});
 			geoXml.parse(kmlurl);
 		}
     </script>

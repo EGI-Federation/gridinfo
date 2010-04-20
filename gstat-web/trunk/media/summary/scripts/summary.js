@@ -66,20 +66,20 @@ jQuery.fn.dataTableExt.oSort['status-desc'] = function(a,b) {
 };
 
 function changeFilterValue(event) {
-    filtertype = document.getElementById('filtertype').value;
-    filtervalue = document.getElementById('filtervalue').value;
+    var filtertype = document.getElementById('filtertype').value;
+    var filtervalue = document.getElementById('filtervalue').value;
     window.location.href = '/gstat/summary/' + filtertype + '/' + encodeURIComponent(filtervalue);
 }
 
 function directToSiteView(event) {
-    sitename = document.getElementById('sites').value;
+    var sitename = document.getElementById('sites').value;
     if (sitename != "-1")
         window.open('/gstat/site/' + sitename, '_self');
 }
 
 function loadTable(event) {
-    filtertype = document.getElementById('filtertype').value;
-    filtervalue = document.getElementById('filtervalue').value;
+    var filtertype = document.getElementById('filtertype').value;
+    var filtervalue = document.getElementById('filtervalue').value;
     
     var oTable;
     var theads = $('#single_table > thead');
@@ -247,12 +247,12 @@ function loadTable(event) {
 
 
 function changeTooltip() {
-    totalonline = document.getElementById('totalonline');
+    var totalonline = document.getElementById('totalonline');
     totalonline.title = "header=[How does GStat calculate it?] body=[The sum of TotalOnlineSize over all SAs]";
-    usedonline = document.getElementById('usedonline');
+    var usedonline = document.getElementById('usedonline');
     usedonline.title = "header=[How does GStat calculate it?] body=[Divide the sum of UsedOnlineSize over all SAs by the sum of TotalOnlineSize over all SAs]";
-    totalnearline = document.getElementById('totalnearline');
+    var totalnearline = document.getElementById('totalnearline');
     totalnearline.title = "header=[How does GStat calculate it?] body=[The sum of TotalNearlineSize over all SAs]";
-    usednearline = document.getElementById('usednearline');
+    var usednearline = document.getElementById('usednearline');
     usednearline.title = "header=[How does GStat calculate it?] body=[Divide the sum of UsedNearlineSize over all SAs by the sum of TotalNearlineSize over all SAs]";
 }

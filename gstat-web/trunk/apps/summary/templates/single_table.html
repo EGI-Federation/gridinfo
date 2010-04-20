@@ -34,7 +34,7 @@ $(document).ready(function() {
     if (url.split("/").length == 2) $('#sites_or_status').text('Status');
     else $('#sites_or_status').text('Sites'); 
     
-    filtertype = document.getElementById('filtertype')
+    var filtertype = document.getElementById('filtertype')
     filtertype.value = "{{ type }}";
     if (filtertype.value=="VO") 
         changeTooltip();
@@ -45,7 +45,7 @@ $(document).ready(function() {
         alert("Unable to get JSON data:\n" + msg);
         return;
     }
-    filtervalue = document.getElementById('filtervalue')
+    var filtervalue = document.getElementById('filtervalue')
     filtervalue.value = "{{ value }}";
 
     loadTable();

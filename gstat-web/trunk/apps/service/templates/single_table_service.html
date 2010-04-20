@@ -24,7 +24,7 @@ a:hover {text-decoration: underline;}
 <script type="text/javascript" charset="utf-8">
 
 $(document).ready(function() {
-        services = document.getElementById('services');
+        var services = document.getElementById('services');
         services.value = '{{ type|default:"-1" }}';
 
         // dataTable script initialization using jQuery selectors

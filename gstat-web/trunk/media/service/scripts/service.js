@@ -27,7 +27,7 @@ jQuery.fn.dataTableExt.oSort['status-desc'] = function(a,b) {
 };
 
 function changeServiceView(event) {
-    service_type = document.getElementById('services').value;
+    var service_type = document.getElementById('services').value;
     if (service_type != "-1")
         window.open('/gstat/service/' + service_type, '_self')
 }

@@ -17,10 +17,10 @@ function setText (id, percent)
 
 /************************************************************/
 function display ( total, used )
-{	if (total=='N/A' || used=='N/A') {
-        percentage = 0;
-        color = 5;
-    } else {
+{	
+    var percentage = 0;
+    var color = 5;
+    if (total!='N/A' && used!='N/A') {
         total = parseInt(total);
         used  = parseInt(used);
 	    if (total != 0) percentage = parseInt(used * 100 / total);
@@ -47,8 +47,9 @@ function display ( total, used )
 
 function display_string( total, used, type)
 {	
+    var percentage = 0;
+    var color = 5;
     if (total != 0) percentage = parseInt(used * 100 / total);
-    else            percentage = 0;
 
     if (type == "usedonline") {
         if      (percentage < 0)   color = "2"; //yellow
