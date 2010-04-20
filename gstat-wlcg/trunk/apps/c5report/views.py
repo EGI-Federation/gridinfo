@@ -172,10 +172,17 @@ def getData():
     cursor.execute("SELECT COUNT(*) FROM glue_gluece ce WHERE ce.implementationname='LCG-CE';")
     lcg_ces_deployed = int(cursor.fetchall()[0][0])
     
-    # 7. Number of CEs and CREAM-CEs supporting MPI
-    # Extracted from SAM API
+    # 7.a Number of sites supporting MPI
+    # Before, extracted from SAM API:
     # http://lcg-sam.cern.ch:8080/reports/lcg_deployment_C5.xsql
-    ces_mpi = doc.xpathEval("/LCG_DEPLOYMENT/LCG_CEs_and_CREAM_CEs_SUPPORTING_MPI/VALUE/TOTAL_CES")[0].content
+    #ces_mpi = doc.xpathEval("/LCG_DEPLOYMENT/LCG_CEs_and_CREAM_CEs_SUPPORTING_MPI/VALUE/TOTAL_CES")[0].content
+    # Extracted from GStat 2.0
+    cursor.execute("SELECT COUNT(*) FROM glue_gluemultivalued mv, glue_gluecluster cluster, glue_gluesite site WHERE mv.attribute = 'GlueHostApplicationSoftwareRunTimeEnvironment' and mv.value = 'MPI-START' and mv.uniqueid = cluster.uniqueid and cluster.gluesite_fk = site.uniqueid;")
+    sites_mpi = int(cursor.fetchall()[0][0])
+
+    # 7.b Number of logical CPUs supporting MPI
+    cursor.execute("SELECT SUM(subcluster.logicalcpus) FROM glue_gluemultivalued mv, glue_gluesubcluster subcluster WHERE mv.attribute = 'GlueHostApplicationSoftwareRunTimeEnvironment' and mv.value = 'MPI-START' and mv.uniqueid = subcluster.uniqueid;")
+    logical_cpus_mpi = int(cursor.fetchall()[0][0])
 
     # 8. Installed Capacity per OS
     # Extracted from GStat 2.0.
@@ -192,7 +199,6 @@ def getData():
               'RedHatEnterpriseServer']
 
     for row in cursor.fetchall():
-        key = ''
         os = row[0]
         ver = row[1]
         if ver.find('.') != -1:
@@ -200,11 +206,11 @@ def getData():
         logicalcpus = int(row[2])
         si2000 = logicalcpus * int(row[3])
 
+        key = ''
         if os in normalOS:
             key = os+' '+ver
         elif os in rhelOS and ver != '':
             key = 'RHEL ' + ver + ' Compat'
-
         if key != '':
             if temp.has_key(key):
                 tempkey = temp[key]
@@ -242,5 +248,6 @@ def getData():
             'sites_cream_ces': sites_cream_ces,
             'cream_ces_deployed': cream_ces_deployed,
             'lcg_ces_deployed': lcg_ces_deployed,
-            'ces_mpi': ces_mpi,
+            'sites_mpi': sites_mpi,
+            'logical_cpus_mpi': logical_cpus_mpi,
             'ic_per_os': ic_per_os}

@@ -30,7 +30,9 @@ LCG deployment:
 
 - Number of LCG-CEs deployed (6): {{ lcg_ces_deployed }}
 
-- Number of CEs and CREAM-CEs supporting MPI (7): {{ ces_mpi }}
+- Number of sites supporting MPI (7): {{ sites_mpi }}
+
+- Number of logical CPUs supporting MPI (7): {{ logical_cpus_mpi }}
 
 - Installed Capacity (8):
 
@@ -63,6 +65,6 @@ Notes:
 (6) Extracted from GStat 2.0. It can be checked with:
     ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=grid '(&(objectClass=GlueCE)(GlueCEImplementationName=LCG-CE))' | grep 'dn: GlueCEUniqueID' | wc -l
 
-(7) SAM DB Query
+(7) Extracted from GStat 2.0.
 
 (8) Extracted from GStat 2.0.

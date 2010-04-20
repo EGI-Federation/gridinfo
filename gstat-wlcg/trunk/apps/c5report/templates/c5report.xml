@@ -47,10 +47,14 @@
     <value>{{ lcg_ces_deployed }}</value>
     <note>Number of LCG-CEs deployed</note>
   </lcg_ces_deployed>
-  <ces_mpi>
-    <value>{{ ces_mpi }}</value>
-    <note>Number of CEs and CREAM-CEs supporting MPI</note>
-  </ces_mpi>
+  <sites_mpi>
+    <value>{{ sites_mpi }}</value>
+    <note>Number of sites supporting MPI</note>
+  </sites_mpi>
+  <logical_cpus_mpi>
+    <value>{{ logical_cpus_mpi }}</value>
+    <note>Number of logical CPUs supporting MPI</note>
+  </logical_cpus_mpi>
 </software>
 <statistics>
   <jobs_this_month>
