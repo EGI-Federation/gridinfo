@@ -16,7 +16,7 @@ function expandRow(rowID, clickRow) {
 function ErrorsToTable(str) {   
     var elements=str.split("\n");
     document.write('<table cellspacing="1" cellpadding="0" border="0" class="tablesorter">');
-    for(i=0;i<elements.length-1;i++) {
+    for(var i=0;i<elements.length-1;i++) {
       //table is begun outside the script, but need to open a table row 
       //for the first array item (elements[0]) OR for the fifth, ninth, etc.
       if(i==0) { document.write("<tr>"); }

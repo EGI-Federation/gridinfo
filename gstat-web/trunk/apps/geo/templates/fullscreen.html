@@ -28,9 +28,9 @@
         <div id="map"></div>
 	    <script type="text/javascript">
 		    function update() {
-	            kmlurl = "{{kml}}";
+	            var kmlurl = "{{kml}}";
 	            map.removeLayer(sundials);
-	            sundials = new OpenLayers.Layer.Vector("The Grid", {
+	            var sundials = new OpenLayers.Layer.Vector("The Grid", {
 	                projection: map.displayProjection,
 	                strategies: [new OpenLayers.Strategy.Fixed()],
 	                protocol: new OpenLayers.Protocol.HTTP({

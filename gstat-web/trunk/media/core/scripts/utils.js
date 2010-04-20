@@ -1,14 +1,14 @@
 
 function CommaFormatted(amount)
 {   
-    var isInt=parseInt(amount);
+    var isInt = parseInt(amount);
     if (isNaN(isInt)) return amount; 
     if (isInt == 0) return 0;
     isInt=isInt.toString().replace(/^0+/, ''); 
 	isInt += '';
-	x = isInt.split('.');
-	x1 = x[0];
-	x2 = x.length > 1 ? '.' + x[1] : '';
+	var x = isInt.split('.');
+	var x1 = x[0];
+	var x2 = x.length > 1 ? '.' + x[1] : '';
 	var rgx = /(\d+)(\d{3})/;
 	while (rgx.test(x1)) {
 		x1 = x1.replace(rgx, '$1' + ',' + '$2');
@@ -18,12 +18,12 @@ function CommaFormatted(amount)
 
 //To remove the comma for the variables
 function RemoveCommaFormatted(amount) {
-  amount= amount.replace(/,/g,"");
+  var amount = amount.replace(/,/g,"");
   return amount;
 }
 
 function TimeFormat(ms) {
-    var isInt=parseInt(ms);
+    var isInt = parseInt(ms);
     if (isNaN(isInt)) {
         document.write("N/A"); 
     } else {

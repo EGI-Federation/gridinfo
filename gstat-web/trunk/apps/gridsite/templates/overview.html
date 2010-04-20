@@ -24,13 +24,13 @@
 <script type="text/javascript" src="/media/core/scripts/percentbar_progress.js" ></script>
 <script>
     function changeSiteView(event) {
-        sitename = document.getElementById('sites').value;
+        var sitename = document.getElementById('sites').value;
         if (sitename != "-1")
             window.open('/gstat/site/' + sitename, '_self');
     }
     
     $(document).ready(function() { 
-        sites = document.getElementById('sites');
+        var sites = document.getElementById('sites');
         var site_name = '{{ site_name }}';
         sites.value = site_name;
         

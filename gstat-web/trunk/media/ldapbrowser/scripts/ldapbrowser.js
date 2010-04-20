@@ -22,7 +22,7 @@ function showNode(node, fnLoadComplete)  {
 		            if (idx == 0) {
 		                idx = Results[i].indexOf(node.label + ',');
 		            }
-                    label = Results[i].substring(0, idx-1);
+                    var label = Results[i].substring(0, idx-1);
                     var newNode = new YAHOO.widget.TextNode(label, node, false);
                     newNode.title = Results[i];
                 }
@@ -64,7 +64,7 @@ function showEntry(node, fnLoadComplete)  {
 
 /** Setup the tree when a host is selected */
 function buildTree() {
-    tree = new YAHOO.widget.TreeView("tree");
+    var tree = new YAHOO.widget.TreeView("tree");
     tree.setDynamicLoad(showNode, 1);
     var root = tree.getRoot();
     var rootNode = new YAHOO.widget.MenuNode("o=grid", root, true);
@@ -93,7 +93,7 @@ function updateTree(ldapRoute) {
 
 /** Builds a tree when a host is selected in the combobox */
 function selectHost(selectobj) {
-    selectedHost = selectobj.options[selectobj.selectedIndex].value;
+    var selectedHost = selectobj.options[selectobj.selectedIndex].value;
     var urltext = document.getElementById('urltext');
     urltext.value = selectedHost;
     window.location.hash ='#' + selectedHost;
@@ -104,7 +104,7 @@ function selectHost(selectobj) {
 /** Builds a tree when a host is typed manually */
 function inputHost() {
     var urltext = document.getElementById('urltext');
-    selectedHost = urltext.value;
+    var selectedHost = urltext.value;
     var hosts = document.getElementById('hosts');
     hosts.selectedIndex = 0;
     window.location.hash ='#' + urltext;
@@ -118,7 +118,7 @@ function init() {
         var hash = window.location.hash;
         var num = hash.indexOf('//');
         num = hash.indexOf('/', num + 2);
-        selectedHost = hash.substring(1, num + 1);
+        var selectedHost = hash.substring(1, num + 1);
         document.getElementById('urltext').value = selectedHost;
         var ldapRoute = hash.substring(num + 1, hash.length);
         buildTree();

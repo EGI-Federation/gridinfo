@@ -55,14 +55,14 @@
 	</div>
     <script type="text/javascript">
         function changeFilterValue(event) {
-            filtertype = document.getElementById('filtertype');
-            filtervalue = document.getElementById('filtervalue');
+            var filtertype = document.getElementById('filtertype');
+            var filtervalue = document.getElementById('filtervalue');
             if (filtertype.value == 'none') {
                 while (filtervalue.length > 0) {
 			        filtervalue.remove(0);
 			    }
 			    map.removeLayer(sundials);
-	            sundials = new OpenLayers.Layer.Vector("The Grid");
+	            var sundials = new OpenLayers.Layer.Vector("The Grid");
 	            map.addLayer(sundials);
             } else {
             	updateFullScreenLink();
@@ -70,7 +70,7 @@
 	            var kmlurl = "/gstat/geo/kml/" + filtertype.value + '/' + filtervalue.value;
 	            kmllink.href = kmlurl;
 	            map.removeLayer(sundials);
-	            sundials = new OpenLayers.Layer.Vector("The Grid", {
+	            var sundials = new OpenLayers.Layer.Vector("The Grid", {
 	                projection: map.displayProjection,
 	                strategies: [new OpenLayers.Strategy.Fixed()],
 	                protocol: new OpenLayers.Protocol.HTTP({
@@ -82,7 +82,7 @@
 	                })
 	            });
 	            map.addLayer(sundials);
-			    select = new OpenLayers.Control.SelectFeature(sundials);
+			    var select = new OpenLayers.Control.SelectFeature(sundials);
 			    sundials.events.on({
 			        "featureselected": onFeatureSelect,
 			        "featureunselected": onFeatureUnselect
@@ -97,14 +97,14 @@
 
         function changeOverlayType(event) {
 	        updateFullScreenLink();
-            overlaytype = document.getElementById('overlaytype').value;
+            var overlaytype = document.getElementById('overlaytype').value;
             if (overlaytype == 'filters') {
                 var max = map.popups.length;
 			    for (var i=max-1; i>=0; i--) {
 			        map.removePopup(map.popups[i]);
 			    }
             } else {
-	            url = '/gstat/geo/overlay/' + overlaytype;
+	            var url = '/gstat/geo/overlay/' + overlaytype;
 	            var Y = YUI();
 	            var objTransaction = Y.Get.script(url,
 	                                                { onSuccess: function() {
