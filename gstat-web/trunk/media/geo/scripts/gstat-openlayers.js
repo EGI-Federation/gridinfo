@@ -109,13 +109,13 @@ function onFeatureSelect(event) {
     );
     popup.panMapIfOutOfView = false;
     feature.popup = popup;
-    map.addPopup(popup);
+    window.map.addPopup(popup);
 }
 
 function onFeatureUnselect(event) {
     var feature = event.feature;
     if(feature.popup) {
-        map.removePopup(feature.popup);
+        window.map.removePopup(feature.popup);
         feature.popup.destroy();
         delete feature.popup;
     }
@@ -131,16 +131,16 @@ function changeFilterValue(event) {
         while (filtervalue.length > 0) {
 	        filtervalue.remove(0);
 	    }
-	    map.removeLayer(sundials);
-        sundials = new OpenLayers.Layer.Vector("The Grid");
-        map.addLayer(sundials);
+	    window.map.removeLayer(window.sundials);
+        window.sundials = new OpenLayers.Layer.Vector("The Grid");
+        window.map.addLayer(window.sundials);
     } else {
     	updateFullScreenLink();
         var kmllink = document.getElementById('kmllink');
         var kmlurl = "/gstat/geo/kml/" + filtertype.value + '/' + filtervalue.value;
         kmllink.href = kmlurl;
-        map.removeLayer(sundials);
-        sundials = new OpenLayers.Layer.Vector("The Grid", {
+        window.map.removeLayer(window.sundials);
+        window.sundials = new OpenLayers.Layer.Vector("The Grid", {
             projection: map.displayProjection,
             strategies: [new OpenLayers.Strategy.Fixed()],
             protocol: new OpenLayers.Protocol.HTTP({
@@ -151,14 +151,14 @@ function changeFilterValue(event) {
                 })
             })
         });
-        map.addLayer(sundials);
-	    select = new OpenLayers.Control.SelectFeature(sundials);
-	    sundials.events.on({
+        window.map.addLayer(window.sundials);
+	    window.select = new OpenLayers.Control.SelectFeature(window.sundials);
+	    window.sundials.events.on({
 	        "featureselected": onFeatureSelect,
 	        "featureunselected": onFeatureUnselect
 	    });
-	    map.addControl(select);
-	    select.activate();
+	    window.map.addControl(window.select);
+	    window.select.activate();
     }
     window.location.hash ='#/' + encodeURIComponent(filtertype.value) +
                           '/' + encodeURIComponent(filtervalue.value);
@@ -169,9 +169,9 @@ function changeOverlayType(event) {
     updateFullScreenLink();
     var overlaytype = document.getElementById('overlaytype').value;
     if (overlaytype == 'filters') {
-        var max = map.popups.length;
+        var max = window.map.popups.length;
 	    for (var i=max-1; i>=0; i--) {
-	        map.removePopup(map.popups[i]);
+	        window.map.removePopup(map.popups[i]);
 	    }
     } else {
         var url = '/gstat/geo/overlay/' + overlaytype;
