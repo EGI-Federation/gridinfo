@@ -31,28 +31,6 @@
     <script src="/media/geo/scripts/gstat-openlayers.js" type="text/javascript"></script>
     <script src="http://yui.yahooapis.com/3.0.0/build/yui/yui-min.js"></script>
     <script src="/media/core/scripts/jquery.address-1.0.min.js"></script>
-{% endblock %}
-
-{% block bodyparams %}onload="init()"{% endblock %}
-
-{% block content-main %}
-    <div id="all">
-	    <div id="map" class="smallmap"></div>
-	    <div id="rightcolumn">
-			<form>
-			    <strong>Select an overlay:</strong>
-			    <select id="overlaytype" onchange="changeOverlayType(event)">
-			        <option value="filters">None</option>
-			        <option value="egee-europe">EGEE in Europe</option>
-			    </select>
-			</form>
-	        <p>
-	            Other options:<br />
-	            <a id='fullscreenlink' href='/gstat/geo/openlayers/fullscreen' target="_blank">View it in Full Screen mode</a><br />
-	            <a id='kmllink' href='/gstat/geo/kml'>Download KML for this view</a>
-	        </p>
-	    </div>
-	</div>
     <script type="text/javascript">
         function changeFilterValue(event) {
             var filtertype = document.getElementById('filtertype');
@@ -62,7 +40,7 @@
 			        filtervalue.remove(0);
 			    }
 			    map.removeLayer(sundials);
-	            var sundials = new OpenLayers.Layer.Vector("The Grid");
+	            sundials = new OpenLayers.Layer.Vector("The Grid");
 	            map.addLayer(sundials);
             } else {
             	updateFullScreenLink();
@@ -70,7 +48,7 @@
 	            var kmlurl = "/gstat/geo/kml/" + filtertype.value + '/' + filtervalue.value;
 	            kmllink.href = kmlurl;
 	            map.removeLayer(sundials);
-	            var sundials = new OpenLayers.Layer.Vector("The Grid", {
+	            sundials = new OpenLayers.Layer.Vector("The Grid", {
 	                projection: map.displayProjection,
 	                strategies: [new OpenLayers.Strategy.Fixed()],
 	                protocol: new OpenLayers.Protocol.HTTP({
@@ -82,7 +60,7 @@
 	                })
 	            });
 	            map.addLayer(sundials);
-			    var select = new OpenLayers.Control.SelectFeature(sundials);
+			    select = new OpenLayers.Control.SelectFeature(sundials);
 			    sundials.events.on({
 			        "featureselected": onFeatureSelect,
 			        "featureunselected": onFeatureUnselect
@@ -144,4 +122,26 @@
         });
     /*]]>*/      
     </script>
+{% endblock %}
+
+{% block bodyparams %}onload="init()"{% endblock %}
+
+{% block content-main %}
+    <div id="all">
+	    <div id="map" class="smallmap"></div>
+	    <div id="rightcolumn">
+			<form>
+			    <strong>Select an overlay:</strong>
+			    <select id="overlaytype" onchange="changeOverlayType(event)">
+			        <option value="filters">None</option>
+			        <option value="egee-europe">EGEE in Europe</option>
+			    </select>
+			</form>
+	        <p>
+	            Other options:<br />
+	            <a id='fullscreenlink' href='/gstat/geo/openlayers/fullscreen' target="_blank">View it in Full Screen mode</a><br />
+	            <a id='kmllink' href='/gstat/geo/kml'>Download KML for this view</a>
+	        </p>
+	    </div>
+	</div>
 {% endblock %}
