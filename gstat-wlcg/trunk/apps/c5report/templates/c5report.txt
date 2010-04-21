@@ -1,42 +1,21 @@
 Service Level Reports:
 ======================
-
-Creation date: {{ date }}
-
 LCG service:
 ------------
-
-LCG deployment:
 - Total number of Sites (1): {{ total_number_sites }}
-
-- Status -> Num. Sites (1):
- ok            : {{ sites_ok|rjust:"5" }}
- degraded      : {{ sites_degraded|rjust:"5" }}
- down          : {{ sites_down|rjust:"5" }}
- maintenance   : {{ sites_maint|rjust:"5" }}
- not available : {{ sites_na|rjust:"5" }}
-
-- Software -> Num. Sites (2):
- gLite 3.2.0 -> {{ sites_glite32 }}
- gLite 3.1.0 -> {{ sites_glite31 }}
+- Sites per Status (1): ok {{ sites_ok }}, degraded {{ sites_degraded }}, down {{ sites_down }}, maintenance {{ sites_maint }}, not available {{ sites_na }}.
+- Sites per Software version (2): gLite 3.2.0 -> {{ sites_glite32 }}, gLite 3.1.0 -> {{ sites_glite31 }}.
 
 - Number of jobs executed last month, {{ jobs_last_month_monthName }} {{ jobs_last_month_yearNumber }} (3): {{ jobs_last_month }}
-
 - Number of jobs executed since the beginning of this month, {{ jobs_this_month_monthName }} {{ jobs_this_month_yearNumber }} (3): {{ jobs_this_month }}
-
 - Number of sites running CREAM CEs (4): {{ sites_cream_ces }}
-
 - Number of CREAM CEs deployed (5): {{ cream_ces_deployed }}
-
 - Number of LCG-CEs deployed (6): {{ lcg_ces_deployed }}
-
 - Number of sites supporting MPI (7): {{ sites_mpi }}
+- Number of logical CPUs supporting MPI (8): {{ logical_cpus_mpi }}
 
-- Number of logical CPUs supporting MPI (7): {{ logical_cpus_mpi }}
-
-- Installed Capacity (8):
-
-{{ "OSName Version"|ljust:"15" }}{{ "SubClusters"|rjust:"15" }}{{ "Logical CPUs"|rjust:"15" }}{{ "Total SI2000"|rjust:"15" }}
+- Installed Capacity (9):
+{{ "OS Name"|ljust:"15" }}{{ "SubClusters"|rjust:"15" }}{{ "Logical CPUs"|rjust:"15" }}{{ "Total SI2000"|rjust:"15" }}
 {% for row in ic_per_os %}{{ row.0|ljust:"15" }}{{ row.1|rjust:"15" }}{{ row.2|rjust:"15" }}{{ row.3|rjust:"15" }}
 {% endfor %}
 
@@ -57,7 +36,8 @@ Notes:
 (3) Job statistics taken from EGEE Accounting Portal:
     http://www3.egee.cesga.es/
 
-(4) Extracted from GStat 2.0.
+(4) Extracted from GStat 2.0. It can be checked by counting the sites that
+    have clusters which have CEs with GlueCEImplementationName=CREAM.
 
 (5) Extracted from GStat 2.0. It can be checked with:
     ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=grid '(&(objectClass=GlueCE)(GlueCEImplementationName=CREAM))' | grep 'dn: GlueCEUniqueID' | wc -l
@@ -65,6 +45,17 @@ Notes:
 (6) Extracted from GStat 2.0. It can be checked with:
     ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=grid '(&(objectClass=GlueCE)(GlueCEImplementationName=LCG-CE))' | grep 'dn: GlueCEUniqueID' | wc -l
 
-(7) Extracted from GStat 2.0.
+(7) Extracted from GStat 2.0. It can be checked by counting the sites that
+    have clusters which have sub clusters with
+    GlueHostApplicationSoftwareRunTimeEnvironment=MPI-START
 
-(8) Extracted from GStat 2.0.
+(8) Extracted from GStat 2.0. It can be checked by aggregating the logicalcpus
+    of sub clusters with GlueHostApplicationSoftwareRunTimeEnvironment=MPI-START
+
+(9) Extracted from GStat 2.0. We consider the following operating systems: AIX,
+    Debian, Ubuntu and SUSE LINUX. We also consider the following RHEL
+    Compatible system: CentOS, ScientificCERNSLC, ScientificSL,
+    RedHatEnterprise, ScientificSLF, ScientificSLE. If you need to address more
+    systems, please contact: project-grid-info-support@cern.ch
+
+Creation date in UTC: {{ date }}
