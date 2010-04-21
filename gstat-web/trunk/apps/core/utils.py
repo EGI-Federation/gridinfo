@@ -617,7 +617,7 @@ def get_status_for_sites(site_list):
         site_id = relation.subject.uniqueid
         if not site_bdii.has_key(site_id):
             site_bdii[site_id] = []
-            site_bdii[site_id].append(relation.object.hostname)
+        site_bdii[site_id].append(relation.object.hostname)
     data = {}
     for site in site_list:
         site_id = site.uniqueid
