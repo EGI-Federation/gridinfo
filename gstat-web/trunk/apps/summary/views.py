@@ -10,6 +10,7 @@ from topology.models import Entityrelationship
 from core.utils import *
 import time
 
+@cache_page(60 * 10)
 def main(request, type='GRID', value='ALL'):
     sites = sorted([site.uniqueid for site in Entity.objects.filter(type='Site')])
     return render_to_response('single_table.html', 

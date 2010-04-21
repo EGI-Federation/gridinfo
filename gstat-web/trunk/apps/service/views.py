@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404, render_to_response
+from django.views.decorators.cache import cache_page
 from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.utils import html
@@ -8,6 +9,7 @@ import gsutils
 import socket
 import sys
 
+@cache_page(60 * 10)
 def main(request, type='', output=None):
     services = {'bdii_top':  'Top BDII',
                 'bdii_site': 'Site BDII'}
@@ -54,6 +56,7 @@ def main(request, type='', output=None):
                                    'type':           type,
                                    'thead':          thead})
 
+@cache_page(60 * 10)
 def status(request, type_name, host_name, check_name):
     # Get testing results from TOP BDII    
     nagios_status = get_nagios_status_dict()   
@@ -88,7 +91,7 @@ def status(request, type_name, host_name, check_name):
 
     return render_to_response('status.html', {'status_list' : status_list})
 
-
+@cache_page(60 * 10)
 def treeview(request, type, uniqueid=""):
     services = {'bdii_top':  'Top BDII',
                 'bdii_site': 'Site BDII'}

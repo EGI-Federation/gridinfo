@@ -1,4 +1,5 @@
 from django.shortcuts import get_object_or_404, render_to_response
+from django.views.decorators.cache import cache_page
 from django.http import HttpResponse, Http404
 from django.core.urlresolvers import reverse
 from django.utils import html
@@ -10,6 +11,7 @@ import socket
 import re
 import time
    
+@cache_page(60 * 10)   
 def overview(request, site_name):     
     sites = sorted([site.uniqueid for site in Entity.objects.filter(type='Site')])
     # Get the site information from glue database
@@ -154,7 +156,8 @@ def overview(request, site_name):
                                'installed_capacity' : installed_capacity,
                                'vo_resources'       : vo_resources,
                                'summary_active'     : 1})
-    
+
+@cache_page(60 * 10)
 def status(request, site_name, type_name, host_name, check_name):
     site_entity = get_unique_entity(site_name, 'Site')
     
@@ -199,7 +202,7 @@ def status(request, site_name, type_name, host_name, check_name):
 
     return render_to_response('status.html', {'status_list' : status_list})
 
-
+@cache_page(60 * 10)
 def treeview(request, site_name, type="", attribute=""):
     sites = sorted([site.uniqueid for site in Entity.objects.filter(type='Site')])
     

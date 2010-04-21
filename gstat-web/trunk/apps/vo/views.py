@@ -60,6 +60,7 @@ def get_json(request, vo_name="", type=""):
     content = '{"aaData": %s}' % (json.dumps(data))
     return HttpResponse(content, mimetype='application/json')  
 
+@cache_page(60 * 10)
 def treeview(request, vo_name=""):
     
     def __getDirective(item, directive):
