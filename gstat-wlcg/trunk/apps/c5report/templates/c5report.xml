@@ -37,15 +37,15 @@
 <software>
   <sites_running_cream_ces>
     <value>{{ sites_cream_ces }}</value>
-    <note>Number of sites running CREAM CEs</note>
+    <note>Number of sites with CREAM CEs deployed</note>
   </sites_running_cream_ces>
   <cream_ces_deployed>
     <value>{{ cream_ces_deployed }}</value>
-    <note>Number of CREAM CEs deployed</note>
+    <note>Number of of clusters with CREAM CEs deployed</note>
   </cream_ces_deployed>
   <lcg_ces_deployed>
     <value>{{ lcg_ces_deployed }}</value>
-    <note>Number of LCG-CEs deployed</note>
+    <note>Number of of clusters with LCG-CEs deployed</note>
   </lcg_ces_deployed>
   <sites_mpi>
     <value>{{ sites_mpi }}</value>
