@@ -35,18 +35,18 @@
   <value version="3.2.0">{{ sites_glite32 }}</value>
 </sites_with_glite>
 <software>
+  <cream_ces_unique_hosts>
+    <value>{{ creamces_unique_hosts }}</value>
+  </cream_ces_unique_hosts>
+  <lcg_ces_unique_hosts>
+    <value>{{ lcgces_unique_hosts }}</value>
+  </lcg_ces_unique_hosts>
   <sites_running_cream_ces>
-    <value>{{ sites_cream_ces }}</value>
-    <note>Number of sites with CREAM CEs deployed</note>
+    <value>{{ sites_creamces }}</value>
   </sites_running_cream_ces>
-  <cream_ces_deployed>
-    <value>{{ cream_ces_deployed }}</value>
-    <note>Number of of clusters with CREAM CEs deployed</note>
-  </cream_ces_deployed>
-  <lcg_ces_deployed>
-    <value>{{ lcg_ces_deployed }}</value>
-    <note>Number of of clusters with LCG-CEs deployed</note>
-  </lcg_ces_deployed>
+  <sites_running_lcg_ces>
+    <value>{{ sites_lcgces }}</value>
+  </sites_running_lcg_ces>
   <sites_mpi>
     <value>{{ sites_mpi }}</value>
     <note>Number of sites supporting MPI</note>
