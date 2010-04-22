@@ -141,7 +141,6 @@ def getData():
     jobs_last_month_yearNumber = lastYear
 
     # 4. Number of sites running CREAM CEs
-    # Extracted from GStat 2.0
     # Could be checked with: ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=grid '(&(objectClass=GlueCE)(GlueCEImplementationName=CREAM))' GlueCEHostingCluster | grep GlueCEHostingCluster | sed 's/^[^\.]*\.//' | sort -u | wc -l
     # but this LDAP query is wrong, as they are counting domains as sites.
     # The Django way is slower:
@@ -157,19 +156,15 @@ def getData():
     sites_cream_ces = int(cursor.fetchall()[0][0])
 
     # 5. Number of CREAM CEs deployed
-    # Extracted from GStat 2.0
-    # Could be checked with: ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=grid '(&(objectClass=GlueCE)(GlueCEImplementationName=CREAM))' | grep 'dn: GlueCEUniqueID' | wc -l
     # The Django way is slower:
     #cream_ces_deployed = len(gluece.objects.filter(implementationname = 'CREAM'))
-    cursor.execute("SELECT COUNT(*) FROM glue_gluece ce WHERE ce.implementationname='CREAM';")
+    cursor.execute("SELECT COUNT(DISTINCT cluster.uniqueid) FROM glue_gluece ce, glue_gluecluster cluster WHERE ce.implementationname = 'CREAM' and ce.gluecluster_fk = cluster.uniqueid;")
     cream_ces_deployed = int(cursor.fetchall()[0][0])
 
     # 6. Number of LCG-CEs deployed
-    # Extracted from GStat 2.0.
-    # Could be checked with: ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=grid '(&(objectClass=GlueCE)(GlueCEImplementationName=LCG-CE))' | grep 'dn: GlueCEUniqueID' | wc -l
     # The Django way is slower:
     #lcg_ces_deployed = len(gluece.objects.filter(implementationname = 'LCG-CE'))
-    cursor.execute("SELECT COUNT(*) FROM glue_gluece ce WHERE ce.implementationname='LCG-CE';")
+    cursor.execute("SELECT COUNT(DISTINCT cluster.uniqueid) FROM glue_gluece ce, glue_gluecluster cluster WHERE ce.implementationname = 'LCG-CE' and ce.gluecluster_fk = cluster.uniqueid;")
     lcg_ces_deployed = int(cursor.fetchall()[0][0])
     
     # 7.a Number of sites supporting MPI
@@ -185,18 +180,13 @@ def getData():
     logical_cpus_mpi = int(cursor.fetchall()[0][0])
 
     # 8. Installed Capacity per OS
-    # Extracted from GStat 2.0.
     # Check with: ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=grid '(&(objectClass=GlueSubCluster)(GlueHostOperatingSystemName=*AIX*))'
     temp = {}
     cursor.execute("SELECT operatingsystemname, operatingsystemrelease, logicalcpus, benchmarksi00 FROM glue_gluesubcluster;")
     normalOS = ['AIX', 'Debian', 'Ubuntu', 'SUSE LINUX']
-    rhelOS = ['CentOS', 'ScientificCERNSLC', 'ScientificSL', 
-              'RedHatEnterpriseAS', 'RedHatEnterpriseWS', 'ScientificFermiLTS', 
-              'ScientificSLF', 'Scientific Linux', 'Scientific Linux CERN SLC',
-              'Scientific Linux Fermi LTS', 'ScientificLinuxCern', 
-              'ScientificSLE', 'RedHatEnterprise',
-              'Red Hat Enterprise Linux Server', 'RedHatEnterpriseClient',
-              'RedHatEnterpriseServer']
+    rhelOS = ['Scientific Linux', 'Scientific Linux CERN', 'ScientificCERNSLC',
+              'CentOS', 'ScientificSL', 'ScientificFermiLTS',
+              'RedHatEnterpriseAS', 'RedHatEnterpriseWS', 'ScientificSLF']
 
     for row in cursor.fetchall():
         os = row[0]
@@ -206,19 +196,20 @@ def getData():
         logicalcpus = int(row[2])
         si2000 = logicalcpus * int(row[3])
 
-        key = ''
         if os in normalOS:
-            key = os+' '+ver
+            key = os + ' ' + ver
         elif os in rhelOS and ver != '':
             key = 'RHEL ' + ver + ' Compat'
-        if key != '':
-            if temp.has_key(key):
-                tempkey = temp[key]
-                tempkey[0] += 1
-                tempkey[1] += logicalcpus
-                tempkey[2] += si2000
-            else:
-                temp[key] = [1, logicalcpus, si2000]
+        else:
+            key = 'Unknown'
+
+        if temp.has_key(key):
+            tempkey = temp[key]
+            tempkey[0] += 1
+            tempkey[1] += logicalcpus
+            tempkey[2] += si2000
+        else:
+            temp[key] = [1, logicalcpus, si2000]
 
     ic_per_os = []
     for key, value in temp.items():
@@ -226,6 +217,15 @@ def getData():
         temp.extend(value)
         ic_per_os.append(temp)
     ic_per_os.sort(lambda x, y: cmp(x[0],y[0]))
+
+    mySubClusters = 0
+    myLogicalCPUs = 0
+    mySI2000 = 0
+    for temp in ic_per_os:
+        mySubClusters += temp[1]
+        myLogicalCPUs += temp[2]
+        mySI2000 += temp[3]
+    ic_per_os.append(['Total', mySubClusters, myLogicalCPUs, mySI2000])
 
 
     return {'date': datetime.utcnow().strftime("%Y-%m-%d %H:%MZ"),

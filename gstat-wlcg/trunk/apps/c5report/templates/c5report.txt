@@ -8,17 +8,16 @@ LCG service:
 
 - Number of jobs executed last month, {{ jobs_last_month_monthName }} {{ jobs_last_month_yearNumber }} (3): {{ jobs_last_month }}
 - Number of jobs executed since the beginning of this month, {{ jobs_this_month_monthName }} {{ jobs_this_month_yearNumber }} (3): {{ jobs_this_month }}
-- Number of sites running CREAM CEs (4): {{ sites_cream_ces }}
-- Number of CREAM CEs deployed (5): {{ cream_ces_deployed }}
-- Number of LCG-CEs deployed (6): {{ lcg_ces_deployed }}
+- Number of sites with CREAM CEs deployed (4): {{ sites_cream_ces }}
+- Number of clusters with CREAM CEs deployed (5): {{ cream_ces_deployed }}
+- Number of clusters with LCG-CEs deployed (6): {{ lcg_ces_deployed }}
 - Number of sites supporting MPI (7): {{ sites_mpi }}
 - Number of logical CPUs supporting MPI (8): {{ logical_cpus_mpi }}
 
-- Installed Capacity (9):
+- Installed Capacity per Operating System (9):
 {{ "OS Name"|ljust:"15" }}{{ "SubClusters"|rjust:"15" }}{{ "Logical CPUs"|rjust:"15" }}{{ "Total SI2000"|rjust:"15" }}
 {% for row in ic_per_os %}{{ row.0|ljust:"15" }}{{ row.1|rjust:"15" }}{{ row.2|rjust:"15" }}{{ row.3|rjust:"15" }}
 {% endfor %}
-
 -------------------------------------------------
 Notes:
 -------------------------------------------------
@@ -39,11 +38,11 @@ Notes:
 (4) Extracted from GStat 2.0. It can be checked by counting the sites that
     have clusters which have CEs with GlueCEImplementationName=CREAM.
 
-(5) Extracted from GStat 2.0. It can be checked with:
-    ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=grid '(&(objectClass=GlueCE)(GlueCEImplementationName=CREAM))' | grep 'dn: GlueCEUniqueID' | wc -l
+(5) Extracted from GStat 2.0. It can be checked by counting the clusters that
+    contain CEs with GlueCEImplementationName=CREAM
 
-(6) Extracted from GStat 2.0. It can be checked with:
-    ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=grid '(&(objectClass=GlueCE)(GlueCEImplementationName=LCG-CE))' | grep 'dn: GlueCEUniqueID' | wc -l
+(6) Extracted from GStat 2.0. It can be checked by counting the clusters that
+    contain CEs with GlueCEImplementationName=LCG-CE
 
 (7) Extracted from GStat 2.0. It can be checked by counting the sites that
     have clusters which have sub clusters with
@@ -53,9 +52,12 @@ Notes:
     of sub clusters with GlueHostApplicationSoftwareRunTimeEnvironment=MPI-START
 
 (9) Extracted from GStat 2.0. We consider the following operating systems: AIX,
-    Debian, Ubuntu and SUSE LINUX. We also consider the following RHEL
-    Compatible system: CentOS, ScientificCERNSLC, ScientificSL,
-    RedHatEnterprise, ScientificSLF, ScientificSLE. If you need to address more
-    systems, please contact: project-grid-info-support@cern.ch
+    Debian, Ubuntu and SUSE LINUX. We also consider the following RHEL Compat.
+    systems: Scientific Linux, Scientific Linux CERN, ScientificCERNSLC, CentOS,
+    ScientificSL, ScientificFermiLTS, RedHatEnterpriseAS, RedHatEnterpriseWS
+    and ScientificSLF. If you need to publish your OS, follow:
+    http://goc.grid.sinica.edu.tw/gocwiki/How_to_publish_the_OS_name
+    If you need to include more operating systems, please contact:
+    project-grid-info-support@cern.ch
 
 Creation date in UTC: {{ date }}
