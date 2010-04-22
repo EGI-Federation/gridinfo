@@ -219,12 +219,12 @@ def getData():
     ic_per_os.append(['Total', mySubClusters, myLogicalCPUs, mySI2000])
     
     # 11. Installed Capacity per CE Type
-    cursor.execute("SELECT COUNT(a.uniqueid), SUM(a.logicalcpus) total_cpus FROM (SELECT subcluster.uniqueid, subcluster.logicalcpus FROM glue_gluece ce, glue_gluecluster cluster, glue_gluesubcluster subcluster WHERE ce.implementationname = 'CREAM' and ce.gluecluster_fk = cluster.uniqueid and subcluster.gluecluster_fk = cluster.uniqueid GROUP BY subcluster.uniqueid) a;")
+    cursor.execute("SELECT SUM(a.logicalcpus) total_cpus FROM (SELECT subcluster.logicalcpus FROM glue_gluece ce, glue_gluecluster cluster, glue_gluesubcluster subcluster WHERE ce.implementationname = 'CREAM' and ce.gluecluster_fk = cluster.uniqueid and subcluster.gluecluster_fk = cluster.uniqueid GROUP BY subcluster.uniqueid) a;")
     temp = cursor.fetchall()[0]
-    ic_per_ce = [['CREAM', int(temp[0]), int(temp[1])]]
-    cursor.execute("SELECT COUNT(a.uniqueid), SUM(a.logicalcpus) total_cpus FROM (SELECT subcluster.uniqueid, subcluster.logicalcpus FROM glue_gluece ce, glue_gluecluster cluster, glue_gluesubcluster subcluster WHERE ce.implementationname = 'LCG-CE' and ce.gluecluster_fk = cluster.uniqueid and subcluster.gluecluster_fk = cluster.uniqueid GROUP BY subcluster.uniqueid) a;")
+    ic_per_ce = [['CREAM', int(temp[0])]]
+    cursor.execute("SELECT SUM(a.logicalcpus) total_cpus FROM (SELECT subcluster.logicalcpus FROM glue_gluece ce, glue_gluecluster cluster, glue_gluesubcluster subcluster WHERE ce.implementationname = 'LCG-CE' and ce.gluecluster_fk = cluster.uniqueid and subcluster.gluecluster_fk = cluster.uniqueid GROUP BY subcluster.uniqueid) a;")
     temp = cursor.fetchall()[0]
-    ic_per_ce.append(['LCG-CE', int(temp[0]), int(temp[1])])
+    ic_per_ce.append(['LCG-CE', int(temp[0])])
 
 
     return {'date': datetime.utcnow().strftime("%Y-%m-%d %H:%MZ"),
