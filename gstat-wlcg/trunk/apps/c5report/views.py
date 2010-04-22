@@ -80,6 +80,7 @@ def getJobsPerMonth(startMonth, startYear, endMonth, endYear):
 
 def getData():
     # Initialization
+    cursor = connection.cursor()
     # SAM DB API
     urlquery = 'http://lcg-sam.cern.ch:8080/reports/lcg_deployment_C5.xsql'
     response = urllib2.urlopen(urlquery).read()
@@ -140,34 +141,24 @@ def getData():
     jobs_last_month_monthNumber = lastMonth
     jobs_last_month_yearNumber = lastYear
 
-    # 4. Number of sites running CREAM CEs
-    # Could be checked with: ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=grid '(&(objectClass=GlueCE)(GlueCEImplementationName=CREAM))' GlueCEHostingCluster | grep GlueCEHostingCluster | sed 's/^[^\.]*\.//' | sort -u | wc -l
-    # but this LDAP query is wrong, as they are counting domains as sites.
-    # The Django way is slower:
-    #cream_ces = gluece.objects.filter(implementationname = 'CREAM')
-    #sites_cream_ces = []
-    #for cream_ce in cream_ces:
-    #    sites_cream_ces.append(gluecluster.objects.filter(uniqueid = cream_ce.gluecluster_fk).values('gluesite_fk')[0]['gluesite_fk'])
-    #sites_cream_ces = len(Set(sites_cream_ces))
-    cursor = connection.cursor()
-    # This one includes also broken links, so I won't use it:
-    #cursor.execute("SELECT COUNT(DISTINCT cluster.gluesite_fk) FROM glue_gluece ce, glue_gluecluster cluster WHERE ce.implementationname='CREAM' and ce.gluecluster_fk = cluster.uniqueid;")
+    # 4. Number of CREAM CEs unique hosts deployed
+    cursor.execute("SELECT count(DISTINCT ce.hostingcluster) FROM glue_gluece ce WHERE ce.implementationname = 'CREAM';")
+    creamces_unique_hosts = int(cursor.fetchall()[0][0])
+
+    # 5. Number of LCG-CEs unique hosts deployed
+    cursor.execute("SELECT count(DISTINCT ce.hostingcluster) FROM glue_gluece ce WHERE ce.implementationname = 'LCG-CE';")
+    lcgces_unique_hosts = int(cursor.fetchall()[0][0])
+
+    # 6. - Number of sites supporting CREAM CEs
     cursor.execute("SELECT COUNT(DISTINCT cluster.gluesite_fk) FROM glue_gluece ce, glue_gluecluster cluster, glue_gluesite site WHERE ce.implementationname='CREAM' and ce.gluecluster_fk = cluster.uniqueid and cluster.gluesite_fk = site.uniqueid;")
-    sites_cream_ces = int(cursor.fetchall()[0][0])
+    sites_creamces = int(cursor.fetchall()[0][0])
 
-    # 5. Number of CREAM CEs deployed
-    # The Django way is slower:
-    #cream_ces_deployed = len(gluece.objects.filter(implementationname = 'CREAM'))
-    cursor.execute("SELECT COUNT(DISTINCT cluster.uniqueid) FROM glue_gluece ce, glue_gluecluster cluster WHERE ce.implementationname = 'CREAM' and ce.gluecluster_fk = cluster.uniqueid;")
-    cream_ces_deployed = int(cursor.fetchall()[0][0])
+    # 7. - Number of sites supporting LCG-CEs
+    cursor = connection.cursor()
+    cursor.execute("SELECT COUNT(DISTINCT cluster.gluesite_fk) FROM glue_gluece ce, glue_gluecluster cluster, glue_gluesite site WHERE ce.implementationname='LCG-CE' and ce.gluecluster_fk = cluster.uniqueid and cluster.gluesite_fk = site.uniqueid;")
+    sites_lcgces = int(cursor.fetchall()[0][0])
 
-    # 6. Number of LCG-CEs deployed
-    # The Django way is slower:
-    #lcg_ces_deployed = len(gluece.objects.filter(implementationname = 'LCG-CE'))
-    cursor.execute("SELECT COUNT(DISTINCT cluster.uniqueid) FROM glue_gluece ce, glue_gluecluster cluster WHERE ce.implementationname = 'LCG-CE' and ce.gluecluster_fk = cluster.uniqueid;")
-    lcg_ces_deployed = int(cursor.fetchall()[0][0])
-    
-    # 7.a Number of sites supporting MPI
+    # 8 Number of sites supporting MPI
     # Before, extracted from SAM API:
     # http://lcg-sam.cern.ch:8080/reports/lcg_deployment_C5.xsql
     #ces_mpi = doc.xpathEval("/LCG_DEPLOYMENT/LCG_CEs_and_CREAM_CEs_SUPPORTING_MPI/VALUE/TOTAL_CES")[0].content
@@ -175,11 +166,11 @@ def getData():
     cursor.execute("SELECT COUNT(*) FROM glue_gluemultivalued mv, glue_gluecluster cluster, glue_gluesite site WHERE mv.attribute = 'GlueHostApplicationSoftwareRunTimeEnvironment' and mv.value = 'MPI-START' and mv.uniqueid = cluster.uniqueid and cluster.gluesite_fk = site.uniqueid;")
     sites_mpi = int(cursor.fetchall()[0][0])
 
-    # 7.b Number of logical CPUs supporting MPI
+    # 9 Number of logical CPUs supporting MPI
     cursor.execute("SELECT SUM(subcluster.logicalcpus) FROM glue_gluemultivalued mv, glue_gluesubcluster subcluster WHERE mv.attribute = 'GlueHostApplicationSoftwareRunTimeEnvironment' and mv.value = 'MPI-START' and mv.uniqueid = subcluster.uniqueid;")
     logical_cpus_mpi = int(cursor.fetchall()[0][0])
 
-    # 8. Installed Capacity per OS
+    # 10. Installed Capacity per OS
     # Check with: ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=grid '(&(objectClass=GlueSubCluster)(GlueHostOperatingSystemName=*AIX*))'
     temp = {}
     cursor.execute("SELECT operatingsystemname, operatingsystemrelease, logicalcpus, benchmarksi00 FROM glue_gluesubcluster;")
@@ -245,9 +236,10 @@ def getData():
             'jobs_last_month_monthName': jobs_last_month_monthName,
             'jobs_last_month_monthNumber': jobs_last_month_monthNumber,
             'jobs_last_month_yearNumber': jobs_last_month_yearNumber,
-            'sites_cream_ces': sites_cream_ces,
-            'cream_ces_deployed': cream_ces_deployed,
-            'lcg_ces_deployed': lcg_ces_deployed,
+            'creamces_unique_hosts': creamces_unique_hosts,
+            'lcgces_unique_hosts': lcgces_unique_hosts,
+            'sites_creamces': sites_creamces,
+            'sites_lcgces': sites_lcgces,
             'sites_mpi': sites_mpi,
             'logical_cpus_mpi': logical_cpus_mpi,
             'ic_per_os': ic_per_os}
