@@ -142,11 +142,11 @@ def getData():
     jobs_last_month_yearNumber = lastYear
 
     # 4. Number of CREAM CEs unique hosts deployed
-    cursor.execute("SELECT count(DISTINCT ce.hostingcluster) FROM glue_gluece ce WHERE ce.implementationname = 'CREAM';")
+    cursor.execute("SELECT count(DISTINCT ce.hostname) FROM glue_gluece ce WHERE ce.implementationname = 'CREAM';")
     creamces_unique_hosts = int(cursor.fetchall()[0][0])
 
     # 5. Number of LCG-CEs unique hosts deployed
-    cursor.execute("SELECT count(DISTINCT ce.hostingcluster) FROM glue_gluece ce WHERE ce.implementationname = 'LCG-CE';")
+    cursor.execute("SELECT count(DISTINCT ce.hostname) FROM glue_gluece ce WHERE ce.implementationname = 'LCG-CE';")
     lcgces_unique_hosts = int(cursor.fetchall()[0][0])
 
     # 6. - Number of sites supporting CREAM CEs
