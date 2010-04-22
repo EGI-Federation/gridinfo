@@ -1,6 +1,6 @@
 Summary: GStat Web Applciation
 Name: gstat-web
-Version: 1.0.2
+Version: 1.0.3
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: Apache license v2.0
@@ -16,9 +16,6 @@ Requires: grid-monitoring-probes-org.bdii
 Requires: nagios >= 3
 Requires: voms-htpasswd
 Requires: nagios-plugins
-Requires: nagios-plugins-ping
-Requires: nagios-plugins-dns
-Requires: nagios-plugins-ldap
 Requires: pnp4nagios
 Requires: mod_wsgi
 Requires: mod_ssl
