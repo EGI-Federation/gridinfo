@@ -19,6 +19,10 @@ LCG service:
 {{ "OS Name"|ljust:"15" }}{{ "SubClusters"|rjust:"15" }}{{ "Logical CPUs"|rjust:"15" }}{{ "Total SI2000"|rjust:"15" }}
 {% for row in ic_per_os %}{{ row.0|ljust:"15" }}{{ row.1|rjust:"15" }}{{ row.2|rjust:"15" }}{{ row.3|rjust:"15" }}
 {% endfor %}
+- Installed Capacity per CE Type (10):
+{{ "CE Type"|ljust:"15" }}{{ "SubClusters"|rjust:"15" }}{{ "Logical CPUs"|rjust:"15" }}
+{% for row in ic_per_ce %}{{ row.0|ljust:"15" }}{{ row.1|rjust:"15" }}{{ row.2|rjust:"15" }}
+{% endfor %}
 -------------------------------------------------
 Notes:
 -------------------------------------------------
