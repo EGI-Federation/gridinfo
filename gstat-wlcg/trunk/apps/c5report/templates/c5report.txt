@@ -20,8 +20,8 @@ LCG service:
 {% for row in ic_per_os %}{{ row.0|ljust:"15" }}{{ row.1|rjust:"15" }}{{ row.2|rjust:"15" }}{{ row.3|rjust:"15" }}
 {% endfor %}
 - Installed Capacity per CE Type (10):
-{{ "CE Type"|ljust:"15" }}{{ "SubClusters"|rjust:"15" }}{{ "Logical CPUs"|rjust:"15" }}
-{% for row in ic_per_ce %}{{ row.0|ljust:"15" }}{{ row.1|rjust:"15" }}{{ row.2|rjust:"15" }}
+{{ "CE Type"|ljust:"15" }}{{ "Logical CPUs"|rjust:"15" }}
+{% for row in ic_per_ce %}{{ row.0|ljust:"15" }}{{ row.1|rjust:"15" }}
 {% endfor %}
 -------------------------------------------------
 Notes:
@@ -65,7 +65,7 @@ Notes:
     ScientificSL, ScientificFermiLTS, RedHatEnterpriseAS, RedHatEnterpriseWS
     and ScientificSLF. If you need to publish your OS, follow:
     http://goc.grid.sinica.edu.tw/gocwiki/How_to_publish_the_OS_name
-    If you need to include more operating systems, please contact:
+    If you need to include more operating systems or CE types, please contact:
     project-grid-info-support@cern.ch
 
 Creation date in UTC: {{ date }}
