@@ -36,14 +36,17 @@ Notes:
 (3) Job statistics taken from EGEE Accounting Portal:
     http://www3.egee.cesga.es/
 
-(4) Extracted from GStat 2.0. It can be checked by counting the sites that
+(4) Extracted from GStat 2.0. It can be checked by counting the number of
+    distinct hostnames from CEs with GlueCEImplementationName=CREAM.
+
+(5) Extracted from GStat 2.0. It can be checked by counting the number of
+    distinct hostnames from CEs with GlueCEImplementationName=LCG-CE.
+
+(6) Extracted from GStat 2.0. It can be checked by counting the sites that
     have clusters which have CEs with GlueCEImplementationName=CREAM.
 
-(5) Extracted from GStat 2.0. It can be checked by counting the clusters that
-    contain CEs with GlueCEImplementationName=CREAM
-
-(6) Extracted from GStat 2.0. It can be checked by counting the clusters that
-    contain CEs with GlueCEImplementationName=LCG-CE
+(7) Extracted from GStat 2.0. It can be checked by counting the sites that
+    have clusters which have CEs with GlueCEImplementationName=LCG-CE.
 
 (8) Extracted from GStat 2.0. It can be checked by counting the sites that
     have clusters which have sub clusters with
