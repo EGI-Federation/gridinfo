@@ -523,7 +523,7 @@
 				if(!this.li_height) {
 					var tmp = this.container.find("ul li.closed, ul li.leaf").eq(0);
 					this.li_height = tmp.height();
-					if(tmp.children("ul:eq(0)").size()) this.li_height -= tmp.children("ul:eq(0)").height();
+					//if(tmp.children("ul:eq(0)").size()) this.li_height -= tmp.children("ul:eq(0)").height();
 					if(!this.li_height) this.li_height = 18;
 				}
 			},
