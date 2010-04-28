@@ -101,20 +101,20 @@ def test_glue_SE(key,entry):
    for attribute in ("GlueSEUniqueID", "GlueSEImplementationName", "GlueSEImplementationVersion",
                      "GlueSEStatus", "GlueForeignKey"):
       if ( not entry.has_key(attribute)):
-         my_errors.log(gsutils.get_unique_id(key),'SE.Attribute.Exist', 'Glue attribute %s does not exist.' % (attribute), gsutils.get_site(key))
+         my_errors.log(key,'SE.Attribute.Exist', 'Glue attribute %s does not exist.' % (attribute), gsutils.get_site(key))
 
    # Test that GlueForeignKey is unique.
    if ( len(entry['GlueForeignKey']) > 1):
-      my_errors.log(gsutils.get_unique_id(key),'SE.Attribute.Unique', 'GlueSE attribute GlueForeignKey is not unique', gsutils.get_site(key))
+      my_errors.log(key,'SE.Attribute.Unique', 'GlueSE attribute GlueForeignKey is not unique', gsutils.get_site(key))
 
    # Test that GlueSEUniqueID is unique.
    if ( entry.has_key('GlueSEUniqueID' )):
       if ( SEId.count(entry['GlueSEUniqueID'][0]) > 1 ):
-         my_errors.log(gsutils.get_unique_id(key),'SE.UniqueID.Unique', "", gsutils.get_site(key))
+         my_errors.log(key,'SE.UniqueID.Unique', "", gsutils.get_site(key))
 
    # Test if SAPort is set - the attribute is deprecated
    if entry.has_key('GlueSEPort'):
-      my_errors.log(gsutils.get_unique_id(key),'SE.Deprecated.Exist', 'The attribute SEPort is deprecated', gsutils.get_site(key))
+      my_errors.log(key,'SE.Deprecated.Exist', 'The attribute SEPort is deprecated', gsutils.get_site(key))
 
    # Test that GlueSEImplementationName is set to one of the allowed values
    if entry.has_key('GlueSEImplementationName'):
@@ -143,17 +143,17 @@ def test_glue_SE(key,entry):
       if ( entry.has_key(attribute)):
          test_Size(key,entry,attribute,'SE','ERROR')
       else:
-         my_errors.log(gsutils.get_unique_id(key),'SE.Attribute.OptionalExist', 'Glue attribute %s does not exist.'
+         my_errors.log(key,'SE.Attribute.OptionalExist', 'Glue attribute %s does not exist.'
                        % (attribute), gsutils.get_site(key))
 
    # Check if Architecture=Tape implies GlueSETotalNearlineSize > 0
       if entry.has_key('GlueSETotalNearlineSize') and entry.has_key('GlueSEArchitecture'):
           try:
               if int(entry['GlueSETotalNearlineSize'][0]) > 0 and entry['GlueSEArchitecture'][0] != "tape" or int(entry['GlueSETotalNearlineSize'][0]) == 0 and entry['GlueSEArchitecture'][0] == "tape":
-                  my_errors.log(gsutils.get_unique_id(key),'SE.Size.Value', 'GlueSEArchitecture value not compatible with GlueSETotalNearlineSize value published.', gsutils.get_site(key))
+                  my_errors.log(key,'SE.Size.Value', 'GlueSEArchitecture value not compatible with GlueSETotalNearlineSize value published.', gsutils.get_site(key))
           except ValueError, e:
               details = "GlueSETotalNearlineSize %s is not an integer." % (entry['GlueSETotalNearlineSize'][0])
-              my_errors.log(gsutils.get_unique_id(key),'gstat.value.error', details, gsutils.get_site(key))
+              my_errors.log(key,'gstat.value.error', details, gsutils.get_site(key))
               
 
 
@@ -162,7 +162,7 @@ def test_SE_ImplementationName(key,entry):
    
    if (entry['GlueSEImplementationName'][0] not in
            ("CASTOR", "dCache", "DPM", "StoRM", "xrootd", "BeStMan")):
-      my_errors.log(gsutils.get_unique_id(key),'SE.ImplementationName.Value',
+      my_errors.log(key,'SE.ImplementationName.Value',
                           'GlueSEImplementationName has unknown value',  gsutils.get_site(key))
 
 def test_SE_Status(key,entry):
@@ -170,7 +170,7 @@ def test_SE_Status(key,entry):
 
    if (entry['GlueSEStatus'][0] not in
             ("Production", "Closed", "Draining", "Queueing")):
-            my_errors.log(gsutils.get_unique_id(key),'SE.Status.Value', 'Value %s is not an allowed value.'
+            my_errors.log(key,'SE.Status.Value', 'Value %s is not an allowed value.'
                        % (entry['GlueSEStatus'][0]), gsutils.get_site(key))
 
 def test_SE_Architecture(key,entry):
@@ -178,7 +178,7 @@ def test_SE_Architecture(key,entry):
 
    if (entry['GlueSEArchitecture'][0] not in
             ("disk", "multidisk", "tape", "other")):
-      my_errors.log(gsutils.get_unique_id(key),'SE.Architecture.Value', 'Value %s is not an allowed value.' %
+      my_errors.log(key,'SE.Architecture.Value', 'Value %s is not an allowed value.' %
                     ( entry['GlueSEArchitecture'][0] ), gsutils.get_site(key) )
 
 def test_SE_ForeignKey(key,entry):
@@ -187,7 +187,7 @@ def test_SE_ForeignKey(key,entry):
    try:
       entry['GlueForeignKey'][0].index('GlueSiteUniqueID')
    except ValueError, e:
-      my_errors.log(gsutils.get_unique_id(key),'SE.ForeignKey.Value', '', gsutils.get_site(key))
+      my_errors.log(key,'SE.ForeignKey.Value', '', gsutils.get_site(key))
 
 def test_SE_SA(key,entry):
    logging.debug("Testing SE for existence of an associated SA")
@@ -197,23 +197,23 @@ def test_SE_SA(key,entry):
          if (oc == "GlueSA" and ldif[k].has_key('GlueChunkKey')):
             ldif[k]['GlueChunkKey'][0].find(entry['GlueSEUniqueID'][0])
             return
-   my_errors.log(gsutils.get_unique_id(key),'SE.GlueSA.Exist', '', gsutils.get_site(key))
+   my_errors.log(key,'SE.GlueSA.Exist', '', gsutils.get_site(key))
 
 # Validation of the GlueSA object
 def test_glue_SA(key,entry):
    logging.debug("Testing SA entry")
 
    if not entry.has_key('GlueSALocalID'):
-      my_errors.log(gsutils.get_unique_id(key),'SA.LocalID.Exist', '', gsutils.get_site(key))
+      my_errors.log(key,'SA.LocalID.Exist', '', gsutils.get_site(key))
 
    # Test that the GlueSALocalID is unique within an SE
    if (entry.has_key('GlueSALocalID') and
                     SAId.count(entry['GlueSALocalID'][0]) > 1):
-      my_errors.log(gsutils.get_unique_id(key),'SA.LocalID.Unique', '', gsutils.get_site(key))
+      my_errors.log(key,'SA.LocalID.Unique', '', gsutils.get_site(key))
 
    # Test if SARoot is set - the attribute is deprecated
    if entry.has_key('GlueSARoot'):
-      my_errors.log(gsutils.get_unique_id(key),'SA.Deprecated.Exist', 'The attribute SARoot is deprecated', gsutils.get_site(key))
+      my_errors.log(key,'SA.Deprecated.Exist', 'The attribute SARoot is deprecated', gsutils.get_site(key))
 
    # Test that the Sizes are valid
    for attribute in ("GlueSAReservedOnlineSize", "GlueSAReservedNearlineSize",
@@ -223,31 +223,31 @@ def test_glue_SA(key,entry):
       if (entry.has_key(attribute)):
          test_Size(key,entry,attribute,'SA','ERROR')
       else:
-         my_errors.log(gsutils.get_unique_id(key),'SA.Size.Valid', 'The value for attribute %s is not valid'
+         my_errors.log(key,'SA.Attribute.Exist', 'The attribute %s is missing'
                        % (attribute), gsutils.get_site(key))
       if (entry.has_key('GlueSAReservedOnlineSize') and
              long(entry['GlueSAReservedOnlineSize'][0]) > 0 and
              entry.has_key('GlueSATotalOnlineSize') and
              int(entry['GlueSATotalOnlineSize'][0]) > 
                         int(entry['GlueSAReservedOnlineSize'][0])):
-         my_errors.log(gsutils.get_unique_id(key),'SA.Size.Valid', 'The value for GlueSATotalOnlineSize is greater than GlueSAReservedOnlineSize' , gsutils.get_site(key))
+         my_errors.log(key,'SA.Size.Valid', 'The value for GlueSATotalOnlineSize is greater than GlueSAReservedOnlineSize' , gsutils.get_site(key))
       if (entry.has_key('GlueSATotalOnlineSize') and 
           long(entry['GlueSATotalOnlineSize'][0]) > long(10e+16)):
-         my_errors.log(gsutils.get_unique_id(key),type + '.Size',
+         my_errors.log(key,type + '.Size',
                        attribute + ' value is greater than 10PB',  gsutils.get_site(key), 'WARNING')
 
       if (entry.has_key('GlueSAUsedOnlineSize') and
              entry.has_key('GlueSATotalOnlineSize') and
              int(entry['GlueSAUsedOnlineSize'][0]) >
                         int(entry['GlueSATotalOnlineSize'][0])):
-         my_errors.log(gsutils.get_unique_id(key),'SA.Size.Valid', 'The value for GlueSAUsedOnlineSize is greater than GlueSATotalOnlineSize', gsutils.get_site(key))
+         my_errors.log(key,'SA.Size.Valid', 'The value for GlueSAUsedOnlineSize is greater than GlueSATotalOnlineSize', gsutils.get_site(key))
 
 
    # GlueSACapability must be set to one of the allowed values
    if entry.has_key('GlueSACapability'):
       test_SA_Capability(key,entry)
    else:
-      my_errors.log(gsutils.get_unique_id(key),'SA.Attribute.Exist', 'GlueSACapability does not exist in the entry', gsutils.get_site(key))
+      my_errors.log(key,'SA.Attribute.Exist', 'GlueSACapability does not exist in the entry', gsutils.get_site(key))
 
    # GlueSAAccessControlBaseRule should be set; check value format
    if entry.has_key('GlueSAAccessControlBaseRule'):
@@ -271,7 +271,7 @@ def test_SA_Capability(key,entry):
            val.find("InstalledOnlineCapacity") == -1 and
            val.find("InstalledNearlineCapacity") == -1):
          
-         my_errors.log(gsutils.get_unique_id(key),'SA.Capability', '', gsutils.get_site(key))
+         my_errors.log(key,'SA.Capability', '', gsutils.get_site(key))
       if ( val.find("InstalledOnlineCapacity") >= 0 or 
            val.find("InstalledNearlineCapacity") >= 0 ):
          if val.find("InstalledOnlineCapacity") >= 0 :
@@ -284,18 +284,18 @@ def test_SA_Capability(key,entry):
            try:
              int(siz)
              if ( int(siz) < 0 ):
-                my_errors.log(gsutils.get_unique_id(key),'SA.Capability', 'InstalledOnline or NearlineSize < 0', gsutils.get_site(key))
+                my_errors.log(key,'SA.Capability', 'InstalledOnline or NearlineSize < 0', gsutils.get_site(key))
            except ValueError:
-              my_errors.log(gsutils.get_unique_id(key),'SA.Capability', 'InstalledOnline or NearlineSize is not an integer', gsutils.get_site(key))
+              my_errors.log(key,'SA.Capability', 'InstalledOnline or NearlineSize is not an integer', gsutils.get_site(key))
          except ValueError:
-            my_errors.log(gsutils.get_unique_id(key),'SA.Capability', 'InstalledOnline or NearlineSize not set', gsutils.get_site(key))
+            my_errors.log(key,'SA.Capability', 'InstalledOnline or NearlineSize not set', gsutils.get_site(key))
 
    if onl == 0 and off == 0:
-      my_errors.log(gsutils.get_unique_id(key),'SA.Capability', 'InstalledOnline or NearlineSize attribute non existing', gsutils.get_site(key))
+      my_errors.log(key,'SA.Capability', 'InstalledOnline or NearlineSize attribute non existing', gsutils.get_site(key))
    if onl == 0:
-      my_errors.log(gsutils.get_unique_id(key),'SA.Capability', 'InstalledOnlineSize attribute non existing', gsutils.get_site(key))
+      my_errors.log(key,'SA.Capability', 'InstalledOnlineSize attribute non existing', gsutils.get_site(key))
    if off == 0:
-      my_errors.log(gsutils.get_unique_id(key),'SA.Capability', 'InstalledNearlineSize attribute non existing', gsutils.get_site(key))
+      my_errors.log(key,'SA.Capability', 'InstalledNearlineSize attribute non existing', gsutils.get_site(key))
   
 def test_SA_Path(key,entry):
    logging.debug("Testing SA for %s" %(key))
@@ -318,7 +318,7 @@ def test_SA_Path(key,entry):
             VOInfoPathFound=1
 
    if (SAPathFound == 1 and VOInfoPathFound == 1):
-      my_errors.log(gsutils.get_unique_id(key),'VOInfo.Path', 'GlueSAPath must not be published', gsutils.get_site(key))
+      my_errors.log(key,'VOInfo.Path', 'GlueSAPath must not be published', gsutils.get_site(key))
       return
  
 def test_SA_ExpirationMode(key,entry):
@@ -326,7 +326,7 @@ def test_SA_ExpirationMode(key,entry):
    for val in entry['GlueSAExpirationMode']:
       if ( entry['GlueSAExpirationMode'][0] not in 
            ("neverExpire", "warnWhenExpired", "releaseWhenExpired")):
-         my_errors.log(gsutils.get_unique_id(key),'SA.ExpirationMode', 'GlueSAExpirationMode has unknown value', gsutils.get_site(key))
+         my_errors.log(key,'SA.ExpirationMode', 'GlueSAExpirationMode has unknown value', gsutils.get_site(key))
 
 # Validation of the GlueVOInfo object
 
@@ -336,14 +336,14 @@ def test_glue_VOInfo(key,entry):
    # GlueVOInfoLocalID attribute must exist and must be set
    logging.debug("Testing VOInfo for existence of GlueVOInfoLocalID")
    if not entry.has_key('GlueVOInfoLocalID'):
-      my_errors.log(gsutils.get_unique_id(key),'VOInfo.LocalID.Exist',
+      my_errors.log(key,'VOInfo.LocalID.Exist',
                     'GlueVOInfoLocalID does not exist in the entry', gsutils.get_site(key))
 
    # Test for univocity of GlueVOInfoPath
    logging.debug("Testing VOInfo for univocity of GlueVOInfoPath")
    if (entry.has_key('GlueVOInfoPath') and
                     len(entry['GlueVOInfoPath']) > 1):
-      my_errors.log(gsutils.get_unique_id(key),'VOInfo.Path.Unique',
+      my_errors.log(key,'VOInfo.Path.Unique',
                     'Multiple GlueVOInfoPath present for this entry', gsutils.get_site(key))
 
    # GlueVOInfoAccessControlBaseRule should be set; check value format
@@ -361,10 +361,10 @@ def test_glue_VOInfo(key,entry):
            index=sa.index("=")
            said=sa[index+1:]
          except ValueError:
-           my_errors.log(gsutils.get_unique_id(key),'VOInfo.ChunkKey',
+           my_errors.log(key,'VOInfo.ChunkKey',
                                   'GlueSALocalID not set', gsutils.get_site(key))
      if ( sacount > 1 ) :
-        my_errors.log(gsutils.get_unique_id(key),'VOInfo.ChunkKey',
+        my_errors.log(key,'VOInfo.ChunkKey',
                           'GlueSALocalID not unique', gsutils.get_site(key))
 
      for j in ldifSE.keys():
@@ -374,7 +374,7 @@ def test_glue_VOInfo(key,entry):
                ldifSE[j]['GlueSALocalID'][0] == said):
                for acbr in entry['GlueVOInfoAccessControlBaseRule']:
                  if acbr not in ldifSE[j]['GlueSAAccessControlBaseRule']:
-                    my_errors.log(gsutils.get_unique_id(key),'VOInfo.AccessControlBaseRule',
+                    my_errors.log(key,'VOInfo.AccessControlBaseRule',
                           acbr+' ACBR not included in associated SA', gsutils.get_site(key))
 
 # Validation of the GlueSEControlProtocol object
@@ -385,35 +385,35 @@ def test_glue_SEControlProtocol(key,entry):
    # GlueSEControlProtocolLocalID attribute must exist and must be set
    logging.debug("Testing SEControlProtocol for existence of GlueSEControlProtocolLocalID")
    if not entry.has_key('GlueSEControlProtocolLocalID'):
-      my_errors.log(gsutils.get_unique_id(key),'SEControlProtocol.LocalID.Exist',
+      my_errors.log(key,'SEControlProtocol.LocalID.Exist',
                     'GlueSEControlProtocolLocalID does not exist in the entry', gsutils.get_site(key))
 
    # Test for unique GlueSEControlProtocolLocalID value within an SE
    logging.debug("Testing SEControlProtocol for univocity of GlueSEControlProtocolLocalID")
    if (entry.has_key('GlueSEControlProtocolLocalID') and
                     SECP.count(entry['GlueSEControlProtocolLocalID'][0]) > 1):
-      my_errors.log(gsutils.get_unique_id(key),'SEControlProtocol.LocalID.Unique',
+      my_errors.log(key,'SEControlProtocol.LocalID.Unique',
                     'GlueSEControlProtocolLocalID is not unique within SE', gsutils.get_site(key))
 
    # GlueSEControlProtocolType must be set to SRM or xroot
    if entry.has_key('GlueSEControlProtocolType'):
       test_SEControlProtocol_Type(key,entry)
    else:
-      my_errors.log(gsutils.get_unique_id(key),'SEControlProtocol.Type.Exist',
+      my_errors.log(key,'SEControlProtocol.Type.Exist',
                     'GlueSEControlProtocolType does not exist in the entry', gsutils.get_site(key))
 
    # GlueSEControlProtocolVersion must be set to allowed value
    if entry.has_key('GlueSEControlProtocolVersion'):
       test_SRM_Version(key,entry,"GlueSEControlProtocolVersion")
    else:
-      my_errors.log(gsutils.get_unique_id(key),'SEControlProtocol.Version.Exist',
+      my_errors.log(key,'SEControlProtocol.Version.Exist',
                     'GlueSEControlProtocolVersion does not exist in the entry', gsutils.get_site(key))
 
    # GlueSEControlProtocolEndpoint must be set to full SOAP URL
    if entry.has_key('GlueSEControlProtocolEndpoint'):
       test_SEControlProtocol_Endpoint(key,entry)
    else:
-      my_errors.log(gsutils.get_unique_id(key),'SEControlProtocol.Endpoint.Exist',
+      my_errors.log(key,'SEControlProtocol.Endpoint.Exist',
                     'GlueSEControlProtocolEndpoint does not exist in the entry', gsutils.get_site(key))
 
 
@@ -423,7 +423,7 @@ def test_SEControlProtocol_Type(key,entry):
 
    if (entry['GlueSEControlProtocolType'][0] != "SRM" and 
        entry['GlueSEControlProtocolType'][0] != "xroot" ):
-      my_errors.log(gsutils.get_unique_id(key),'SEControlProtocol.Type',
+      my_errors.log(key,'SEControlProtocol.Type',
                           'GlueSEControlProtocolType has unknown value', gsutils.get_site(key))
 
 def test_SRM_Version(key,entry,attribute):
@@ -431,7 +431,7 @@ def test_SRM_Version(key,entry,attribute):
    if (entry.has_key('GlueSEControlProtocolType')): 
        if (entry['GlueSEControlProtocolType'][0] == "SRM" and 
            entry[attribute][0] not in ("1.1.0","2.2.0")):
-          my_errors.log(gsutils.get_unique_id(key),'SRM.Version',
+          my_errors.log(key,'SRM.Version',
                         attribute + ' has unknown value', gsutils.get_site(key))
 
 def test_SEControlProtocol_Endpoint(key,entry):
@@ -439,35 +439,35 @@ def test_SEControlProtocol_Endpoint(key,entry):
 
    if (entry['GlueSEControlProtocolType'][0] == "SRM"):
       if (entry['GlueSEControlProtocolEndpoint'][0][:8] != "httpg://"):
-         my_errors.log(gsutils.get_unique_id(key),'SEControlProtocol.Endpoint',
+         my_errors.log(key,'SEControlProtocol.Endpoint',
                           'GlueSEControlProtocolEndpoint protocol is not httpg', gsutils.get_site(key))
 
       colon=entry['GlueSEControlProtocolEndpoint'][0].find(":",8)+1
       slash=entry['GlueSEControlProtocolEndpoint'][0].find("/",8)
       if colon == -1 or slash == -1: 
-         my_errors.log(gsutils.get_unique_id(key),'SEControlProtocol.Endpoint',
+         my_errors.log(key,'SEControlProtocol.Endpoint',
                           'GlueSEControlProtocolEndpoint malformed', gsutils.get_site(key))
       else:
          try:
             int(entry['GlueSEControlProtocolEndpoint'][0][colon:slash])
          except ValueError:
-            my_errors.log(gsutils.get_unique_id(key),'SEControlProtocol.Endpoint',
+            my_errors.log(key,'SEControlProtocol.Endpoint',
                           'GlueSEControlProtocolEndpoint port not specified', gsutils.get_site(key))
 
       if (entry['GlueSEControlProtocolEndpoint'][0][slash+1:] not in
                ("srm/managerv1","srm/managerv2")): 
-         my_errors.log(gsutils.get_unique_id(key),'SEControlProtocol.Endpoint',
+         my_errors.log(key,'SEControlProtocol.Endpoint',
                           'GlueSEControlProtocolEndpoint not a full SOAP URL', gsutils.get_site(key))
 
    if (entry['GlueSEControlProtocolType'][0] == "xroot"):
       if (entry['GlueSEControlProtocolEndpoint'][0][:8] != "xroot://" or
           entry['GlueSEControlProtocolEndpoint'][0][:7] != "root://"):
-         my_errors.log(gsutils.get_unique_id(key),'SEControlProtocol.Endpoint',
+         my_errors.log(key,'SEControlProtocol.Endpoint',
                           'GlueSEControlProtocolEndpoint protocol is not [x]root', gsutils.get_site(key))
 
       slash=entry['GlueSEControlProtocolEndpoint'][0].find("/",8)
       if slash == -1:
-         my_errors.log(gsutils.get_unique_id(key),'SEControlProtocol.Endpoint',
+         my_errors.log(key,'SEControlProtocol.Endpoint',
                           'GlueSEControlProtocolEndpoint malformed', gsutils.get_site(key))
 
    # Check if GlueService exists with same Endpoint
@@ -481,7 +481,7 @@ def test_SEControlProtocol_Endpoint(key,entry):
              SRMflg=1
              kkey=k
       if ( SRMflg == 0 ):
-         my_errors.log(gsutils.get_unique_id(key),'SEControlProtocol.Service',
+         my_errors.log(key,'SEControlProtocol.Service',
                           'No GlueService with same endpoint', gsutils.get_site(key))
       else:
          # GlueServiceUniqueID attribute must exist and must be set
@@ -520,7 +520,7 @@ def test_Service_Status(key,entry):
 
    if (entry['GlueServiceStatus'][0] not in
             ("OK", "Warning", "Critical", "Unknown", "Other")):
-      my_errors.log(gsutils.get_unique_id(key),'Service.Status',
+      my_errors.log(key,'Service.Status',
                           'GlueServiceStatus has unknown value', gsutils.get_site(key))
 
 
@@ -532,27 +532,27 @@ def test_glue_SEAccessProtocol(key,entry):
    # GlueSEAccessProtocolLocalID attribute must exist and must be set
    logging.debug("Testing SEAccessProtocol for existence of GlueSEAccessProtocolLocalID")
    if not entry.has_key('GlueSEAccessProtocolLocalID'):
-      my_errors.log(gsutils.get_unique_id(key),'SEAccessProtocol.LocalID.Exist',
+      my_errors.log(key,'SEAccessProtocol.LocalID.Exist',
                     'GlueSEAccessProtocolLocalID does not exist in the entry', gsutils.get_site(key))
 
    # Test for unique GlueSEAccessProtocolLocalID value within an SE
    logging.debug("Testing SEAccessProtocol for univocity of GlueSEAccessProtocolLocalID")
    if (entry.has_key('GlueSEAccessProtocolLocalID') and
                     SEAP.count(entry['GlueSEAccessProtocolLocalID'][0]) > 1):
-      my_errors.log(gsutils.get_unique_id(key),'SEAccessProtocol.LocalID.Unique',
+      my_errors.log(key,'SEAccessProtocol.LocalID.Unique',
                     'GlueSEAccessProtocolLocalID is not unique within SE', gsutils.get_site(key))
 
    # GlueSEAccessProtocolType must be set to allowed value
    if entry.has_key('GlueSEAccessProtocolType'):
       test_SEAccessProtocol_Type(key,entry)
    else:
-      my_errors.log(gsutils.get_unique_id(key),'SEAccessProtocol.Type.Exist',
+      my_errors.log(key,'SEAccessProtocol.Type.Exist',
                     'GlueSEAccessProtocolType does not exist in the entry', gsutils.get_site(key))
 
    # GlueSEAccessProtocolVersion must be set 
    if (entry.has_key('GlueSEAccessProtocolType') and not 
                entry.has_key('GlueSEAccessProtocolVersion')):
-      my_errors.log(gsutils.get_unique_id(key),'SEAccessProtocol.Version.Exist',
+      my_errors.log(key,'SEAccessProtocol.Version.Exist',
                     'GlueSEAccessProtocolVersion does not exist in the entry', gsutils.get_site(key))
 
 
@@ -561,21 +561,21 @@ def test_SEAccessProtocol_Type(key,entry):
 
    if (entry['GlueSEAccessProtocolType'][0] not in
        ("gsiftp","nfs","afs","rfio","gsirfio","file",
-        "dcap","gsidcap","xroot","https","other")): 
-        my_errors.log(gsutils.get_unique_id(key),'SEAccessProtocol.Type',
+        "dcap","gsidcap","xroot","root", "https","other")): 
+        my_errors.log(key,'SEAccessProtocol.Type',
                           'GlueSEAccessProtocolType has unknown value', gsutils.get_site(key))
 
    if (entry['GlueSEAccessProtocolType'][0] in
        ("gsiftp","gsirfio","gsidcap") and not
        entry.has_key('GlueSEAccessProtocolSupportedSecurity')):
-        my_errors.log(gsutils.get_unique_id(key),'SEAccessProtocol.SupportedSecurity',
+        my_errors.log(key,'SEAccessProtocol.SupportedSecurity',
                           'GlueSEAccessProtocolSupportedSecurity is not published', gsutils.get_site(key))
  
    if (entry['GlueSEAccessProtocolType'][0] in
        ("gsiftp","gsirfio","gsidcap") and 
        entry.has_key('glueSEAccessProtocolSupportedSecurity') and
        entry['glueSEAccessProtocolSupportedSecurity'][0] != "GSI"):
-        my_errors.log(gsutils.get_unique_id(key),'SEAccessProtocol.SupportedSecurity',
+        my_errors.log(key,'SEAccessProtocol.SupportedSecurity',
                           'GlueSEAccessProtocolSupportedSecurity unknown value', gsutils.get_site(key))
 
 
@@ -586,10 +586,10 @@ def test_Size(key,entry,attribute,type,error):
       long(entry[attribute][0])
    
       if long(entry[attribute][0]) < 0:
-         my_errors.log(gsutils.get_unique_id(key),type + '.Size.Value',
+         my_errors.log(key,type + '.Size.Value',
                        attribute + ' value is less than 0',  gsutils.get_site(key))
    except ValueError:
-         my_errors.log(gsutils.get_unique_id(key),type + '.Size.Value',
+         my_errors.log(key,type + '.Size.Value',
                           attribute + ' value is not an integer', gsutils.get_site(key))
 
 
@@ -604,7 +604,7 @@ def test_ACBR(key,entry,attribute,type):
    ##               https://savannah.cern.ch/bugs/?57827
    # for val in entry[attribute]:
    #   if ( val[0] != "/" and val[:3] != "VO:" and val[:6] != "VOMS:/" ):
-   #      my_errors.log(gsutils.get_unique_id(key),type+'.AccessControlBaseRule',
+   #      my_errors.log(key,type+'.AccessControlBaseRule',
    #                       val+' ACBR has an invalid format', gsutils.get_site(key))
 
 
@@ -679,7 +679,7 @@ if __name__ == "__main__":
             try:
                SE_SA_VOInfo[se_unique_id][sa_local_id][vo_local_id]
                details = "GlueVOInfoLocalID %s is not unique withing the SA %s for the SE %s." %(vo_local_id, sa_local_id, se_unique_id)
-               my_errors.log(gsutils.get_unique_id(key),'VOInfo.LocalID.Unique', details, gsutils.get_site(key))
+               my_errors.log(key,'VOInfo.LocalID.Unique', details, gsutils.get_site(key))
             except KeyError:
                SE_SA_VOInfo[se_unique_id][sa_local_id][vo_local_id] = None
 
