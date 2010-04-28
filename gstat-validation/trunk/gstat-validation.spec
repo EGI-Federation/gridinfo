@@ -1,6 +1,6 @@
 Summary: Gstat Valiation Scripts
 Name: gstat-validation
-Version: 2.0.30
+Version: 2.0.31
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: EGEE
@@ -36,7 +36,11 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 /usr/share/gstat 
 
-%changelog
+%changelo
+* Tue Apr 28 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.31-1
+- The SE tests prints the DN rather than UniqueID
+- The error message has been improved for missing GlueSA Size attributes
+- root has been re-enabled as an SEAccessProtocol
 * Thu Apr 13 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.30-1
 - Removed constraint on generic CE Capabilities
 * Thu Apr 1 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.29-1
