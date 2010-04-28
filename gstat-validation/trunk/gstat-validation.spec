@@ -36,7 +36,7 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 /usr/share/gstat 
 
-%changelo
+%changelog
 * Tue Apr 28 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.31-1
 - The SE tests prints the DN rather than UniqueID
 - The error message has been improved for missing GlueSA Size attributes
