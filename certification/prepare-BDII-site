@@ -1,0 +1,43 @@
+#!/bin/bash
+
+echo "Configuring Yum repository"
+
+# Configure glite 3.2 repo
+wget http://grid-deployment.web.cern.ch/grid-deployment/glite/repos/devel/glite_3_2_cert.repo -O /etc/yum.repos.d/glite_3_2_cert.repo 
+
+# Configure build repo
+wget http://etics-repository.cern.ch/repository/pm/volatile/repomd/id/b443876e-7fc4-4f31-af26-a8482e3cd230/sl5_x86_64_gcc412/etics-volatile-build-by-id.repo -O etics-volatile-build-by-id.repo
+
+
+echo "Installing Service"
+yum install -y glite-BDII_site
+
+
+echo "Configuring Service"
+MY_DOMAIN=$(hostname -d)
+MY_HOST=$(hostname -f)
+# Create site-info.def
+cat <<EOF > /root/site-info.def
+
+# Site Information
+SITE_NAME=TestSite
+SITE_EMAIL="email@${MY_DOMAIN}"
+SITE_LAT=0.0 
+SITE_LONG=0.0
+SITE_DESC="Test Site"
+SITE_LOC="Test Node"
+SITE_WEB="http://${MY_DOMAIN}"
+SITE_SECURITY_EMAIL="security@${MY_DOMAIN}"
+SITE_SUPPORT_EMAIL="support@${MY_DOMAIN}"
+SITE_OTHER_GRID="MYGrid"
+
+
+SITE_BDII_HOST=${MY_HOST}
+
+BDII_REGIONS="SITE_BDII"
+BDII_SITE_BDII_URL="ldap://${MY_HOST}:2170/mds-vo-name=resource,o=grid"
+EOF
+
+# Run Yaim
+/opt/glite/yaim/bin/yaim -c -s site-info.def -n BDII_site
+

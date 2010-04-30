@@ -1,0 +1,241 @@
+#!/bin/bash
+
+
+command="ldapsearch -LLL -x -h $(hostname -f) -p 2170 "
+bind="-b mds-vo-name=resource,o=grid "
+
+RETVAL=0
+
+echo -n "Testing the publication of site entry at resource-level: "
+filter="objectClass=GlueSite  GlueSiteUniqueID"
+${command} ${bind} ${filter} | grep "TestSite" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of service entry at resource-level: "
+filter="(&(objectClass=GlueService)(GlueServiceType=bdii_site)) GlueServiceUniqueID"
+${command} ${bind} ${filter} | grep "$(hostname -f)" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of service entry at resource-level: "
+filter="(&(objectClass=GlueService)(GlueServiceType=bdii_site)) GlueServiceUniqueID"
+${command} ${bind} ${filter} | grep "$(hostname -f)" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of glite-info-service_version entry at resource-level: "
+filter="(&(objectClass=GlueServiceData)(GlueServiceDataKey=glite-info-service_version)) GlueServiceDataKey"
+${command} ${bind} ${filter} | grep "glite-info-service_version" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of glite-info-service_hostname entry at resource-level: "
+filter="(&(objectClass=GlueServiceData)(GlueServiceDataKey=glite-info-service_hostname)) GlueServiceDataKey"
+${command} ${bind} ${filter} | grep "glite-info-service_hostname" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+bind="-b GLUE2GroupID=resource,o=glue "
+
+echo -n "Testing the publication of GLUE2 service entry at resource-level: "
+filter="(&(objectClass=GLUE2Service)(GLUE2ServiceType=bdii_site)) GLUE2ServiceID"
+${command} ${bind} ${filter} | grep "$(hostname -f)" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of GLUE2 endpoint entry at resource-level: "
+filter="(&(objectClass=GLUE2Endpoint)(GLUE2EndpointInterfaceName=bdii_site)) GLUE2EndpointID"
+${command} ${bind} ${filter} | grep "$(hostname -f)" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of GLUE2 policy entry at resource-level: "
+filter="(&(objectClass=GLUE2Policy)(GLUE2PolicyScheme=org.glite.standard)) GLUE2PolicyScheme"
+${command} ${bind} ${filter} | grep "standard" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+bind="-b mds-vo-name=TestSite,o=grid "
+
+echo -n "Testing the publication of site entry at site-level: "
+filter="objectClass=GlueSite  GlueSiteUniqueID"
+${command} ${bind} ${filter} | grep "TestSite" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of service entry at site-level: "
+filter="(&(objectClass=GlueService)(GlueServiceType=bdii_site)) GlueServiceUniqueID"
+${command} ${bind} ${filter} | grep "$(hostname -f)" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of service entry at site-level: "
+filter="(&(objectClass=GlueService)(GlueServiceType=bdii_site)) GlueServiceUniqueID"
+${command} ${bind} ${filter} | grep "$(hostname -f)" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of glite-info-service_version entry at site-level: "
+filter="(&(objectClass=GlueServiceData)(GlueServiceDataKey=glite-info-service_version)) GlueServiceDataKey"
+${command} ${bind} ${filter} | grep "glite-info-service_version" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of glite-info-service_hostname entry at site-level: "
+filter="(&(objectClass=GlueServiceData)(GlueServiceDataKey=glite-info-service_hostname)) GlueServiceDataKey"
+${command} ${bind} ${filter} | grep "glite-info-service_hostname" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+bind="-b GLUE2DomainID=TestSite,o=glue"
+
+echo -n "Testing the publication of GLUE2 service entry at site-level: "
+filter="(&(objectClass=GLUE2Service)(GLUE2ServiceType=bdii_site)) GLUE2ServiceID"
+${command} ${bind} ${filter} | grep "$(hostname -f)" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of GLUE2 endpoint entry at site-level: "
+filter="(&(objectClass=GLUE2Endpoint)(GLUE2EndpointInterfaceName=bdii_site)) GLUE2EndpointID"
+${command} ${bind} ${filter} | grep "$(hostname -f)" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of GLUE2 policy entry at site-level: "
+filter="(&(objectClass=GLUE2Policy)(GLUE2PolicyScheme=org.glite.standard)) GLUE2PolicyScheme"
+${command} ${bind} ${filter} | grep "standard" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of GLUE2 domain entry at site-level: "
+filter="(objectClass=GLUE2Domain) GLUE2DomainID"
+${command} ${bind} ${filter} | grep "TestSite" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of GLUE2 location entry at site-level: "
+filter="(objectClass=GLUE2Location)  GLUE2LocationID"
+${command} ${bind} ${filter} | grep "TestSite" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of GLUE2 usersupport contact at site-level: "
+filter="(&(objectClass=GLUE2Contact)(GLUE2ContactType=usersupport)) GLUE2ContactDetail"
+${command} ${bind} ${filter} | grep "support" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of GLUE2 general contact at site-level: "
+filter="(&(objectClass=GLUE2Contact)(GLUE2ContactType=general)) GLUE2ContactDetail"
+${command} ${bind} ${filter} | grep "general" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of GLUE2 security contact at site-level: "
+filter="(&(objectClass=GLUE2Contact)(GLUE2ContactType=security)) GLUE2ContactDetail"
+${command} ${bind} ${filter} | grep "security" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the publication of GLUE2 sysadmin contact at site-level: "
+filter="(&(objectClass=GLUE2Contact)(GLUE2ContactType=sysadmin)) GLUE2ContactDetail"
+${command} ${bind} ${filter} | grep "sysadmin" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+if [ ${RETVAL} -eq 1 ]; then
+    echo "Test Failed"
+    exit 1
+else
+    echo "Test Passed"
+    exit 0
+fi
