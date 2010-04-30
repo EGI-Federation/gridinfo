@@ -1,0 +1,15 @@
+#!/bin/bash
+
+if [ $# -lt 1 ] || [ "$1" = "-h" ] || [ "$1" = "-help" ] || [ "$1" = "--help" ]; then
+  echo "Usage:"
+  echo "  $0 NUMBER"
+  echo "Arguments:"
+  echo "  NUMBER Number of the vtb machine. Example: 64 for vtb-generic-64"
+  exit 1
+fi
+
+REMOTEHOST=vtb-generic-$1
+rm -rf logs/*
+mkdir logs/
+scp -r -o 'StrictHostKeyChecking=no' root@$REMOTEHOST:/root/*.log logs
+
