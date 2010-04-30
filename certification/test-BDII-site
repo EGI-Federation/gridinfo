@@ -1,5 +1,5 @@
 #!/bin/bash
-
+# ./test-BDII-site 2>&1 | tee test.log
 
 command="ldapsearch -LLL -x -h $(hostname -f) -p 2170 "
 bind="-b mds-vo-name=resource,o=grid "
