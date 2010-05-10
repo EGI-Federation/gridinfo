@@ -1,5 +1,6 @@
 org.glite.wms.WMProxy
 org.glite.lb.Server
+org.glite.lb.server
 org.glite.ce.CREAM
 org.glite.ce.Monitor
 org.glite.rgma.Consumer
