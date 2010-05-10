@@ -331,8 +331,8 @@ def check_site_other_info(site):
 
             if (tiers.has_key(site_id[0])):
                 if (other_info.has_key("WLCG_TIER")):
-                   if ( not other_info['WLCG_TIER'][0] == 0):
-                      key = ['WLCG_PARENT']
+                   if ( not other_info['WLCG_TIER'][0] == '0'):
+                      key = 'WLCG_PARENT'
                       if ( not other_info.has_key(key) ):
                          details = "%s is a tier %s but is not publishing the attribute %s" %(site_id[0], tiers[site_id[0]], key)
                          my_errors.log(site_id[0], "site.OhterInfo.missing_WLCG", details, site_id[0])
