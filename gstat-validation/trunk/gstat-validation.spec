@@ -1,6 +1,6 @@
 Summary: Gstat Valiation Scripts
 Name: gstat-validation
-Version: 2.0.31
+Version: 2.0.32
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: EGEE
@@ -37,6 +37,10 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/gstat 
 
 %changelog
+* Mon May 10 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.32-1
+- Fixed issue IS-89
+- Fixed issue IS-90
+- Fixed issue IS-91
 * Tue Apr 28 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.31-1
 - The SE tests prints the DN rather than UniqueID
 - The error message has been improved for missing GlueSA Size attributes
