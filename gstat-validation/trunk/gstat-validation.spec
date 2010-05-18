@@ -1,6 +1,6 @@
 Summary: Gstat Valiation Scripts
 Name: gstat-validation
-Version: 2.0.33
+Version: 2.0.34
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: EGEE
@@ -37,6 +37,8 @@ rm -rf $RPM_BUILD_ROOT
 /usr/share/gstat 
 
 %changelog
+* Tue May 18 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.34-1
+- Improved the testing of GlueHostProcessorOtherDescription
 * Mon May 10 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.32-1
 - Fixed issue IS-89
 - Fixed issue IS-90
