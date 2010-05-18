@@ -28,7 +28,7 @@ GlueHostOperatingSystemVersion: Boron
 GlueHostProcessorClockSpeed: 2800
 GlueHostProcessorModel: Xeon
 GlueHostProcessorVendor: intel
-GlueHostProcessorOtherDescription: Cores=.9.9,HEP-SPEC06=16
+GlueHostProcessorOtherDescription: Cores=.9.9,Benchmark=16-HEP-SPEC06
 GlueSubClusterName: ce129.cern.ch
 GlueSubClusterUniqueID: ce129.cern.ch
 GlueSubClusterPhysicalCPUs: 1000
