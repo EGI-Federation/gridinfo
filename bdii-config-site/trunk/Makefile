@@ -9,9 +9,7 @@ default:
 
 install:
 	@echo installing ...
-	@mkdir -p $(prefix)/opt/glite/etc/gip/ldif/
 	@mkdir -p $(prefix)/opt/glite/etc/gip/provider/
-	@mkdir -p $(prefix)/opt/glite/etc/gip/plugin/
 	@install -m 0755 provider/glite-info-provider-* $(prefix)/opt/glite/etc/gip/provider/
 	@install -m 0644 etc/site-urls.conf $(prefix)/opt/glite/etc/gip/
 
