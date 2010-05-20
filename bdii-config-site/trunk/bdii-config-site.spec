@@ -1,5 +1,5 @@
 Name:		bdii-config-site
-Version:	0.5.0
+Version:	0.6.0
 Release:	1%{?dist}
 Summary:	Site BDII configration files
 Group:		System/Monitoring
@@ -32,6 +32,10 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
+
+%dir /opt/glite/etc/gip/ldif
+%dir /opt/glite/etc/gip/provider
+%dir /opt/glite/etc/gip/plugin
 /opt/glite/etc/gip/provider/glite-info-provider-service-bdii-site
 /opt/glite/etc/gip/provider/glite-info-provider-site
 /opt/glite/etc/gip/site-urls.conf
