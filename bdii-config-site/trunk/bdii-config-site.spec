@@ -1,5 +1,5 @@
 Name:		bdii-config-site
-Version:	0.4.0
+Version:	0.5.0
 Release:	1%{?dist}
 Summary:	Site BDII configration files
 Group:		System/Monitoring
@@ -32,16 +32,18 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-/var/lib/bdii/gip/provider/glite-info-provider-service-bdii-site
-/var/lib/bdii/gip/provider/glite-info-provider-site
+/opt/glite/etc/gip/provider/glite-info-provider-service-bdii-site
+/opt/glite/etc/gip/provider/glite-info-provider-site
 /opt/glite/etc/gip/site-urls.conf
-/var/lib/bdii/gip/provider/glite-info-provider-service-bdii-site-glue2
-/var/lib/bdii/gip/provider/glite-info-provider-site-entry
-/var/lib/bdii/gip/provider/glite-info-provider-site-entry-glue2
-/var/lib/bdii/gip/provider/glite-info-provider-site-glue2
+/opt/glite/etc/gip/provider/glite-info-provider-service-bdii-site-glue2
+/opt/glite/etc/gip/provider/glite-info-provider-site-entry
+/opt/glite/etc/gip/provider/glite-info-provider-site-entry-glue2
+/opt/glite/etc/gip/provider/glite-info-provider-site-glue2
 
 
 
 %changelog
-* Wed Apr 07 2010 Laurence Field <laurence.field@cern.ch> - 0.1.0-1
+* Thu May 20 2010 Laurence Field <laurence.field@cern.ch> - 0.5.0-1
+- Changed to /opt/glite/etc
+* Wed Apr 07 2010 Laurence Field <laurence.field@cern.ch> - 0.4.0-1
 - New package
