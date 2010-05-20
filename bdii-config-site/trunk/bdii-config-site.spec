@@ -1,5 +1,5 @@
 Name:		bdii-config-site
-Version:	0.6.0
+Version:	0.7.0
 Release:	1%{?dist}
 Summary:	Site BDII configration files
 Group:		System/Monitoring
@@ -33,9 +33,6 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 
-%dir /opt/glite/etc/gip/ldif
-%dir /opt/glite/etc/gip/provider
-%dir /opt/glite/etc/gip/plugin
 /opt/glite/etc/gip/provider/glite-info-provider-service-bdii-site
 /opt/glite/etc/gip/provider/glite-info-provider-site
 /opt/glite/etc/gip/site-urls.conf
@@ -44,10 +41,8 @@ rm -rf %{buildroot}
 /opt/glite/etc/gip/provider/glite-info-provider-site-entry-glue2
 /opt/glite/etc/gip/provider/glite-info-provider-site-glue2
 
-
-
 %changelog
-* Thu May 20 2010 Laurence Field <laurence.field@cern.ch> - 0.5.0-1
+* Thu May 20 2010 Laurence Field <laurence.field@cern.ch> - 0.7.0-1
 - Changed to /opt/glite/etc
 * Wed Apr 07 2010 Laurence Field <laurence.field@cern.ch> - 0.4.0-1
 - New package
