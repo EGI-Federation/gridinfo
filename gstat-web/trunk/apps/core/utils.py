@@ -103,7 +103,7 @@ def get_gluesas(service_list, vo_name=None):
                 voname = vo_to_sa_mapping[sa.gluese_fk][sa.localid]
             except KeyError, e:
                     continue
-            if voname == vo_name:
+            if vo_name == voname:
                 sa_list.append(sa)
         sas = sa_list
         
@@ -166,6 +166,10 @@ def get_vo_to_sa_mapping(sa_list=None):
             vo_to_sa_mapping[object.uniqueid] = {}
         # vo_to_sa_mapping[gluese_uniqueid][gluesa_localid] = vo_name
         vo_to_sa_mapping[object.uniqueid][object.localid] = vo
+        # vo_to_sa_mapping[gluese_uniqueid][gluesa_localid] = [vo_list]
+        #if (object.localid not in vo_to_sa_mapping[object.uniqueid]):
+        #    vo_to_sa_mapping[object.uniqueid][object.localid] = []
+        #vo_to_sa_mapping[object.uniqueid][object.localid].append(vo)
 
     return vo_to_sa_mapping
 
@@ -703,8 +707,8 @@ def get_installed_capacities(site_list, vo_name=None):
         try:
             site_id = cluster_site_mapping[ce_cluster_mapping[vo_view.glueceuniqueid]]
             site_data[site_id][7] += convert_to_integer(vo_view.totaljobs)
-            site_data[site_id][8] += convert_to_integer(vo_view.waitingjobs)
-            site_data[site_id][9] += convert_to_integer(vo_view.runningjobs)
+            site_data[site_id][8] += convert_to_integer(vo_view.runningjobs)
+            site_data[site_id][9] += convert_to_integer(vo_view.waitingjobs)
         except KeyError:
             continue
 
