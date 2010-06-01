@@ -347,7 +347,6 @@ def get_service_VO():
             
             if ( not entity_store.has_key(vo + 'VO') ):
                 entity_store[vo + 'VO'] =  (vo, 'VO')
-                print vo
 
             if (attribute == 'GlueCEAccessControlBaseRule'):
                 if ( glueces.has_key(unique_id) ):
