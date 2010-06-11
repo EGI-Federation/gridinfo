@@ -185,7 +185,6 @@ def delete_old_entries():
 
 # Delete old entries from the database in raw SQL
 def delete_old_entries_raw():
-    from django.db import connection
     cursor = connection.cursor()
     to_test = objects.copy()
     to_test['gluemultivalued'] = None
@@ -193,6 +192,24 @@ def delete_old_entries_raw():
     for table_name in to_test:
         cursor.execute("DELETE FROM gstat.glue_"+table_name.lower()+" WHERE updated_at <= %s", [start_time])
     transaction.commit()
+
+# wrap around autoincrement back to one
+def reuse_autoincrement():
+    cursor = connection.cursor()
+    to_test = objects.copy()
+    to_test['gluemultivalued'] = None
+    for table_name in to_test:
+        auto_increment = get_nextautoincrement( table_name.lower() )
+        if auto_increment >= 2147483648:
+            cursor.execute("ALTER TABLE gstat.glue_%s AUTO_INCREMENT=1" % table_name.lower())
+    transaction.commit()
+
+def get_nextautoincrement( table_name ):
+    cursor = connection.cursor()
+    cursor.execute("SELECT Auto_increment FROM information_schema.tables WHERE table_name='glue_%s';" % table_name)
+    row = cursor.fetchone()
+    cursor.close()
+    return row[0]
 
 # Define function to process tuple
 def process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds, glueforeignkeys):
@@ -340,6 +357,8 @@ def main():
     log.info('Welcome to the snapshot script')
     log.info('Processing started ...')
     
+    reuse_autoincrement();
+    
     #Define variables required for the translation loop
     table_name=""
     tuple={}
@@ -463,7 +482,6 @@ def main():
     log.info("Time taken so far: %s" % str(datetime.now() - start_time))
     log.info('Deleting old entries...')
     delete_old_entries_raw()
-    transaction.commit()
     
     # Get time taken for the translation
     log.info("Total time taken: %s" % str(datetime.now() - start_time))
