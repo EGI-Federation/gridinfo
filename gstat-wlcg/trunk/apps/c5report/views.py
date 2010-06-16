@@ -11,9 +11,24 @@ monthName = ['', 'January', 'February', 'March', 'April',
              'October', 'November', 'December']
 
 def index(request):
+    return viewNormal(request)
+
+
+def viewNormal(request):
     data = getData()
     data['c5report_active'] = 1
     return render_to_response('c5report.html', data)
+
+
+def viewMobile(request):
+    data = getData()
+    return render_to_response('c5report.mobile.html', data)
+
+# Not used at the moment
+def viewMobileManifest(request):
+    response = render_to_response('c5report.mobile.manifest')
+    response['Content-Type'] = 'text/cache-manifest'
+    return response
 
 
 def viewText(request):

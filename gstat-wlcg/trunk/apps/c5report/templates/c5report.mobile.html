@@ -1,0 +1,115 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.1//EN" "http://www.w3.org/TR/xhtml11/DTD/xhtml11.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<title>LCG Report</title>
+<meta http-equiv="Content-Type" content="text/html;charset=utf-8" />
+<meta name="viewport" content="width=device-width, minimum-scale=1.0, maximum-scale=1.0" />
+<link rel="apple-touch-icon" href="/media/core/images/LOGO-wlcg.png" />
+<meta content="yes" name="apple-mobile-web-app-capable" />
+<meta content="black" name="apple-mobile-web-app-status-bar-style" />
+<script type="text/javascript">
+    function toggleview(elId) {
+        var element1 = document.getElementById(elId);
+        if (element1.style.display == 'block' || element1.style.display == '')
+           element1.style.display = 'none';
+        else
+           element1.style.display = 'block';
+        return;
+     }
+</script>
+</head>
+
+<body>
+<img src="/media/core/images/LOGO-wlcg.png" style="float: right;" />
+<h2>LCG service</h2>
+
+<h3><a href="#" onclick="toggleview('sites');">Sites</a></h3>
+<div id="sites" style='display:none;'><pre>
+- Total number of Sites (1): {{ total_number_sites }}
+- Sites per Status (1):
+  ok {{ sites_ok }}
+  degraded {{ sites_degraded }}
+  down {{ sites_down }}
+  maintenance {{ sites_maint }}
+  not available {{ sites_na }}
+- Sites per Software version (2):
+  gLite 3.2.0 -> {{ sites_glite32 }}
+  gLite 3.1.0 -> {{ sites_glite31 }}
+</pre></div>
+
+<h3><a href="#" onclick="toggleview('stats');">Statistics</a></h3>
+<div id="stats" style='display:none;'><pre>
+Jobs exec in {{ jobs_last_month_monthName }} {{ jobs_last_month_yearNumber }} (3): {{ jobs_last_month }}
+Jobs exec in {{ jobs_this_month_monthName }} {{ jobs_this_month_yearNumber }} (3): {{ jobs_this_month }}
+CREAM CEs unique hosts (4): {{ creamces_unique_hosts }}
+LCG-CEs unique hosts (5): {{ lcgces_unique_hosts }}
+Sites supporting CREAM CEs (6): {{ sites_creamces }}
+Sites supporting LCG-CEs (7): {{ sites_lcgces }}
+Sites supporting MPI (8): {{ sites_mpi }}
+Log CPUs supporting MPI (9): {{ logical_cpus_mpi }}
+</pre></div>
+
+<h3><a href="#" onclick="toggleview('ic');">Installed Capacity</a></h3>
+<div id="ic" style="display:none;"><pre>
+- IC per Operating System (10):
+{{ "OS Name"|ljust:"13" }}{{ "Clust"|rjust:"5" }}{{ "CPUs"|rjust:"10" }}{{ "SI2000"|rjust:"10" }}
+{% for row in ic_per_os %}{{ row.0|ljust:"13" }}{{ row.1|rjust:"5" }}{{ row.2|rjust:"10" }}{{ row.3|rjust:"10" }}
+{% endfor %}
+- IC per CE Type (10):
+{{ "CE Type"|ljust:"15" }}{{ "Logical CPUs"|rjust:"15" }}
+{% for row in ic_per_ce %}{{ row.0|ljust:"15" }}{{ row.1|rjust:"15" }}
+{% endfor %}
+</pre></div>
+
+<h3><a href="#" onclick="toggleview('notes');">Notes</a></h3>
+<div id="notes" style='display:none;'><pre>
+-------------------------------------------------
+Notes:
+-------------------------------------------------
+(1) Sites that are Certified, in Production and that have been monitored
+   by SAM during the last week under OPS credentials.
+   SAM is available at: https://lcg-sam.cern.ch:8443/sam/sam.py
+   To see this page one needs a grid certificate loaded in the browser.
+   The calculation of the Site availability (Status) is described at:
+   https://cern.ch/twiki/pub/LCG/GridView/Gridview_Service_Availability_Computation.pdf
+
+(2) Software version is coming from the 'CE-sft-softver' CE test. Sites
+   not supporting SAM 'CE' service, or not having sent results for this
+   particular test during the last week, are not counted.
+
+(3) Job statistics taken from EGEE Accounting Portal:
+    http://www3.egee.cesga.es/
+
+(4) Extracted from GStat 2.0. It can be checked by counting the number of
+    distinct hostnames from CEs with GlueCEImplementationName=CREAM.
+
+(5) Extracted from GStat 2.0. It can be checked by counting the number of
+    distinct hostnames from CEs with GlueCEImplementationName=LCG-CE.
+
+(6) Extracted from GStat 2.0. It can be checked by counting the sites that
+    have clusters which have CEs with GlueCEImplementationName=CREAM.
+
+(7) Extracted from GStat 2.0. It can be checked by counting the sites that
+    have clusters which have CEs with GlueCEImplementationName=LCG-CE.
+
+(8) Extracted from GStat 2.0. It can be checked by counting the sites that
+    have clusters which have sub clusters with
+    GlueHostApplicationSoftwareRunTimeEnvironment=MPI-START
+
+(9) Extracted from GStat 2.0. It can be checked by aggregating the logicalcpus
+    of sub clusters with GlueHostApplicationSoftwareRunTimeEnvironment=MPI-START
+
+(10) Extracted from GStat 2.0. We consider the following operating systems: AIX,
+    Debian, Ubuntu and SUSE LINUX. We also consider the following RHEL Compat.
+    systems: Scientific Linux, Scientific Linux CERN, ScientificCERNSLC, CentOS,
+    ScientificSL, ScientificFermiLTS, RedHatEnterpriseAS, RedHatEnterpriseWS
+    and ScientificSLF. If you need to publish your OS, follow:
+    http://goc.grid.sinica.edu.tw/gocwiki/How_to_publish_the_OS_name
+    If you need to include more operating systems or CE types, please contact:
+    project-grid-info-support@cern.ch
+</pre></div>
+
+{{ date }}
+
+</body>
+</html>
