@@ -50,7 +50,7 @@ for line in response:
         sitename=re.sub("ldap.*","",line).strip()
         hostname=re.sub(".*ldap://","",line)
         hostname=re.sub(":.*","",hostname).strip()
-        value = re.sub(".*ldap://","",line)
+        value = re.sub(".*ldap://","ldap://",line).strip()
         (service_obj, created) = Entity.objects.get_or_create(uniqueid=value, type='bdii_site', hostname=hostname)
         if created:
             service_obj.save()
