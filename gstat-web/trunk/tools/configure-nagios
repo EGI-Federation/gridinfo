@@ -118,64 +118,21 @@ else:
 
 new_hosts = []
 
-for alias in hosts:
-    try:
-        ips = socket.gethostbyname_ex(alias)[2]
-    except:
-        log.error("Host %s is not valid." % (alias))
-        continue
+for host in hosts:
+    outfile=open("%s/gstat/hosts/%s.cfg" %(config['nagios'], host), 'w')
 
-    for ip in ips:
-        try:
-            instances = socket.gethostbyaddr(ip)
-        except:
-            log.error("Reverse lookup for %s failed." % (ip))
-            continue
-
-    outfile=open("%s/gstat/hosts/%s.cfg" %(config['nagios'], alias), 'w')
-
-    # Create host group if more than one instance
-    if (len(ips) > 1):
-        outfile.write('''
-define hostgroup{
-    hostgroup_name     %s
-    alias              %s  
-    members            ''' %(alias,alias))
-        for ip in ips:
-            try:
-                host=socket.gethostbyaddr(ip)[0]
-            except:
-                log.error("Reverse lookup for %s failed." % (ip))            
-            outfile.write(host)
-            outfile.write(",")
-        outfile.write("\n}\n")
-
-    for ip in ips:
-        try:
-            host=socket.gethostbyaddr(ip)[0]
-        except:
-            log.error("Reverse lookup for %s failed." % (ip))            
-            continue
-        try:
-            new_hosts.index(host)
-            continue
-        except ValueError,e:
-            new_hosts.append(host)
-
-        outfile.write('''
+    outfile.write('''
 define host{
     use                     linux-server
     host_name               %s
-    alias                   %s
-    address                 %s
 }
-''' %(host,host,ip))
+''' %(host))
 
-        if ( top_bdii.has_key(alias) ):
+    if ( top_bdii.has_key(host) ):
 
-            bind = top_bdii[alias]
-    
-            outfile.write('''
+        bind = top_bdii[host]
+        
+        outfile.write('''
 define service{
     use                     info-service
     service_description     check-bdii-sites
@@ -185,7 +142,7 @@ define service{
 
 ''' % (host,bind,host))
 
-            outfile.write('''
+    outfile.write('''
 define service{
     use                     info-service
     service_description     check-bdii-freshness
@@ -196,10 +153,10 @@ define service{
 ''' % (host,bind,host))
             
 
-        if ( site_bdii.has_key(alias) ):
-            bind = site_bdii[alias]
+    if ( site_bdii.has_key(host) ):
+        bind = site_bdii[host]
 
-            outfile.write('''
+        outfile.write('''
 define service{
     use                     info-service 
     service_description     check-bdii-services
@@ -209,7 +166,7 @@ define service{
 
 ''' % (host,bind,host))
 
-            outfile.write('''
+        outfile.write('''
 define service{
     use                     info-service 
     service_description     check-bdii-freshness
@@ -220,7 +177,7 @@ define service{
 ''' % (host,bind,host))
 
                 
-            outfile.write('''
+        outfile.write('''
 define service{
     use                     info-service
     service_description     check-sanity
@@ -229,7 +186,7 @@ define service{
 }
 ''' % (host,bind,host))
 
-            outfile.write('''
+        outfile.write('''
 define service{
     use                     info-service
     service_description     check-ce
@@ -238,7 +195,7 @@ define service{
 }
 ''' % (host,bind,host))
             
-            outfile.write('''
+        outfile.write('''
 define service{
     use                     info-service
     service_description     check-se
@@ -247,7 +204,7 @@ define service{
 }
 ''' % (host,bind,host))
 
-            outfile.write('''
+        outfile.write('''
 define service{
     use                     info-service
     service_description     check-site
@@ -256,7 +213,7 @@ define service{
 }
 ''' % (host,bind,host))
 
-            outfile.write('''
+        outfile.write('''
 define service{
     use                     info-service
     service_description     check-service
