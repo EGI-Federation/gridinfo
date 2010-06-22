@@ -572,34 +572,36 @@ def get_hostname(uniqueid):
     return hostname
 
 def get_hosts_from_alias(hostname):
-    hosts = []
-    try:
-        ips = socket.gethostbyname_ex(hostname)[2]
-        for ip in ips:
-            instance = socket.gethostbyaddr(ip)[0]
-            hosts.append(instance)
-    except Exception, e:
-        pass
-    hosts.sort()
-    
-    return hosts
+    return [hostname]
+#    hosts = []
+#    try:
+#        ips = socket.gethostbyname_ex(hostname)[2]
+#        for ip in ips:
+#            instance = socket.gethostbyaddr(ip)[0]
+#            hosts.append(instance)
+#    except Exception, e:
+#        pass
+#    hosts.sort()
+#    return hosts
 
 def get_hosts_from_aliases(hostnames):
-    hosts = []
-    for hostname in hostnames:
-        hosts_from_alias = get_hosts_from_alias(hostname)
-        if ( len(hosts_from_alias) > 1 ):
-            #This is an alias point to more than one real hostname
-            hosts += hosts_from_alias
-        elif ( len(hosts_from_alias) == 1 ):
-            if not ( hostname == hosts_from_alias[0]):
-                #This is an alias for a single instance
-                hosts += hosts_from_alias
-            else:
-                #The actual id given was a real host.
-                hosts.append(hostname)
-    hosts.sort()
-    return hosts
+    hostnames.sort()
+    return hostnames
+#    hosts = []
+#    for hostname in hostnames:
+#        hosts_from_alias = get_hosts_from_alias(hostname)
+#        if ( len(hosts_from_alias) > 1 ):
+#            #This is an alias point to more than one real hostname
+#            hosts += hosts_from_alias
+#        elif ( len(hosts_from_alias) == 1 ):
+#            if not ( hostname == hosts_from_alias[0]):
+#                #This is an alias for a single instance
+#                hosts += hosts_from_alias
+#            else:
+#                #The actual id given was a real host.
+#                hosts.append(hostname)
+#    hosts.sort()
+#    return hosts
 
 def convert_to_integer(number):
     try:

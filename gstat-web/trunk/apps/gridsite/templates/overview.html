@@ -108,8 +108,10 @@
         <thead> 
           <tr> 
             <th>Top BDII Alias</th> 
+<!-- remove two columns, only use alias to monitor
             <th>Hostname</th>
             <th>Instances</th>  
+-->
             <th>Status</th> 
           </tr> 
         </thead> 
@@ -117,12 +119,17 @@
         <tbody>
           {% for status in status_list_top %}
           <tr> 
-            <td><a href="/gstat/site/{{ site_name }}/treeview/bdii_top/{{ status.alias }}">{{ status.alias }}</a></td> 
+            <td>
+              <a href="/gstat/site/{{ site_name }}/treeview/bdii_top/{{ status.alias }}">{{ status.alias }}</a>
+              <a href="/gstat/ldap#ldap://{{ status.alias }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Top BDII"/> </a>
+            </td> 
+<!-- remove two columns, only use alias to monitor
             <td>
               <a href="/gstat/site/{{ site_name }}/treeview/bdii_top/{{ status.host }}">{{ status.host }}</a>
               <a href="/gstat/ldap#ldap://{{ status.host }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Top BDII"/> </a>
             </td> 
             <td>{{ status.instance }}</td> 
+-->
             <td><span class="NagiosStatus_{{ status.status }}"> {{ status.status }} </span></td> 
           </tr> 
           {% endfor %}
@@ -137,8 +144,10 @@
         <thead> 
           <tr> 
             <th>Site BDII Alias</th> 
+<!-- remove two columns, only use alias to monitor
             <th>Hostname</th>
             <th>Instances</th>  
+-->
             <th>Status</th> 
           </tr> 
         </thead> 
@@ -146,12 +155,17 @@
         <tbody> 
           {% for status in status_list_site %}
           <tr> 
-            <td><a href="/gstat/site/{{ site_name }}/treeview/bdii_site/{{ status.alias }}">{{ status.alias }}</a></td> 
+            <td>
+              <a href="/gstat/site/{{ site_name }}/treeview/bdii_site/{{ status.alias }}">{{ status.alias }}</a>
+              <a href="/gstat/ldap#ldap://{{ status.alias }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Site BDII"/> </a>
+            </td> 
+<!-- remove two columns, only use alias to monitor
             <td>
               <a href="/gstat/site/{{ site_name }}/treeview/bdii_site/{{ status.host }}">{{ status.host }}</a>
               <a href="/gstat/ldap#ldap://{{ status.host }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Site BDII"/> </a>
             </td> 
             <td>{{ status.instance }}</td> 
+-->
             <td><span class="NagiosStatus_{{ status.status }}"> {{ status.status }} </span></td> 
           </tr> 
           {% endfor %}
