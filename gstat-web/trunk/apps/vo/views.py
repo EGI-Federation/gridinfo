@@ -137,7 +137,12 @@ def treeview(request, vo_name=""):
                 if se.uniqueid not in se_vo_mapping:
                     se_vo_mapping[se.uniqueid] = {}
                 try:
-                    se_vo_mapping[se.uniqueid][ vo_sa_mapping[se.uniqueid][sa_localid] ] = sa_localid
+                    #se_vo_mapping[se.uniqueid][ vo_sa_mapping[se.uniqueid][sa_localid] ] = sa_localid
+                    voname_list = vo_sa_mapping[se.uniqueid][sa_localid]
+                    for voname in voname_list:
+                        if voname not in se_vo_mapping[se.uniqueid]:
+                            se_vo_mapping[se.uniqueid][voname] = []
+                        se_vo_mapping[se.uniqueid][voname].append(sa_localid)
                 except KeyError: continue
                 
     #print "Time taken = %d" %(time.time() - start_time)    
