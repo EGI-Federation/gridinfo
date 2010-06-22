@@ -160,10 +160,13 @@ objects = gluesubcluster.objects.all()
 
 for obj in objects:
     if (not distinct.has_key(obj.uniqueid)):
-        obj_unique_data_dir = '%s/%s' %(sub_data_dir, str(obj.uniqueid).replace('/',''))
+        uniqueid = str(obj.uniqueid)
+        uniqueid = uniqueid.replace('/','')
+        uniqueid = uniqueid.replace(' ','')
+        obj_unique_data_dir = '%s/%s' %(sub_data_dir, uniqueid)
         
         datasources = {'cpu':   ['physicalcpus', 'logicalcpus']}
-        
+
         for key in datasources.keys():
             obj_data_file = '%s/%s.rrd' %(obj_unique_data_dir, key)
             
@@ -284,24 +287,25 @@ datasources = {'storage':   ['totalonlinesize', 'usedonlinesize', 'totalnearline
 objects = gluesa.objects.all()
 for sa in objects:
     try:
-        vo = vo_to_sa_mapping[sa.gluese_fk][sa.localid]
+        voname_list = vo_to_sa_mapping[sa.gluese_fk][sa.localid]
     except KeyError, e:
         continue
 
     se = sa.gluese_fk
-    
-    for key in datasources.keys():
-        if ( not data.has_key(se) ):
-            data[se] = {}
+    if ( not data.has_key(se) ):
+        data[se] = {}
+            
+    for vo in voname_list:
         if ( not data[se].has_key(vo) ):
             data[se][vo] = {}
-        if ( not data[se][vo].has_key(key) ):   
-            data[se][vo][key] = [0,0,0,0]        
-        
-        for attr in datasources[key]:
-            value = sa.__getattribute__(attr)
-            if (value != "999999"): 
-                data[se][vo][key][datasources[key].index(attr)] += convert_to_integer(value)    
+        for key in datasources.keys():
+            if ( not data[se][vo].has_key(key) ):   
+                data[se][vo][key] = [0,0,0,0]        
+            
+            for attr in datasources[key]:
+                value = sa.__getattribute__(attr)
+                if (value != "999999"): 
+                    data[se][vo][key][datasources[key].index(attr)] += convert_to_integer(value)    
 #print "Time taken (get sa storage space): %s" % str(datetime.now() - start_time_get_sastoragespace)
         
 #start_time_archivedata=datetime.now()
@@ -321,7 +325,6 @@ for se in data.keys():
                               archive_type   = 'GAUGE', 
                               archive_period = 900, 
                               data_names     = datasources[key])
-            
                 # Store RRD data
                 data_list = data[se][vo][key]
                 archiveData(archive_path = obj_data_file, 
