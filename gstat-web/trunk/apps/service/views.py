@@ -35,7 +35,8 @@ def main(request, type='', output=None):
                         status = get_nagios_status(nagios_status, 'check-bdii-services', host)
                         state = status['current_state']
                     
-                    row = [ alias, host, len(hosts), freshness, state ]
+                    #row = [ alias, host, len(hosts), freshness, state ]
+                    row = [ alias, freshness, state ]
                     data.append(row)
 
 
@@ -45,9 +46,9 @@ def main(request, type='', output=None):
         try:    title = services[type]
         except: title = ""
         if (type == 'bdii_top'):
-            thead=["Alias", "Hostname", "Instances", "Freshness", "Sites"]
+            thead=["BDII Alias", "Freshness", "Sites"]
         else:
-            thead=["Alias", "Hostname", "Instances", "Freshness", "Services"]
+            thead=["BDII Alias", "Freshness", "Services"]
 
         return render_to_response('single_table_service.html',
                                   {'service_active': 1,
