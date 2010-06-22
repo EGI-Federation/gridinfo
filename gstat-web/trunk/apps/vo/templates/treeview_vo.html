@@ -168,7 +168,9 @@
 		                    <li>
 		                      <span class="se">
 		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/online/"> {{ se }}</a>
+<!-- remove glue icons to avoid showing SA information
 		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
+-->
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -201,7 +203,9 @@
 		                    <li>
 		                      <span class="se">
 		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/nearline/"> {{ se }}</a>
+<!-- remove glue icons to avoid showing SA information
 		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
+-->
 		                      </span>
 		                    </li>
 		                    {% endfor %}

@@ -313,9 +313,11 @@
 		                    <li>
 		                      <span class="vo">
 		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/online/"> {{ vo }}</a>
+<!-- remove glue icons to avoid showing SA information
 		                        {% if tree_sitebdii %}
 		                          <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                        {% endif %}
+-->
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -348,9 +350,11 @@
 		                    <li>
 		                      <span class="vo">
 		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/nearline/"> {{ vo }}</a>
+<!-- remove glue icons to avoid showing SA information
 		                        {% if tree_sitebdii %}
 		                          <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                        {% endif %}
+-->
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -393,7 +397,7 @@
           
           {% if tree_vo %}
             <li class='{% firstof collapse.vo_job collapse.vo_online collapse.vo_nearline "closed" %}'>
-              <span class="folder"> <a class="disable" href='javascript:void(0)'> Supported VO </a> </span>
+              <span class="folder"> <a class="disable" href='javascript:void(0)'> VO </a> </span>
               <ul>
                 {% for vo, clusters, ses in tree_vo %}
                 <li class='{{ collapse|dict_get:vo|default:"closed" }}'>
@@ -437,9 +441,11 @@
 		                    <li>
 		                      <span class="se">
 		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/online/"> {{ se }}</a>
+<!-- remove glue icons to avoid showing SA information
 		                        {% if tree_sitebdii %}
 		                          <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                        {% endif %}
+-->
 		                      </span>
 		                    </li>
 		                    {% endfor %}
@@ -454,9 +460,11 @@
 		                    <li>
 		                      <span class="se">
 		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/nearline/"> {{ se }}</a>
+<!-- remove glue icons to avoid showing SA information
 		                        {% if tree_sitebdii %}
 		                          <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
 		                        {% endif %}
+-->
 		                      </span>
 		                    </li>
 		                    {% endfor %}
