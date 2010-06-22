@@ -88,7 +88,7 @@ def get_gluevoviews(service_list, vo_name=None):
     return voviews
 
 def get_gluesas(service_list, vo_name=None):
-    """ get glue voview entities from glue database """
+    """ get glue sa entities from glue database """
     #get se uniqueid
     uniqueids = []
     for service in service_list:
@@ -100,10 +100,10 @@ def get_gluesas(service_list, vo_name=None):
         vo_to_sa_mapping = get_vo_to_sa_mapping(sas)
         for sa in sas:
             try:
-                voname = vo_to_sa_mapping[sa.gluese_fk][sa.localid]
+                voname_list = vo_to_sa_mapping[sa.gluese_fk][sa.localid]
             except KeyError, e:
                     continue
-            if vo_name == voname:
+            if vo_name in voname_list:
                 sa_list.append(sa)
         sas = sa_list
         
@@ -161,15 +161,18 @@ def get_vo_to_sa_mapping(sa_list=None):
             vo = object.value
         
         if vo.strip() == '': continue
+        vo = vo.strip()
         
         if ( not vo_to_sa_mapping.has_key(object.uniqueid) ):
             vo_to_sa_mapping[object.uniqueid] = {}
-        # vo_to_sa_mapping[gluese_uniqueid][gluesa_localid] = vo_name
-        vo_to_sa_mapping[object.uniqueid][object.localid] = vo
-        # vo_to_sa_mapping[gluese_uniqueid][gluesa_localid] = [vo_list]
-        #if (object.localid not in vo_to_sa_mapping[object.uniqueid]):
-        #    vo_to_sa_mapping[object.uniqueid][object.localid] = []
-        #vo_to_sa_mapping[object.uniqueid][object.localid].append(vo)
+        # structure: vo_to_sa_mapping[gluese_uniqueid][gluesa_localid] = vo_name
+        #vo_to_sa_mapping[object.uniqueid][object.localid] = vo
+        
+        # structure: vo_to_sa_mapping[gluese_uniqueid][gluesa_localid] = [vo_list]
+        if (object.localid not in vo_to_sa_mapping[object.uniqueid]):
+            vo_to_sa_mapping[object.uniqueid][object.localid] = []
+        if vo not in vo_to_sa_mapping[object.uniqueid][object.localid]:
+            vo_to_sa_mapping[object.uniqueid][object.localid].append(vo)
 
     return vo_to_sa_mapping
 

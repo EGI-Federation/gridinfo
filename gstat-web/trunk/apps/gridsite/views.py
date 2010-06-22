@@ -114,26 +114,28 @@ def overview(request, site_name):
         for attr in attributes:
             resource_dict[voname][attr] += stats[attributes.index(attr)]                 
     
-    # Calculate the shared storage space through all SA
+    # Calculate the VO-shared storage space through all SA
     attributes = ["totalonlinesize", "usedonlinesize", "totalnearlinesize", "usednearlinesize"]
     sa_list = get_gluesas(service_list)
     vo_to_sa_mapping = get_vo_to_sa_mapping(sa_list)
     for sa in sa_list:
         try:
-            voname = vo_to_sa_mapping[sa.gluese_fk][sa.localid]
+            voname_list = vo_to_sa_mapping[sa.gluese_fk][sa.localid]
         except KeyError, e:
             continue
-        stats = get_sa_storage_stats([sa])   
-        if voname not in resource_dict.keys():
-            resource_dict[voname] = {}
-            resource_dict[voname]['voname'] = voname
+        stats = get_sa_storage_stats([sa])
+        
+        for voname in voname_list:
+            if voname not in resource_dict.keys():
+                resource_dict[voname] = {}
+                resource_dict[voname]['voname'] = voname
+                for attr in attributes:
+                    resource_dict[voname][attr] = 0
+            elif attributes[0] not in resource_dict[voname].keys():
+                for attr in attributes:
+                    resource_dict[voname][attr] = 0
             for attr in attributes:
-                resource_dict[voname][attr] = 0
-        elif attributes[0] not in resource_dict[voname].keys():
-            for attr in attributes:
-                resource_dict[voname][attr] = 0
-        for attr in attributes:
-            resource_dict[voname][attr] += stats[attributes.index(attr)]     
+                resource_dict[voname][attr] += stats[attributes.index(attr)]     
     
     vo_resources = []
     for voname in resource_dict.keys():
