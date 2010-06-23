@@ -128,6 +128,7 @@ def get_vo_to_voview_mapping(voview_list=None):
         else:
             continue
         if vo.strip() == '': continue
+        vo = vo.strip().lower()
             
         if ( not vo_to_voview_mapping.has_key(object.uniqueid) ):
             vo_to_voview_mapping[object.uniqueid] = {}
@@ -161,7 +162,7 @@ def get_vo_to_sa_mapping(sa_list=None):
             vo = object.value
         
         if vo.strip() == '': continue
-        vo = vo.strip()
+        vo = vo.strip().lower()
         
         if ( not vo_to_sa_mapping.has_key(object.uniqueid) ):
             vo_to_sa_mapping[object.uniqueid] = {}
