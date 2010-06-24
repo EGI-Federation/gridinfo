@@ -4,6 +4,7 @@ import time
 import sys
 import logging
 
+from datetime import datetime
 from django.db import models
 from django.conf import settings
 from topology.models import Entity
@@ -110,13 +111,15 @@ def get_gluesas(service_list, vo_name=None):
     return sas
 
 def get_vo_to_voview_mapping(voview_list=None):
+    # get the time stampe of 15 minutes ago while requesting for getting latest data
+    five_mins_ago = datetime.fromtimestamp(time.time() - 900)
     # Create VO to VOView Mapping
     vo_to_voview_mapping = {}
     if voview_list:
         gluece_uniqueids = [voview.gluece_fk for voview in voview_list]
-        objects = gluemultivalued.objects.filter(attribute='GlueCEAccessControlBaseRule', uniqueid__in=gluece_uniqueids)
+        objects = gluemultivalued.objects.filter(attribute='GlueCEAccessControlBaseRule', uniqueid__in=gluece_uniqueids, updated_at__gt=five_mins_ago)
     else:
-        objects = gluemultivalued.objects.filter(attribute='GlueCEAccessControlBaseRule')
+        objects = gluemultivalued.objects.filter(attribute='GlueCEAccessControlBaseRule', updated_at__gt=five_mins_ago)
     for object in objects:
         if ( object.localid == "" ):
             continue
@@ -138,14 +141,16 @@ def get_vo_to_voview_mapping(voview_list=None):
     return vo_to_voview_mapping
 
 def get_vo_to_sa_mapping(sa_list=None):
+    # get the time stampe of 15 minutes ago while requesting for getting latest data
+    five_mins_ago = datetime.fromtimestamp(time.time() - 900)
     # Create VO to SA Mapping
     vo_to_sa_mapping = {}
     
     if sa_list:
         gluese_uniqueids = [sa.gluese_fk for sa in sa_list]
-        objects = gluemultivalued.objects.filter(attribute='GlueSAAccessControlBaseRule', uniqueid__in=gluese_uniqueids)
+        objects = gluemultivalued.objects.filter(attribute='GlueSAAccessControlBaseRule', uniqueid__in=gluese_uniqueids, updated_at__gt=five_mins_ago)
     else:
-        objects = gluemultivalued.objects.filter(attribute='GlueSAAccessControlBaseRule') 
+        objects = gluemultivalued.objects.filter(attribute='GlueSAAccessControlBaseRule', updated_at__gt=five_mins_ago) 
     
     for object in objects:
         # extract the vo name
@@ -692,10 +697,13 @@ def get_installed_capacities(site_list, vo_name=None):
     ce_cluster_mapping = {}
     for ce in ces:
         ce_cluster_mapping[ce.uniqueid]=ce.gluecluster_fk
+    
+    # get the time stampe of 15 minutes ago while requesting for getting latest data
+    interval = datetime.fromtimestamp(time.time() - 900)
 
     #Get VO Views
     if (not vo_name == None):
-        objects = gluemultivalued.objects.filter(value__startswith='VO:%s' % vo_name, attribute='GlueCEAccessControlBaseRule',uniqueid__in=ce_cluster_mapping.keys()).exclude(localid__exact="") | gluemultivalued.objects.filter(value__startswith='VOMS:/%s' % vo_name, attribute='GlueCEAccessControlBaseRule',uniqueid__in=ce_cluster_mapping.keys()).exclude(localid__exact="")
+        objects = gluemultivalued.objects.filter(value__startswith='VO:%s' % vo_name, attribute='GlueCEAccessControlBaseRule',uniqueid__in=ce_cluster_mapping.keys(), updated_at__gt=interval).exclude(localid__exact="") | gluemultivalued.objects.filter(value__startswith='VOMS:/%s' % vo_name, attribute='GlueCEAccessControlBaseRule',uniqueid__in=ce_cluster_mapping.keys(), updated_at__gt=interval).exclude(localid__exact="")
         ce_vo_view = {}
         for object in objects:
             if not ce_vo_view.has_key(object.uniqueid):
@@ -739,7 +747,7 @@ def get_installed_capacities(site_list, vo_name=None):
             except KeyError, e:
                 continue
     else:
-        objects = gluemultivalued.objects.filter(value__startswith='VO:%s' % vo_name, attribute='GlueSAAccessControlBaseRule',uniqueid__in=se_list).exclude(localid__exact="") | gluemultivalued.objects.filter(value__startswith='VOMS:/%s' % vo_name, attribute='GlueSAAccessControlBaseRule',uniqueid__in=se_list).exclude(localid__exact="")
+        objects = gluemultivalued.objects.filter(value__startswith='VO:%s' % vo_name, attribute='GlueSAAccessControlBaseRule',uniqueid__in=se_list, updated_at__gt=interval).exclude(localid__exact="") | gluemultivalued.objects.filter(value__startswith='VOMS:/%s' % vo_name, attribute='GlueSAAccessControlBaseRule',uniqueid__in=se_list, updated_at__gt=interval).exclude(localid__exact="")
         se_sa = {}
         for object in objects:
             if not se_sa.has_key(object.uniqueid):
