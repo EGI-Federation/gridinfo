@@ -710,7 +710,9 @@ def get_installed_capacities(site_list, vo_name=None):
             if not ce_vo_view.has_key(object.uniqueid):
                 ce_vo_view[object.uniqueid] = {}
             ce_vo_view[object.uniqueid][object.localid] = None
-    vo_view_list = gluevoview.objects.filter(gluece_fk__in = ce_cluster_mapping.keys())
+    latest_time = gluevoview.objects.latest('updated_at')
+    expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 100 )
+    vo_view_list = gluevoview.objects.filter(gluece_fk__in = ce_cluster_mapping.keys()).exclude(updated_at__lt=expired)
 
     # Create a mapping between Sites and CEs
     for vo_view in vo_view_list:
@@ -755,7 +757,9 @@ def get_installed_capacities(site_list, vo_name=None):
                 se_sa[object.uniqueid] = {}
             se_sa[object.uniqueid][object.localid] = None
 
-        sa_list = gluesa.objects.filter(gluese_fk__in = se_list)
+        latest_time = gluesa.objects.latest('updated_at')
+        expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 100 )
+        sa_list = gluesa.objects.filter(gluese_fk__in = se_list).exclude(updated_at__lt=expired)
 
         for sa in sa_list:
             if ( not se_sa.has_key(sa.gluese_fk)):
