@@ -274,7 +274,8 @@ def treeview(request, site_name, type="", attribute=""):
     for voview in voviews:
         if voview.gluece_fk not in ce_voview_mapping:
             ce_voview_mapping[voview.gluece_fk] = []
-        ce_voview_mapping[voview.gluece_fk].append(voview.localid)
+        if voview.localid not in ce_voview_mapping[voview.gluece_fk]:
+            ce_voview_mapping[voview.gluece_fk].append(voview.localid)
     
     cluster_vo_mapping = {}
     for cluster in cluster_list:
@@ -296,7 +297,8 @@ def treeview(request, site_name, type="", attribute=""):
     for sa in sas:
         if sa.gluese_fk not in se_sa_mapping:
             se_sa_mapping[sa.gluese_fk] = []
-        se_sa_mapping[sa.gluese_fk].append(sa.localid)
+        if sa.localid not in se_sa_mapping[sa.gluese_fk]:
+            se_sa_mapping[sa.gluese_fk].append(sa.localid)
         
     se_vo_mapping = {}
     for se in se_list:

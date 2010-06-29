@@ -100,7 +100,8 @@ def treeview(request, vo_name=""):
     for ce in ces:
         if ce.gluecluster_fk not in cluster_ce_mapping:
             cluster_ce_mapping[ce.gluecluster_fk] = []
-        cluster_ce_mapping[ce.gluecluster_fk].append(ce.uniqueid)
+        if ce.uniqueid not in cluster_ce_mapping[ce.gluecluster_fk]:
+            cluster_ce_mapping[ce.gluecluster_fk].append(ce.uniqueid)
     
     ce_voview_mapping = {}
     for voview in voviews:
@@ -128,7 +129,8 @@ def treeview(request, vo_name=""):
     for sa in sas:
         if sa.gluese_fk not in se_sa_mapping:
             se_sa_mapping[sa.gluese_fk] = []
-        se_sa_mapping[sa.gluese_fk].append(sa.localid)
+        if sa.localid not in se_sa_mapping[sa.gluese_fk]:
+            se_sa_mapping[sa.gluese_fk].append(sa.localid)
         
     se_vo_mapping = {}
     for se in se_list:
