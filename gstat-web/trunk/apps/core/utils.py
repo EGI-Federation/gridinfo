@@ -120,24 +120,18 @@ def get_gluesas(service_list, vo_name=None):
 
 def get_vo_to_voview_mapping(voview_list=None):
     # Create VO to VOView Mapping
+    # ignore GlueCEAccessControlBaseRule attributes from GlueCE
     vo_to_voview_mapping = {}
     if voview_list:
         gluece_uniqueids = [voview.gluece_fk for voview in voview_list]
-        objects = gluemultivalued.objects.filter(attribute='GlueCEAccessControlBaseRule', uniqueid__in=gluece_uniqueids)
+        objects = gluemultivalued.objects.filter(attribute='GlueCEAccessControlBaseRule', uniqueid__in=gluece_uniqueids).exclude(localid__exact="")
     else:
-        objects = gluemultivalued.objects.filter(attribute='GlueCEAccessControlBaseRule')
+        objects = gluemultivalued.objects.filter(attribute='GlueCEAccessControlBaseRule').exclude(localid__exact="")
     for object in objects:
-        if ( object.localid == "" ):
+        # extract the vo name
+        vo = get_voname_from_acbr(object.value)
+        if vo == None:
             continue
-        if ( object.value[:3] == "VO:" ):
-            vo = object.value[3:]
-        elif ( object.value[:5] == "VOMS:" ):
-            vo = object.value[5:]
-            vo = vo.split('/')[1]
-        else:
-            continue
-        if vo.strip() == '': continue
-        vo = vo.strip().lower()
             
         if ( not vo_to_voview_mapping.has_key(object.uniqueid) ):
             vo_to_voview_mapping[object.uniqueid] = {}
@@ -158,20 +152,9 @@ def get_vo_to_sa_mapping(sa_list=None):
     
     for object in objects:
         # extract the vo name
-        if ( object.value[:3] == "VO:" ):
-            if len(object.value.split('/')) > 1:
-                continue
-            vo = object.value[3:]
-        elif ( object.value[:5] == "VOMS:" ):
-            vo = object.value[5:]
-            vo = vo.split('/')[1]
-        else:
-            if len(object.value.split('/')) > 1:
-                continue
-            vo = object.value
-        
-        if vo.strip() == '': continue
-        vo = vo.strip().lower()
+        vo = get_voname_from_acbr(object.value)
+        if vo == None:
+            continue
         
         if ( not vo_to_sa_mapping.has_key(object.uniqueid) ):
             vo_to_sa_mapping[object.uniqueid] = {}
@@ -186,6 +169,35 @@ def get_vo_to_sa_mapping(sa_list=None):
 
     return vo_to_sa_mapping
 
+def get_voname_from_acbr(str):
+    vo = ''
+    if ( str[:3] == "VO:" ):
+        # format: 
+        #    AccessControlBaseRule: VO:<vo_name>
+        vo = str[3:]
+    elif ( str[:5] == "VOMS:" ):
+        # format:
+        #    AccessControlBaseRule: VOMS:/<vo_name>
+        #    AccessControlBaseRule: VOMS:/<vo_name>/*
+        vo = str[5:]
+        vo = vo.split('/')[1]
+    else:
+        return None
+#        # ignore: 
+#        #    AccessControlBaseRule: <DN>
+#        #    AccessControlBaseRule: <vo_name> 
+#        if len(str.split('/')) > 1 or len(str.split(':')) > 1:
+#            return None
+#        # format (legacy case for service and sa): 
+#        #    AccessControlBaseRule: <vo_name> 
+#        vo = str
+    # lowercase vo names to match with the ones in database
+    vo = vo.strip().lower()
+    # clean up the vo name
+    if (vo == ""): return None
+
+    return vo
+        
 # -------------------------------------------
 # -- Topology data model related functions --
 # -------------------------------------------
@@ -704,9 +716,16 @@ def get_installed_capacities(site_list, vo_name=None):
 
     #Get VO Views
     if (not vo_name == None):
-        objects = gluemultivalued.objects.filter(value__startswith='VO:%s' % vo_name, attribute='GlueCEAccessControlBaseRule',uniqueid__in=ce_cluster_mapping.keys()).exclude(localid__exact="") | gluemultivalued.objects.filter(value__startswith='VOMS:/%s' % vo_name, attribute='GlueCEAccessControlBaseRule',uniqueid__in=ce_cluster_mapping.keys()).exclude(localid__exact="")
+        # ignore GlueCEAccessControlBaseRule attributes from GlueCE
+        objects = gluemultivalued.objects.filter( attribute='GlueCEAccessControlBaseRule',uniqueid__in=ce_cluster_mapping.keys() ).exclude(localid__exact="")
+        
         ce_vo_view = {}
         for object in objects:
+            # extract the vo name
+            vo = get_voname_from_acbr(object.value)
+            if vo == None:
+                continue
+            
             if not ce_vo_view.has_key(object.uniqueid):
                 ce_vo_view[object.uniqueid] = {}
             ce_vo_view[object.uniqueid][object.localid] = None
@@ -750,9 +769,15 @@ def get_installed_capacities(site_list, vo_name=None):
             except KeyError, e:
                 continue
     else:
-        objects = gluemultivalued.objects.filter(value__startswith='VO:%s' % vo_name, attribute='GlueSAAccessControlBaseRule',uniqueid__in=se_list).exclude(localid__exact="") | gluemultivalued.objects.filter(value__startswith='VOMS:/%s' % vo_name, attribute='GlueSAAccessControlBaseRule',uniqueid__in=se_list).exclude(localid__exact="")
+        objects = gluemultivalued.objects.filter(value__icontains='%s' % vo_name, attribute='GlueSAAccessControlBaseRule',uniqueid__in=se_list)
+        
         se_sa = {}
         for object in objects:
+            # extract the vo name
+            vo = get_voname_from_acbr(object.value)
+            if vo == None:
+                continue
+            
             if not se_sa.has_key(object.uniqueid):
                 se_sa[object.uniqueid] = {}
             se_sa[object.uniqueid][object.localid] = None
