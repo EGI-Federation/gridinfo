@@ -48,7 +48,7 @@ error_messages = {
    "CE.Status.Value": ["GlueCEStateStatus has unknown value","ERROR"],
    "CE.GlueCluster.Exist": ["This CE does not have any GlueCluster associated","ERROR"],
    "CE.AccessControlBaseRule.Value": ["ACBR has an invalid format","ERROR"],
-   "CE.Capability.Exist": ["CE Share or CPUScalingReferenceSI00 entries missing","WARNING"],
+   "CE.Capability.Exist": ["CE Share or CPUScalingReferenceSI00 entries missing","ERROR"],
    "CE.Capability.Value": ["CE Capability Value not correct","ERROR"],
    "Cluster.ForeignKey.Value": ["GlueForeignKey does not contain GlueSiteUniqueID","ERROR"],
    "Cluster.UniqueID.Exist": ["GlueClusterUniqueID does not exist in the entry","ERROR"],
