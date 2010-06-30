@@ -561,7 +561,7 @@ def test_SEAccessProtocol_Type(key,entry):
 
    if (entry['GlueSEAccessProtocolType'][0] not in
        ("gsiftp","nfs","afs","rfio","gsirfio","file",
-        "dcap","gsidcap","xroot","root", "https","other")): 
+        "dcap","gsidcap","xroot","root", "https","other","gkftp")): 
         my_errors.log(key,'SEAccessProtocol.Type',
                           'GlueSEAccessProtocolType has unknown value', gsutils.get_site(key))
 
