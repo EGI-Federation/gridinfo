@@ -19,10 +19,7 @@ error_messages= {
       "site.values.typeError":                  ["Unexpected error in attribute (Possible error type). ","ERROR"],
       "site.ID_equals_name.difference":         ["GlueSiteUniqueID and GlueSiteName are different. ","ERROR"],
       "site.ID_equals_name.typeError":          ["Unexpected error in GlueSiteUniqueID or GlueSiteNam (Possible error type). ","ERROR"],
-      "site.email.bad_syntax":                  ["Incorrect email address syntax. ","ERROR"],
-      "site.email.root_localhost":              ["The e-mail address cannot be root@localhost. ","ERROR"],
-      "site.email.not_answering_server":        ["The e-mail server does not answer. ","ERROR"],
-      "site.email.typeError":                   ["Unexpected error in email address (Possible error type). ","ERROR"],
+      "site.email.incorrect":                  ["Incorrect email address syntax. ","ERROR"],
       "site.coordinates.no_coordinates":        ["Could not get coordinates. ","ERROR"],
       "site.coordinates.no_location_in_google": ["Could not get the location from the search engine. ","ERROR"],
       "site.coordinates.incorrect_latitude":    ["Incorrect Latitude information. ","ERROR"],
@@ -130,62 +127,30 @@ def check_ID_equals_name(site):
       my_errors.log(site_id, "site.ID_equals_name.typeError", details, site_id)
       
 
-def check_valid_mail_address(site, mail_servers):
-   possible_e_addr = ["GlueSiteUserSupportContact", "GlueSiteSysAdminContact", "GlueSiteSecurityContact"]
-   site_id= site["GlueSiteUniqueID"]
-   for address in possible_e_addr:
-      
+def check_valid_mail_address(entry):
+   attributes = ["GlueSiteEmailContact", "GlueSiteUserSupportContact", "GlueSiteSysAdminContact", "GlueSiteSecurityContact"]
+   site_id= entry["GlueSiteUniqueID"]
+   for attribute in attributes:
       try:
-         if site.has_key(address):
-            for e_address in site[address]:
+         if entry.has_key(attribute):
+            for address in entry[attribute]:
+               index = address.rfind("@")
+               server = address[index + 1:]
+               name = address[7:index].strip()
                
-               server = e_address[(e_address.rfind("@")+1):]
-               name = e_address[0:(e_address.rfind("@")-1)]
-               
-               #Check the e-mail sintax
-               if not (validateEmail(e_address)):
+               if not (validateEmail(address)):
                   details = "Incorrect email address: %s for the site: %s." %(address,site_id)
-                  log.debug(error_messages["site.email.bad_syntax"][0]+details)
-                  my_errors.log(site_id, "site.email.bad_syntax", details, site_id)   
-               else:
-                  log.info("The e-mail address syntax for %s is correct in site: %s" %(address, site_id))
-                  
-               #Check that the e-mail address is different from root@localhost etc.
-               if (name == "root") or (server == "localhost"):
+                  my_errors.log(site_id, "site.email.incorrect", details, site_id)   
+               if (name == "root"): 
                   details = "Incorrect email address: %s for the site: %s." %(address,site_id)
-                  log.debug(error_messages["site.email.root_localhost"][0]+details)
-                  my_errors.log(site_id, "site.email.root_localhost", details, site_id)   
-                  
-               else:
-                  log.info("The e-mail address for %s is not root@localhost in site: %s" %(address, site_id))
-                     
-               #Check if the e-mail server exists
-               if (not mail_servers.has_key(server)):
-                  if ( len(server) > 64 ):
-                      details = "The site %s has and email service hostname %s that is too long!" %(site_id,server)
-                      my_errors.log(site_id, "site.email.not_answering_server", details, site_id)   
-                  else:
-                      if not ( dns.resolver.query(server, 'MX') == []):
-                          log.info("The e-mail server for %s exists in site: %s" %(address, site_id))
-                          mail_servers.update({server:True})
-                      else:
-                          if not mail_servers[server]:
-                              details = "Incorrect email address: %s for the site: %s." %(address,site_id)
-                              log.debug(error_messages["site.email.not_answering_server"][0]+details)
-                              my_errors.log(site_id, "site.email.not_answering_server", details, site_id)   
+                  my_errors.log(site_id, "site.email.incorrect", details, site_id)   
                      
       except TypeError, e:
          details = "Incorrect email address: %s for the site: %s." %(address,site_id)
-         log.debug(error_messages["site.email.typeError"][0]+details)
-         my_errors.log(site_id, "site.email.typeError", details, site_id)   
-      except (dns.resolver.NoAnswer, dns.resolver.NXDOMAIN, dns.resolver.Timeout), e:
-         details = "Incorrect email address: %s for the site: %s." %(address,site_id)
-         log.debug(error_messages["site.email.not_answering_server"][0]+details)
-         my_errors.log(site_id, "site.email.not_answering_server", details, site_id)   
-         
-#
+         my_errors.log(site_id, "site.email.incorrect", details, site_id)   
+
+
 # Compares the latitude and longitude with Google Maps
-#
 def check_coordinates(site):
     site_id= site["GlueSiteUniqueID"]
     try:
@@ -368,7 +333,6 @@ if __name__ == "__main__":
    global s
 
    #s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-   mail_servers = {}
    config = gsutils.parse_options()
 
    log = logging.getLogger('glite-validate-example')
@@ -431,7 +395,7 @@ if __name__ == "__main__":
             check_ID_equals_name(entry)
                         
             # Check that email contacts have the correct syntax
-            check_valid_mail_address(entry, mail_servers)
+            check_valid_mail_address(entry)
             
             # Compare Location, Latitude and Longitue with Google.
             check_coordinates(entry)
