@@ -33,4 +33,8 @@ ldif=ldif/GlueSite/bad_email_root.ldif
 message="Incorrect email address: mailto:root@cern.ch"
 test_ldif ${ldif} "${message}"
 
+ldif=ldif/GlueSite/bad_NGI.ldif
+message="Incorrect email address: mailto:root@cern.ch"
+test_ldif ${ldif} "${message}"
+
 rm -f ${output}

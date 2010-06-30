@@ -16,6 +16,6 @@ GlueSiteLongitude: 6.139959
 GlueSiteWeb: http://www.cern.ch
 GlueSiteSponsor: none
 GlueSiteOtherInfo: GRID=WLCG
-GlueSiteOtherInfo: EGI_NGI=NGI_CZ
+GlueSiteOtherInfo: EGI_NGI=NGI_Rubish
 GlueSchemaVersionMajor: 1
 GlueSchemaVersionMinor: 3
