@@ -5,6 +5,7 @@ import os
 
 known_types = ['Country',
                'EGEE_ROC',
+               'EGI_NGI',
                'GRID',
                'VO',
                'WLCG_TIER']
