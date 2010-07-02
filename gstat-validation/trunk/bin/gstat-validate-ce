@@ -270,7 +270,7 @@ def test_SubCluster_ProcessorOtherDescription(key,entry):
 
    attribute = 'GlueHostProcessorOtherDescription'
    value = entry[attribute][0]
-   reg_expr = '^Cores=([\.\d]+),Benchmark=([\.\d]+)-HEP-SPEC06$'
+   reg_expr = '^Cores=([\.\d]+)\s*,\s*Benchmark=([\.\d]+)-HEP-SPEC06$'
    result = re.match(reg_expr, value)
    if ( not result ):
       detail = "The value %s for the attribute %s does not match %s." %(value, attribute, reg_expr)
