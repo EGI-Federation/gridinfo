@@ -221,6 +221,7 @@ def get_sites(type, value="ALL", groups=None):
     """ get site entities from topology database """
     predicate = {'GRID'     : 'SiteGrid', 
                  'EGEE_ROC' : 'SiteEgeeRoc', 
+                 'EGI_NGI' : 'SiteEgiNgi', 
                  'WLCG_TIER': 'SiteWlcgTier',
                  'Country'  : 'SiteCountry',
                  'VO'       : 'ServiceVO'}

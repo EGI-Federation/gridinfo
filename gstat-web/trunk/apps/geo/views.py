@@ -9,11 +9,13 @@ from geo import countryInfo
 
 known_types = ['Country',
                'EGEE_ROC',
+               'EGI_NGI',
                'GRID',
                'WLCG_TIER']
 
 predicates  = {'Country': 'SiteCountry',
                'EGEE_ROC': 'SiteEgeeRoc',
+               'EGI_NGI': 'SiteEgiNgi',
                'GRID': 'SiteGrid',
                'WLCG_TIER': 'SiteWlcgTier'}
 

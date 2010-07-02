@@ -138,6 +138,7 @@ def save_relationships():
     # Predicate entity mappings 
     mappings = { 'SiteCountry' : ('Site', 'Country'),
                  'SiteEgeeRoc' : ('Site', 'EGEE_ROC'),
+                 'SiteEgiNgi' : ('Site', 'EGI_NGI'),
                  'SiteEgeeService' : ('Site', 'EGEE_SERVICE'),
                  'SiteGrid' : ('Site', 'GRID'),
                  'SiteWlcgTier' : ('Site', 'WLCG_TIER'),
@@ -147,7 +148,7 @@ def save_relationships():
                  }
 
     types = { 'VO' : None, 'WLCG_TIER' : None, 'Site' : None, 'EGEE_ROC': None,
-              'GRID' : None, 'County': None, 'WLCG_PARENT' : None,
+              'EGI_NGI' : None, 'GRID' : None, 'County': None, 'WLCG_PARENT' : None,
               'EGEE_SERVICE' : None }
 
     #Get the current time
@@ -251,6 +252,9 @@ def get_site_topologies():
             if ( key == 'EGEE_ROC'):
                 entity_store[value + key] = (value, key)
                 relationship_store.append(( object.uniqueid, value, "SiteEgeeRoc" ) )
+            if ( key == 'EGI_NGI'):
+                entity_store[value + key] = (value, key)
+                relationship_store.append(( object.uniqueid, value, "SiteEgiNgi" ) )
             if ( key == 'EGEE_SERVICE'):
                 entity_store[value + key] = (value, key)
                 relationship_store.append( ( object.uniqueid, value, "SiteEgeeService" ) )

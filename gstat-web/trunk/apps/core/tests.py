@@ -23,6 +23,10 @@ class CoreTestCase(TestCase):
     def testFilter(self):
         response = self.client.get('/gstat/core/filter/EGEE_ROC')
         self.failUnlessEqual(response.status_code, 200)
+        
+    def testFilter(self):
+        response = self.client.get('/gstat/core/filter/EGI_NGI')
+        self.failUnlessEqual(response.status_code, 200)
 
     def testFilter(self):
         response = self.client.get('/gstat/core/filter/WLCG_TIER')
