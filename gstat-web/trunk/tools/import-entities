@@ -56,9 +56,6 @@ modulename='topology.models'
 __import__(modulename)
 module=sys.modules[modulename]
 
-global log
-global entity_store 
-global relationship_store
 
 def setup():
     global config, log
@@ -125,7 +122,7 @@ def save_entities():
         entity_id, type =  entity_store[entity]
         entity_hostname = get_hostname(entity_id)
         if ( unique_ids.has_key(entity_id.lower() + type.lower()) ):
-            update_data = "type='%s', hostname='%s', updated_at='%s' where uniqueid='%s'" %(entity_id, type, entity_hostname, date_time)   
+            update_data = "hostname='%s', updated_at='%s' where uniqueid='%s' and type='%s'" %(entity_hostname, date_time, entity_id, type)   
             cursor.execute("UPDATE topology_entity set %s;"% update_data)
         else:
             insert_data = "('%s','%s','%s','%s','%s','%s')" %(entity_id, type, entity_hostname, date_time, date_time, date_time)   
@@ -219,7 +216,9 @@ def get_hostname(UniqueID):
     return hostname
 
 def get_sites():
-
+    global entity_store
+    global relationship_store
+    
     # Get and store GlueSite Objects
     objects = gluesite.objects.all()
     for object in objects:
@@ -235,6 +234,8 @@ def get_sites():
         relationship_store.append( ( unique_id, country, "SiteCountry" ) )
         
 def get_site_topologies():
+    global entity_store
+    global relationship_store
     errors = {}
     
     # Get and store GlueSite objects and relationships
@@ -268,7 +269,9 @@ def get_site_topologies():
                 entity_store[value + key] = (value, key)
                 relationship_store.append( ( object.uniqueid, value, "SiteWlcgParent" ) )
         
-def get_services():        
+def get_services():   
+    global entity_store
+    global relationship_store
     errors = {}
  
     # Get and store GlueService Objects
@@ -289,6 +292,7 @@ def get_services():
                 errors[object.gluesite_fk] = None
 
 def get_CEs(): 
+    global entity_store
     errors = {}
     # Get and store GlueCluster Objects
     objects = gluecluster.objects.all()
@@ -306,6 +310,8 @@ def get_CEs():
                 errors[object.gluesite_fk] = None
 
 def get_SEs():
+    global entity_store
+    global relationship_store
     errors = {}
     # Get and store GlueSE Objects
     objects = gluese.objects.all()
@@ -323,6 +329,8 @@ def get_SEs():
                 errors[object.gluesite_fk] = None
 
 def get_service_VO():
+    global entity_store
+    global relationship_store
     # Create CE to Cluster mapping
     glueces = {}
     objects = gluece.objects.all()
