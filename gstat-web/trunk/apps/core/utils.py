@@ -68,7 +68,7 @@ def get_gluevoviews(service_list, vo_name=None):
     """ get glue voview entities from glue database """
     # check if there are duplicate entities in database, if so , ignore old data
     latest_time = gluevoview.objects.latest('updated_at')
-    expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 100 )
+    expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 60*6 )
     
     # get cluster uniqueid 
     uniqueids = []
@@ -96,7 +96,7 @@ def get_gluesas(service_list, vo_name=None):
     """ get glue sa entities from glue database """
     # check if there are duplicate entities in database, if so , ignore old data
     latest_time = gluesa.objects.latest('updated_at')
-    expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 100 )
+    expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 60*6 )
     
     #get se uniqueid
     uniqueids = []
@@ -731,7 +731,7 @@ def get_installed_capacities(site_list, vo_name=None):
                 ce_vo_view[object.uniqueid] = {}
             ce_vo_view[object.uniqueid][object.localid] = None
     latest_time = gluevoview.objects.latest('updated_at')
-    expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 100 )
+    expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 60*6 )
     vo_view_list = gluevoview.objects.filter(gluece_fk__in = ce_cluster_mapping.keys()).exclude(updated_at__lt=expired)
 
     # Create a mapping between Sites and CEs
@@ -784,7 +784,7 @@ def get_installed_capacities(site_list, vo_name=None):
             se_sa[object.uniqueid][object.localid] = None
 
         latest_time = gluesa.objects.latest('updated_at')
-        expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 100 )
+        expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 60*6 )
         sa_list = gluesa.objects.filter(gluese_fk__in = se_list).exclude(updated_at__lt=expired)
 
         for sa in sa_list:

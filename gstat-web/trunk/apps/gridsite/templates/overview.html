@@ -237,9 +237,9 @@
     <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
       <thead> 
         <tr> 
-          <th colspan="3" align="center">Computing Resource</th>
-          <th colspan="3" align="center">Online Storage Resource (GB)</th>
-          <th colspan="3" align="center">Nearline Storage Resource (GB)</th>
+          <th colspan="3" align="center" style="width:33%">Computing Resource</th>
+          <th colspan="3" align="center" style="width:33%">Online Storage Resource (GB)</th>
+          <th colspan="3" align="center" style="width:33%">Nearline Storage Resource (GB)</th>
         </tr>
         <tr>
           <th align="center" title="The sum of PhysicalCPUs over all SubClusters">Physical CPUs</th> 
@@ -342,69 +342,55 @@
 	  {% for vo in vo_resources %}
 	  <div id="fragment-{{ forloop.counter }}">
 
-	    <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0" style="width:{% ifnotequal vo.totaljobs None %}{% ifequal vo.totalonlinesize None %}33%{% endifequal %}{% endifnotequal %}{% ifequal vo.totaljobs None %}{% ifnotequal vo.totalonlinesize None %}66%{% endifnotequal %}{% endifequal %}"> 
+	    <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
 	      <thead> 
 	        <tr> 
-	          {% ifnotequal vo.totaljobs None %}
-	          <th colspan="3" align="center">Grid Jobs</th>
-	          {% endifnotequal %}
-	          
-	          {% ifnotequal vo.totalonlinesize None %}
- 	          <th colspan="2" align="center">Online Storage Usage (GB)</th>
-	          <th colspan="2" align="center">Nearline Storage Usage (GB)</th>  
-	          {% endifnotequal %}
+	          <th colspan="3" align="center" style="width:33%">Grid Jobs</th>
+ 	          <th colspan="2" align="center" style="width:33%">Online Storage Usage (GB)</th>
+	          <th colspan="2" align="center" style="width:33%">Nearline Storage Usage (GB)</th>  
+
 	        </tr> 
 	        <tr>
-	          {% ifnotequal vo.totaljobs None %}
 	          <th align="center" title="The sum of TotalJobs over all VOViews related to this VO">Total</th> 
 	          <th align="center" title="The sum of RunningJobs over all VOViews related to this VO">Running</th>
 	          <th align="center" title="The sum of WaitingJobs over all VOViews related to this VO">Waiting</th>
-              {% endifnotequal %}
-              
-              {% ifnotequal vo.totalonlinesize None %}
 	          <th align="center" title="The sum of TotalOnlineSize over all SAs related to this VO">TotalSize</th>
 	          <th align="center" title="The sum of UsednlineSize over all SAs related to this VO">UsedSize</th> 
 	          <th align="center" title="The sum of TotalNearlineSize over all SAs related to this VO">TotalSize</th>
 	          <th align="center" title="The sum of UsedNearlineSize over all SAs related to this VO">UsedSize</th> 
-              {% endifnotequal %}
+
 	        </tr> 
 	      </thead> 
 	      <tbody>    
 	        <tr> 
-	          {% ifnotequal vo.totaljobs None %}
 	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.totaljobs }}')) </script></td> 
 	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.runningjobs }}')) </script></td>
 	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.waitingjobs }}')) </script></td>
-              {% endifnotequal %}
-              
-              {% ifnotequal vo.totalonlinesize None %}
 	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.totalonlinesize }}')) </script></td> 
 	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.usedonlinesize }}')) </script></td>
 	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.totalnearlinesize }}')) </script></td>
 	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.usednearlinesize }}')) </script></td>
-              {% endifnotequal %}
+
 	        </tr>
 	        <tr> 
-	          {% ifnotequal vo.totaljobs None %}
 	          <td colspan="3">
 	            <a href="/gstat/site/{{ site_name }}/treeview/vo_job/{{ vo.voname }}/">
 	              <img alt=" " src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/job/e-3h/small/" border=0/>
 	            </a>
 	          </td>
-              {% endifnotequal %}
               
-              {% ifnotequal vo.totalonlinesize None %}
 	          <td colspan="2">
 	            <a href="/gstat/site/{{ site_name }}/treeview/vo_online/{{ vo.voname }}/">
 	              <img alt=" " src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/online/e-3h/small/" border=0/>
 	            </a>
 	          </td>
+	          
 	          <td colspan="2">
 	            <a href="/gstat/site/{{ site_name }}/treeview/vo_nearline/{{ vo.voname }}/">
 	              <img alt=" " src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/nearline/e-3h/small/" border=0/>
 	            </a>
 	          </td>
-              {% endifnotequal %}
+
 	        </tr> 
 	      </tbody> 
 	    </table>    
