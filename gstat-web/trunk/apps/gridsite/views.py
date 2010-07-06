@@ -10,6 +10,7 @@ import gsutils
 import socket
 import re
 import time
+from datetime import datetime
    
 @cache_page(60 * 10)   
 def overview(request, site_name):     
@@ -72,7 +73,7 @@ def overview(request, site_name):
     # Calculate how many minutes ago the information is updated
     last_update = 0
     if site_entity:
-        last_update = time.mktime(time.strptime(str(site_entity.updated_at), "%Y-%m-%d %H:%M:%S"))
+        last_update = time.mktime(site_entity.updated_at.timetuple())
     
     # Calculate the CPU numbers through all SubCluster
     installed_capacity = {}
