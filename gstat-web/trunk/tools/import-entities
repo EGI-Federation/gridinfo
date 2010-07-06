@@ -106,7 +106,8 @@ Options:
 def save_entities():
     
     #Get the current time
-    date_time = str(datetime.utcnow())
+    #date_time = str(datetime.utcnow())
+    date_time = str(datetime.now())
     index = date_time.index(".")
     date_time = date_time[:index]
 
