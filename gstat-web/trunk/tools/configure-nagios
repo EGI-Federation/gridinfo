@@ -142,7 +142,7 @@ define service{
 
 ''' % (host,bind,host))
 
-    outfile.write('''
+        outfile.write('''
 define service{
     use                     info-service
     service_description     check-bdii-freshness
