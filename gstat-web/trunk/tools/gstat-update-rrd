@@ -43,7 +43,7 @@ from core.utils import *
 modulename='topology.models'
 __import__(modulename)
 module=sys.modules[modulename]
-start_time=datetime.now()
+start_time=datetime.utcnow()
 
 # Set logging
 log = logging.getLogger(sys.argv[0])
@@ -113,7 +113,7 @@ def archiveData(archive_path, data_list):
 # -----------------------------------------
 # -- GlueSE storage space size archiving --
 # -----------------------------------------
-#start_time_se=datetime.now()
+#start_time_se=datetime.utcnow()
 sub_data_dir='%s/SE' %(data_dir)
 createDir(sub_data_dir)
 
@@ -146,12 +146,12 @@ for obj in objects:
             archiveData(archive_path = obj_data_file, 
                         data_list    = data_list)
             distinct[obj.uniqueid] = None
-#print "Time taken (SE finished): %s" % str(datetime.now() - start_time_se)
+#print "Time taken (SE finished): %s" % str(datetime.utcnow() - start_time_se)
 
 # ------------------------------------------
 # -- GlueSubCluster CPU numbers archiving --
 # ------------------------------------------
-#start_time_subcluster=datetime.now()
+#start_time_subcluster=datetime.utcnow()
 sub_data_dir='%s/SubCluster' %(data_dir)
 createDir(sub_data_dir)
 
@@ -188,29 +188,29 @@ for obj in objects:
             archiveData(archive_path = obj_data_file, 
                         data_list    = data_list)            
             distinct[obj.uniqueid] = None
-#print "Time taken (SubCluster finished): %s" % str(datetime.now() - start_time_subcluster)
+#print "Time taken (SubCluster finished): %s" % str(datetime.utcnow() - start_time_subcluster)
 
 # -------------------------------------------------
 # -- GlueVOView job numbers archiving (VO-based) --
 # -------------------------------------------------
-#start_time_vo_job=datetime.now()
+#start_time_vo_job=datetime.utcnow()
 sub_data_dir='%s/VO' %(data_dir)
 createDir(sub_data_dir)
 
 # Create CE to Cluster mapping
-#start_time_get_cetoclustermapping=datetime.now()
+#start_time_get_cetoclustermapping=datetime.utcnow()
 ce_to_cluster_mapping= {}
 objects = gluece.objects.all()
 for object in objects:
     if ( not ce_to_cluster_mapping.has_key(object.uniqueid) ):
          ce_to_cluster_mapping[object.uniqueid] = object.gluecluster_fk
-#print "Time taken (get ce_to_cluster_mapping): %s" % str(datetime.now() - start_time_get_cetoclustermapping)
+#print "Time taken (get ce_to_cluster_mapping): %s" % str(datetime.utcnow() - start_time_get_cetoclustermapping)
 
-#start_time_get_votovoviewmapping=datetime.now()
+#start_time_get_votovoviewmapping=datetime.utcnow()
 vo_to_voview_mapping = get_vo_to_voview_mapping()
-#print "Time taken (get vo_to_voview_mapping): %s" % str(datetime.now() - start_time_get_votovoviewmapping)
+#print "Time taken (get vo_to_voview_mapping): %s" % str(datetime.utcnow() - start_time_get_votovoviewmapping)
 
-#start_time_get_voviewjobnumber=datetime.now()
+#start_time_get_voviewjobnumber=datetime.utcnow()
 data = {}
 datasources = {'job':   ['totaljobs', 'runningjobs', 'waitingjobs']}
 # Store Total, Running, Waiting Jobs
@@ -237,9 +237,9 @@ for voview in objects:
         value = voview.__getattribute__(attr)
         if (attr == "waitingjobs" and value == "444444"): value = "0"
         data[cluster][vo][datasources['job'].index(attr)] += convert_to_integer(value)    
-#print "Time taken (get voview job number): %s" % str(datetime.now() - start_time_get_voviewjobnumber)
+#print "Time taken (get voview job number): %s" % str(datetime.utcnow() - start_time_get_voviewjobnumber)
         
-#start_time_archive_data=datetime.now()
+#start_time_archive_data=datetime.utcnow()
 for cluster in data.keys():
     for vo in data[cluster].keys():
         try:
@@ -264,21 +264,21 @@ for cluster in data.keys():
             
         except KeyError:
           pass
-#print "Time taken (archive data): %s" % str(datetime.now() - start_time_archive_data)
-#print "Time taken (VO Job finished): %s" % str(datetime.now() - start_time_vo_job)
+#print "Time taken (archive data): %s" % str(datetime.utcnow() - start_time_archive_data)
+#print "Time taken (VO Job finished): %s" % str(datetime.utcnow() - start_time_vo_job)
 
 # ----------------------------------------------------
 # -- GlueSA storage space size archiving (VO-based) --
 # ----------------------------------------------------
-#start_time_vo_storage=datetime.now()
+#start_time_vo_storage=datetime.utcnow()
 sub_data_dir='%s/VO' %(data_dir)
 createDir(sub_data_dir)
 
-#start_time_get_votosamapping=datetime.now()
+#start_time_get_votosamapping=datetime.utcnow()
 vo_to_sa_mapping = get_vo_to_sa_mapping()
-#print "Time taken (get vo_to_sa_mapping): %s" % str(datetime.now() - start_time_get_votosamapping)
+#print "Time taken (get vo_to_sa_mapping): %s" % str(datetime.utcnow() - start_time_get_votosamapping)
 
-#start_time_get_sastoragespace=datetime.now()
+#start_time_get_sastoragespace=datetime.utcnow()
 data = {}
 # A ds-name must be 1 to 19 characters long in the characters [a-zA-Z0-9_].
 # consequently, too long attribute name is not allowed.
@@ -306,9 +306,9 @@ for sa in objects:
                 value = sa.__getattribute__(attr)
                 if (value != "999999"): 
                     data[se][vo][key][datasources[key].index(attr)] += convert_to_integer(value)    
-#print "Time taken (get sa storage space): %s" % str(datetime.now() - start_time_get_sastoragespace)
+#print "Time taken (get sa storage space): %s" % str(datetime.utcnow() - start_time_get_sastoragespace)
         
-#start_time_archivedata=datetime.now()
+#start_time_archivedata=datetime.utcnow()
 for se in data.keys():
     for vo in data[se].keys():
         try:
@@ -332,9 +332,9 @@ for se in data.keys():
             
         except KeyError:
           pass
-#print "Time taken (archive data): %s" % str(datetime.now() - start_time_archivedata)
-#print "Time taken (VO Storage finished): %s" % str(datetime.now() - start_time_vo_storage)
+#print "Time taken (archive data): %s" % str(datetime.utcnow() - start_time_archivedata)
+#print "Time taken (VO Storage finished): %s" % str(datetime.utcnow() - start_time_vo_storage)
 # Get time taken for the archiving
-log.info("Time taken: %s" % str(datetime.now() - start_time))
+log.info("Time taken: %s" % str(datetime.utcnow() - start_time))
 
 
