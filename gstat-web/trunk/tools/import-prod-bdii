@@ -18,7 +18,7 @@ from topology.models import Entity
 from topology.models import Entityrelationship
 
 # Set the time to start
-start_time=datetime.now()
+start_time=datetime.utcnow()
 
 # Set logging
 log = logging.getLogger(sys.argv[0])
@@ -116,6 +116,6 @@ for hostname in hostname_list.keys():
         s.save()
 
 # Get time taken for importing production BDIIs
-log.info("Time taken: %s" % str(datetime.now() - start_time))
+log.info("Time taken: %s" % str(datetime.utcnow() - start_time))
 
 

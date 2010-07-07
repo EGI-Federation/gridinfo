@@ -42,7 +42,7 @@ from django.db import connection
 modulename='glue.models'
 __import__(modulename)
 module=sys.modules[modulename]
-start_time=datetime.now()
+start_time=datetime.utcnow()
 
 # Funtion to print out the usage to the log
 def usage():
@@ -462,7 +462,7 @@ def main():
     pipe.close()
 
     # Finishing the transaction
-    log.info("Time taken so far: %s" % str(datetime.now() - start_time))
+    log.info("Time taken so far: %s" % str(datetime.utcnow() - start_time))
     log.info('Committing to the database...')
     for inst in insts:
         try:
@@ -479,11 +479,11 @@ def main():
     transaction.commit()
 
     # Delete old entries from the database
-    log.info("Time taken so far: %s" % str(datetime.now() - start_time))
+    log.info("Time taken so far: %s" % str(datetime.utcnow() - start_time))
     log.info('Deleting old entries...')
     delete_old_entries_raw()
     
     # Get time taken for the translation
-    log.info("Total time taken: %s" % str(datetime.now() - start_time))
+    log.info("Total time taken: %s" % str(datetime.utcnow() - start_time))
     
 main()
