@@ -281,7 +281,7 @@ def get_services():
         type = object.type
         if ( type == 'bdii_site' or type == 'bdii_top'):
             unique_id = object.endpoint
-        entity_store[unique_id] = (unique_id, type)
+        entity_store[unique_id + type] = (unique_id, type)
     
         # Store Site Service relationship
         if ( entity_store.has_key(object.gluesite_fk + 'Site')):
@@ -299,7 +299,7 @@ def get_CEs():
     for object in objects:
         unique_id = object.uniqueid
         type = "CE"
-        entity_store[unique_id] = (unique_id, type)
+        entity_store[unique_id + type] = (unique_id, type)
         
         # Store Site Service relationship
         if ( entity_store.has_key(object.gluesite_fk + 'Site')):
@@ -318,7 +318,7 @@ def get_SEs():
     for object in objects:
         unique_id = object.uniqueid
         type = "SE"
-        entity_store[unique_id] = (unique_id, type)
+        entity_store[unique_id + type] = (unique_id, type)
         
         # Store Site Service relationship
         if ( entity_store.has_key(object.gluesite_fk + 'Site')):
