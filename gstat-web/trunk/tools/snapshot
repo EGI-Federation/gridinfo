@@ -372,6 +372,8 @@ def main():
     ldap_command="ldapsearch -LLL -x -h %s -p %s -b %s" % (config['host'], config['port'], config['bind'])
     if ( 'filter' in config ):
         ldap_command=("%s %s") % (ldap_command, config['filter'])
+    else:
+        ldap_command=("%s %s") % (ldap_command, "'(!(objectClass=GlueLocation))'")
     pipe=os.popen(ldap_command)
     
     log.debug("Doing translation loop ... ")
