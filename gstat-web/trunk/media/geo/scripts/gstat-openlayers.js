@@ -85,7 +85,7 @@ function init(){
 	/*********************************/
 //    var vector = new OpenLayers.Layer.Vector("Editable Vectors");
 //    map.addControl(new OpenLayers.Control.EditingToolbar(vector));
-    if (!map.getCenter()) map.setCenter(new OpenLayers.LonLat(5, 15), 2);
+    if (!map.getCenter()) map.setCenter(new OpenLayers.LonLat(14, 0), 2);
 }
 
 
