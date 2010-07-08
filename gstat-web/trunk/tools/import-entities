@@ -398,7 +398,7 @@ def delete_old_objects():
 
 if __name__ == "__main__":
 
-    start_time = time.time()
+    start_time = time.mktime(datetime.utcnow().timetuple())
     setup()
     entity_store = {}
     relationship_store = []
@@ -411,5 +411,5 @@ if __name__ == "__main__":
     save_entities()
     save_relationships()
     delete_old_objects()
-    log.info("Time taken = %d" %(time.time() - start_time))
+    log.info("Time taken = %d" %(time.mktime(datetime.utcnow().timetuple()) - start_time))
 

@@ -26,8 +26,8 @@ def graph_render(graph_cmd):
 # -------------------------------------------
 def rrdgraph_cmd_options(start_time, title, label, small=False):
     graph_cmd = ''
-    if small: width=225
-    else:     width=450
+    if small: width=270
+    else:     width=600
     
     graph_cmd = \
         '/usr/bin/rrdtool graph "-"' +\
