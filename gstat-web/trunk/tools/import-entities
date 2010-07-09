@@ -144,9 +144,18 @@ def save_relationships():
                  'ServiceVO' : ('Service', 'VO')
                  }
 
-    types = { 'VO' : None, 'WLCG_TIER' : None, 'Site' : None, 'EGEE_ROC': None,
-              'EGI_NGI' : None, 'GRID' : None, 'County': None, 'WLCG_PARENT' : None,
-              'EGEE_SERVICE' : None }
+    types = { 'Country'      : None,  
+              'CE'           : None,
+              'EGEE_ROC'     : None,
+              'EGI_NGI'      : None, 
+              'EGEE_SERVICE' : None,
+              'GRID'         : None, 
+              'WLCG_TIER'    : None, 
+              'WLCG_PARENT'  : None,
+              'SE'           : None,
+              'Site'         : None, 
+              'VO'           : None 
+              }
 
     #Get the current time
     date_time = str(datetime.utcnow())
@@ -177,19 +186,18 @@ def save_relationships():
             relationships[tuple[0]][tuple[1]] = {}
         relationships[tuple[0]][tuple[1]][tuple[2]] = None         
 
+    # save relationships
     for tuple in relationship_store:
         try:
             predicate = tuple[2]
             sub_type = mappings[predicate][0]
             obj_type = mappings[predicate][1]
-            if ( types.has_key(sub_type) ):
-                sub = ids[tuple[0].lower() + sub_type]
-            else:
-                sub = ids[tuple[0].lower()]
-            if ( types.has_key(obj_type) ):
-                obj = ids[tuple[1].lower() + obj_type]
-            else:
-                obj = ids[tuple[1].lower()]
+            if sub_type == "Service":
+                sub_type = tuple[3]
+            if obj_type == "Service":
+                obj_type = tuple[3]
+            sub = ids[tuple[0].lower() + sub_type]
+            obj = ids[tuple[1].lower() + obj_type]
 
         except KeyError, e:
             continue
@@ -281,11 +289,11 @@ def get_services():
         type = object.type
         if ( type == 'bdii_site' or type == 'bdii_top'):
             unique_id = object.endpoint
-        entity_store[unique_id + type] = (unique_id, type)
+        entity_store[unique_id] = (unique_id, type)
     
         # Store Site Service relationship
         if ( entity_store.has_key(object.gluesite_fk + 'Site')):
-            relationship_store.append( ( object.gluesite_fk, unique_id, "SiteService" ) )
+            relationship_store.append( ( object.gluesite_fk, unique_id, "SiteService", "") )
         else:
             if( not errors.has_key(object.gluesite_fk)):
                 log.info("No site found for %s" % object.gluesite_fk)
@@ -303,7 +311,7 @@ def get_CEs():
         
         # Store Site Service relationship
         if ( entity_store.has_key(object.gluesite_fk + 'Site')):
-            relationship_store.append( ( object.gluesite_fk, unique_id, "SiteService" ) )
+            relationship_store.append( ( object.gluesite_fk, unique_id, "SiteService", type ) )
         else:
             if( not errors.has_key(object.gluesite_fk)):
                 log.info("No site found for %s" % object.gluesite_fk)
@@ -322,7 +330,7 @@ def get_SEs():
         
         # Store Site Service relationship
         if ( entity_store.has_key(object.gluesite_fk + 'Site')):
-            relationship_store.append( ( object.gluesite_fk, unique_id, "SiteService" ) )
+            relationship_store.append( ( object.gluesite_fk, unique_id, "SiteService", type ) )
         else:
             if( not errors.has_key(object.gluesite_fk)):
                 log.info("No site found for %s" % object.gluesite_fk)
@@ -358,9 +366,12 @@ def get_service_VO():
         if vo == None:
             continue
         
-        if ( not entity_store.has_key(vo + 'VO') ):
-            entity_store[vo + 'VO'] =  (vo, 'VO')
+        # get vo entity
+        type = 'VO'
+        if ( not entity_store.has_key(vo + type) ):
+            entity_store[vo + type] =  (vo, type)
 
+        # extract entity uniqueid
         if (attribute == 'GlueCEAccessControlBaseRule'):
             if ( glueces.has_key(unique_id) ):
                 unique_id = glueces[unique_id]
@@ -368,18 +379,26 @@ def get_service_VO():
                 continue
         else:
             unique_id = unique_id
-        if ( entity_store.has_key(unique_id)): # Ensure that exists
-            if ( relationships.has_key(unique_id) ):
-                if ( not relationships[unique_id].has_key(vo) ):
-                    relationship_store.append( ( unique_id, vo, "ServiceVO" ) )
-                    if ( not relationships.has_key(unique_id)):
-                        relationships[unique_id] = {}
-                    relationships[unique_id][vo] = None
+            
+        # extract entity type
+        type = ""
+        if (attribute == 'GlueCEAccessControlBaseRule'):
+            type = 'CE'
+        elif (attribute == 'GlueSAAccessControlBaseRule'):
+            type = 'SE'
+            
+        if ( entity_store.has_key(unique_id + type)): # Ensure that exists
+            if ( relationships.has_key(unique_id + type) ):
+                if ( not relationships[unique_id + type].has_key(vo) ):
+                    relationship_store.append( ( unique_id, vo, "ServiceVO", type ) )
+                    if ( not relationships.has_key(unique_id + type)):
+                        relationships[unique_id + type] = {}
+                    relationships[unique_id + type][vo] = None
             else:   
-                relationship_store.append( ( unique_id, vo, "ServiceVO" ) )
-                if ( not relationships.has_key(unique_id)):
-                    relationships[unique_id] = {}
-                relationships[unique_id][vo] = None
+                relationship_store.append( ( unique_id, vo, "ServiceVO", type ) )
+                if ( not relationships.has_key(unique_id + type)):
+                    relationships[unique_id + type] = {}
+                relationships[unique_id + type][vo] = None
 
             
 
