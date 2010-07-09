@@ -1,0 +1,35 @@
+countriesInEgeeEurope = {
+     'Belgium': [4.35, 50.85, 'BEL'],
+     'Bulgaria': [23.316667, 42.683333, 'BGR'],
+     'Croatia': [16, 45.8, 'HRV'],
+     'Cyprus': [33.466667, 35.133333, 'CYP'],
+     'Czech Republic': [14.466667, 52, 'CZE'],
+     'Estonia': [24.75, 59.416667, 'EST'],
+     'Finland': [25, 64, 'FIN'],
+     'France': [-1, 47, 'FRA'],
+     'Germany': [9, 52.516667, 'DEU'],
+     'Greece': [23.716667, 38, 'GRC'],
+     'Hungary': [19.75, 47.433333, 'HUN'],
+     'Ireland': [-10, 53.344167, 'IRL'],
+     'Italy': [12.483333, 41.9, 'ITA'],
+     'Latvia': [24.1, 59, 'LVA'],
+     'Lithuania': [25.316667, 54.683333, 'LTU'],
+     'Macedonia': [21.433333, 42, 'MKD'],
+     'Norway': [13, 61, 'NOR'],
+     'Poland': [19, 54, 'POL'],
+     'Portugal': [-10, 38.766667, 'PRT'],
+     'Romania': [29, 44.416667, 'ROU'],
+     'Rusia': [37.616667, 55.75, 'RUS'],
+     'Serbia': [20.466667, 44, 'SRB'],
+     #'Bratislava-Slovakia': [17.116667, 49, 'SVK'], # Duplicated for Slovakia
+     'Slovakia': [17.116667, 49, 'SVK'],
+     'Slovenia': [13.5, 46.05, 'SVN'],
+     'Spain': [-6, 40.433333, 'ESP'],
+     'Sweden': [18.066667, 59.35, 'SWE'],
+     'Switzerland': [7.45, 46.95, 'CHE'],
+     'The Netherlands': [3.2, 56, 'NLD'], # It should be just "Netherlands"
+     'Turkey': [32.833333, 39.916667, 'TUR'],
+     #'UK': [-4, 54, 'GRB'], # Duplicated for United Kingdom
+     'United Kingdom': [-4, 54, 'GBR'],
+     'Ukraine': [30.5, 50.45, 'UKR']
+}
