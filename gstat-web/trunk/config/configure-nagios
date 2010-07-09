@@ -1,5 +1,5 @@
 # Run snapshot if enabled
-20 * * * * root [ -f /etc/gstat/ref-bdii.conf ] && sleep `expr $RANDOM \% 100` && ( . /etc/gstat/ref-bdii.conf 2>&1 ; /usr/bin/configure-nagios > /var/log/configure-nagios.log 2>&1 ; /etc/init.d/nagios reload >/dev/null 2>&1)
+20 * * * * root [ -f /etc/gstat/ref-bdii.conf ] && sleep `expr $RANDOM \% 100` && ( . /etc/gstat/ref-bdii.conf 2>&1 ; /usr/bin/configure-nagios > /var/log/configure-nagios.log 2>&1 ; service nagios reload >/dev/null 2>&1)
 
 
 
