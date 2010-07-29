@@ -12,14 +12,12 @@ LCG service:
 - Number of LCG-CEs unique hosts deployed (5): {{ lcgces_unique_hosts }}
 - Number of sites supporting CREAM CEs (6): {{ sites_creamces }}
 - Number of sites supporting LCG-CEs (7): {{ sites_lcgces }}
-- Number of sites supporting MPI (8): {{ sites_mpi }}
-- Number of logical CPUs supporting MPI (9): {{ logical_cpus_mpi }}
 
-- Installed Capacity per Operating System (10):
+- Installed Capacity per Operating System (8):
 {{ "OS Name"|ljust:"15" }}{{ "SubClusters"|rjust:"15" }}{{ "Logical CPUs"|rjust:"15" }}{{ "Total SI2000"|rjust:"15" }}
 {% for row in ic_per_os %}{{ row.0|ljust:"15" }}{{ row.1|rjust:"15" }}{{ row.2|rjust:"15" }}{{ row.3|rjust:"15" }}
 {% endfor %}
-- Installed Capacity per CE Type (10):
+- Installed Capacity per CE Type (8):
 {{ "CE Type"|ljust:"15" }}{{ "Logical CPUs"|rjust:"15" }}
 {% for row in ic_per_ce %}{{ row.0|ljust:"15" }}{{ row.1|rjust:"15" }}
 {% endfor %}
@@ -52,14 +50,7 @@ Notes:
 (7) Extracted from GStat 2.0. It can be checked by counting the sites that
     have clusters which have CEs with GlueCEImplementationName=LCG-CE.
 
-(8) Extracted from GStat 2.0. It can be checked by counting the sites that
-    have clusters which have sub clusters with
-    GlueHostApplicationSoftwareRunTimeEnvironment=MPI-START
-
-(9) Extracted from GStat 2.0. It can be checked by aggregating the logicalcpus
-    of sub clusters with GlueHostApplicationSoftwareRunTimeEnvironment=MPI-START
-
-(10) Extracted from GStat 2.0. We consider the following operating systems: AIX,
+(8) Extracted from GStat 2.0. We consider the following operating systems: AIX,
     Debian, Ubuntu and SUSE LINUX. We also consider the following RHEL Compat.
     systems: Scientific Linux, Scientific Linux CERN, ScientificCERNSLC, CentOS,
     ScientificSL, ScientificFermiLTS, RedHatEnterpriseAS, RedHatEnterpriseWS
