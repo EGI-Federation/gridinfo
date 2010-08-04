@@ -6,11 +6,13 @@ CERT-TB-CERN ldap://lxbra2306.cern.ch:2170/mds-vo-name=cert-tb-cern,o=grid
 
 AZ_GRID ldap://lxb7607v5.cern.ch:2170/mds-vo-name=AZ_GRID,o=grid
 
+#CERT-TB-CERN-CLUSTER ldap://vtb-generic-36:2170/mds-vo-name=glite_cluster_test,o=grid
+
 #
 # EXTERNAL
 #
 
-DESY-XEN-BED ldap://waterford.desy.de:2170/mds-vo-name=desycerttp,o=grid
+DESY-XEN-BED ldap://waterford.desy.de:2170/mds-vo-name=desycerttb,o=grid
 
 CY-02-CYGRID-CERT ldap://ce201.grid.ucy.ac.cy:2170/mds-vo-name=CY-02-CYGRID-CERT,o=grid
 
@@ -26,11 +28,9 @@ EGEE-SEE-CERT ldap://ctb01.gridctb.uoa.gr:2170/mds-vo-name=egee-see-cert,o=grid
 
 # IPV6
 
-GARR ldap://rgma-bdii-4.dir.garr.it:2170/mds-vo-name=GARR,o=grid
+GARR ldap://gridsrv4-4.dir.garr.it:2170/mds-vo-name=roma-garr-ipv6,o=grid
 
 PARIS-UREC-IPV6 ldap://bdii-ipv6-testbed.paris.urec.cnrs.fr:2170/mds-vo-name=paris-urec-ipv6,o=grid
 
-RICARDO_LCGCE ldap://vtb-generic-83.cern.ch:2170/mds-vo-name=resource,o=grid
-RICARDO_CREAM ldap://vtb-generic-90.cern.ch:2170/mds-vo-name=resource,o=grid
 HORAT_T1 ldap://vtb-generic-89.cern.ch:2170/mds-vo-name=resource,o=grid
 HORAT_T2 ldap://vtb-generic-79.cern.ch:2170/mds-vo-name=resource,o=grid
