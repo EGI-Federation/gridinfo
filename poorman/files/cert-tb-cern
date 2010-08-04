@@ -2,21 +2,47 @@
 # Site A BDII Conf File
 #
 
-CE  ldap://lxbra2307.cern.ch:2170/mds-vo-name=resource,o=grid
+LCGCE  ldap://lxbra2307.cern.ch:2170/mds-vo-name=resource,o=grid
 CTBSA3INFN ldap://cream-37.pd.infn.it:2170/mds-vo-name=resource,o=grid
+BDII  ldap://lxbra2306.cern.ch:2170/mds-vo-name=resource,o=grid
 
 CREAMCE  ldap://lxbra2308.cern.ch:2170/mds-vo-name=resource,o=grid
 SE  ldap://lxbra1910.cern.ch:2170/mds-vo-name=resource,o=grid
-DPM  ldap://lxb7608v1.cern.ch:2170/mds-vo-name=resource,o=grid
-LFC  ldap://lxb7608v3.cern.ch:2170/mds-vo-name=resource,o=grid
+#retirement DPM-old  ldap://lxb7608v1.cern.ch:2170/mds-vo-name=resource,o=grid
+DPM  ldap://lxbra2506v1.cern.ch:2170/mds-vo-name=resource,o=grid
+#retirement LFC-old  ldap://lxb7608v3.cern.ch:2170/mds-vo-name=resource,o=grid
+LFC  ldap://lxbra2506v3.cern.ch:2170/mds-vo-name=resource,o=grid
 PX  ldap://lxbra2304.cern.ch:2170/mds-vo-name=resource,o=grid
+WMS  ldap://lxbra2303.cern.ch:2170/mds-vo-name=resource,o=grid
 FTS  ldap://lxbra2310.cern.ch:2170/mds-vo-name=resource,o=grid
-VOBOX  ldap://lxb7607v2.cern.ch.cern.ch:2170/mds-vo-name=resource,o=grid
-LFCAZER  ldap://vtb-generic-92.cern.ch:2170/mds-vo-name=resource,o=grid
+#retirement VOBOX  ldap://lxb7607v2.cern.ch.cern.ch:2170/mds-vo-name=resource,o=grid
+VOBOX  ldap://lxbrf2711.cern.ch.cern.ch:2170/mds-vo-name=resource,o=grid
+LCGCE2  ldap://lxb8076.cern.ch:2170/mds-vo-name=resource,o=grid
+
+# INFN (Danilo)
+INFNWMS1  ldap://wms007.cnaf.infn.it:2170/mds-vo-name=resource,o=grid
+INFNWMS2  ldap://wms008.cnaf.infn.it:2170/mds-vo-name=resource,o=grid
+
+# Tomasz Cert.
+#CERT-TB-CERN-CE      ldap://vtb-generic-50:2170/mds-vo-name=resource,o=grid
+#CERT-TB-CERN-CLUSTER ldap://vtb-generic-37:2170/mds-vo-name=resource,o=grid
 
 # Andrew Certification
-AE-CREAM ldap://vtb-generic-104.cern.ch:2170/mds-vo-name=resource,o=grid
-AE-LCGCE  ldap://vtb-generic-100.cern.ch:2170/mds-vo-name=resource,o=grid
+AE-LCGCE ldap://vtb-generic-106.cern.ch:2170/mds-vo-name=resource,o=grid
+AE-VOBOX ldap://vtb-generic-101.cern.ch:2170/mds-vo-name=resource,o=grid
 
-# Alex certification
-ALEX_CREAM ldap://vtb-generic-114.cern.ch:2170/mds-vo-name=resource,o=grid
+# DM resources
+DM-SE1 ldap://lxbra2506v1.cern.ch:2170/mds-vo-name=resource,o=grid
+DM-SE2 ldap://lxbra2506v2.cern.ch:2170/mds-vo-name=resource,o=grid
+DM-SE3 ldap://lxbra2506v3.cern.ch:2170/mds-vo-name=resource,o=grid
+
+# Alex
+AA_SE1 ldap://vmdm0006.cern.ch:2170/mds-vo-name=resource,o=grid
+AA_SE2 ldap://vmdm0009.cern.ch:2170/mds-vo-name=resource,o=grid
+#AA_LFC ldap://vtb-generic-77.cern.ch:2170/mds-vo-name=resource,o=grid
+
+# Gianni certification
+
+# Adam
+AZ_DPM ldap://vtb-generic-18.cern.ch:2170/mds-vo-name=resource,o=grid
+

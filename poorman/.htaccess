@@ -7,5 +7,7 @@ SSLOptions +FakeBasicAuth
 
 AuthType Basic
 AuthName "BDII File Editor"
-AuthUserFile /afs/cern.ch/user/h/horat/poorman/certificates/httpd.passwd
+AuthUserFile /afs/cern.ch/project/gd/www/bdii-web-config/certificates/httpd.passwd
 Require valid-user
+
+
