@@ -3,7 +3,6 @@ Service Level Reports:
 LCG service:
 ------------
 - Total number of Sites (1): {{ total_number_sites }}
-- Sites per Status (1): ok {{ sites_ok }}, degraded {{ sites_degraded }}, down {{ sites_down }}, maintenance {{ sites_maint }}, not available {{ sites_na }}.
 - Sites per Software version (2): gLite 3.2.0 -> {{ sites_glite32 }}, gLite 3.1.0 -> {{ sites_glite31 }}.
 
 - Number of jobs executed last month, {{ jobs_last_month_monthName }} {{ jobs_last_month_yearNumber }} (3): {{ jobs_last_month }}
