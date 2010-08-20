@@ -9,7 +9,6 @@ import string
 import pickle
 import urllib2
 import ConfigParser
-from os.path import basename
 
 try:
     from xml.etree import ElementTree
@@ -37,7 +36,7 @@ def parse_args():
     try:
         opts, args = getopt.getopt(sys.argv[1:], "c:hv", ["config", "help", "verbose"])
     except getopt.GetoptError, e:
-        log.error("While parsing arguments: %s" % str(e).strip())
+        log.error("While parsing arguments: %s." % str(e).strip())
         usage()
         sys.exit(1)
     for opt, arg in opts:
@@ -58,25 +57,31 @@ def read_config(config_file):
     try:
         config_parser.read(config_file)
     except ConfigParser.ParsingError, e:
-        log.error("Configuration file '%s' contains erros" %(config_file))
+        log.error("Configuration file '%s' contains errors." %(config_file))
         log.error(str(e))
         sys.exit(1)
     
     try:
-        for parameter in ['EGI', 'OSG', 'manual', 'output_file', 'manual_file', 'cache_dir']:
+        for parameter in ['EGI', 'OSG', 'manual']:
+            try:
+                config[parameter] = config_parser.getboolean('configuration', parameter)
+            except ValueError:
+                log.error("The value for parameter '%s' is not a boolean" %(parameter,))
+                sys.exit(1)
+        for parameter in ['output_file', 'manual_file', 'cache_dir']:
             config[parameter] = config_parser.get('configuration', parameter)
     except ConfigParser.NoSectionError, e:
-        log.error("Missing section 'configuration' in the configuration file %s" %(config_file,))
+        log.error("Missing section 'configuration' in the configuration file %s." %(config_file,))
         sys.exit(1)
     except ConfigParser.NoOptionError, e:
-        log.error("Missing paramter '%s' in the configuration file %s" %(parameter, config_file))
+        log.error("Missing paramter '%s' in the configuration file %s." %(parameter, config_file))
         sys.exit(1)
 
 def usage():
     """prints the command line options of the program"""
     
     print """
-            Usage:""", basename(sys.argv[0]), """[options]
+            Usage:""", os.path.basename(sys.argv[0]), """[options]
             
             Options:
               -c --config  Configuration File
@@ -143,8 +148,11 @@ def create_urls_file(egi_urls, osg_urls):
 #
 """ % (now,)
 
-
-    file_handle = open('output', 'w')
+    if not os.path.exists(os.path.dirname(config['output_file'])):
+        log.error("Output directory '%s' does not exist." % ( config['output_file'],) )
+        sys.exit(1)
+        
+    file_handle = open(config['output_file'], 'w')
     file_handle.write(header)
 
     if egi_urls:
@@ -163,7 +171,7 @@ def create_urls_file(egi_urls, osg_urls):
 
     if config['manual']:
         if not os.path.exists(config['manual_file']):
-            log.error("Manual file '%s' does not exist" % ( config['manual_file'],) )
+            log.error("Manual file '%s' does not exist." % ( config['manual_file'],) )
             sys.exit(1)
         contents = open(config['manual_file']).read()
         file_handle.write("\n\n# Appended Manual Additions\n\n")
@@ -191,7 +199,7 @@ if __name__ == "__main__":
             pickle.dump(egi_urls, file_handle)
             file_handle.close()
         else:
-            log.warn("Using cache file for EGI URLs")
+            log.warn("Using cache file for EGI URLs.")
             file_handle = open(pickle_file, 'rb')
             egi_urls = pickle.load(file_handle)
             file_handle.close()
@@ -205,7 +213,7 @@ if __name__ == "__main__":
             pickle.dump(osg_urls, file_handle)
             file_handle.close()
         else:
-            log.warn("Using cache file for OSG URLs")
+            log.warn("Using cache file for OSG URLs.")
             file_handle = open(pickle_file, 'rb')
             osg_urls = pickle.load(file_handle)
             file_handle.close()
