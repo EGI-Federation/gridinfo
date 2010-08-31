@@ -27,7 +27,7 @@ error_messages= {
       "site.coordinates.incorrect_longitude":   ["Incorrect Longitude information. ","ERROR"],
       "site.URL.incorrect":                     ["The GlueSiteWeb attribute has an incorrect or inexistent URL. ","ERROR"],
       "site.OhterInfo.no_GRID_info":            ["None of the fields in the GlueSiteOtherInfo contain the name of the GRID (GRID=X). ","ERROR"],
-      "site.OhterInfo.incorrect_GRID_value":    ["The GRID value in GlueSiteOtherInfo is noc correct. ","ERROR"],                   
+      "site.OhterInfo.incorrect_GRID_value":    ["The GRID value in GlueSiteOtherInfo is not correct. ","ERROR"],                   
       "site.OhterInfo.no_complete_EGEE_info":   ["None of the fields in the GlueSiteOtherInfo contain EGEE_ROC and EGEE_SERVICE. ","ERROR"],
       "site.OhterInfo.incorrect_EGEE_ROC":      ["The field EGEE_ROC in GlueSiteOtherInfo does not contain a proper value. ","ERROR"],
       "site.OtherInfo.invalid_NGI":      ["The NGI is invalid. ","ERROR"],
@@ -268,7 +268,7 @@ def check_site_other_info(site):
          # Check NGI_ROC is a valid NGI
          if ( other_info.has_key("EGI_NGI")):
             if (NGIs.count(other_info["EGI_NGI"][0]) == 0 ):
-               details = "%s is not an offical NGI." %(other_info["EGI_NGI"][0])
+               details = "%s is not an official NGI." %(other_info["EGI_NGI"][0])
                my_errors.log(site_id, "site.OtherInfo.invalid_NGI", details, site_id)
 
 
