@@ -1,0 +1,43 @@
+#!/bin/sh
+##############################################################################
+# Copyright (c) CERN 2010
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
+GLITE_HOME=${GLITE_HOME:-/opt/glite}
+CONFIG=${GLITE_HOME}/etc/gip/top-urls.conf
+SCRIPT=${GLITE_HOME}/libexec/glite-info-provider-ldap
+DEFAULTS=${GLITE_HOME}/etc/glite-info-site-defaults.conf
+
+# Check for the existence of the configuration file.
+if [ -f ${DEFAULTS} ]; then
+    source ${DEFAULTS}
+fi
+
+SITE_NAME=${SITE_NAME:-$(hostname -d) }
+
+# Check for the existence of the configuration file.
+if [ ! -f ${CONFIG} ]; then
+    echo "Error: The configuration file ${CONFIG} does not exist." 1>&2
+    exit 1
+fi 
+
+# Check for the existence of the provider.
+if [ ! -f ${SCRIPT} ]; then
+    echo "Error: The provider ${SCRIPT} does not exist." 1>&2
+    exit 1
+fi 
+
+${SCRIPT} -c ${CONFIG} -g ${SITE_NAME}
+
