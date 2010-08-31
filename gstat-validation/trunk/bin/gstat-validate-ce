@@ -37,8 +37,8 @@ import gsutils
 
 error_messages = {
       "connection.error":      ["Connection Error","ERROR"],
-      "gstat.value.error": ["A value is incorrrect","ERROR"],
-      "value.error": ["The value is incorrrect","ERROR"],
+      "gstat.value.error": ["A value is incorrect","ERROR"],
+      "value.error": ["The value is incorrect","ERROR"],
       "value.format": ["The format of the value is incorrect.","ERROR"],
       "attribute.exists": ["An attribute is missing.","ERROR"],
    "CE.Attribute.Exist": ["Mandatory attribute does not exist in the GlueCE entry.","ERROR"],

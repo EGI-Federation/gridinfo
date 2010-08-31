@@ -14,7 +14,7 @@ error_messages= {
    "service.attribute.syntax": ["GlueService object attribute syntax error","ERROR"],
    "service.published": ["The Service is not published.","ERROR"],
    "service.registered": ["The Service is not registered in the GOC","ERROR"],
-   "service.type.value": ["The Service Type is not an offical type.","WARNING"],
+   "service.type.value": ["The Service Type is not an official type.","WARNING"],
    }
 
 #Define the service types
@@ -90,7 +90,7 @@ if __name__ == "__main__":
 
    sites = []
    services = {}
-   # Itterate through LDIF entries and test.
+   # Iterate through LDIF entries and test.
    for dn in dns:
       entry = ldif[dns[dn][0]:dns[dn][1]].strip()
       entry = gsutils.convert_entry(entry)
@@ -203,7 +203,7 @@ for site in services.keys():
             try:
                services[site][host].index(service)
             except:
-               my_errors.log(host, 'service.published', 'The Service %s on %s is registed in the GOC but not published.' %(service, host), site)
+               my_errors.log(host, 'service.published', 'The Service %s on %s is registered in the GOC but not published.' %(service, host), site)
 
 # Check to see if Services are registered
 for site in goc_services.keys():

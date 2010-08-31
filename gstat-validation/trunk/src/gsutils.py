@@ -44,7 +44,7 @@ class error_logger:
       
     def log(self, entity_id, error_id, details, site_id):
         if (not self.error_messages.has_key(error_id)):
-            sys.stderr.write("Error: Error ID '%s' is not defiend." % (error_id))
+            sys.stderr.write("Error: Error ID '%s' is not defined." % (error_id))
             sys.exit(1)
 
         # Name, Type, EntityUniqueID, SiteID, Value, Source, Level          

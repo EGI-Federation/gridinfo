@@ -38,7 +38,7 @@ import gsutils
 error_messages = {
    "connection.error":      ["Connection Error","ERROR"],
     "gstat.value.error": ["A value is invalid","ERROR"],
-   "SE.Attribute.Exist": ["Manditory attribute does not exist in the GlueSE entry.","ERROR"],
+   "SE.Attribute.Exist": ["Mandatory attribute does not exist in the GlueSE entry.","ERROR"],
    "SE.Attribute.OptionalExist": ["Optional attribute does not exist in the Glue SE entry.","WARNING"],
    "SE.Attribute.Unique": ["Attribute with moltiplicity one appears more than once in Glue SE entry.","ERROR"],
    "SE.UniqueID.Unique": ["GlueSEUniqueID is not unique","ERROR"],
@@ -49,7 +49,7 @@ error_messages = {
    "SE.Deprecated.Exist": ["Deprecated attribute exist in the GlueSE entry.","WARNING"],
    "SE.GlueSA.Exist": ["This SE does not have any GlueSA associated","ERROR"],
    "SE.Size.Value": ["A size attribute has an incorrect value","ERROR"],
-   "SA.Attribute.Exist": ["Manditory attribute does not exist in the GlueSA entry.","ERROR"],
+   "SA.Attribute.Exist": ["Mandatory attribute does not exist in the GlueSA entry.","ERROR"],
    "SA.Deprecated.Exist": ["Deprecated attribute exist in the GlueSA entry.","WARNING"],
    "SA.Size.Valid": ["A size attribute has an incorrect value","ERROR"],
    "SA.Size": ["A size attribute has an incorrect value","ERROR"],
@@ -678,7 +678,7 @@ if __name__ == "__main__":
          if ( vo_local_id and  sa_local_id and se_unique_id ):
             try:
                SE_SA_VOInfo[se_unique_id][sa_local_id][vo_local_id]
-               details = "GlueVOInfoLocalID %s is not unique withing the SA %s for the SE %s." %(vo_local_id, sa_local_id, se_unique_id)
+               details = "GlueVOInfoLocalID %s is not unique within the SA %s for the SE %s." %(vo_local_id, sa_local_id, se_unique_id)
                my_errors.log(key,'VOInfo.LocalID.Unique', details, gsutils.get_site(key))
             except KeyError:
                SE_SA_VOInfo[se_unique_id][sa_local_id][vo_local_id] = None

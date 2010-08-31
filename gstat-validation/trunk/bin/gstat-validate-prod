@@ -195,7 +195,7 @@ def test_goc(bdiis, type):
 
     for bdii in bdiis:
         if (not goc.has_key(bdii)):
-            my_errors.log(bdii,'gsutils.bdii.goc', '%s level BDII Service hostname %s is not registed in the GOC database' % (type.capitalize(), bdii), bdii)
+            my_errors.log(bdii,'gsutils.bdii.goc', '%s level BDII Service hostname %s is not registered in the GOC database' % (type.capitalize(), bdii), bdii)
     
                                               
 if __name__ == "__main__":
@@ -226,7 +226,7 @@ if __name__ == "__main__":
     test_published(bdiis,"site")
     test_goc(bdiis,"site")
 
-   gsutils.do_output(my_errors,config)   
-   gsutils.do_exit(my_errors)   
+    gsutils.do_output(my_errors,config)   
+    gsutils.do_exit(my_errors)   
 
         
