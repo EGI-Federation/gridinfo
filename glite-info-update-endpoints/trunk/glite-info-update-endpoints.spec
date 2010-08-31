@@ -1,5 +1,5 @@
 Name:		glite-info-update-endpoints
-Version:	1.0.0
+Version:	2.0.0
 Release:	1%{?dist}
 Summary:	Updates LDAP endpoins for EGI and OSG
 Group:		System/Monitoring
