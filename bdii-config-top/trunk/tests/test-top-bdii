@@ -15,8 +15,8 @@ echo "Starting the BDII"
 command="ldapsearch -LLL -x -h $(hostname -f) -p 2170 -b "
 RETVAL=0
 
-echo "Waiting 100 seconds for the BDII to start."
-sleep 100
+echo "Waiting 400 seconds for the BDII to start."
+sleep 400
 
 echo -n "Checking that the BDII is running ... "
 ${command} >/dev/null 2>/dev/null
@@ -51,8 +51,19 @@ fi
 
 echo -n "Checking site query for top-level BDII ... "
 bind="mds-vo-name=local,o=grid"
-filter="(objectClass=GlueSite)"
-${command} ${bind} '${filter}' >/dev/null 2>/dev/null
+filter='(objectClass=GlueSite)'
+${command} ${bind} "${filter}" | grep GlueSiteName >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Checking site query for top-level BDII for GLUE 2.0 ... "
+bind="o=glue"
+filter='(objectClass=GLUE2AdminDomain)'
+${command} ${bind} "${filter}" | grep GLUE2AdminDomain >/dev/null 2>/dev/null
 if [ $? -gt 0 ]; then
     echo "FAIL"
     RETVAL=1
