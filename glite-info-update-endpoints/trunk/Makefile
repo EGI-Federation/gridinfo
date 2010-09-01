@@ -10,10 +10,13 @@ default:
 install:
 	@echo installing ...
 	@mkdir -p ${prefix}/etc/glite
+	@mkdir -p ${prefix}/etc/cron.hourly
 	@mkdir -p ${prefix}/usr/bin/
+	@mkdir -p ${prefix}/var/log/glite
 	@mkdir -p ${prefix}/var/cache/glite/glite-info-update-endpoints
 	@install -m 0644 etc/glite-info-update-endpoints.conf ${prefix}/etc/glite/
 	@install -m 0744 bin/glite-info-update-endpoints ${prefix}/usr/bin/
+	@install -m 0744 etc/cron.hourly/glite-info-update-endpoints ${prefix}/etc/cron.hourly/
 
 dist:
 	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
