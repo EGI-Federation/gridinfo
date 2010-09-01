@@ -1,5 +1,5 @@
 Name:		bdii-config-top
-Version:	0.0.1
+Version:	0.0.2
 Release:	1%{?dist}
 Summary:	Top BDII configration files
 Group:		System/Monitoring
