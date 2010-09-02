@@ -1,5 +1,5 @@
 Name:		bdii-config-top
-Version:	0.0.2
+Version:	0.0.3
 Release:	1%{?dist}
 Summary:	Top BDII configration files
 Group:		System/Monitoring
@@ -36,7 +36,8 @@ rm -rf %{buildroot}
 /opt/glite/etc/gip/provider/glite-info-provider-top
 /opt/glite/etc/gip/provider/glite-info-provider-service-bdii-top-glue2
 /opt/glite/etc/gip/provider/glite-info-provider-top-glue2
+/opt/glite/etc/gip/plugin/glite-info-plugin-fcr
 
 %changelog
-* Tue Aug 31 2010 Laurence Field <laurence.field@cern.ch> - 0.0.1-1
+* Tue Aug 31 2010 Laurence Field <laurence.field@cern.ch> - 0.0.3-1
 - New package
