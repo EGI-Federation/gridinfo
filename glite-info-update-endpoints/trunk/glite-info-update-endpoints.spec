@@ -1,5 +1,5 @@
 Name:		glite-info-update-endpoints
-Version:	2.0.1
+Version:	2.0.2
 Release:	1%{?dist}
 Summary:	Updates LDAP endpoins for EGI and OSG
 Group:		System/Monitoring
@@ -21,6 +21,11 @@ Updates LDAP endpoins for EGI and OSG
 rm -rf %{buildroot}
 make install prefix=%{buildroot}
 
+%post
+if [ ! -f /opt/glite/etc/gip/top-urls.conf ]; then
+    /etc/cron.hourly/glite-info-update-endpoints
+fi
+
 %clean
 rm -rf %{buildroot}
 
@@ -34,5 +39,5 @@ rm -rf %{buildroot}
 /etc/cron.hourly/glite-info-update-endpoints
 /var/cache/glite/glite-info-update-endpoints
 %changelog
-* Fri Aug 20 2010 Laurence Field <laurence.field@cern.ch> - 2.0.1-1
+* Fri Aug 20 2010 Laurence Field <laurence.field@cern.ch> - 2.0.2-1
 - Refactored version that queries the GOCs directly
