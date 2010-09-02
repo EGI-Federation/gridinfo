@@ -6,16 +6,6 @@ bind="-b mds-vo-name=resource,o=grid "
 
 RETVAL=0
 
-echo -n "Testing the publication of site entry at resource-level: "
-filter="objectClass=GlueSite  GlueSiteUniqueID"
-${command} ${bind} ${filter} | grep "TestSite" >/dev/null 2>/dev/null
-if [ $? -gt 0 ]; then
-    echo "FAIL"
-    RETVAL=1
-else
-    echo "OK"
-fi 
-
 echo -n "Testing the publication of service entry at resource-level: "
 filter="(&(objectClass=GlueService)(GlueServiceType=bdii_top)) GlueServiceUniqueID"
 ${command} ${bind} ${filter} | grep "$(hostname -f)" >/dev/null 2>/dev/null
@@ -89,7 +79,7 @@ else
 fi 
 
 echo -n "Checking site query for top-level BDII ... "
-bind="mds-vo-name=local,o=grid"
+bind="-b mds-vo-name=local,o=grid"
 filter='(objectClass=GlueSite)'
 ${command} ${bind} "${filter}" | grep GlueSiteName >/dev/null 2>/dev/null
 if [ $? -gt 0 ]; then
@@ -100,7 +90,7 @@ else
 fi 
 
 echo -n "Checking site query for top-level BDII for GLUE 2.0 ... "
-bind="o=glue"
+bind=" -b o=glue"
 filter='(objectClass=GLUE2AdminDomain)'
 ${command} ${bind} "${filter}" | grep GLUE2AdminDomain >/dev/null 2>/dev/null
 if [ $? -gt 0 ]; then
