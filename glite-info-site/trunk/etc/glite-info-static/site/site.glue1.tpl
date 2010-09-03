@@ -12,7 +12,7 @@ GlueSiteSecurityContact: mailto:$SITE_SECURITY_EMAIL
 GlueSiteEmailContact: mailto:$SITE_EMAIL
 GlueSiteLocation: $SITE_LOC
 GlueSiteLatitude: $SITE_LAT
-GlueSiteLongitude: $SITE_LON
+GlueSiteLongitude: $SITE_LONG
 GlueSiteWeb: $SITE_WEB
 GlueSiteSponsor: none
 GlueSchemaVersionMajor: 1
