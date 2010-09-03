@@ -12,8 +12,8 @@ cat <<EOF > /root/site-info.def
 # Site Information
 SITE_NAME=TestSite
 SITE_EMAIL="email@${MY_DOMAIN}"
-SITE_LAT=0.0 
-SITE_LONG=0.0
+SITE_LAT=1.0 
+SITE_LONG=1.0
 SITE_DESC="Test Site"
 SITE_LOC="Test Node"
 SITE_WEB="http://${MY_DOMAIN}"
