@@ -243,6 +243,17 @@ else
     echo "OK"
 fi 
 
+bind="-b o=glue "
+echo -n "Regression Test for IS-145: OtherInfo missing in GLUE 2 "
+filter="(&(objectClass=GLUE2AdminDomain)(GLUE2EntityOtherInfo=GRID=MYGrid))"
+${command} ${bind} ${filter} | grep MYGrid >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
 if [ ${RETVAL} -eq 1 ]; then
     echo "Test Failed"
     exit 1
