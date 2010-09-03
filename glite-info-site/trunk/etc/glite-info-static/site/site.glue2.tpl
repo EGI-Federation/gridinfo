@@ -9,7 +9,7 @@ GLUE2EntityOtherInfo: $OTHERINFO
 dn: GLUE2LocationId=location.$SITE_NAME,GLUE2DomainId=$SITE_NAME,o=glue
 objectClass: GLUE2Location
 GLUE2LocationId: location.$SITE_NAME
-GLUE2LocationCountry: $SITE_LOC
+GLUE2LocationCountry: $SITE_COUNTRY
 GLUE2LocationLatitude: $SITE_LAT
 GLUE2LocationLongitude: $SITE_LONG
 GLUE2LocationDomainForeignKey: $SITE_NAME
