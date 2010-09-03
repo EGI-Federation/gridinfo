@@ -243,6 +243,17 @@ else
     echo "OK"
 fi 
 
+echo -n "Regression Test for IS-146: GlueSiteLongitude not set: "
+filter="(&(objectClass=GlueSite)(GlueSiteLongitude=1.0))"
+${command} ${bind} ${filter} | grep GlueSiteLongitude >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+
 bind="-b o=glue "
 echo -n "Regression Test for IS-145: OtherInfo missing in GLUE 2 "
 filter="(&(objectClass=GLUE2AdminDomain)(GLUE2EntityOtherInfo=GRID=MYGrid))"
