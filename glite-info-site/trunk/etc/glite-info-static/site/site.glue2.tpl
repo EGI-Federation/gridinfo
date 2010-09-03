@@ -11,7 +11,7 @@ objectClass: GLUE2Location
 GLUE2LocationId: location.$SITE_NAME
 GLUE2LocationCountry: $SITE_LOC
 GLUE2LocationLatitude: $SITE_LAT
-GLUE2LocationLongitude: $SITE_LON
+GLUE2LocationLongitude: $SITE_LONG
 GLUE2LocationDomainForeignKey: $SITE_NAME
 
 dn: GLUE2ContactId=general.contact.$SITE_NAME,GLUE2DomainId=$SITE_NAME,o=glue
