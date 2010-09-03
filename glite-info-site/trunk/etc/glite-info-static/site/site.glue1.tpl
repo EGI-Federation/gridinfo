@@ -15,7 +15,6 @@ GlueSiteLatitude: $SITE_LAT
 GlueSiteLongitude: $SITE_LON
 GlueSiteWeb: $SITE_WEB
 GlueSiteSponsor: none
-GlueForeignKey: GlueSiteUniqueID=$SITE_NAME
 GlueSchemaVersionMajor: 1
 GlueSchemaVersionMinor: 3
 GlueSiteOtherInfo: $OTHERINFO
