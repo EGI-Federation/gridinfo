@@ -34,7 +34,7 @@ rm -rf %{buildroot}
 %config /etc/glite-info-static/site/site.wlcg.ifc
 
 %changelog
-* Mon Sept 06 2010 Laurence Field <laurence.field@cern.ch> - 0.4.0-1
+* Mon Sep 06 2010 Laurence Field <laurence.field@cern.ch> - 0.4.0-1
 - Fixes for IS-143, IS-146 and IS-147
 * Thu Apr 08 2010 Laurence Field <laurence.field@cern.ch> - 0.2.0-1
 - Refactored
