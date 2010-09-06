@@ -1,5 +1,5 @@
 Name:		glite-info-site
-Version:	0.3.0
+Version:	0.4.0
 Release:	1%{?dist}
 Summary:	Site component for the glite-info-static framework.
 Group:		System/Monitoring
@@ -34,6 +34,8 @@ rm -rf %{buildroot}
 %config /etc/glite-info-static/site/site.wlcg.ifc
 
 %changelog
+* Mon Sept 06 2010 Laurence Field <laurence.field@cern.ch> - 0.4.0-1
+- Fixes for IS-143, IS-146 and IS-147
 * Thu Apr 08 2010 Laurence Field <laurence.field@cern.ch> - 0.2.0-1
 - Refactored
 * Mon Feb 15 2010 Laurence Field <laurence.field@cern.ch> - 0.1.0-1
