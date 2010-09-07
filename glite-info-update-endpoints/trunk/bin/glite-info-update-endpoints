@@ -91,7 +91,7 @@ def usage():
             """
 def get_osg_urls():
 
-    osg_goc_url = "http://myosg.grid.iu.edu/rgsummary/xml?datasource=summary&summary_attrs_showwlcg=on&summary_attrs_showservice=on&summary_attrs_showfqdn=on&gip_status_attrs_showtestresults=on&gip_status_attrs_showfqdn=on&account_type=cumulative_hours&ce_account_type=gip_vo&se_account_type=vo_transfer_volume&start_type=7daysago&start_date=09/11/2009&end_type=now&end_date=09/11/2009&all_resources=on&gridtype=on&gridtype_1=on&active=on&active_value=1&disable_value=1"
+    osg_goc_url = "http://myosg.grid.iu.edu/rgsummary/xml?datasource=summary&summary_attrs_showwlcg=on&summary_attrs_showservice=on&all_resources=on&gridtype=on&gridtype_1=on&active=on&active_value=1&disable_value=1"
 
     try:
         response = urllib2.urlopen(osg_goc_url).read()
@@ -114,7 +114,9 @@ def get_osg_urls():
                                 if information.tag == 'LDAPURL':
                                     site_url = information.text
                                     
-        osg_urls['OSG'].append( (site_name, site_url) )
+        url_tuple = (site_name, site_url)
+        if not url_tuple in osg_urls['OSG']:
+            osg_urls['OSG'].append(url_tuple)
 
     return osg_urls
 
@@ -152,7 +154,7 @@ def create_urls_file(egi_urls, osg_urls):
         log.error("Output directory '%s' does not exist." % ( config['output_file'],) )
         sys.exit(1)
         
-    file_handle = open(config['output_file'], 'w')
+    file_handle = open(config['output_file'] + ".tmp", 'w')
     file_handle.write(header)
 
     if egi_urls:
@@ -170,14 +172,13 @@ def create_urls_file(egi_urls, osg_urls):
                 file_handle.write("%s %s\n" % site)
 
     if config['manual']:
-        if not os.path.exists(config['manual_file']):
-            log.error("Manual file '%s' does not exist." % ( config['manual_file'],) )
-            sys.exit(1)
-        contents = open(config['manual_file']).read()
-        file_handle.write("\n\n# Appended Manual Additions\n\n")
-        file_handle.write(contents)
+        if os.path.exists(config['manual_file']):
+            contents = open(config['manual_file']).read()
+            file_handle.write("\n\n# Appended Manual Additions\n\n")
+            file_handle.write(contents)
     
-    file_handle.close()        
+    file_handle.close()
+    os.rename(config['output_file'] + ".tmp", config['output_file'])
 
 if __name__ == "__main__":
 
@@ -193,7 +194,7 @@ if __name__ == "__main__":
     egi_urls = None
     if config['EGI']:
         egi_urls = get_egi_urls()
-        pickle_file = config['cache_dir'] + 'EGI.pkl'
+        pickle_file = config['cache_dir'] + '/' + 'EGI.pkl'
         if len(egi_urls) > 0:
             file_handle = open(pickle_file, 'wb')
             pickle.dump(egi_urls, file_handle)
@@ -207,7 +208,7 @@ if __name__ == "__main__":
     osg_urls = None
     if config['OSG']:
         osg_urls = get_osg_urls()
-        pickle_file = config['cache_dir'] + 'OSG.pkl'
+        pickle_file = config['cache_dir'] + '/' + 'OSG.pkl'
         if len(osg_urls['OSG']) > 0:
             file_handle = open(pickle_file, 'wb')
             pickle.dump(osg_urls, file_handle)
