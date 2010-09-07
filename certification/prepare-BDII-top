@@ -1,0 +1,24 @@
+#!/bin/bash
+# ./prepare-BDII-site 2>&1 | tee install.log
+
+echo "Configuring Yum repository"
+
+# Configure glite 3.2 repo
+wget http://etics-repository.cern.ch/repository/pm/volatile/repomd/name/bdii_top_unstable_sl5_x86_64_gcc412/etics-volatile-build-by-id.repo -O /etc/yum.repos.d/etics-volatile-BDII_top.repo
+
+echo "Installing Service"
+yum install -y glite-BDII_top
+
+echo "Configuring Service"
+MY_DOMAIN=$(hostname -d)
+MY_HOST=$(hostname -f)
+# Create site-info.def
+cat <<EOF > /root/site-info.def
+
+BDII_HOST=${MY_HOST}
+
+EOF
+
+# Run Yaim
+/opt/glite/yaim/bin/yaim -c -s /root/site-info.def -n BDII_top
+
