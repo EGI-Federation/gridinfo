@@ -1,3 +1,0 @@
-#!/bin/sh
-
-/usr/bin/glite-info-update-endpoints -c /etc/glite/glite-info-update-endpoints.conf > /var/log/glite/glite-info-update-endpoints.log 2>&1
