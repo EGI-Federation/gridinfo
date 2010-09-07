@@ -3,11 +3,9 @@
 
 echo "Configuring Yum repository"
 
-# Configure glite 3.2 repo
-wget http://grid-deployment.web.cern.ch/grid-deployment/glite/repos/devel/glite_3_2_cert.repo -O /etc/yum.repos.d/glite_3_2_cert.repo 
 
 # Configure build repo
-wget http://etics-repository.cern.ch/repository/pm/volatile/repomd/id/4c45de5b-57ce-4e00-b97a-dccdd6332265/sl5_x86_64_gcc412/etics-volatile-build-by-id.repo -O /etc/yum.repos.d/etics-volatile-build-by-id.repo
+wget http://etics-repository.cern.ch/repository/pm/volatile/repomd/name/bdii_site_unstable_sl5_x86_64_gcc412/etics-volatile-build-by-id.repo -O /etc/yum.repos.d/etics-volatile-BDII-site.repo
 
 echo "Installing Service"
 yum install -y glite-BDII_site
@@ -38,5 +36,5 @@ BDII_SITE_BDII_URL="ldap://${MY_HOST}:2170/mds-vo-name=resource,o=grid"
 EOF
 
 # Run Yaim
-/opt/glite/yaim/bin/yaim -c -s site-info.def -n BDII_site
+/opt/glite/yaim/bin/yaim -c -s /root/site-info.def -n BDII_site
 
