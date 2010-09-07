@@ -74,7 +74,7 @@ def read_config(config_file):
         log.error("Missing section 'configuration' in the configuration file %s." %(config_file,))
         sys.exit(1)
     except ConfigParser.NoOptionError, e:
-        log.error("Missing paramter '%s' in the configuration file %s." %(parameter, config_file))
+        log.error("Missing parameter '%s' in the configuration file %s." %(parameter, config_file))
         sys.exit(1)
 
 def usage():
