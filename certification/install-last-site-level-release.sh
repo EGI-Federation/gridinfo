@@ -29,4 +29,4 @@ BDII_SITE_BDII_URL="ldap://${MY_HOST}:2170/mds-vo-name=resource,o=grid"
 
 EOF
     
-/opt/glite/yaim/bin/yaim -c -s site-info.def -n BDII_site 
+/opt/glite/yaim/bin/yaim -c -s /root/site-info.def -n BDII_site 
