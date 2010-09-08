@@ -1,5 +1,5 @@
 Name:		bdii-config-top
-Version:	0.0.5
+Version:	0.0.6
 Release:	1%{?dist}
 Summary:	Top BDII configration files
 Group:		System/Monitoring
@@ -26,6 +26,12 @@ Configration files for the Top BDII.
 rm -rf %{buildroot}
 make install prefix=%{buildroot}
 
+%post
+if [ -f ${INSTALL_ROOT}/glite/etc/gip/provider/glite-info-provider-egee ]; then
+    rm -f ${INSTALL_ROOT}/glite/etc/gip/provider/glite-info-provider-egee
+fi
+
+
 %clean
 rm -rf %{buildroot}
 
@@ -39,5 +45,5 @@ rm -rf %{buildroot}
 /opt/glite/etc/gip/plugin/glite-info-plugin-fcr
 
 %changelog
-* Mon Sep 06 2010 Laurence Field <laurence.field@cern.ch> - 0.0.4-1
+* Mon Sep 06 2010 Laurence Field <laurence.field@cern.ch> - 0.0.6-1
 - New package
