@@ -23,8 +23,8 @@ error_messages= {
       "site.email.incorrect":                  ["Incorrect email address syntax. ","ERROR"],
       "site.coordinates.no_coordinates":        ["Could not get coordinates. ","ERROR"],
       "site.coordinates.no_location_in_google": ["Could not get the location from the search engine. ","ERROR"],
-      "site.coordinates.incorrect_latitude":    ["Incorrect Latitude information. ","ERROR"],
-      "site.coordinates.incorrect_longitude":   ["Incorrect Longitude information. ","ERROR"],
+      "site.coordinates.incorrect_latitude":    ["Incorrect Latitude information. ","WARNING"],
+      "site.coordinates.incorrect_longitude":   ["Incorrect Longitude information. ","WARNING"],
       "site.URL.incorrect":                     ["The GlueSiteWeb attribute has an incorrect or inexistent URL. ","ERROR"],
       "site.OhterInfo.no_GRID_info":            ["None of the fields in the GlueSiteOtherInfo contain the name of the GRID (GRID=X). ","ERROR"],
       "site.OhterInfo.incorrect_GRID_value":    ["The GRID value in GlueSiteOtherInfo is not correct. ","ERROR"],                   
@@ -219,13 +219,13 @@ def check_coordinates(site):
                
     diff=abs(glat - lat)
     if (diff > tolerance ):
-        details = "Latitude for %s is %s but should be %s." %(location, lat, glat)
+        details = "Latitude for %s is %s but Google Maps returns %s for that location." %(location, lat, glat)
         log.debug(error_messages["site.coordinates.incorrect_latitude"][0]+details)
         my_errors.log(site_id, "site.coordinates.incorrect_latitude", details, site_id)
       
     diff=abs(glong - longit)
     if (diff > tolerance ):
-        details = "Longitude for %s is %s but should be %s." %(location, longit, glong)
+        details = "Longitude for %s is %s but Google Maps %s for that location." %(location, longit, glong)
         log.debug(error_messages["site.coordinates.incorrect_longitude"][0]+details)
         my_errors.log(site_id, "site.coordinates.incorrect_longitude", details, site_id)
       
