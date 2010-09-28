@@ -28,10 +28,7 @@ error_messages= {
       "site.URL.incorrect":                     ["The GlueSiteWeb attribute has an incorrect or inexistent URL. ","ERROR"],
       "site.OhterInfo.no_GRID_info":            ["None of the fields in the GlueSiteOtherInfo contain the name of the GRID (GRID=X). ","ERROR"],
       "site.OhterInfo.incorrect_GRID_value":    ["The GRID value in GlueSiteOtherInfo is not correct. ","ERROR"],                   
-      "site.OhterInfo.no_complete_EGEE_info":   ["None of the fields in the GlueSiteOtherInfo contain EGEE_ROC and EGEE_SERVICE. ","ERROR"],
-      "site.OhterInfo.incorrect_EGEE_ROC":      ["The field EGEE_ROC in GlueSiteOtherInfo does not contain a proper value. ","ERROR"],
       "site.OtherInfo.invalid_NGI":      ["The NGI is invalid. ","ERROR"],
-      "site.OhterInfo.incorrect_EGEE_SERVICE":  ["The field EGEE_SERVICE in GlueSiteOtherInfo does not contain a proper value. ","ERROR"],
       "site.OhterInfo.missing_WLCG":            ["Not every WLCG field is present in GlueSiteOtherInfo. ","ERROR"],
       "site.OhterInfo.incorrect_format":        ["At least one of the GlueSiteOtherInfo fields is not in the correct format (KEY=VALUE). ","ERROR"]
 }
@@ -279,29 +276,6 @@ def check_site_other_info(site):
             my_errors.log(site_id, "site.OhterInfo.no_GRID_info", details, site_id)
             error_found = True
          else:
-            # If GRID=EGEE, verify that there are ROC and SERVICE fields
-            if ("EGEE" in other_info["GRID"]):
-            
-               if not ((other_info.has_key("EGEE_ROC")) and (other_info.has_key("EGEE_SERVICE"))):
-                  details = "EGEE Site: %s." %(site_id)
-                  log.debug(error_messages["site.OhterInfo.no_complete_EGEE_info"][0]+details)
-                  my_errors.log(site_id, "site.OhterInfo.no_complete_EGEE_info", details, site_id)
-                  error_found = True
-               else:                           
-                  # IF there is ROC field, the value must be in the list
-                  if not (other_info["EGEE_ROC"][0] in ROC_names):
-                     details = "Site: %s." %(site_id)
-                     log.debug(error_messages["site.OhterInfo.incorrect_EGEE_ROC"][0]+details)
-                     my_errors.log(site_id, "site.OhterInfo.incorrect_EGEE_ROC", details, site_id)
-                     error_found = True
-                  
-                  # If there is SERVICE field, the value must be prod, pps or cert
-                  if not (other_info["EGEE_SERVICE"][0] in SERVICE_names):
-                     details = "Site: %s." %(site_id)
-                     log.debug(error_messages["site.OhterInfo.incorrect_EGEE_SERVICE"][0]+details)
-                     my_errors.log(site_id, "site.OhterInfo.incorrect_EGEE_SERVICE", details, site_id)
-                     error_found = True
-
             if (tiers.has_key(site_id[0])):
                 if (other_info.has_key("WLCG_TIER")):
                    if ( not other_info['WLCG_TIER'][0] == '0'):
