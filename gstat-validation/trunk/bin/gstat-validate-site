@@ -206,7 +206,7 @@ def check_coordinates(site):
 
        try:
           log.debug("Writing locations" )
-          cache_file = "/var/lib/locations"
+          cache_file = "/var/lib/gstat/locations"
           file = open(cache_file, 'w')
           for location in locations:   
              file.write("%s=%s\n" %(location, locations[location].strip()))
