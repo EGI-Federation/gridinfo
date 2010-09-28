@@ -24,18 +24,21 @@ python setup.py build
 
 %install
 python setup.py install --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
-chmod 777 $RPM_BUILD_ROOT/usr/share/gstat/locations
-chmod 777 $RPM_BUILD_ROOT/usr/share/gstat/wlcg-tier
-chmod 777 $RPM_BUILD_ROOT/usr/share/gstat/service-types
+chmod 777 $RPM_BUILD_ROOT/var/lib/gstat/locations
+chmod 777 $RPM_BUILD_ROOT/var/lib/gstat/wlcg-tier
+chmod 777 $RPM_BUILD_ROOT/var/lib/gstat/service-types
+chmod 777 $RPM_BUILD_ROOT/var/lib/gstat/NGI.xml
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files -f INSTALLED_FILES
 %defattr(-,root,root)
-/usr/share/gstat 
+/var/lib/gstat 
 
 %changelog
+* Wed Jun 30 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.37-1
+- Fixed issues IS-153, IS-142, IS-149, IS-125, IS-127
 * Wed Jun 30 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.35-1
 - Fixed issues IS-95, IS-104, IS-124, IS-125, IS-127
 - Now checks NGIs from GOC DB list
