@@ -1,0 +1,346 @@
+#!/usr/bin/python
+import re
+import sys
+import logging
+import gsutils
+
+error_messages= {
+   "connection.error":      ["Connection Error","ERROR"],
+   "gstat.sanity.missing.error": ["An attribute is not present on error level.","ERROR"],
+   "gstat.sanity.missing.info": ["An attribute is not present on info level.","INFO"],
+   "gstat.sanity.value": ["The value is incorrect.","ERROR"],
+   "gstat.sanity.duplicate.error": ["An attribute is duplicated on error level.", "ERROR"],
+   "gstat.sanity.duplicate.info": ["An attribute is duplicated on info level.", "INFO"],
+   "gstat.sanity.existence":  ["An object is missing.", "ERROR"],
+   "gstat.sanity.ce":  ["The CE entry is missing.", "INFO"],
+   "gstat.sanity.se":  ["The SE entry is missing.", "INFO"],
+   "gstat.sanity.format": ["A value is not in the correct format.","ERROR"],
+   "gstat.sanity.size": ["A there is a problem with the size","INFO"],
+   "gstat.sanity.unset": ["A value is unset.","INFO"],
+   "gstat.sanity.zero": ["A value should not be zero or negative.","INFO"],
+   "gstat.sanity.negative": ["A value should not be negative.","INFO"],
+   "gstat.sanity.version":  ["The SRM version is incorrect.","ERROR"],
+   "gstat.sanity.os": ["The OS is not correct.", "ERROR"],
+   "gstat.sanity.numeric": ["The value is not a number.", "ERROR"],
+   "gstat.sanity.usage": ["The usage is greater than 80%.", "INFO"],
+   "gstat.sanity.full": ["The usage is greater than 90%.", "INFO"],
+   }
+
+OperatingSystems = {
+   "AIX" : [ "5.2" ],
+   "CentOS" : [ "3.5", "3.6", "3.7", "3.8", "4.2", "4.5", "4.6", "4.7" ],
+   "Debian" : [ "3.1", "4.0" ],
+   "FedoraCore" : [ "4" ],
+   "Gentoo" : [ "2006.0" ],
+   "RedHatEnterpriseAS" : [ "3", "4" ],
+   "RedHatEnterpriseServer" : [ "5.5" ],
+   "linux-rocks-3.1 Rocks Linux" : [],
+   "linux-rocks-4.1 Rocks Linux" : [],
+   "Scientific Linux" : [ " 3.0.3", "3.0.4", "3.0.5", "3.0.6", "3.0.7", "3.0.8", "3.0.9" ],
+   "ScientificSL" : [ "4.2", "4.5", "4.6", "4.7", "5.0", "5.1", "5.2", "5.3" ],
+   "Scientific Linux CERN" : [ "3.0.4", "3.0.5", "3.0.6", "3.0.8" ],
+   "ScientificCERNSLC" : [ "4.3", "4.4", "4.5", "4.6", "4.7", "5.2" ],
+   "SUSE LINUX" : [ "9", "10", "10.2" ],
+   "Ubuntu" : [ "5.10", "6.06" ]
+   }
+
+def build_index(dns_dict):
+      
+   result = []      
+
+   for dn in dns_dict:
+      object = dn.split(",")[0]      
+      index = object.find("=")
+      attribute = object[:index] 
+      value = object[index+1:] 
+
+      if ( attribute == "glueceuniqueid" or attribute == "glueseuniqueid" ):
+         result.append(value)
+
+   return result
+
+def check_value(attribute, entry,format="string",type="single",level="ERROR"):
+   if entry.has_key(attribute):
+      if (type == "single"):
+         if (len(entry[attribute]) > 1 ):
+            details = "%s is single valued but more than one value." % (attribute)
+            if ( level == "INFO"):
+               my_errors.log(dn, "gstat.sanity.duplicate.info", details, gsutils.get_site(dn))
+            else:
+               my_errors.log(dn, "gstat.sanity.duplicate.error", details, gsutils.get_site(dn))
+            return None
+      for value in entry[attribute]:
+         if (format=="string"):
+            if ( not len(value) > 0 ):
+               details = "%s must have at least one character." % (attribute)
+               my_errors.log(dn, "gstat.sanity.value", details, gsutils.get_site(dn))
+               return None
+            if ( re.match("^Glue\w+:\s+",value) ):
+               details = "%s is missing a newline character." % (attribute)
+               my_errors.log(dn, "gstat.sanity.value", details, gsutils.get_site(dn))
+         if (format=="integer"):
+            try:
+               value = int(value)
+            except:
+               details = "%s must be a valid integer" % (attribute)
+               my_errors.log(dn, "gstat.sanity.value", details, gsutils.get_site(dn))
+   else:
+      details = "The entry must contain the attribute %s." %(attribute)
+      if ( level == "INFO"):
+          my_errors.log(dn, "gstat.sanity.missing.info", details, gsutils.get_site(dn))
+      else:
+          my_errors.log(dn, "gstat.sanity.missing.error", details, gsutils.get_site(dn))
+      return None
+   return value
+
+def check_site(dn, entry):
+   
+   attribute = "GlueSiteLongitude"
+   value = check_value(attribute,entry)
+   if (not value == None):
+      try:
+         value = float(value)
+         if ( (value > 180) or ( value < -180) ):
+            details = "%s must be in the range [-180, 180]." %(attribute)
+            my_errors.log(dn, "gstat.sanity.format", details, gsutils.get_site(dn))
+      except:
+         details = "%s must be a number." %(attribute)
+         my_errors.log(dn, "gstat.sanity.format", details, gsutils.get_site(dn))
+
+   attribute = "GlueSiteLatitude"
+   value = check_value(attribute,entry)
+   if (not value == None):
+      try:
+         value = float(value)
+         if ( (value > 90) or ( value < -90) ):
+            details = "%s must be in the range [-90, 90]." %(attribute)
+            my_errors.log(dn, "gstat.sanity.format", details, gsutils.get_site(dn))
+      except:
+         details = "%s must be a number." %(attribute)
+         my_errors.log(dn, "gstat.sanity.format", details, gsutils.get_site(dn))
+            
+      
+def check_service(dn, entry):
+   attribute = "GlueServiceEndpoint"
+   check_value(attribute,entry)
+
+   error = False
+   for attribute in ["GlueServiceType", "GlueServiceVersion"]:
+      value = check_value(attribute,entry,level="INFO")
+      if (value == None):
+            error = True
+   if (not error):
+      if ( entry["GlueServiceType"][0].lower() == "srm"):
+         if ( (entry["GlueServiceVersion"][0] == "1.1.0") or (entry["GlueServiceVersion"][0] == "2.2.0") ) :
+            pass
+         else:
+            details = "SRM version must be 1.1.0 or 2.2.0"
+            my_errors.log(dn, "gstat.sanity.version", details, gsutils.get_site(dn))
+      if ( entry["GlueServiceType"][0] == "srm_v1"):
+         if ( entry["GlueServiceVersion"][0] !="1.1.0"):
+            details = "srm_v1 version must be 1.1.0"
+            my_errors.log(dn, "gstat.sanity.version", details, gsutils.get_site(dn))
+
+def check_sa(dn, entry):
+   attribute = "GlueSALocalID" 
+   check_value(attribute,entry)
+
+   attribute = "GlueSAAccessControlBaseRule" 
+   check_value(attribute,entry,"string", "multi",level="INFO")
+
+   attribute = "GlueSAStateAvailableSpace"
+   value = check_value(attribute,entry,level="INFO")
+   if (not value == None):
+      if ( not re.match("-?[0-9]+$",value) ):
+         details = "The value for %s does not match -?[0-9]+$" % (attribute)
+         my_errors.log(dn, "gstat.sanity.format", details, gsutils.get_site(dn))
+
+def check_se(dn, entry):
+   for attribute in ["GlueSEUniqueID", "GlueSEUniqueID"]:
+      check_value(attribute, entry)
+   for attribute in ["GlueSEName"]:
+      check_value(attribute, entry, level="INFO")
+
+   error = False 
+   for attribute in ["GlueSEUsedOnlineSize", "GlueSETotalOnlineSize"]:
+      value = check_value(attribute, entry, level="INFO")
+      if (not value == None):
+         if( value == "unset"):
+            details = "%s should be set." %(attribute)
+            my_errors.log(dn, "gstat.sanity.unset", details, gsutils.get_site(dn))
+            error = True
+         elif( int(value) < 1):
+            details = "%s should not be 0 or negative." %(attribute)
+            my_errors.log(dn, "gstat.sanity.zero", details, gsutils.get_site(dn))
+            error = True         
+      else:
+         error = True
+   if (not error):
+      percent = float(entry["GlueSEUsedOnlineSize"][0])/float(entry["GlueSETotalOnlineSize"][0])
+      # LF: This is not always true
+      #if ( percent < 0 or percent > 1):
+      #   details = "TotalOnlineSize must be greater than UsedOnlineSize."
+      #   my_errors.log(dn, "gstat.sanity.size", details, gsutils.get_site(dn))
+      if( percent >= 0.8 and percent < 0.9):
+         details = "The SE size is greater than 80% of the total SE size"
+         my_errors.log(dn, "gstat.sanity.usage", details, gsutils.get_site(dn))
+      elif( percent >= 0.9):
+         details = "The GlueSEUsedOnlineSize is a %s %% of the GlueSETotalOnlineSize" %(percent *100)
+         my_errors.log(dn, "gstat.sanity.full", details, gsutils.get_site(dn))
+
+      available_space = float(entry["GlueSETotalOnlineSize"][0]) - float(entry["GlueSEUsedOnlineSize"][0])
+      if (available_space < 1):
+         details = "The available space is less than 1GB."
+         my_errors.log(dn, "gstat.sanity.full", details, gsutils.get_site(dn))
+
+def check_ap(dn, entry):
+   for attribute in ["GlueSEAccessProtocolLocalID","GlueSEAccessProtocolType"]:
+      check_value(attribute, entry, level="INFO")
+
+def check_ce(dn, entry):
+   attribute = "GlueCEUniqueID" 
+   value = check_value(attribute, entry)
+   if (not value == None):
+      if ( not re.match(".+:\d+/.*", value)):
+         details = "%s does not match .+:\d+/.*." %(attribute)
+         my_errors.log(dn, "gstat.sanity.format", details, gsutils.get_site(dn))
+
+   attribute = "GlueCEAccessControlBaseRule"
+   value = check_value(attribute, entry, "string", "multi")
+   if (not value == None):
+      if ( not re.match("VOMS:.+|VO:.+|/.+CN=.+", value)):
+         details = "%s does not match VOMS:.+|VO:.+|/.+CN=," %(attribute)
+         my_errors.log(dn, "gstat.sanity.format", details, gsutils.get_site(dn))
+
+   error = False
+   attribute = "GlueCEStateWaitingJobs"
+   value = check_value(attribute, entry, "integer")
+   if (not value == None):
+      if( value < 0):
+         details = "%s should not be negative." %(attribute)
+         my_errors.log(dn, "gstat.sanity.format", details, gsutils.get_site(dn))
+         error = True
+
+   for attribute in ["GlueCEInfoTotalCPUs","GlueCEPolicyAssignedJobSlots"]:
+      value = check_value(attribute, entry, "integer")
+      if (not value == None):
+         if( value < 0):
+            details = "%s not be negative" %(attribute)
+            my_errors.log(dn, "gstat.sanity.negative", details, gsutils.get_site(dn))
+            error = True
+      else:
+         error = True
+   if (not error):
+      waiting_jobs = float(entry["GlueCEStateWaitingJobs"][0])
+      total_cpu = float(entry["GlueCEInfoTotalCPUs"][0])
+      if (waiting_jobs >= 50*total_cpu) and (waiting_jobs < 150*total_cpu):
+         details = "The number of waiting jobs is very high."
+         my_errors.log(dn, "gstat.sanity.usage", details, gsutils.get_site(dn))
+      elif (waiting_jobs >= 150*total_cpu):
+         details = "The number of waiting jobs is too high."
+         my_errors.log(dn, "gstat.sanity.full", details, gsutils.get_site(dn))
+
+   for attribute in ["GlueCEStateRunningJobs", "GlueCEStateWorstResponseTime"]:
+      check_value(attribute, entry,"integer")
+
+      #LF Commented out 
+   #for attribute in ["GlueCEInfoApplicationDir","GlueCEInfoDefaultSE", "GlueCEInfoJobManager", "GlueCEInfoLRMSType"]:
+   #   check_value(attribute, entry)
+      
+def check_subcluster(dn, entry):
+   attribute = "GlueHostOperatingSystemName"
+   value = check_value(attribute, entry)
+   if (not value == None):
+      if not OperatingSystems.has_key(entry["GlueHostOperatingSystemName"][0]):
+         details = "The specified OS Name (%s) is not valid" %(entry["GlueHostOperatingSystemName"][0])
+         my_errors.log(dn, "gstat.sanity.os", details, gsutils.get_site(dn))
+   
+def check_bind(dn, entry, CESE_index):
+   attribute = "GlueCESEBindGroupCEUniqueID"
+   value = check_value(attribute, entry)
+   if (not value == None):
+      try:
+         CESE_index.index(value)
+      except:
+         details = "The CEUniqueID %s in the GlueCESEBind does not exist." %(value)
+         my_errors.log(dn, "gstat.sanity.ce", details, gsutils.get_site(dn))
+
+   attribute = "GlueCESEBindGroupSEUniqueID"
+   value = check_value(attribute, entry, "string", "multi")
+   if (not value == None):
+      try:
+         CESE_index.index(value)
+      except:
+         details = "The SEUniqueID %s in the GlueCESEBind does not exist." %(value)
+         my_errors.log(dn, "gstat.sanity.se", details, gsutils.get_site(dn))
+
+def check_bindse(dn, entry):
+   attribute = "GlueCESEBindMountInfo"
+   value = check_value(attribute, entry, "string","multi")
+
+
+if __name__ == "__main__":
+
+   global my_errors
+   global log
+
+   config = gsutils.parse_options()
+
+   log = logging.getLogger('glite-validate-sanity-check')
+   hdlr = logging.StreamHandler(sys.stderr)
+   formatter = logging.Formatter('[%(levelname)s]: %(message)s')
+   hdlr.setFormatter(formatter)
+   log.addHandler(hdlr)
+   log.setLevel(config['debug'])
+   
+   # Initialize error logger.
+   my_errors=gsutils.error_logger('gstat-validate-sanity-check',error_messages) 
+   
+   if config.has_key('file'):
+      source = "file://%s" % (config['file'])
+   if config.has_key('host'):
+      source = "ldap://%s:%s/%s" % (config['host'], config['port'], config['bind'])
+   
+   ldif = gsutils.fast_read_ldif(source)
+   dns_dict = gsutils.get_dns(ldif)
+
+   CESE_index = build_index(dns_dict)
+
+   log.info("Found %s entries" %(len(dns_dict)) )
+   
+   # Itterate through LDIF entries and test.
+   for dn in dns_dict:
+
+      entry = ldif[dns_dict[dn][0]:dns_dict[dn][1]].strip()
+      entry = gsutils.convert_entry(entry)
+
+      object = dn.split(",")[0]
+      index = object.find("=")
+      object = object[:index]
+
+      if ( object == "gluesiteuniqueid"):
+         check_site(dn, entry)
+      if ( object == "glueceuniqueid"):
+         check_ce(dn, entry)
+      if ( object == "glueseuniqueid"):
+         check_se(dn, entry)
+      if ( object == "glueserviceuniqueid"):
+         check_service(dn, entry)
+      if ( object == "gluesalocalid"):
+         check_sa(dn, entry)
+      if ( object == "glueseaccessprotocollocalid"):
+         check_ap(dn, entry)
+      if ( object == "gluesubclusteruniqueid"):
+         check_subcluster(dn, entry)
+      # LF: does not work for all sites.
+      #if ( object == "gluecesebindgroupceuniqueid"):
+      #   check_bind(dn, entry, CESE_index)
+      if ( object == "gluecesebindseuniqueid"):
+         check_bindse(dn, entry)
+
+   if (len(dns_dict) == 0 ):
+      details = "No results returned."
+      my_errors.log(config['bind'], "connection.error", details, 'Unknown')
+
+   gsutils.do_output(my_errors,config)   
+   gsutils.do_exit(my_errors)   
