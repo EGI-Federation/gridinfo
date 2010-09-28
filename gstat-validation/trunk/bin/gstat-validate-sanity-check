@@ -33,6 +33,7 @@ OperatingSystems = {
    "FedoraCore" : [ "4" ],
    "Gentoo" : [ "2006.0" ],
    "RedHatEnterpriseAS" : [ "3", "4" ],
+   "RedHatEnterpriseServer" : [ "5.5" ],
    "linux-rocks-3.1 Rocks Linux" : [],
    "linux-rocks-4.1 Rocks Linux" : [],
    "Scientific Linux" : [ " 3.0.3", "3.0.4", "3.0.5", "3.0.6", "3.0.7", "3.0.8", "3.0.9" ],
