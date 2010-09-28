@@ -14,6 +14,6 @@ setup(name='gstat-validation',
       py_modules=['gsutils'],
       package_dir = {'': 'src'},
       data_files = [
-        ('/usr/share/gstat/', ['data/locations', 'data/wlcg-tier', 'data/service-types']),
+        ('/var/lib/gstat/', ['data/locations', 'data/wlcg-tier', 'data/service-types', 'data/NGI.xml']),
         ],
       )
