@@ -38,64 +38,6 @@ def get_bdiis(type):
     
     return bdiis
 
-def get_top_bdiis_from_sam(bdiis):
-
-    # Get the DB cursor
-    my_db=None
-    try:
-        my_db = gsutils.db()
-        db_cur = my_db.get_cursor()
-    except Exception, e:
-        sys.stderr.write("Error: %s\n" % (e))
-        sys.exit(1)
-
-    command="select UniqueID from Entity where Type='Site';"
-    db_cur.execute(command)
-    results = db_cur.fetchall()
-
-    add_bdii = {}
-    
-    for row in results:
-        sitename = row[0]
-        # Get XML from SAM
-        try:
-            url="http://lcg-sam.cern.ch:8080/same-pi/servicemetrics_status_details.jsp?VO_name=OPS&ServiceMetric=CE-sft-lcg-rm-gfal&Site_name=" + sitename
-            response = urllib2.urlopen(url).readlines()
-        except Exception, e:
-            print e
-            sys.stderr.write("Error: %s\n%s\n" % (url,e))
-            continue
-        for line in response:
-            if ( line.find("infosys:") > -1 ):
-                hostname=line.split(":")[3]
-                if ( not bdiis.has_key(hostname)):
-                    bdiis[hostname] = None
-                    add_bdii[hostname] = sitename
-
-    my_db.close()
-    
-    timestamp=time.strftime("%Y-%m-%d %H:%M:%S", time.gmtime())                
-    # Get the DB cursor
-    my_db=None
-    try:
-        my_db = gsutils.db()
-        db_cur = my_db.get_cursor()
-    except Exception, e:
-        sys.stderr.write("Error: %s\n" % (e))
-        sys.exit(1)
-        
-    commands = []
-    for bdii in add_bdii.keys():
-        commands.append("replace into Entity(UniqueID,Type,Hostname,TimeStamp) values ('%s','bdii_top','%s','%s');" % (bdii,bdii,timestamp))
-        commands.append("replace into EntityRelationship (Subject,Object,Predicate,TimeStamp) values ('%s','%s','SiteService','%s');" % (sitename, bdii, timestamp))
-
-    for line in commands:
-        db_cur.execute(line) 
-
-    my_db.close()
-
-    return bdiis
-
 def get_site_bdiis_from_list(bdiis):
 
     add_bdii = {}
@@ -216,7 +158,6 @@ if __name__ == "__main__":
 
     # Test top level BDIIs
     bdiis = get_bdiis("top")
-    bdiis = get_top_bdiis_from_sam(bdiis)
     test_published(bdiis,"top")
     test_goc(bdiis,"top")
 
