@@ -356,7 +356,7 @@ if __name__ == "__main__":
       tier_data = simplejson.loads(open(tier_file).read())
       for site in tier_data['aaData']:
          tier = site[0].split()[1]
-         site_name = site[4]
+         site_name = site[5]
          tiers[site_name] = tier
 
    # Get NGI list
