@@ -1,0 +1,752 @@
+#!/usr/bin/perl -w
+
+#
+# glite-info-glue2-endpoint: an information provider for the
+# Endpoint and associated AccessPolicy objects, in v 2.0 of the GLUE schema
+# Ref: http://www.ogf.org/documents/GFD.147.pdf
+#      http://glue20.web.cern.ch/glue20/
+#
+# Stephen Burke, v 1.0 February 2010
+#
+# In general this code is expected to be called from a wrapper script
+# which also generates the parent Service object
+#
+# Arguments are:
+#    -   a service-specific configuration file
+#    -   the GLUE2ServiceID of the parent Service
+#    -   an optional ID for the Endpoint object, otherwise one
+#        will be generated automatically
+#
+# Copyright (c) Members of the EGEE Collaboration. 2010.
+# See http://www.eu-egee.org/partners/ for details on the copyright
+# holders.
+#
+#     Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+use strict;
+use FileHandle;
+use POSIX qw(strftime);
+
+# Temporary variable for commands to be executed
+my $command;
+
+# Info provider version and hostname for debugging
+
+my $gige_version = "1.0";
+
+my $host = `hostname -f`;
+chomp($host);
+
+# Hardwire the data validity period to 1 hour for now
+my $validity = "3600";
+
+# The policy scheme needs a name: arbitrarily define this as org.glite.standard
+my $PolicyScheme = "org.glite.standard";
+
+# The first argument is a configuration file
+my $confile = $ARGV[0];
+
+# The second argument is the parent Service ID
+my $SUID = $ARGV[1];
+
+# Strip whitespace just in case ...
+$SUID =~ s/\s+//g if ($SUID);
+
+# We must have at least 2 arguments
+if (!$SUID) {
+    print STDERR "Usage: glite-info-glue2-endpoint <config-file> <service-ID> [<endpoint-ID>]\n";
+    exit 1;
+}
+
+# This is where the object will go in the DIT
+my $bind_dn = "GLUE2ServiceID=$SUID,GLUE2GroupID=resource,o=glue";
+
+# List config attributes here so we can check that they are set
+# Non-mandatory attributes get a default value, usually "echo" i.e. empty
+
+my %config = (
+        init => 'echo',
+# The type (actually InterfaceName) is mandatory
+        service_type => '',
+	get_otherinfo => 'echo',
+# We must have an endpoint!
+        get_endpoint => '',
+        get_capabilities => 'echo',
+        get_technology => 'echo',
+# Version is technically not mandatory, but I think we should require it
+        get_version => '',
+        get_interfaceextensions => 'echo',
+        get_WSDL => 'echo',
+# Legacy attribute for glue 1 config files
+        WSDL_URL => 'nohttp://nothing.to.see.here/',
+        get_profiles => 'echo',
+        get_semantics => 'echo',
+# Legacy attribute for glue 1 config files
+        semantics_URL => 'nohttp://nothing.to.see.here/',
+# It may be good to require these but they aren't in the 1.3 config files,
+# so make them optional for now
+        get_implementor => 'echo',
+        get_implementationname => 'echo',
+        get_implementationversion => 'echo',
+# Similarly this is not defined for 1.3, so default to "production" for
+# now but maybe it should become mandatory
+        get_qualitylevel => 'echo 4',
+# Status is now called HealthState, but remains mandatory
+        get_status => '',
+# As for QualityLevel, supply a default for ServingState  for now
+# but it should probably become mandatory
+        get_servingstate => 'echo 4',
+# StartTime is technically not mandatory but we should continue to require it
+        get_starttime => '',
+        get_extensions => 'echo',
+	get_data => 'echo',
+        get_acbr => 'echo',
+        get_owner => 'echo',
+	      );
+
+# Read in the configuration file
+
+my $fh = new FileHandle $confile
+    or die "Error: Can't open configuration file: $confile\n";
+
+foreach (<$fh>) {
+# For lines containing an = and not starting with #
+    if ( (! m/^\#/) & (m/=/) ) {
+# Split on the first =, no leading or trailing whitespace in the value
+	m/^(.*?)=\s*(.*)\s*$/;
+# The first part is the config key name, the rest is the value
+	my $key = $1;
+	my $value = $2;
+# No whitespace in the key
+	$key =~ s/\s+//g;
+	$config{$key} = $value;
+    }
+}
+
+# Check that all configuration items are set to something
+
+my $missing = 0;
+while ( my ($key, $value) = each(%config) ) {
+    if ( ! $config{$key} ) {
+        print STDERR "Error: configuration parameter $key not set\n";
+        $missing += 1;
+    }
+}
+if ($missing) {
+    print STDERR "Error: $missing configuration parameter(s) not set in file $confile\n";
+    exit 2;
+}
+
+# Most of the configuration parameters are commands to be executed.
+# We'll do that first in case something blows up ...
+# In general we won't bother about the return code, but the output is
+# error-checked below.
+#
+# The first thing is an init command, in case anything needs to be set up.
+# Any output lines are used to set environment variables (x=y).
+# Also a non-zero return code here will abort the provider without
+# outputting anything.
+
+$command = $config{init};
+my @init_result = `$command`;
+my $init_rc = $? >> 8;
+if ($init_rc) {
+    print STDERR "Error: init command $command failed\n";
+    print STDERR "@init_result\n";
+    exit $init_rc;
+}
+
+foreach (@init_result) {
+# Should be key=value pairs
+    if ( m/=/ ){
+# Split on the first =, no leading or trailing whitespace in the value
+        m/^(.*?)=\s*(.*)\s*$/;
+        my $key = $1;
+        my $value = $2;
+# No whitespace in the key
+        $key =~ s/\s+//g;
+	if ($key) {
+	    $ENV{$key} = $value;
+	}
+    }
+}
+
+# The type is a fixed string and not a command
+# service_type isn't really the right name in GLUE 2, but it's
+# kept for compatibility with GLUE 1
+my $Type = $config{service_type};
+
+# Strip embedded whitespace just in case ...
+$Type =~ s/\s+//g;
+
+# Now run through the rest of the config items, executing the command
+# and storing the result (stdout) in a variable - scalar or list as
+# appropriate
+
+$command = $config{get_otherinfo};
+my @OtherInfo = `$command`;
+
+$command = $config{get_endpoint};
+my $Endpoint = `$command`;
+
+$command = $config{get_capabilities};
+my @Capabilities = `$command`;
+
+$command = $config{get_technology};
+my $Technology = `$command`;
+
+# NB the Version can be multivalued in GLUE 2, unlike GLUE 1
+$command = $config{get_version};
+my @Version = `$command`;
+
+# Interface extensions are a combination of supplementary types and versions
+$command = $config{get_interfaceextensions};
+my @InterfaceExtensions = `$command`;
+
+# NB the WSDLs can be multivalued in GLUE 2, unlike GLUE 1
+$command = $config{get_WSDL};
+my @WSDL = `$command`;
+
+# Legacy support for 1.3 config files
+my $WSDL = $config{WSDL_URL};
+if ($WSDL =~ m/^http/) {
+    push @WSDL, $WSDL;
+}
+
+$command = $config{get_profiles};
+my @Profiles = `$command`;
+
+# NB the Semantics URLs can be multivalued in GLUE 2, unlike GLUE 1
+$command = $config{get_semantics};
+my @Semantics = `$command`;
+
+# Legacy support for 1.3 config files
+my $Semantics = $config{semantics_URL};
+if ($Semantics =~ m/^http/) {
+    push @Semantics, $Semantics;
+}
+
+$command = $config{get_implementor};
+my $Implementor = `$command`;
+
+$command = $config{get_implementationname};
+my $ImplementationName = `$command`;
+
+$command = $config{get_implementationversion};
+my $ImplementationVersion = `$command`;
+
+$command = $config{get_qualitylevel};
+my $QualityLevel = `$command`;
+
+$command = $config{get_status};
+my $Info = `$command`;
+# We need to keep the return code from the status command
+my $Status = $? >> 8;
+
+$command = $config{get_servingstate};
+my $ServingState = `$command`;
+
+$command = $config{get_starttime};
+my $ST = `$command`;
+
+# Not clear if this should be configurable, just hardwired for now
+my @TrustedCA = "IGTF";
+
+$command = $config{get_extensions};
+my @Extensions = `$command`;
+
+# Allow get_data as a synonym for compatibility with the 1.3 provider
+$command = $config{get_data};
+push @Extensions, `$command`;
+
+$command = $config{get_acbr};
+my @ACBR = `$command`;
+
+$command = $config{get_owner};
+my @Owner = `$command`;
+
+# That's it, now we can start to make the object ...
+
+# The GLUE2EndpointID needs to be unique by construction.
+# We already have a unique Service ID so we just need to append something
+# locally unique to distinguish multiple endpoints. 
+# There may be a need to preserve a persistent ID in some cases,
+# hence the entire ID can be passed as an optional third argument
+
+my $UID = $ARGV[2];
+
+# Strip whitespace just in case ...
+$UID =~ s/\s+//g if ($UID);
+
+if (!$UID) {
+# A checksum of the config file will let us distinguish endpoints
+# with different configs.
+# This won't necessarily cover everything, e.g. multiple endpoints
+# of the same type using the same config file but steered by an
+# environment variable. However it's about the best we can do
+# automatically.
+    my $check = `cksum $confile | cut -d\" \" -f 1`;
+    chomp($check);
+    $UID = $SUID . "_" . $Type ."_" . $check;
+}
+
+# Now start outputting LDIF lines for the Endpoint object.
+# Note that once we get here we are committed to printing a
+# complete, valid object. Start with the DN ...
+
+print "dn: GLUE2EndpointID=$UID,$bind_dn\n";
+
+# Print the boilerplate objectclass declarations and unique ID
+
+print "objectClass: GLUE2Entity\n";
+print "objectClass: GLUE2Endpoint\n";
+
+# This is a kludge to give some quick support for Computing and
+# Storage Endpoints. The real thing will need to be a lot more
+# elaborate.
+
+if ($Type =~ m/^org\.glite\.ce\..*?/) {
+    print "objectClass: GLUE2ComputingEndpoint\n";
+} elsif ($Type eq "SRM") {
+    print "objectClass: GLUE2StorageEndpoint\n";
+}
+
+print "GLUE2EndpointID: $UID\n";
+
+# Attributes are generally dealt with in the order in which they appear
+# in the GLUE 2 specification document, unless dependencies dictate
+# otherwise. 
+
+# Creation time and validity are standard attributes for all objects
+
+# Times are mandated to be UTC only
+my $TimeNow = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime());
+print "GLUE2EntityCreationTime: $TimeNow\n";
+
+# Validity is hardwired above
+print "GLUE2EntityValidity: $validity\n";
+
+# The name is just an indicative human-readable string.
+
+my @last = split /\./, $Type;
+my $Name = $last[$#last] . " endpoint for Service " . $SUID;
+print "GLUE2EntityName: $Name\n";
+
+# OtherInfo strings are just ouput as they come, apart from some basic checks
+# for length and whitespace (NB blank values are not valid LDIF)
+
+foreach (@OtherInfo) {
+    trunc($_);
+    if ($_) {
+        print "GLUE2EntityOtherInfo: $_\n";
+    }
+}
+
+# Embed some metadata to help with debugging
+
+print "GLUE2EntityOtherInfo: InfoProviderName=glite-info-glue2-endpoint\n";
+print "GLUE2EntityOtherInfo: InfoProviderVersion=$gige_version\n";
+print "GLUE2EntityOtherInfo: InfoProviderHost=$host\n";
+
+# The URL is mandatory - printed as it comes apart from basic checks,
+# i.e. we don't check that it actually is a URL, but we should at least
+# ban white space
+
+$Endpoint =~ s/\s+//g;
+trunc($Endpoint);
+
+if (!$Endpoint) {
+    $Endpoint = "http://unknown.invalid:4444/";
+}
+
+print "GLUE2EndpointURL: $Endpoint\n";
+
+foreach (@Capabilities) {
+# Should be no need for validation as they will be fixed per endpoint type,
+# but still strip any leading and trailing spaces
+    trunc($_);
+    if ($_) {
+        print "GLUE2EndpointCapability: $_\n";
+    }
+}
+
+# For Technology see WSDL below
+
+# Type is already extracted above
+print "GLUE2EndpointInterfaceName: $Type\n";
+
+# The version can now have a more flexible format than we had in GLUE 1.3
+# and can be multi-valued (or omitted!)
+
+foreach (@Version) {
+# No white space allowed here, but otherwise free-format
+    s/\s+//g;
+    trunc($_);
+    if ($_) {
+	print "GLUE2EndpointInterfaceVersion: $_\n";
+    }
+}
+
+# Interface extensions are a combination of supplementary types and versions
+
+foreach (@InterfaceExtensions) {
+# These are supposed to be URIs, but we won't impose any format
+    trunc($_);
+    if ($_) {
+        print "GLUE2EndpointInterfaceExtension: $_\n";
+    }
+}
+
+# Unlike the 1.3 provider, WSDL and Semantics are now configured like
+# other items rather than as static strings, and can be multivalued
+# SupportedProfile is new but basically the same
+
+my $wsdls = 0;
+foreach (@WSDL) {
+# Should be a URL, so no white space allowed here
+    s/\s+//g;
+# Simple sanity check (no longer enforce that strings start "http")
+    trunc($_);
+    if ($_) {
+	$wsdls++;
+        print "GLUE2EndpointWSDL: $_\n";
+    }
+}
+
+# Technology is set to "webservice" if there are any WSDL lines and
+# nothing else is explicitly configured
+
+# No white space
+$Technology =~ s/\s+//g;
+
+if ($Technology) {
+    print "GLUE2EndpointTechnology: $Technology\n";
+} elsif ($wsdls) {
+    print "GLUE2EndpointTechnology: webservice\n";
+}
+
+foreach (@Profiles) {
+# Should be a URI, but no format imposed
+    trunc($_);
+    if ($_) {
+        print "GLUE2EndpointSupportedProfile: $_\n";
+    }
+}
+
+foreach (@Semantics) {
+# This is a URL, so no white space allowed here
+    s/\s+//g;
+# Simple sanity check (no longer enforce that strings start "http")
+    trunc($_);
+    if ($_) {
+        print "GLUE2EndpointSemantics: $_\n";
+    }
+}
+
+# Implementor, ImplementationName and ImplementationVersion are new
+# Basically free-format, just the usual checks
+
+trunc($Implementor);
+if ($Implementor) {
+    print "GLUE2EndpointImplementor: $Implementor\n";
+}
+
+trunc($ImplementationName);
+if ($ImplementationName) {
+    print "GLUE2EndpointImplementationName: $ImplementationName\n";
+}
+
+trunc($ImplementationVersion);
+if ($ImplementationVersion) {
+    print "GLUE2EndpointImplementationVersion: $ImplementationVersion\n";
+}
+
+my @QLenum = ("", "development", "testing", "pre-production", "production");
+
+# The QualityLevel command should have returned an integer between 1 and 4
+# Non-numeric strings should equate to 0
+if ($QualityLevel < 1 || $QualityLevel > 4) {
+    print "GLUE2EndpointQualityLevel: UNDEFINEDVALUE: Level $QualityLevel\n";
+} else {
+    print "GLUE2EndpointQualityLevel: $QLenum[$QualityLevel]\n";
+}
+
+# The status return code gets turned into the standard values:
+# 0 = OK, 1 = Critical, 2 = Warning, 3 = Unknown, other = Other
+
+my $Statcode;
+if    ($Status == 0) { $Statcode = "ok" }
+elsif ($Status == 1) { $Statcode = "critical" }
+elsif ($Status == 2) { $Statcode = "warning" }
+elsif ($Status == 3) { $Statcode = "unknown" }
+else                 { $Statcode = "other" } 
+
+print "GLUE2EndpointHealthState: $Statcode\n";
+
+# The status command will have printed something, maybe multi-line,
+# to stdout - we need to massage it to something reasonable
+
+# Convert any newlines to spaces, strip leading and trailing spaces
+# and truncate if necessary
+$Info =~ s/\n+/ /g;
+trunc($Info);
+
+# Strip anything after a control character, e.g. from service xxx status
+# (Could just strip the controls themselves but it can leave
+# strange-looking strings)
+$Info =~ s/\p{IsC}.*$//;
+
+# Info is now optional
+if ($Info) {
+    print "GLUE2EndpointHealthStateInfo: $Info\n";
+}
+
+my @SSenum = ("", "closed", "draining", "queueing", "production");
+
+# The ServingState command should have returned an integer between 1 and 4
+# Non-numeric strings should equate to 0
+if ($ServingState < 1 || $ServingState > 4) {
+    print "GLUE2EndpointServingState: UNDEFINEDVALUE: State $ServingState\n";
+} else {
+    print "GLUE2EndpointServingState: $SSenum[$ServingState]\n";
+}
+
+# StartTime needs to be in the ISO8601 format, but it seems easier
+# to accept a Unix timestamp (e.g. from stat on a suitable file) and
+# convert it. The conversion function was shamelessly stolen from the web.
+# This uses local time rather than UTC, both formats are valid and it
+# might be useful to know the timezone at the server.
+
+# No white space, should just be a number
+$ST =~ s/\s+//g;
+
+# StartTime is optional - if the value is a null string (e.g. from a stat
+# on a non-existent file) the attribute will not be printed,
+# to indicate that the service is not running at all
+
+if ($ST) {
+# Must be a positive integer
+    if ( !($ST =~ m/^\d+$/) ) {
+# The error indicator here is the Unix epoch
+	$ST = 0;
+    }
+# We need to munge the timezone indicator to add a colon between
+# the hours and minutes
+    my $tz = strftime("%z", localtime($ST));
+    $tz =~ s/(\d{2})(\d{2})/$1:$2/;
+    my $StartTime = strftime("%Y-%m-%dT%H:%M:%S", localtime($ST)) . $tz;
+# No error checks as strftime should return something reasonable
+    print "GLUE2EndpointStartTime: $StartTime\n";
+}
+
+# Host cert location is currently hard-wired
+my $hostcert = "/etc/grid-security/hostcert.pem";
+
+my $Issuer = "";
+if ( -e $hostcert) {
+# This should give us the host cert issuer, if any
+    $Issuer = `openssl x509 -issuer -noout -in $hostcert | sed 's/^[^/]*//'`;
+}
+
+# Output whatever it gave us, if anything
+trunc($Issuer);
+if ($Issuer) {
+    print "GLUE2EndpointIssuerCA: $Issuer\n";
+}
+
+# NB This is currently hardwired above
+foreach (@TrustedCA) {
+    trunc($_);
+    if ($_) {
+        print "GLUE2EndpointTrustedCA: $_\n";
+    }
+}
+
+# Downtimes are handled by the GOC DB in EGEE, so not published here
+
+print "GLUE2EndpointDownTimeInfo: See the GOC DB for downtimes: https://goc.gridops.org/\n";
+
+# Finally print the upward link to the parent Service
+
+print "GLUE2EndpointServiceForeignKey: $SUID\n";
+
+# Print a newline to finish the object
+print "\n";
+
+# Now we deal with any Extensions to the Endpoint. 
+# Old-style (1.3) ServiceData entries are mapped to Extensions
+# by default, although in some cases an OtherInfo may be sufficient.
+
+my %items = ();
+
+foreach (@Extensions) {
+# Should be key=value pairs
+    if ( m/=/ ) {
+# Split on the first =, no leading or trailing whitespace in the value,
+# no whitespace at all in the key
+# NB This means you can't have an = in the Key!
+        m/^(.*?)=\s*(.*)\s*$/;
+        my $key = $1;
+        my $value = $2;
+        $key =~ s/\s+//g;
+	trunc($key);
+	trunc($value);
+# Don't output anything if the key is null
+        if (length($key) > 0) {
+# Value seems to be a mandatory attribute, so:
+	    if ($value){
+		$items{$key} = $value;
+	    } else {
+		$items{$key} = "UNDEFINEDVALUE";
+	    }
+        }else{
+            print STDERR "Extension Key has 0 length, value is: " . $value . "\n";
+	}
+    }
+}
+
+# Now print the Extension objects - the order is random but it doesn't matter
+
+my $ext = 0;
+my $ELID = "0";
+while ( my ($key, $value) = each(%items) ) {
+# Extensions only need a local ID - but note that the Key may not be unique
+    $ext++;
+    $ELID = $key . "_" . $ext;
+    print "dn: GLUE2ExtensionLocalID=$ELID,GLUE2EndpointID=$UID,$bind_dn\n";
+    print "objectClass: GLUE2Extension\n";
+    print "GLUE2ExtensionLocalID: $ELID\n";
+    print "GLUE2ExtensionKey: $key\n";
+    print "GLUE2ExtensionValue: $value\n";
+    print "GLUE2ExtensionEntityForeignKey: $UID\n";
+    print "\n";
+}
+
+# That's it for the Endpoint, now start on the Access Policies
+
+# GLUE 1 ACBRs become Rules in a new AccessPolicy object, and the old
+# Owner attribute becomes a reference to an AdminDomain.
+
+# We need a unique ID for the object - for now take a simple
+# solution and just append _Policy to the Endpoint ID. Assume that
+# we'll only publish one AP object, i.e. one scheme (the gLite scheme),
+# per Endpoint.
+
+my $APUID = $UID . "_Policy";
+
+# Start with the DN ...
+
+print "dn: GLUE2PolicyID=$APUID,GLUE2EndpointID=$UID,$bind_dn\n";
+
+# Print the boilerplate objectclass declarations and unique ID
+
+print "objectClass: GLUE2Entity\n";
+print "objectClass: GLUE2Policy\n";
+print "objectClass: GLUE2AccessPolicy\n";
+print "GLUE2PolicyID: $APUID\n";
+
+# Creation time and validity are standard attributes for all objects
+# Values are already assigned above
+
+print "GLUE2EntityCreationTime: $TimeNow\n";
+print "GLUE2EntityValidity: $validity\n";
+
+# The name is just an indicative human-readable string.
+
+print "GLUE2EntityName: Access control rules for Endpoint $UID\n";
+
+# Probably no need for configurable OtherInfo here?
+
+# Embed some metadata to help with debugging
+
+print "GLUE2EntityOtherInfo: InfoProviderName=glite-info-glue2-endpoint\n";
+print "GLUE2EntityOtherInfo: InfoProviderVersion=$gige_version\n";
+print "GLUE2EntityOtherInfo: InfoProviderHost=$host\n";
+
+# NB This is hardwired above
+print "GLUE2PolicyScheme: $PolicyScheme\n";
+
+# Now for the actual rules - note that we must have at least one.
+
+# Strip leading and trailing white space - NB DNs may contain spaces.
+# Empty lines should not be printed as they aren't valid LDAP, and make
+# a basic sanity check for length.
+
+my $rules = 0;
+foreach (@ACBR) {
+    trunc($_);
+    if ($_) {
+	$rules++;
+        print "GLUE2PolicyRule: $_\n";
+    }
+}
+
+# "ALL" is a reserved word meaning that there is no authz
+if ($rules == 0) {
+    print "GLUE2PolicyRule: ALL\n";
+}
+
+# The Owner can be multivalued, and can be null - typically a list of VO names.
+# Strip all white space (this is supposed to be a unique ID).
+# Empty lines should not be printed as they aren't valid LDAP.
+# Sanity check for length.
+
+#$rules = 0;
+foreach (@Owner) {
+    s/\s+//g;
+    trunc($_);
+    if ($_) {
+#	$rules++;
+	print "GLUE2PolicyUserDomainForeignKey: $_\n";
+    }
+}
+
+# The spec says that there must be at least one UserDomain reference,
+# which is probably a mistake! We should try to avoid this being a valid
+# VO name ...
+# NB This has now been changed in the LDAP schema, so assume we don't
+# need this any more, but don't delete this yet as it's still in the
+# schema document
+#if ($rules == 0) {
+#    print "GLUE2PolicyUserDomainForeignKey: \$UNDEFINED\$\n";
+#}
+
+# Finally print the upward link to the parent Endpoint
+
+print "GLUE2AccessPolicyEndpointForeignKey: $UID\n";
+
+# Print a newline to finish the object
+print "\n";
+
+# That's it!
+
+exit 0;
+
+sub trunc {
+
+# Truncates string attributes to a "reasonable" length, somewhat arbitrarily
+# taken to be 240 chars. Excess text is replaced by the "well-known" error
+# indicator 4444. Also strip leading and trailing spaces, which are unlikely
+# to be useful in any attribute.
+
+    if ($_[0]) {
+	$_[0] =~ s/^\s+//;
+	$_[0] =~ s/\s+$//;
+
+	if (length($_[0]) > 240) {
+	    $_[0] = substr($_[0], 0, 239) . "...4444";
+	}
+    }
+
+}
