@@ -1,0 +1,37 @@
+#!/bin/bash
+
+# This is a small wrapper around the standard "service status" command
+# to translate the return code to what the service provider wants,
+# and also to attempt to remove pids from the output as some people
+# don't like them and they anyway don't add any information
+
+if [ "x$1" == "x" ]; then
+    echo Service name missing
+# Returning 3 will give Unknown
+    exit 3
+fi
+
+# Try to avoid localised strings
+export LANG=C
+
+# Collect the stdout and return code from service status
+string=`/sbin/service $1 status`
+rc=$?
+
+# Strip out the standard representation of pids
+echo $string | sed 's/(pid .*) //'
+
+if [ $rc -eq 0 ]; then
+    exit 0
+elif [ $rc -lt 4 ]; then
+# Values of 1 to 3 all indicate that the service is not running,
+# so return as 1 = Critical
+    exit 1
+elif [ $rc -eq 4 ]; then
+# 4 means Unknown, translated to 3
+    exit 3
+else
+# Larger values returned as-is, which will translate to Other
+    exit $rc
+fi
+
