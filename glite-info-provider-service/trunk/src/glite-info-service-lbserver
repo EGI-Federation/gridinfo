@@ -1,0 +1,19 @@
+#!/bin/bash
+
+# init function for the LB server service publisher, to export some variables
+
+# There is no config file for the LB server
+
+LBSERVER_PORT=${LBSERVER_PORT:-9003}
+LBSERVER_HOST=${LBSERVER_HOST:-`hostname -f`}
+
+GLITE_LOCATION_VAR=${GLITE_LOCATION_VAR:-/var/glite}
+
+LBSERVER_PID_FILE=${LBSERVER_PID_FILE:-${GLITE_LOCATION_VAR}/glite-lb-bkserverd.pid}
+
+# Write to stdout - will be imported by the info provider
+
+echo LBSERVER_PORT=$LBSERVER_PORT
+echo LBSERVER_HOST=$LBSERVER_HOST
+echo LBSERVER_PID_FILE=$LBSERVER_PID_FILE
+
