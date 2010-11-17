@@ -4,7 +4,10 @@ from django.http import HttpResponse
 from django.core.urlresolvers import reverse
 from django.utils import html
 import gsutils
+# for python 2.6
+#import json 
 from django.utils import simplejson as json
+from django.utils.datastructures import SortedDict
 from topology.models import Entity
 from topology.models import Entityrelationship
 from core.utils import *
@@ -57,4 +60,24 @@ def get_json(request, type='GRID', value='ALL'):
             data.append(row)
 
     content = '{"aaData": %s}' % (json.dumps(data))
+    return HttpResponse(content, mimetype='application/json')  
+
+@cache_page(60 * 10)
+def get_public_json(request):
+    # Publicly supported interface
+    data = []
+    site_list = Entity.objects.filter(type='Site')
+    site_data  = get_installed_capacities(site_list, hepspec06=True)
+    keys = ["Sitename", "PhyCPU", "LogCPU", "HEPSPEC06", "TOS", "TNS"]
+    site_ids = sorted(site_data.keys())
+    for site_id in site_ids:
+        row = []
+        row.append(site_id)
+        row.append(site_data[site_id][0])
+        row.append(site_data[site_id][1])
+        row.append(site_data[site_id][2])
+        row.append(site_data[site_id][3])
+        row.append(site_data[site_id][5])
+        data.append( [(key, row[keys.index(key)]) for key in keys] )
+    content = json.dumps([SortedDict(item) for item in data])
     return HttpResponse(content, mimetype='application/json')  

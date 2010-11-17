@@ -236,7 +236,7 @@ for voview in objects:
     for attr in datasources['job']:
         value = voview.__getattribute__(attr)
         if (attr == "waitingjobs" and value == "444444"): value = "0"
-        data[cluster][vo][datasources['job'].index(attr)] += convert_to_integer(value)    
+        data[cluster][vo][datasources['job'].index(attr)] += str2int(value)    
 #print "Time taken (get voview job number): %s" % str(datetime.utcnow() - start_time_get_voviewjobnumber)
         
 #start_time_archive_data=datetime.utcnow()
@@ -305,7 +305,7 @@ for sa in objects:
             for attr in datasources[key]:
                 value = sa.__getattribute__(attr)
                 if (value != "999999"): 
-                    data[se][vo][key][datasources[key].index(attr)] += convert_to_integer(value)    
+                    data[se][vo][key][datasources[key].index(attr)] += str2int(value)    
 #print "Time taken (get sa storage space): %s" % str(datetime.utcnow() - start_time_get_sastoragespace)
         
 #start_time_archivedata=datetime.utcnow()

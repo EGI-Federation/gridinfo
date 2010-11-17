@@ -363,7 +363,7 @@ def get_installed_capacity_cpu(sub_cluster_list):
     for sub_cluster in sub_cluster_list:
         for attr in attributes:
             value = sub_cluster.__getattribute__(attr)
-            stats[attributes.index(attr)] += convert_to_integer(value)
+            stats[attributes.index(attr)] += str2int(value)
     return  stats   
 
 def get_installed_capacity_si2000(sub_cluster_list):
@@ -371,7 +371,7 @@ def get_installed_capacity_si2000(sub_cluster_list):
     attributes = ["benchmarksi00", "logicalcpus"]
     si2000 = 0
     for sub_cluster in sub_cluster_list:
-        product = convert_to_integer(sub_cluster.benchmarksi00) * convert_to_integer(sub_cluster.logicalcpus)
+        product = str2int(sub_cluster.benchmarksi00) * str2int(sub_cluster.logicalcpus)
         si2000 += product
     return  si2000   
 
@@ -382,7 +382,7 @@ def get_installed_capacity_storage(se_list):
     for se in se_list:
         for attr in attributes:
             value = se.__getattribute__(attr)
-            stats[attributes.index(attr)] += convert_to_integer(value)
+            stats[attributes.index(attr)] += str2int(value)
     return  stats        
 
 def get_installed_capacity_per_os(sub_clusters_list):
@@ -401,8 +401,8 @@ def get_installed_capacity_per_os(sub_clusters_list):
         if ( not os[os_name].has_key(os_release)):
             os[os_name][os_release] = [0, 0]
 
-        os[os_name][os_release][0] += convert_to_integer(sub_cluster.physicalcpus)    
-        os[os_name][os_release][1] += convert_to_integer(sub_cluster.logicalcpus)
+        os[os_name][os_release][0] += str2int(sub_cluster.physicalcpus)    
+        os[os_name][os_release][1] += str2int(sub_cluster.logicalcpus)
 
     data = []
     keys = os.keys()
@@ -421,7 +421,7 @@ def get_voview_job_stats(voview_list):
         for attr in attributes:
             value = voview.__getattribute__(attr)
             if (attr == "waitingjobs" and value == "444444"): value="0"
-            stats[attributes.index(attr)] += convert_to_integer(value)
+            stats[attributes.index(attr)] += str2int(value)
     return  stats    
 
 def get_sa_storage_stats(sa_list):
@@ -432,7 +432,7 @@ def get_sa_storage_stats(sa_list):
         for attr in attributes:
             value = sa.__getattribute__(attr)
             if (value != "999999"): 
-                stats[attributes.index(attr)] += convert_to_integer(value)
+                stats[attributes.index(attr)] += str2int(value)
     return  stats
 
 def get_service_versions(service_list):
@@ -509,10 +509,10 @@ def get_nagios_status_dict():
         has_been_checked   = __getDirective(hostdef, "has_been_checked")
         if host_name not in status_dict:
             status_dict[host_name] = {}
-        status_dict[host_name]['current_state']    = convert_to_integer(current_state)
+        status_dict[host_name]['current_state']    = str2int(current_state)
         status_dict[host_name]['plugin_output']    = plugin_output
         status_dict[host_name]['last_check']       = last_check
-        status_dict[host_name]['has_been_checked'] = convert_to_integer(has_been_checked)
+        status_dict[host_name]['has_been_checked'] = str2int(has_been_checked)
 
     servicedefs = __getDefinitions(content, servicetoken)
     for servicedef in servicedefs:
@@ -526,11 +526,11 @@ def get_nagios_status_dict():
         if host_name in status_dict:
             if service_description not in status_dict[host_name]:
                 status_dict[host_name][service_description] = {}
-            status_dict[host_name][service_description]['current_state']      = convert_to_integer(current_state)
+            status_dict[host_name][service_description]['current_state']      = str2int(current_state)
             status_dict[host_name][service_description]['plugin_output']      = plugin_output
             status_dict[host_name][service_description]['long_plugin_output'] = long_plugin_output
             status_dict[host_name][service_description]['last_check']         = last_check
-            status_dict[host_name][service_description]['has_been_checked']   = convert_to_integer(has_been_checked)
+            status_dict[host_name][service_description]['has_been_checked']   = str2int(has_been_checked)
 
     return status_dict
 
@@ -626,11 +626,17 @@ def get_hosts_from_aliases(hostnames):
 #    hosts.sort()
 #    return hosts
 
-def convert_to_integer(number):
+def str2int(string):
     try:
-        return int(number)
+        return int(string)
     except (ValueError), error:
         return 0
+    
+def str2float(string):
+    try:
+        return float(string)
+    except ValueError:
+        return 0.0
 
 def sort_objects_by_attr(object_list, attribute):
     unsorted_list = object_list
@@ -673,7 +679,7 @@ def get_status_for_sites(site_list):
 
     return data
 
-def get_installed_capacities(site_list, vo_name=None):
+def get_installed_capacities(site_list, vo_name=None, hepspec06=False):
 # data structure
 # 0 physical_cpu
 # 1 logical_cpu 
@@ -699,13 +705,28 @@ def get_installed_capacities(site_list, vo_name=None):
     #Get a list of subclusters
     sub_clusters_list = gluesubcluster.objects.filter(gluecluster_fk__in = cluster_site_mapping.keys())
 
+    # Get HEPSPEC06 capacities
+    if hepspec06:
+        reg_expr = '^.*Benchmark=([\.\d]+)-HEP-SPEC06'
+
     # Get CE installed capacities
     for sub_cluster in sub_clusters_list:
         try:
             site_id = cluster_site_mapping[sub_cluster.gluecluster_fk]
-            site_data[site_id][0] += convert_to_integer(sub_cluster.physicalcpus)
-            site_data[site_id][1] += convert_to_integer(sub_cluster.logicalcpus)
-            site_data[site_id][2] += convert_to_integer(sub_cluster.logicalcpus) * convert_to_integer(sub_cluster.benchmarksi00)
+            site_data[site_id][0] += str2int(sub_cluster.physicalcpus)
+            site_data[site_id][1] += str2int(sub_cluster.logicalcpus)
+            if hepspec06:
+                # Get HEPSPEC06 capacities
+                benchmark = 0.0
+                description = sub_cluster.processorotherdescription
+                result = re.match(reg_expr, description)
+                if result:
+                    benchmark = float(result.groups()[0])
+                hep_spec_06 = str2float(sub_cluster.logicalcpus) * benchmark
+                site_data[site_id][2] += int(round( str2float(hep_spec_06) ))
+            else:
+                # Get SI2000 capacities
+                site_data[site_id][2] += str2int(sub_cluster.logicalcpus) * str2int(sub_cluster.benchmarksi00)
         except KeyError, e:
             continue
 
@@ -743,9 +764,9 @@ def get_installed_capacities(site_list, vo_name=None):
                 continue
         try:
             site_id = cluster_site_mapping[ce_cluster_mapping[vo_view.glueceuniqueid]]
-            site_data[site_id][7] += convert_to_integer(vo_view.totaljobs)
-            site_data[site_id][8] += convert_to_integer(vo_view.runningjobs)
-            site_data[site_id][9] += convert_to_integer(vo_view.waitingjobs)
+            site_data[site_id][7] += str2int(vo_view.totaljobs)
+            site_data[site_id][8] += str2int(vo_view.runningjobs)
+            site_data[site_id][9] += str2int(vo_view.waitingjobs)
         except KeyError:
             continue
 
@@ -763,10 +784,10 @@ def get_installed_capacities(site_list, vo_name=None):
         for se in se_list:
             try:
                 site_id = se_site_mapping[se.uniqueid]
-                site_data[site_id][3] += convert_to_integer(se.totalonlinesize)
-                site_data[site_id][4] += convert_to_integer(se.usedonlinesize)
-                site_data[site_id][5] += convert_to_integer(se.totalnearlinesize)
-                site_data[site_id][6] += convert_to_integer(se.usednearlinesize)
+                site_data[site_id][3] += str2int(se.totalonlinesize)
+                site_data[site_id][4] += str2int(se.usedonlinesize)
+                site_data[site_id][5] += str2int(se.totalnearlinesize)
+                site_data[site_id][6] += str2int(se.usednearlinesize)
             except KeyError, e:
                 continue
     else:
@@ -794,10 +815,10 @@ def get_installed_capacities(site_list, vo_name=None):
                 continue
             try:
                 site_id = se_site_mapping[sa.gluese_fk]
-                site_data[site_id][3] += convert_to_integer(sa.totalonlinesize)
-                site_data[site_id][4] += convert_to_integer(sa.usedonlinesize)
-                site_data[site_id][5] += convert_to_integer(sa.totalnearlinesize)
-                site_data[site_id][6] += convert_to_integer(sa.usednearlinesize)
+                site_data[site_id][3] += str2int(sa.totalonlinesize)
+                site_data[site_id][4] += str2int(sa.usedonlinesize)
+                site_data[site_id][5] += str2int(sa.totalnearlinesize)
+                site_data[site_id][6] += str2int(sa.usednearlinesize)
             except KeyError, e:
                 pass
 
