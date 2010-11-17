@@ -1,0 +1,250 @@
+{%  extends "base_gstat.html" %}
+
+{% block description %}Here you can put short description what application does, authors list and whatever you can come up with.{% endblock %}
+
+{% block app-info %}{% endblock %}
+
+{% block css-add %}
+<link rel="stylesheet" type="text/css" href="/media/vo/css/vo.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/tablesorter.css" />
+<!-- <link rel="stylesheet" type="text/css" href="/media/core/css/jquery.treeview.css" /> -->
+{% endblock %}
+
+{% block scripts-add %}
+<script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
+<!-- <script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script> -->
+<script type="text/javascript" src="/media/core/scripts/jquery.jstree.js"></script>
+<script type="text/javascript" src="/media/gridsite/scripts/site.js"></script>
+<script type="text/javascript">
+
+	function changeVOView(event) {
+	    var vo_name = document.getElementById('vo_list').value;
+	    if (vo_name != "-1")
+	        window.location.href = '/gstat/vo/' + vo_name;
+	}
+	
+	function setSRC(href) {
+	  document.getElementById('frame').src = href;
+	}
+
+	$(document).ready(function(){
+        var vo_list = document.getElementById('vo_list');
+        vo_list.value = '{{ vo_name|default:"-1" }}';
+
+		//$("#tree").treeview();
+		$("#treediv").tree({
+		    ui: { theme_path: "/media/core/css/jquery.jstree.css", 
+		          theme_name: "default"
+		        },
+		    callback : {
+		          onchange: function (NODE) {
+		            var frame = document.getElementById("frame");
+		            try { frame.window.location.reload(); }catch(err) {}
+		          }
+		    }
+		});
+		
+		
+	    var main_centeriser = parseInt( $("#main-centeriser").height() );
+	    var header = parseInt( $("#header").height() );
+	    var menu = parseInt( $("#menu").height() );
+	    //var footer = parseInt( $("#footer").height() );
+	    var footer = 0;
+	    var proportion = parseInt( (main_centeriser - header - menu - footer) / main_centeriser * 100 );
+	    $("#content").css('height', proportion + '%');
+
+        var content = parseInt( $("#content").height() );
+        var breadcrumbs = parseInt( $("#breadcrumbs").height() );
+        proportion = parseInt( (content - breadcrumbs) / content * 100 );
+        $("#content-main").css('height', proportion + '%');
+        
+        var content_main = parseInt( $("#content-main").height() );
+        proportion = parseInt( (content_main - 10) / content_main * 100 );
+        $("#layoutdiv").css('height', proportion + '%');
+        
+        var left_board = parseInt( $("#left-board").height() );
+        proportion = parseInt( (left_board - 30) / left_board * 100 );
+        $("#treediv").css('height', proportion + '%');
+        
+        var right_board = parseInt( $("#right-board").height() );
+        proportion = parseInt( (right_board - 30) / right_board * 100 );
+        $("#frame").css('height', proportion + '%');
+	});
+</script>
+{% endblock %}
+
+{% block breadcrumbs %}
+<a href="/gstat/">Home</a> :: <a href="/gstat/vo/">VO</a>
+<div style='display: inline; text-align: right; position: absolute; right: 0px;'>
+  <strong>Go to another VO:</strong>
+  <select id="vo_list" onchange="changeVOView(event);" style="margin-left: 0.5em;">
+    <option value="-1">--SELECT A VO NAME--</option>
+    {% for vo in vo_list %}
+      <option value="{{ vo.uniqueid }}">{{ vo.uniqueid }}</option>
+    {% endfor %}
+   </select>
+</div>
+{% endblock %}
+
+{% block content-main %}
+
+{% load dict_tags %}
+
+<div id="layoutdiv">
+  <div id="left-board" class="board">
+    <h2>VO Resource Allocation and Usage</h2>
+    <div id="treediv">
+    <ul id="tree" class="filetree treeview">
+<!--     
+      <li>
+        <span class="folder"> VO</span>
+        <ul>
+--> 
+          {% if tree_vo %}
+            {% for vo, job, storage in tree_vo %}
+            <li class='{{ collapse|dict_get:vo|default:"closed" }}'>
+              <span class="vo">
+                <a target="frame" onClick="setSRC(this.href);" href="/gstat/vo/{{ vo }}/overview/"> {{ vo }} </a>
+              </span>
+              <ul>
+              
+                {% if job %}
+                <li class='closed'>
+                  <span class="folder">
+                    <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VO/{{ vo }}/job/"> Grid Jobs </a>
+                  </span>
+                  <ul>
+                    
+                    {% for site_name, cluster_ce_voview in job %}
+                    <li class='closed'>
+                      <span class="site">
+                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/job/"> {{ site_name }} </a>
+                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
+                      </span>
+                      <ul>
+                        <li class='closed'>
+                          <span class="folder"> <a class="disable" href='javascript:void(0)'> Cluster </a> </span>
+                          <ul>
+		                    {% for cluster,ce,voview in cluster_ce_voview %}
+		                    <li>
+		                      <span class="ce">
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOCluster/{{ vo }}/{{ cluster }}/job/"> {{ cluster }}</a>
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluevoviewlocalid={{ voview }},glueceuniqueid={{ ce }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueVOView entity"/> </a>
+		                      </span>
+		                    </li>
+		                    {% endfor %}
+                          </ul>
+                        </li>
+                      </ul>
+                    </li>
+                    {% endfor %}
+                    
+                  </ul>
+                </li>  
+                {% endif %}
+                    
+                    
+            
+                {% if storage %}
+                
+                <li class='closed'>
+                  <span class="folder">
+                    <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VO/{{ vo }}/online/"> Online Storage  </a>
+                  </span>
+                  <ul>
+                  
+                    {% for site_name, se_sa_list in storage %}
+                    <li class='closed'>
+                      <span class="site">
+                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/online/"> {{ site_name }} </a>
+                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
+                      </span>
+                      <ul>
+                        <li class='closed'>
+                          <span class="folder"> <a class="disable" href='javascript:void(0)'> SE </a> </span>
+                          <ul>
+		                    {% for se,sa in se_sa_list %}
+		                    <li>
+		                      <span class="se">
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/online/"> {{ se }}</a>
+<!-- remove glue icons to avoid showing SA information
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
+-->
+		                      </span>
+		                    </li>
+		                    {% endfor %}
+                          </ul>
+                        </li>
+                      </ul>
+                    </li>
+                    {% endfor %}
+                    
+                  </ul>
+                </li>
+                
+                <li class='closed'>
+                  <span class="folder">
+                    <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VO/{{ vo }}/nearline/"> Nearline Storage </a>
+                  </span>
+                  <ul>
+                  
+                    {% for site_name, se_sa_list in storage %}
+                    <li class='closed'>
+                      <span class="site">
+                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/nearline/"> {{ site_name }} </a>
+                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
+                      </span>
+                      <ul>
+                        <li class='closed'>
+                          <span class="folder"> <a class="disable" href='javascript:void(0)'> SE </a> </span>
+                          <ul>
+		                    {% for se,sa in se_sa_list %}
+		                    <li>
+		                      <span class="se">
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSE/{{ vo }}/{{ se }}/nearline/"> {{ se }}</a>
+<!-- remove glue icons to avoid showing SA information
+		                        <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesalocalid={{ sa }},glueseuniqueid={{ se }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSA entity"/> </a>
+-->
+		                      </span>
+		                    </li>
+		                    {% endfor %}
+                          </ul>
+                        </li>
+                      </ul>
+                    </li>
+                    {% endfor %}
+                    
+                  </ul>
+                </li>
+                
+                {% endif %}  
+                     
+              </ul>
+            </li>
+            {% endfor %}
+          {% else %}
+          <strong style="font-size: 10pt;">Please select a VO first!</strong>
+          {% endif %}
+<!--  
+        </ul>
+      </li>
+-->      
+      
+    </ul>
+    </div>
+  </div>
+  <div id="right-board" class="board rightboard" >
+    <h2>Viewing Statistics or Graphs</h2>
+    {% if url %}
+      <iframe id="frame" name="frame" src="{{ url }}" frameborder="0" width="100%" scrolling="yes" allowtransparency="true">
+      </iframe> 
+    {% else %}
+      <strong style="color: #4C7898;">Please select a VO first!</strong>
+    {% endif %} 
+  </div>
+  <div class="clear"/>
+</div>
+
+
+{% endblock %}
