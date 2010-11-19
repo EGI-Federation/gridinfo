@@ -467,7 +467,7 @@ def get_nagios_status_dict():
     """ This takes the nagios realtime status data and outputs as a dictionary object. """
     def __getDefinitions(content, token):
         """ Parse the status.dat file and extract matching object definitions """
-        pattern = re.compile(token +' \{([\S\s]*?)\}',re.DOTALL)
+        pattern = re.compile(token +' \{([\S\s]*?) \}',re.DOTALL)
         finds = pattern.findall(content)
         return finds
     
