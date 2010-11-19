@@ -90,24 +90,42 @@ def get_hostname(hostname):
         hostname=hostname[index+1:]
     return hostname
 
-hosts=[]
-qs = Entity.objects.filter(type='bdii_top')
+hostnames=[]
+
+# Get Top BDII host list
+bdii_top_qs = Entity.objects.filter(type='bdii_top')
 top_bdii = {}
-for object in qs:
+for object in bdii_top_qs:
     hostname=get_hostname(object.uniqueid)
     top_bdii[hostname] = "mds-vo-name=local,o=grid"
-    hosts.append(hostname)
-qs = Entity.objects.filter(type='bdii_site')
+    hostnames.append(hostname)
+    
+# Get Site BDII host list
+bdii_site_qs = Entity.objects.filter(type='bdii_site')
 site_bdii = {}
-for object in qs:
+for object in bdii_site_qs:
     hostname=get_hostname(object.uniqueid)
     index =  object.uniqueid.rfind(":")
     bind = object.uniqueid[index+6:].strip()
     site_bdii[hostname] = bind
     try:
-        hosts.index(hostname)
+        hostnames.index(hostname)
     except ValueError, e:
-        hosts.append(hostname)
+        hostnames.append(hostname)
+
+bdii_site_mapping = {}
+site_service_mapping = {}
+relationships = Entityrelationship.objects.filter(predicate='SiteService')
+for rs in relationships:
+    site = rs.subject
+    service = rs.object
+    if service.type == 'bdii_site':
+        bdii_site_mapping[service.hostname] = site
+    if site not in site_service_mapping:
+        site_service_mapping[site] = {}
+    if service.type not in site_service_mapping[site]:
+        site_service_mapping[site][service.type] = []
+    site_service_mapping[site][service.type].append(service)
 
 if os.path.exists("%s/gstat/hosts" %(config['nagios'])):
     old_files = glob.glob("%s/gstat/hosts/*.cfg" %(config['nagios']))
@@ -116,21 +134,19 @@ if os.path.exists("%s/gstat/hosts" %(config['nagios'])):
 else:
     os.makedirs("%s/gstat/hosts" %(config['nagios']))
 
-new_hosts = []
-
-for host in hosts:
-    outfile=open("%s/gstat/hosts/%s.cfg" %(config['nagios'], host), 'w')
+for hostname in hostnames:
+    outfile=open("%s/gstat/hosts/%s.cfg" %(config['nagios'], hostname), 'w')
 
     outfile.write('''
 define host{
     use                     linux-server
     host_name               %s
 }
-''' %(host))
+''' %(hostname))
 
-    if ( top_bdii.has_key(host) ):
+    if ( top_bdii.has_key(hostname) ):
 
-        bind = top_bdii[host]
+        bind = top_bdii[hostname]
         
         outfile.write('''
 define service{
@@ -140,7 +156,7 @@ define service{
     host_name               %s
 }
 
-''' % (host,bind,host))
+''' % (hostname,bind,hostname))
 
         outfile.write('''
 define service{
@@ -150,11 +166,11 @@ define service{
     host_name               %s
 }
             
-''' % (host,bind,host))
+''' % (hostname,bind,hostname))
             
 
-    if ( site_bdii.has_key(host) ):
-        bind = site_bdii[host]
+    if ( site_bdii.has_key(hostname) ):
+        bind = site_bdii[hostname]
 
         outfile.write('''
 define service{
@@ -164,7 +180,7 @@ define service{
     host_name               %s
 }
 
-''' % (host,bind,host))
+''' % (hostname,bind,hostname))
 
         outfile.write('''
 define service{
@@ -174,7 +190,7 @@ define service{
     host_name               %s
 }
 
-''' % (host,bind,host))
+''' % (hostname,bind,hostname))
 
                 
         outfile.write('''
@@ -184,7 +200,7 @@ define service{
     check_command           check-sanity!%s!%s
     host_name               %s
 }
-''' % (host,bind,host))
+''' % (hostname,bind,hostname))
 
         outfile.write('''
 define service{
@@ -193,16 +209,20 @@ define service{
     check_command           check-ce!%s!%s
     host_name               %s
 }
-''' % (host,bind,host))
-            
-        outfile.write('''
+''' % (hostname,bind,hostname))
+
+        if hostname in bdii_site_mapping:
+            site = bdii_site_mapping[hostname]
+            if site in site_service_mapping:
+                if 'SE' in site_service_mapping[site]:
+                    outfile.write('''
 define service{
     use                     info-service
     service_description     check-se
     check_command           check-se!%s!%s
     host_name               %s
 }
-''' % (host,bind,host))
+''' % (hostname,bind,hostname))
 
         outfile.write('''
 define service{
@@ -211,7 +231,7 @@ define service{
     check_command           check-site!%s!%s
     host_name               %s
 }
-''' % (host,bind,host))
+''' % (hostname,bind,hostname))
 
         outfile.write('''
 define service{
@@ -220,7 +240,7 @@ define service{
     check_command           check-service!%s!%s
     host_name               %s
 }
-''' % (host,bind,host))
+''' % (hostname,bind,hostname))
                                                 
 
     outfile.close()
