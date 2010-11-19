@@ -68,7 +68,7 @@ def get_public_json(request):
     data = []
     site_list = Entity.objects.filter(type='Site')
     site_data  = get_installed_capacities(site_list, hepspec06=True)
-    keys = ["Sitename", "PhyCPU", "LogCPU", "HEPSPEC06", "TOS", "TNS"]
+    keys = ["Sitename", "PhyCPU", "LogCPU", "HEPSPEC06", "TotalOnlineStorage", "TotalNearlineStorage"]
     site_ids = sorted(site_data.keys())
     for site_id in site_ids:
         row = []
