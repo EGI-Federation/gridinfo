@@ -15,6 +15,7 @@
 <script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
 <!-- <script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script> -->
+<script type="text/javascript" src="/media/core/scripts/jquery.cookie.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.jstree.js"></script>
 <script type="text/javascript">
    function changeServiceView(event) {
@@ -33,17 +34,12 @@
         services.value = service_type;
 	
 		//$("#tree").treeview();
-		$("#treediv").tree({
-		    ui: { theme_path: "/media/core/css/jquery.jstree.css", 
-		          theme_name: "default"
-		        },
-		    callback : {
-		          onchange: function (NODE) {
-		            var frame = document.getElementById("frame");
-		            try { frame.window.location.reload(); }catch(err) {}
-		          }
-		    }
-		});
+        $("#treediv").jstree({
+          "core": {"animation": 0},
+          "themes": {"theme": "default",
+                     "url":   "/media/core/css/jquery.jstree.css"},
+          "plugins": ["themes", "html_data"]
+        });
 		
 	    var main_centeriser = parseInt( $("#main-centeriser").height() );
 	    var header = parseInt( $("#header").height() );
@@ -95,18 +91,18 @@
     <h2>Service Components</h2>
     <div id="treediv">
     <ul id="tree" class="filetree treeview">
-      <li class="open">
+      <li class="jstree-open">
         <span class="folder"> <a class="disable" href='javascript:void(0)'> Service </a> </span>
         <ul>
         
         
           {% if tree_topbdii %}
-          <li class='{{ collapse.bdii_top|default:"closed" }}'>
+          <li class='{{ collapse.bdii_top|default:"jstree-closed" }}'>
             <span class="folder"> <a class="disable" href='javascript:void(0)'> Top BDII </a> </span>
             <ul>
               {% for hostname,checks in tree_topbdii %}
               
-              <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
+              <li class='{{ collapse|dict_get:hostname|default:"jstree-closed" }}'>
                 <span class="ce">
                   <a target="frame" onClick="setSRC(this.href);" href="/gstat/service/bdii_top/{{ hostname }}/all/"> {{ hostname }}</a>
                   <a onClick="window.open(this.href, '_self');" href="/gstat/ldap#ldap://{{ hostname }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Linking to LDAP Browser for querying to this BDII"/> </a>
@@ -114,7 +110,7 @@
                 <ul>
                   {% for check in checks %}
                   
-                  <li class="closed">
+                  <li class="jstree-closed">
                     <span class="validation">
                       <a target="frame" onClick="setSRC(this.href);" href="/gstat/service/bdii_top/{{ hostname }}/{{ check }}/">{{ check }}</a>
                     </span>
@@ -146,12 +142,12 @@
           
           
           {% if tree_sitebdii %}
-          <li class='{{ collapse.bdii_site|default:"closed" }}'>
+          <li class='{{ collapse.bdii_site|default:"jstree-closed" }}'>
             <span class="folder"> <a class="disable" href='javascript:void(0)'> Site BDII </a> </span>
             <ul>
               {% for hostname,checks in tree_sitebdii %}
               
-              <li class='{{ collapse|dict_get:hostname|default:"closed" }}'>
+              <li class='{{ collapse|dict_get:hostname|default:"jstree-closed" }}'>
                 <span class="ce">
                   <a target="frame" onClick="setSRC(this.href);" href="/gstat/service/bdii_site/{{ hostname }}/all/"> {{ hostname }}</a>
                   <a onClick="window.open(this.href, '_self');" href="/gstat/ldap#ldap://{{ hostname }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Linking to LDAP Browser for querying to this BDII"/> </a>
@@ -159,7 +155,7 @@
                 <ul>
                   {% for check in checks %}
                   
-                  <li class="closed">
+                  <li class="jstree-closed">
                     <span class="validation">
                       <a target="frame" onClick="setSRC(this.href);" href="/gstat/service/bdii_site/{{ hostname }}/{{ check }}/"> {{ check }}</a>
                     </span>
