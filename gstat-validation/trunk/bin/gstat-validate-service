@@ -26,7 +26,11 @@ class GOCHandler(xml.sax.handler.ContentHandler):
    def __init__(self):
       self.inType = 0
       self.inHost = 0
+      self.inProduction = 0
+      self.inMonitored = 0
       self.mapping = {}
+      self.not_production = {}
+      self.not_monitored = {}
       
    def startElement(self, name, attributes):
       if name == "HOSTNAME":
@@ -35,12 +39,25 @@ class GOCHandler(xml.sax.handler.ContentHandler):
       elif name == "SERVICE_TYPE":
          self.type_buffer = ""
          self.inType = 1
+      elif name == "IN_PRODUCTION":
+         self.production_buffer = ""
+         self.inProduction = 1
+      elif name == "NODE_MONITORED":
+         self.monitored_buffer = ""
+         self.inMonitored = 1
          
    def characters(self, data):
       if self.inHost:
          self.host_buffer += data
       if self.inType:
-         self.type_buffer += data
+         if data == "CREAM-CE":
+            self.type_buffer += "CE"
+         else:
+            self.type_buffer += data
+      if self.inProduction:
+         self.production_buffer += data
+      if self.inMonitored:
+         self.monitored_buffer += data
          
    def endElement(self, name):
       if name == "HOSTNAME":
@@ -53,6 +70,18 @@ class GOCHandler(xml.sax.handler.ContentHandler):
                self.mapping[self.host_buffer].append(self.type_buffer)
             else:
                self.mapping[self.host_buffer] = [ self.type_buffer ]
+      elif name == "IN_PRODUCTION":
+         if goc_service_types.has_key(self.type_buffer):
+            if self.production_buffer == "N":
+               if self.host_buffer not in self.not_production:
+                  self.not_production[self.host_buffer] = []
+               self.not_production[self.host_buffer].append(self.type_buffer)
+      elif name == "NODE_MONITORED":
+         if goc_service_types.has_key(self.type_buffer):
+            if self.monitored_buffer == "N":
+               if self.host_buffer not in self.not_monitored:
+                  self.not_monitored[self.host_buffer] = []
+               self.not_monitored[self.host_buffer].append(self.type_buffer)
 
 if __name__ == "__main__":
 
@@ -181,19 +210,16 @@ gsutils.get_site(dn))
           
    url = "https://goc.gridops.org/gocdbpi/public/?method=get_service_endpoint&sitename="
    goc_services = {}
+   goc_not_production = {}
+   goc_not_monitored = {}
    for site in sites:
       parser = xml.sax.make_parser(  )
       handler = GOCHandler( )
       parser.setContentHandler(handler)
       parser.parse(urllib2.urlopen(url + site))
       goc_services[site.lower()] = handler.mapping
-      for site in goc_services:
-         for host in goc_services[site]:
-            try:
-               index = goc_services[site][host].index('CREAM-CE')
-               goc_services[site][host][index]= 'CE'
-            except ValueError:
-               pass
+      goc_not_production[site.lower()] = handler.not_production
+      goc_not_monitored[site.lower()] = handler.not_monitored
          
 # Check to see if Services are published
 for site in services.keys():
@@ -203,7 +229,12 @@ for site in services.keys():
             try:
                services[site][host].index(service)
             except:
-               my_errors.log(host, 'service.published', 'The Service %s on %s is registered in the GOC but not published.' %(service, host), site)
+               try:
+                  # should not check if service is published when it is marked as not production and not not monitored.
+                  goc_not_production[site][host].index(service)
+                  goc_not_monitored[site][host].index(service)
+               except:
+                  my_errors.log(host, 'service.published', 'The Service %s on %s is registered in the GOC but not published.' %(service, host), site)
 
 # Check to see if Services are registered
 for site in goc_services.keys():
