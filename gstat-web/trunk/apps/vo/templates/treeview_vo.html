@@ -14,6 +14,7 @@
 <script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
 <!-- <script type="text/javascript" src="/media/core/scripts/jquery.treeview.js"></script> -->
+<script type="text/javascript" src="/media/core/scripts/jquery.cookie.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.jstree.js"></script>
 <script type="text/javascript" src="/media/gridsite/scripts/site.js"></script>
 <script type="text/javascript">
@@ -33,17 +34,12 @@
         vo_list.value = '{{ vo_name|default:"-1" }}';
 
 		//$("#tree").treeview();
-		$("#treediv").tree({
-		    ui: { theme_path: "/media/core/css/jquery.jstree.css", 
-		          theme_name: "default"
-		        },
-		    callback : {
-		          onchange: function (NODE) {
-		            var frame = document.getElementById("frame");
-		            try { frame.window.location.reload(); }catch(err) {}
-		          }
-		    }
-		});
+        $("#treediv").jstree({
+          "core": {"animation": 0},
+          "themes": {"theme": "default",
+                     "url":   "/media/core/css/jquery.jstree.css"},
+          "plugins": ["themes", "html_data"]
+        });
 		
 		
 	    var main_centeriser = parseInt( $("#main-centeriser").height() );
@@ -103,27 +99,27 @@
 --> 
           {% if tree_vo %}
             {% for vo, job, storage in tree_vo %}
-            <li class='{{ collapse|dict_get:vo|default:"closed" }}'>
+            <li class='{{ collapse|dict_get:vo|default:"jstree-closed" }}'>
               <span class="vo">
                 <a target="frame" onClick="setSRC(this.href);" href="/gstat/vo/{{ vo }}/overview/"> {{ vo }} </a>
               </span>
               <ul>
               
                 {% if job %}
-                <li class='closed'>
+                <li class='jstree-closed'>
                   <span class="folder">
                     <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VO/{{ vo }}/job/"> Grid Jobs </a>
                   </span>
                   <ul>
                     
                     {% for site_name, cluster_ce_voview in job %}
-                    <li class='closed'>
+                    <li class='jstree-closed'>
                       <span class="site">
                         <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/job/"> {{ site_name }} </a>
                         <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
                       </span>
                       <ul>
-                        <li class='closed'>
+                        <li class='jstree-closed'>
                           <span class="folder"> <a class="disable" href='javascript:void(0)'> Cluster </a> </span>
                           <ul>
 		                    {% for cluster,ce,voview in cluster_ce_voview %}
@@ -148,20 +144,20 @@
             
                 {% if storage %}
                 
-                <li class='closed'>
+                <li class='jstree-closed'>
                   <span class="folder">
                     <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VO/{{ vo }}/online/"> Online Storage  </a>
                   </span>
                   <ul>
                   
                     {% for site_name, se_sa_list in storage %}
-                    <li class='closed'>
+                    <li class='jstree-closed'>
                       <span class="site">
                         <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/online/"> {{ site_name }} </a>
                         <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
                       </span>
                       <ul>
-                        <li class='closed'>
+                        <li class='jstree-closed'>
                           <span class="folder"> <a class="disable" href='javascript:void(0)'> SE </a> </span>
                           <ul>
 		                    {% for se,sa in se_sa_list %}
@@ -183,20 +179,20 @@
                   </ul>
                 </li>
                 
-                <li class='closed'>
+                <li class='jstree-closed'>
                   <span class="folder">
                     <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VO/{{ vo }}/nearline/"> Nearline Storage </a>
                   </span>
                   <ul>
                   
                     {% for site_name, se_sa_list in storage %}
-                    <li class='closed'>
+                    <li class='jstree-closed'>
                       <span class="site">
                         <a target="frame" onClick="setSRC(this.href);" href="/gstat/rrd/VOSite/{{ site_name }}/{{ vo }}/nearline/"> {{ site_name }} </a>
                         <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host={{ ldapuri }}&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},mds-vo-name=local,o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information in this entity"/> </a>
                       </span>
                       <ul>
-                        <li class='closed'>
+                        <li class='jstree-closed'>
                           <span class="folder"> <a class="disable" href='javascript:void(0)'> SE </a> </span>
                           <ul>
 		                    {% for se,sa in se_sa_list %}
