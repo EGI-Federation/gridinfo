@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://earth.google.com/kml/2.2">
+<Document>
+  <name>The Grid Sites</name>
+  <visibility>0</visibility>
+  <open>1</open>
+  <Style id="gmapMarker">
+    <IconStyle>
+      <scale>1</scale>
+      <Icon><href>/media/geo/img/marker.png</href></Icon>  
+    </IconStyle>
+  </Style>
+  {% for name, description, lon, lat in sites %}
+  <Placemark>
+    <name>{{ name }}</name>               
+    <description>{{ description }}</description>
+    <!--styleUrl>#gmapMarker</styleUrl-->
+    <Point><coordinates>{{ lon }}, {{ lat }}</coordinates></Point>
+  </Placemark>
+  {% endfor %}
+</Document>
+</kml>

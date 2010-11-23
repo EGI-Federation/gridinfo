@@ -1,0 +1,406 @@
+{%  extends "base_gstat.html" %}
+
+{% block title %}GStat 2.0 - Site View - {{site_name}}{% endblock %}
+
+{% block description %}Here you can put short description what application does, authors list and whatever you can come up with.{% endblock %}
+
+{% block app-info %}{% endblock %}
+
+{% block css-add %}
+<link rel="stylesheet" type="text/css" href="/media/gridsite/css/site.css" />
+<link rel="stylesheet" type="text/css" href="/media/gridsite/css/layout_overview.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/tablesorter.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/jquery.tabs.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/percentbar_style.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/nagios.css" />
+{% endblock %}
+
+{% block scripts-add %}
+<script type="text/javascript" src="/media/core/scripts/utils.js"></script>
+<script type="text/javascript" src="/media/gridsite/scripts/site.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.tabs.js"></script>
+<script type="text/javascript" src="/media/core/scripts/percentbar_progress.js" ></script>
+<script>
+    function changeSiteView(event) {
+        var sitename = document.getElementById('sites').value;
+        if (sitename != "-1")
+            window.open('/gstat/site/' + sitename, '_self');
+    }
+    
+    $(document).ready(function() { 
+        var sites = document.getElementById('sites');
+        var site_name = '{{ site_name }}';
+        sites.value = site_name;
+        
+        //$("#myTable").tablesorter({sortList:[], widgets: ['zebra']}); 
+        $('#tabs_container').tabs();
+        PageReload(300000);
+    });  
+</script>
+{% endblock %}
+
+{% block breadcrumbs %}
+<a href="/gstat/">Home</a> :: <a href="/gstat/summary/">Site Summary</a> :: <a href="/gstat/site/{{site_name}}">{{site_name}}</a>
+<div style='display: inline; text-align: right; position: absolute; right: 0px;'>
+  <strong>Go to another site:</strong>
+  <select id="sites" onchange="changeSiteView(event);" style="margin-left: 0.5em;">
+    <option value="-1">--SELECT A SITE NAME--</option>
+    {% for site in sites %}
+      <option value="{{ site }}">{{ site }}</option>
+    {% endfor %}
+  </select>
+</div>
+{% endblock %}
+
+{% block content-main %}
+
+<div>
+  <div id="left-board" class="board">
+    <h2>Site Information</h2>
+    <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
+      <thead> 
+        <tr> 
+          <th>Attribute</th> 
+          <th>Value</th> 
+        </tr> 
+      </thead> 
+      <tbody> 
+        <tr> 
+          <td>Site name</td> 
+          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.name }}{% else %}N/A{% endifnotequal %}</td> 
+        </tr> 
+        <tr> 
+          <td>Description</td> 
+          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.description }}{% else %}N/A{% endifnotequal %}</td> 
+        </tr> 
+        <tr> 
+          <td>Location</td> 
+          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.location }}{% else %}N/A{% endifnotequal %}</td> 
+        </tr> 
+        <tr> 
+          <td>Web</td> 
+          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.web|urlize }}{% else %}N/A{% endifnotequal %}</td> 
+        </tr> 
+        <tr> 
+          <td>Sysadmin Email</td> 
+          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.sysadmincontact|cut:"mailto:"|urlize }}{% else %}N/A{% endifnotequal %}</td> 
+        </tr>
+        <tr> 
+          <td>User-Support Email</td> 
+          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.usersupportcontact|cut:"mailto:"|urlize }}{% else %}N/A{% endifnotequal %}</td> 
+        </tr> 
+        <tr> 
+          <td>Security Email</td> 
+          <td>{% ifnotequal gluesite "N/A" %}{{ gluesite.securitycontact|cut:"mailto:"|urlize }}{% else %}N/A{% endifnotequal %}</td> 
+        </tr> 
+      </tbody> 
+    </table> 
+  </div>
+  
+  <div id="middle-board">
+    <div class="board">
+      <h2>Information System Monitoring and Validation</h2>
+      {% if not status_list_top and not status_list_site %}N/A{% endif %}
+      {% if status_list_top %}
+      <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
+        <thead> 
+          <tr> 
+            <th>Top BDII Alias</th> 
+<!-- remove two columns, only use alias to monitor
+            <th>Hostname</th>
+            <th>Instances</th>  
+-->
+            <th>Status</th> 
+          </tr> 
+        </thead> 
+
+        <tbody>
+          {% for status in status_list_top %}
+          <tr> 
+            <td>
+              <a href="/gstat/site/{{ site_name }}/treeview/bdii_top/{{ status.alias }}">{{ status.alias }}</a>
+              <a href="/gstat/ldap#ldap://{{ status.alias }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Top BDII"/> </a>
+            </td> 
+<!-- remove two columns, only use alias to monitor
+            <td>
+              <a href="/gstat/site/{{ site_name }}/treeview/bdii_top/{{ status.host }}">{{ status.host }}</a>
+              <a href="/gstat/ldap#ldap://{{ status.host }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Top BDII"/> </a>
+            </td> 
+            <td>{{ status.instance }}</td> 
+-->
+            <td><span class="NagiosStatus_{{ status.status }}"> {{ status.status }} </span></td> 
+          </tr> 
+          {% endfor %}
+        </tbody> 
+      </table>    
+      {% endif %}   
+      
+      
+      {% if status_list_site %}
+        {% if status_list_top %}<p></p>{% endif %}
+      <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
+        <thead> 
+          <tr> 
+            <th>Site BDII Alias</th> 
+<!-- remove two columns, only use alias to monitor
+            <th>Hostname</th>
+            <th>Instances</th>  
+-->
+            <th>Status</th> 
+          </tr> 
+        </thead> 
+
+        <tbody> 
+          {% for status in status_list_site %}
+          <tr> 
+            <td>
+              <a href="/gstat/site/{{ site_name }}/treeview/bdii_site/{{ status.alias }}">{{ status.alias }}</a>
+              <a href="/gstat/ldap#ldap://{{ status.alias }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Site BDII"/> </a>
+            </td> 
+<!-- remove two columns, only use alias to monitor
+            <td>
+              <a href="/gstat/site/{{ site_name }}/treeview/bdii_site/{{ status.host }}">{{ status.host }}</a>
+              <a href="/gstat/ldap#ldap://{{ status.host }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Site BDII"/> </a>
+            </td> 
+            <td>{{ status.instance }}</td> 
+-->
+            <td><span class="NagiosStatus_{{ status.status }}"> {{ status.status }} </span></td> 
+          </tr> 
+          {% endfor %}
+        </tbody> 
+      </table>    
+      {% endif %}   
+        
+    </div>		
+  </div>
+  <div id="right-board">
+    <div class="board">
+      <h2>Resources Information</h2>
+      <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
+        <thead> 
+          <tr> 
+            <th>Resource</th> 
+            <th>Entities</th> 
+          </tr> 
+        </thead> 
+        <tbody> 
+          {% ifequal count_dict.ce 0 %}{% ifequal count_dict.se 0 %}{% ifequal count_dict.service 0 %}
+          <tr> 
+            <td>N/A</td> 
+            <td>N/A</td> 
+          </tr> 
+          {% endifequal %}{% endifequal %}{% endifequal %}
+          {% ifnotequal count_dict.ce 0 %}
+          <tr> 
+            <td><a href="/gstat/site/{{ site_name }}/treeview/cluster/">CE</a></td> 
+            <td>{{ count_dict.ce }}</td> 
+          </tr> 
+          {% endifnotequal %}
+          {% ifnotequal count_dict.se 0 %}
+          <tr> 
+            <td><a href="/gstat/site/{{ site_name }}/treeview/se/">SE</a></td> 
+            <td>{{ count_dict.se }}</td> 
+          </tr> 
+          {% endifnotequal %}          
+          {% ifnotequal count_dict.service 0 %}
+          <tr> 
+            <td><a href="/gstat/site/{{ site_name }}/treeview/service/">Service</a></td> 
+            <td>{{ count_dict.service }}</td> 
+          </tr> 
+          {% endifnotequal %}      
+        </tbody> 
+      </table>        
+    </div>
+    <div class="board">
+      <h2>GStat Site Report Update</h2>
+      <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
+        <thead> 
+          <tr> 
+            <th>Last Update</th> 
+          </tr> 
+        </thead> 
+        <tbody>    
+          <tr> 
+            <td><script>TimeFormat({{ last_update }});</script></td>
+          </tr> 
+        </tbody>
+      </table>
+    </div>
+  </div>
+  
+  <div class="clear"></div>
+  
+  <div id="bottom-board" class="board">
+    <h2>Installed Resource Capacity</h2>
+    <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
+      <thead> 
+        <tr> 
+          <th colspan="3" align="center" style="width:33%">Computing Resource</th>
+          <th colspan="3" align="center" style="width:33%">Online Storage Resource (GB)</th>
+          <th colspan="3" align="center" style="width:33%">Nearline Storage Resource (GB)</th>
+        </tr>
+        <tr>
+          <th align="center" title="The sum of PhysicalCPUs over all SubClusters">Physical CPUs</th> 
+          <th align="center" title="The sum of LogicalCPUs over all SubClusters">Logical CPUs</th>
+          <th align="center" title="The sum of the product of GlueSubClusterBenchmarkSI00 by GlueSubClusterLogicalCPUs over all SubClusters">SI2000</th>
+          <th align="center" title="The sum of TotalOnlineSize over all SEs">TotalSize</th> 
+          <th align="center" title="The sum of UsedOnlineSize over all SEs">UsedSize</th>
+          <th align="center" title="The quotient of UsedSize and TotalSize">Usage Percentage</th>
+          <th align="center" title="The sum of TotalNearlineSize over all SEs">TotalSize</th>
+          <th align="center" title="The sum of UsedNearlineSize over all SEs">UsedSize</th>  
+          <th align="center" title="The quotient of UsedSize and TotalSize">Usage Percentage</th> 
+        </tr>       
+      </thead> 
+      <tbody>    
+        <tr> 
+          <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.physicalcpus }}')) </script></td> 
+          <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.logicalcpus }}')) </script> </td> 
+          <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.si2000 }}')) </script></td>
+          <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.totalonlinesize }}')) </script></td> 
+          <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.usedonlinesize }}')) </script></td> 
+          <td>
+            <script>
+            display('{{ installed_capacity.totalonlinesize }}', '{{ installed_capacity.usedonlinesize }}');
+            </script>
+          </td>
+          <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.totalnearlinesize }}')) </script></td> 
+          <td><script type="text/javascript">document.write(CommaFormatted('{{ installed_capacity.usednearlinesize }}')) </script></td> 
+          <td>
+            <script>
+            display('{{ installed_capacity.totalnearlinesize }}', '{{ installed_capacity.usednearlinesize }}');
+            </script>
+          </td>
+        </tr> 
+        <tr> 
+          <td id="cpu" colspan="3">
+            <script type="text/javascript">
+              $.get("/gstat/rrd/Site/{{ site_name }}/cpu/e-3h/small/", {}, function(r) {
+                if (r != 'N/A') {
+                  $('#cpu').append(
+                    $('<a></a>').attr({'href':'/gstat/site/{{ site_name }}/treeview/subcluster_cpu/'}).append(
+                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/cpu/e-3h/small/', 'border':'0', 'alt':' '})
+                    )
+                  );
+                } else {
+                  $('#cpu').append("N/A");
+                }
+              });
+            </script>
+          </td>
+          <td id="online" colspan="3">
+            <script type="text/javascript">
+              $.get("/gstat/rrd/Site/{{ site_name }}/online/e-3h/small/", {}, function(r) {
+                if (r != 'N/A') {
+                  $('#online').append(
+                    $('<a></a>').attr({'href':'/gstat/site/{{ site_name }}/treeview/se_online/'}).append(
+                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/online/e-3h/small/', 'border':'0', 'alt':' '})
+                    )
+                  );
+                } else {
+                  $('#online').append("N/A");
+                }
+              });
+            </script>
+          </td>
+          <td id="nearline" colspan="3">
+            <script type="text/javascript">
+              $.get("/gstat/rrd/Site/{{ site_name }}/nearline/e-3h/small/", {}, function(r) {
+                if (r != 'N/A') {
+                  $('#nearline').append(
+                    $('<a></a>').attr({'href':'/gstat/site/{{ site_name }}/treeview/se_nearline/'}).append(
+                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/nearline/e-3h/small/', 'border':'0', 'alt':' '})
+                    )
+                  );
+                } else {
+                  $('#nearline').append("N/A");
+                }
+              });
+            </script>
+          </td>
+        </tr> 
+      </tbody> 
+    </table>      
+  </div>
+  
+  <div class="clear"></div>
+  
+  <div id="bottom-board" class="board">
+    <h2>VO-based Resource Allocation and Usage</h2> 
+
+
+	<div id="tabs_container">
+	{% if not vo_resources %}
+	  N/A
+	{% else %}
+	  <ul>
+	  {% for vo in vo_resources %}
+	    <li><a href="#fragment-{{ forloop.counter }}"><span>{{ vo.voname }}</span></a></li>
+	  {% endfor %}
+	  </ul>
+	  {% for vo in vo_resources %}
+	  <div id="fragment-{{ forloop.counter }}">
+
+	    <table id="myTable" class="tablesorter" cellspacing="1" cellpadding="0" border="0"> 
+	      <thead> 
+	        <tr> 
+	          <th colspan="3" align="center" style="width:33%">Grid Jobs</th>
+ 	          <th colspan="2" align="center" style="width:33%">Online Storage Usage (GB)</th>
+	          <th colspan="2" align="center" style="width:33%">Nearline Storage Usage (GB)</th>  
+
+	        </tr> 
+	        <tr>
+	          <th align="center" title="The sum of TotalJobs over all VOViews related to this VO">Total</th> 
+	          <th align="center" title="The sum of RunningJobs over all VOViews related to this VO">Running</th>
+	          <th align="center" title="The sum of WaitingJobs over all VOViews related to this VO">Waiting</th>
+	          <th align="center" title="The sum of TotalOnlineSize over all SAs related to this VO">TotalSize</th>
+	          <th align="center" title="The sum of UsednlineSize over all SAs related to this VO">UsedSize</th> 
+	          <th align="center" title="The sum of TotalNearlineSize over all SAs related to this VO">TotalSize</th>
+	          <th align="center" title="The sum of UsedNearlineSize over all SAs related to this VO">UsedSize</th> 
+
+	        </tr> 
+	      </thead> 
+	      <tbody>    
+	        <tr> 
+	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.totaljobs }}')) </script></td> 
+	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.runningjobs }}')) </script></td>
+	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.waitingjobs }}')) </script></td>
+	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.totalonlinesize }}')) </script></td> 
+	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.usedonlinesize }}')) </script></td>
+	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.totalnearlinesize }}')) </script></td>
+	          <td><script type="text/javascript">document.write(CommaFormatted('{{ vo.usednearlinesize }}')) </script></td>
+
+	        </tr>
+	        <tr> 
+	          <td colspan="3">
+	            <a href="/gstat/site/{{ site_name }}/treeview/vo_job/{{ vo.voname }}/">
+	              <img alt=" " src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/job/e-3h/small/" border=0/>
+	            </a>
+	          </td>
+              
+	          <td colspan="2">
+	            <a href="/gstat/site/{{ site_name }}/treeview/vo_online/{{ vo.voname }}/">
+	              <img alt=" " src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/online/e-3h/small/" border=0/>
+	            </a>
+	          </td>
+	          
+	          <td colspan="2">
+	            <a href="/gstat/site/{{ site_name }}/treeview/vo_nearline/{{ vo.voname }}/">
+	              <img alt=" " src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/nearline/e-3h/small/" border=0/>
+	            </a>
+	          </td>
+
+	        </tr> 
+	      </tbody> 
+	    </table>    
+
+	  </div>
+	  {% endfor %}
+	</div>
+	{% endif %}
+  </div>
+</div>
+<div class="clear"></div>
+
+{% endblock %}

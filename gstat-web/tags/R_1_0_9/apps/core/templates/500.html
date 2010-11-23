@@ -1,0 +1,20 @@
+{%  extends "base_gstat.html" %}
+{% block title %}500 Error: Internal Server Error{% endblock %}
+
+{% block content-main %}
+<div>
+  <h1><a href="http://en.wikipedia.org/wiki/500_error#5xx_Server_Error">500 ERROR</a>: Internal Server Error</h1>
+  
+  <p>The requested <a href="http://en.wikipedia.org/wiki/Uniform_resource_locator">URL</a> triggered an internal server error.</p>
+  
+  <p>Maybe you would like to look at:</p>
+  <ul>
+    <li><a href="/">The main page</a></li>
+    <li><a href="/gstat/about">The about page</a></li>
+  </ul>
+  
+  <p>If you have any problems, please <a href="mailto:project-grid-info-support@cern.ch">Contact GStat Team</a>.</p>
+  
+  <p><em>GStat 2.0 is part of the <a href="http://cern.ch/gridinfo">BDII Product Team</a></em>.</p>
+</div>
+{% endblock %}
