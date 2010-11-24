@@ -1,7 +1,9 @@
 from django.shortcuts import render_to_response
 from django.http import HttpResponseRedirect
+from django.http import HttpResponse
 from topology.models import Entity
 import os
+from django.utils import simplejson as json
 
 known_types = ['Country',
                'EGEE_ROC',
@@ -25,13 +27,10 @@ def filter(request, type=''):
             options.append([value, key])
     # If the type is known, return all values of that type
     elif (type in known_types):
-        options = [['ALL', 'ALL']]
+        options = [{"key": 'ALL', "value": 'ALL'}]
         site_list = Entity.objects.filter(type=type).order_by('uniqueid')
         for site in site_list:
-            options.append([site.uniqueid, site.uniqueid])
+            options.append({"key": site.uniqueid, "value": site.uniqueid})
 
-    response = render_to_response('json', {'options': options})
-    response['Content-Type'] = 'text/json'
-    response['Content-Description'] = 'JSON Filter'
-    response['Pragma'] = 'no-cache'
-    return response
+    content = '{"options": %s}' % (json.dumps(options))
+    return HttpResponse(content, mimetype='application/json')
