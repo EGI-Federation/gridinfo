@@ -31,5 +31,5 @@ if [ ! -f ${SCRIPT} ]; then
     exit 1
 fi 
 
-${SCRIPT} -c ${CONFIG} -g none
+${SCRIPT} -c ${CONFIG} -g grid
 
