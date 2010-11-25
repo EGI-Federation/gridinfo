@@ -53,3 +53,7 @@ lcg-file-catalog
 lcg-local-file-catalog
 pbs.torque.server
 pbs.torque.maui
+Site-NAGIOS
+Regional-NAGIOS
+Project-NAGIOS
+National-NAGIOS
