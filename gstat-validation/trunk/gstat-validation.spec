@@ -37,6 +37,8 @@ rm -rf $RPM_BUILD_ROOT
 /var/lib/gstat 
 
 %changelog
+* Thu Nov 25 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.41-1
+- Fixed issues IS-171
 * Wed Jun 30 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.37-1
 - Fixed issues IS-153, IS-142, IS-149, IS-125, IS-127
 * Wed Jun 30 2010 Laurence Field <laurence.field@cern.ch>  - 2.0.35-1
