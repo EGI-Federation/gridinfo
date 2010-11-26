@@ -51,6 +51,19 @@ cat ${CONFIG_FILE}.old | \
   | sed -e "s#BDII_READ_TIMEOUT=.*#BDII_READ_TIMEOUT=${BDII_READ_TIMEOUT}#" \
   | sed -e "s#BDII_ARCHIVE_SIZE=.*#BDII_ARCHIVE_SIZE=${BDII_ARCHIVE_SIZE}#" > ${CONFIG_FILE}
 
+SYS_CONFIG_FILE=/etc/sysconfig/bdii
+
+if [ -f ${SYS_CONFIG_FILE} ]; then
+  mv ${SYS_CONFIG_FILE} ${SYS_CONFIG_FILE}.old
+fi
+
+
+cat << EOF > ${SYS_CONFIG_FILE}
+SLAPD_CONF=${SLAPD_CONF}
+SLAPD=${SLAPD}
+BDII_RAM_DISK=${BDII_RAM_DISK}
+EOF
+
 if [ -f /etc/bdii/bdii-slapd.conf ]; then
   sed -i  "s/.*rootpw.*/rootpw   ${BDII_PASSWD}/" /etc/bdii/bdii-slapd.conf
 fi
