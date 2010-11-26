@@ -40,3 +40,13 @@ SITE_OTHER_CONFIG=yaim
 BDII_BREATHE_TIME=120
 BDII_READ_TIMEOUT=300
 BDII_ARCHIVE_SIZE=0 
+
+# Don't use a ram disk for the site level BDII
+BDII_RAM_DISK=no
+
+# Use the standard OpenLDAP for the site level BDII
+SLAPD=/usr/sbin/slapd
+
+# Use the standaard slapd.conf file for the site level BDII
+SLAPD_CONF=/etc/bdii/bdii-slapd.conf
+
