@@ -11,6 +11,7 @@ install:
 	@echo installing ...
 	@mkdir -p ${prefix}/etc/glite
 	@mkdir -p ${prefix}/etc/cron.hourly
+	@mkdir -p ${prefix}/opt/glite/etc/gip
 	@mkdir -p ${prefix}/usr/bin/
 	@mkdir -p ${prefix}/var/log/glite
 	@mkdir -p ${prefix}/var/cache/glite/glite-info-update-endpoints

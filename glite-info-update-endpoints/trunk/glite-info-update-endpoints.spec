@@ -1,5 +1,5 @@
 Name:		glite-info-update-endpoints
-Version:	2.0.4
+Version:	2.0.5
 Release:	1%{?dist}
 Summary:	Updates LDAP endpoins for EGI and OSG
 Group:		System/Monitoring
@@ -32,6 +32,7 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %dir /etc/glite/
+%dir /opt/glite/etc/gip
 %dir /var/log/glite/
 %dir /var/cache/glite/
 %config(noreplace) /etc/glite/glite-info-update-endpoints.conf
