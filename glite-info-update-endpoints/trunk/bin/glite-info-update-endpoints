@@ -46,7 +46,7 @@ def parse_args():
             usage()
             sys.exit()
         elif opt == "-v" or opt == "--verbose":
-            log.setLevel(log.DEBUG)
+            log.setLevel(log.debug)
 
 def read_config(config_file):
     """Reads the configuration from the given file"""
@@ -114,7 +114,9 @@ def get_osg_urls():
                         if attribute.tag == 'WLCGInformation':
                             for information in attribute.getchildren():
                                 if information.tag == 'LDAPURL':
-                                    site_url = information.text
+                                    if information.text:
+                                        site_url = information.text
+
         if site_url:
             if not site_url in seen_urls:
                 osg_urls['OSG'].append((site_name, site_url))
