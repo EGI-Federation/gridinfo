@@ -318,6 +318,12 @@
 							var trgt = $(event.target);
 							if(trgt.is("ins") && event.pageY - trgt.offset().top < this.data.core.li_height) { this.toggle_node(trgt); }
 						}, this))
+					.bind("click.jstree", $.proxy(function (event) { 
+						    // custom codes start
+						    var trgt = $(event.target);
+							this.toggle_node(trgt);
+							// custom codes end
+						}, this))
 					.bind("mousedown.jstree", $.proxy(function () { 
 							this.set_focus(); // This used to be setTimeout(set_focus,0) - why?
 						}, this))
