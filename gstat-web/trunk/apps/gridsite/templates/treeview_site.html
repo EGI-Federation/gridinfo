@@ -106,7 +106,7 @@
     <div id="treediv">
     <ul id="tree" class="filetree treeview">
       <li class="jstree-open">
-        <span class="site"> <a class="disable" href='javascript:void(0)'>{{ site_name }}</a>
+        <span class="site"> {{ site_name }}
           {% if tree_sitebdii %}
             <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=gluesiteuniqueid={{ site_name }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueSite entity"/> </a>
           {% endif %}
@@ -209,7 +209,7 @@
           
           {% if tree_cluster_cpu or tree_cluster_job %}
             <li class='{% firstof collapse.cluster collapse.subcluster_cpu "jstree-closed" %}'>
-              <span class="folder"> <a class="disable" href='javascript:void(0)'> Cluster </a></span>
+              <span class="folder"> Cluster </span>
               <ul>
                 {% if tree_cluster_cpu %}
                 <li class='{% firstof collapse.cluster collapse.subcluster_cpu "jstree-closed" %}'>
@@ -220,14 +220,14 @@
                     {% for cluster,subclusters in tree_cluster_cpu %}
                     
                     <li class='{{ collapse.subcluster_cpu|default:"jstree-closed" }}'>
-                      <span class="ce"> <a class="disable" href='javascript:void(0)'> {{ cluster }} </a>
+                      <span class="ce">  {{ cluster }}
                         {% if tree_sitebdii %}
                           <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=glueclusteruniqueid={{ cluster }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueCluster entity"/> </a>
                         {% endif %}
                       </span>
                       <ul>
                         <li class='{{ collapse.subcluster_cpu|default:"jstree-closed" }}'>
-                          <span class="folder"> <a class="disable" href='javascript:void(0)'> SubCluster </a></span>
+                          <span class="folder"> SubCluster </span>
                           <ul>
 		                    {% for subcluster in subclusters %}
 		                    <li>
@@ -266,7 +266,7 @@
                       </span>
                       <ul>
                         <li class='jstree-closed'>
-                          <span class="folder"> <a class="disable" href='javascript:void(0)'> Supported VO </a> </span>
+                          <span class="folder"> Supported VO </span>
                           <ul>
 		                    {% for vo,ce,voview in vos %}
 		                    <li>
@@ -296,7 +296,7 @@
           
           {% if tree_se %}
             <li class='{% firstof collapse.se collapse.se_online collapse.se_nearline "jstree-closed" %}'>
-              <span class="folder"> <a class="disable" href='javascript:void(0)'> SE </a> </span>
+              <span class="folder">  SE  </span>
               <ul>
               
                 <li class='{% firstof collapse.se collapse.se_online "jstree-closed" %}'>
@@ -314,7 +314,7 @@
                       </span>
                       <ul>
                         <li class="jstree-closed">
-                          <span class="folder"> <a class="disable" href='javascript:void(0)'> Supported VO </a> </span>
+                          <span class="folder">  Supported VO </span>
                           <ul>
 		                    {% for vo,sa in vos %}
 		                    <li>
@@ -351,7 +351,7 @@
                       </span>
                       <ul>
                         <li class='jstree-closed'>
-                          <span class="folder"> <a class="disable" href='javascript:void(0)'> Supported VO </a> </span>
+                          <span class="folder"> Supported VO </span>
                           <ul>
 		                    {% for vo,sa in vos %}
 		                    <li>
@@ -380,15 +380,15 @@
           
           {% if tree_service %}
             <li class='{% firstof collapse.service "jstree-closed" %}'>
-              <span class="folder"> <a class="disable" href='javascript:void(0)'> Service </a> </span>
+              <span class="folder">  Service </span>
               <ul>
                 {% for type,uniqueids in tree_service %}
                 <li class="jstree-closed">
-                  <span class="folder"> <a class="disable" href='javascript:void(0)'> {{ type }} </a> </span>
+                  <span class="folder">  {{ type }}  </span>
                   <ul>
                     {% for uniqueid in uniqueids %}
                     <li>
-                      <span class="ce"> <a class="disable" href='javascript:void(0)'> {{ uniqueid }} </a>
+                      <span class="ce">  {{ uniqueid }} 
                         {% if tree_sitebdii %}
                           <a target="frame" onClick="setSRC(this.href);" href="/gstat/ldap/browse?host=ldap://{{ tree_sitebdii|first|first }}:2170/&entry=true&dn=glueserviceuniqueid={{ uniqueid }},mds-vo-name={{ site_name }},o=grid"> <img border=0 src="/media/core/css/img/glue.png" title="Showing GLUE information of this GlueService entity"/> </a>
                         {% endif %}
@@ -404,15 +404,15 @@
           
           {% if tree_vo %}
             <li class='{% firstof collapse.vo_job collapse.vo_online collapse.vo_nearline "jstree-closed" %}'>
-              <span class="folder"> <a class="disable" href='javascript:void(0)'> VO </a> </span>
+              <span class="folder">  VO </span>
               <ul>
                 {% for vo, clusters, ses in tree_vo %}
                 <li class='{{ collapse|dict_get:vo|default:"jstree-closed" }}'>
-                  <span class="vo"> <a class="disable" href='javascript:void(0)'> {{ vo }} </a> </span>
+                  <span class="vo"> {{ vo }}  </span>
                   <ul>
                     {% if clusters %}
                     <li class='{{ collapse.vo_job|default:"jstree-closed" }}'>
-                      <span class="folder"> <a class="disable" href='javascript:void(0)'> Cluster </a> </span>
+                      <span class="folder"> Cluster </span>
                       <ul>
                         <li class='{{ collapse.vo_job|default:"jstree-closed" }}'>
                           <span class="folder"> 
@@ -437,7 +437,7 @@
                     
                     {% if ses %}
                     <li class='{% firstof collapse.vo_online collapse.vo_nearline "jstree-closed" %}'>
-                      <span class="folder"> <a class="disable" href='javascript:void(0)'> SE </a> </span>
+                      <span class="folder">  SE  </span>
                       <ul>
                         <li class='{{ collapse.vo_online|default:"jstree-closed" }}'>
                           <span class="folder"> 
