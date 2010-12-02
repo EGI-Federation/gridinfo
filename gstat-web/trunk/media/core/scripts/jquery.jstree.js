@@ -314,16 +314,16 @@
 				this.data.core.li_height = this.get_container().find("ul li.jstree-closed, ul li.jstree-leaf").eq(0).height() || 18;
 
 				this.get_container()
-					.delegate("li > ins", "click.jstree", $.proxy(function (event) {
-							var trgt = $(event.target);
-							if(trgt.is("ins") && event.pageY - trgt.offset().top < this.data.core.li_height) { this.toggle_node(trgt); }
-						}, this))
+//					.delegate("li > ins", "click.jstree", $.proxy(function (event) {
+//							var trgt = $(event.target);
+//							if(trgt.is("ins") && event.pageY - trgt.offset().top < this.data.core.li_height) { this.toggle_node(trgt); }
+//						}, this))
+				    // custom codes start
 					.bind("click.jstree", $.proxy(function (event) { 
-						    // custom codes start
 						    var trgt = $(event.target);
 							this.toggle_node(trgt);
-							// custom codes end
 						}, this))
+					// custom codes end
 					.bind("mousedown.jstree", $.proxy(function () { 
 							this.set_focus(); // This used to be setTimeout(set_focus,0) - why?
 						}, this))

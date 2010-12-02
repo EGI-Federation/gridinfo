@@ -13,6 +13,7 @@
 <link rel="stylesheet" type="text/css" href="/media/core/css/jquery.tabs.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/percentbar_style.css" />
 <link rel="stylesheet" type="text/css" href="/media/core/css/nagios.css" />
+<link rel="stylesheet" type="text/css" href="/media/core/css/jquery.tools.tooltip.css" />
 {% endblock %}
 
 {% block scripts-add %}
@@ -22,6 +23,7 @@
 <script type="text/javascript" src="/media/core/scripts/jquery.tablesorter.js"></script>
 <script type="text/javascript" src="/media/core/scripts/jquery.tabs.js"></script>
 <script type="text/javascript" src="/media/core/scripts/percentbar_progress.js" ></script>
+<script type="text/javascript" src="/media/core/scripts/jquery.tools.tooltip.js" ></script>
 <script>
     function changeSiteView(event) {
         var sitename = document.getElementById('sites').value;
@@ -37,6 +39,8 @@
         //$("#myTable").tablesorter({sortList:[], widgets: ['zebra']}); 
         $('#tabs_container').tabs();
         PageReload(300000);
+        
+        $("[title]").tooltip({offset: [10, 2], effect: 'slide', tipClass: 'tooltip_thin'}).dynamic({ bottom: { direction: 'down', bounce: true } });
     });  
 </script>
 {% endblock %}
@@ -121,12 +125,12 @@
           <tr> 
             <td>
               <a href="/gstat/site/{{ site_name }}/treeview/bdii_top/{{ status.alias }}">{{ status.alias }}</a>
-              <a href="/gstat/ldap#ldap://{{ status.alias }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Top BDII"/> </a>
+              <a href="/gstat/ldap#ldap://{{ status.alias }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Go to LDAP Browser for querying to this Top BDII"/> </a>
             </td> 
 <!-- remove two columns, only use alias to monitor
             <td>
               <a href="/gstat/site/{{ site_name }}/treeview/bdii_top/{{ status.host }}">{{ status.host }}</a>
-              <a href="/gstat/ldap#ldap://{{ status.host }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Top BDII"/> </a>
+              <a href="/gstat/ldap#ldap://{{ status.host }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Go to LDAP Browser for querying to this Top BDII"/> </a>
             </td> 
             <td>{{ status.instance }}</td> 
 -->
@@ -157,12 +161,12 @@
           <tr> 
             <td>
               <a href="/gstat/site/{{ site_name }}/treeview/bdii_site/{{ status.alias }}">{{ status.alias }}</a>
-              <a href="/gstat/ldap#ldap://{{ status.alias }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Site BDII"/> </a>
+              <a href="/gstat/ldap#ldap://{{ status.alias }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Go to LDAP Browser for querying to this Site BDII"/> </a>
             </td> 
 <!-- remove two columns, only use alias to monitor
             <td>
               <a href="/gstat/site/{{ site_name }}/treeview/bdii_site/{{ status.host }}">{{ status.host }}</a>
-              <a href="/gstat/ldap#ldap://{{ status.host }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Directing to LDAP Browser for querying to this Site BDII"/> </a>
+              <a href="/gstat/ldap#ldap://{{ status.host }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Go to LDAP Browser for querying to this Site BDII"/> </a>
             </td> 
             <td>{{ status.instance }}</td> 
 -->
@@ -242,15 +246,15 @@
           <th colspan="3" align="center" style="width:33%">Nearline Storage Resource (GB)</th>
         </tr>
         <tr>
-          <th align="center" title="The sum of PhysicalCPUs over all SubClusters">Physical CPUs</th> 
-          <th align="center" title="The sum of LogicalCPUs over all SubClusters">Logical CPUs</th>
-          <th align="center" title="The sum of the product of GlueSubClusterBenchmarkSI00 by GlueSubClusterLogicalCPUs over all SubClusters">SI2000</th>
-          <th align="center" title="The sum of TotalOnlineSize over all SEs">TotalSize</th> 
-          <th align="center" title="The sum of UsedOnlineSize over all SEs">UsedSize</th>
-          <th align="center" title="The quotient of UsedSize and TotalSize">Usage Percentage</th>
-          <th align="center" title="The sum of TotalNearlineSize over all SEs">TotalSize</th>
-          <th align="center" title="The sum of UsedNearlineSize over all SEs">UsedSize</th>  
-          <th align="center" title="The quotient of UsedSize and TotalSize">Usage Percentage</th> 
+          <th align="center" title="The sum of PhysicalCPUs over all SubClusters.">Physical CPUs</th> 
+          <th align="center" title="The sum of LogicalCPUs over all SubClusters.">Logical CPUs</th>
+          <th align="center" title="The sum of product of SubClusterBenchmarkSI00 by SubClusterLogicalCPUs over all SubClusters.">SI2000</th>
+          <th align="center" title="The sum of TotalOnlineSize over all SEs.">TotalSize</th> 
+          <th align="center" title="The sum of UsedOnlineSize over all SEs.">UsedSize</th>
+          <th align="center" title="The quotient of UsedSize and TotalSize.">Usage Percentage</th>
+          <th align="center" title="The sum of TotalNearlineSize over all SEs.">TotalSize</th>
+          <th align="center" title="The sum of UsedNearlineSize over all SEs.">UsedSize</th>  
+          <th align="center" title="The quotient of UsedSize and TotalSize.">Usage Percentage</th> 
         </tr>       
       </thead> 
       <tbody>    
@@ -274,14 +278,21 @@
           </td>
         </tr> 
         <tr> 
-          <td id="cpu" colspan="3">
+          <td id="cpu" colspan="3" style="text-align: center;">
             <script type="text/javascript">
               $.get("/gstat/rrd/Site/{{ site_name }}/cpu/e-3h/small/", {}, function(r) {
                 if (r != 'N/A') {
                   $('#cpu').append(
-                    $('<a></a>').attr({'href':'/gstat/site/{{ site_name }}/treeview/subcluster_cpu/'}).append(
-                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/cpu/e-3h/small/', 'border':'0', 'alt':' '})
+                    $('<div></div>').attr({'style':'position:relative;z-index:2;left:-150px;'}).append(
+                      $('<img></img>').attr({'src':'/media/core/css/img/clickme.png', 'border':'0', 'title':'Click on the image to see more details!'})
                     )
+                  );
+                  $('#cpu').append(
+                    $('<div></div>').attr({'style':'position:relative;z-index:1;top:-10px;'}).append(
+	                    $('<a></a>').attr({'href':'/gstat/site/{{ site_name }}/treeview/subcluster_cpu/'}).append(
+	                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/cpu/e-3h/small/', 'border':'0', 'alt':' ', 'title':'Click on the image to see more details!'})
+	                    )
+	                )
                   );
                 } else {
                   $('#cpu').append("N/A");
@@ -289,14 +300,21 @@
               });
             </script>
           </td>
-          <td id="online" colspan="3">
+          <td id="online" colspan="3" style="text-align: center;">
             <script type="text/javascript">
               $.get("/gstat/rrd/Site/{{ site_name }}/online/e-3h/small/", {}, function(r) {
                 if (r != 'N/A') {
                   $('#online').append(
-                    $('<a></a>').attr({'href':'/gstat/site/{{ site_name }}/treeview/se_online/'}).append(
-                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/online/e-3h/small/', 'border':'0', 'alt':' '})
+                    $('<div></div>').attr({'style':'position:relative;z-index:2;left:-150px;'}).append(
+                      $('<img></img>').attr({'src':'/media/core/css/img/clickme.png', 'border':'0', 'title':'Click on the image to see more details!'})
                     )
+                  );
+                  $('#online').append(
+                    $('<div></div>').attr({'style':'position:relative;z-index:1;top:-10px;'}).append(
+	                    $('<a></a>').attr({'href':'/gstat/site/{{ site_name }}/treeview/se_online/'}).append(
+	                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/online/e-3h/small/', 'border':'0', 'alt':' ', 'title':'Click on the image to see more details!'})
+	                    )
+	                )
                   );
                 } else {
                   $('#online').append("N/A");
@@ -304,13 +322,20 @@
               });
             </script>
           </td>
-          <td id="nearline" colspan="3">
+          <td id="nearline" colspan="3" style="text-align: center;">
             <script type="text/javascript">
               $.get("/gstat/rrd/Site/{{ site_name }}/nearline/e-3h/small/", {}, function(r) {
                 if (r != 'N/A') {
                   $('#nearline').append(
-                    $('<a></a>').attr({'href':'/gstat/site/{{ site_name }}/treeview/se_nearline/'}).append(
-                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/nearline/e-3h/small/', 'border':'0', 'alt':' '})
+                    $('<div></div>').attr({'style':'position:relative;z-index:2;left:-150px;'}).append(
+                      $('<img></img>').attr({'src':'/media/core/css/img/clickme.png', 'border':'0', 'title':'Click on the image to see more details!'})
+                    )
+                  );
+                  $('#nearline').append(
+                    $('<div></div>').attr({'style':'position:relative;z-index:1;top:-10px;'}).append(
+	                    $('<a></a>').attr({'href':'/gstat/site/{{ site_name }}/treeview/se_nearline/'}).append(
+	                      $('<img></img>').attr({'src':'/gstat/rrd/Site/{{ site_name }}/nearline/e-3h/small/', 'border':'0', 'alt':' ', 'title':'Click on the image to see more details!'})
+	                    )
                     )
                   );
                 } else {
@@ -351,13 +376,13 @@
 
 	        </tr> 
 	        <tr>
-	          <th align="center" title="The sum of TotalJobs over all VOViews related to this VO">Total</th> 
-	          <th align="center" title="The sum of RunningJobs over all VOViews related to this VO">Running</th>
-	          <th align="center" title="The sum of WaitingJobs over all VOViews related to this VO">Waiting</th>
-	          <th align="center" title="The sum of TotalOnlineSize over all SAs related to this VO">TotalSize</th>
-	          <th align="center" title="The sum of UsednlineSize over all SAs related to this VO">UsedSize</th> 
-	          <th align="center" title="The sum of TotalNearlineSize over all SAs related to this VO">TotalSize</th>
-	          <th align="center" title="The sum of UsedNearlineSize over all SAs related to this VO">UsedSize</th> 
+	          <th align="center" title="The sum of TotalJobs over all VOViews related to this VO.">Total</th> 
+	          <th align="center" title="The sum of RunningJobs over all VOViews related to this VO.">Running</th>
+	          <th align="center" title="The sum of WaitingJobs over all VOViews related to this VO.">Waiting</th>
+	          <th align="center" title="The sum of TotalOnlineSize over all SAs related to this VO.">TotalSize</th>
+	          <th align="center" title="The sum of UsednlineSize over all SAs related to this VO.">UsedSize</th> 
+	          <th align="center" title="The sum of TotalNearlineSize over all SAs related to this VO.">TotalSize</th>
+	          <th align="center" title="The sum of UsedNearlineSize over all SAs related to this VO.">UsedSize</th> 
 
 	        </tr> 
 	      </thead> 
@@ -373,22 +398,39 @@
 
 	        </tr>
 	        <tr> 
-	          <td colspan="3">
-	            <a href="/gstat/site/{{ site_name }}/treeview/vo_job/{{ vo.voname }}/">
-	              <img alt=" " src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/job/e-3h/small/" border=0/>
-	            </a>
+	          <td colspan="3" style="text-align: center;">
+		          <div style="position:relative;z-index:2;left:-150px;">
+		            {% if vo.totaljobs or vo.totaljobs == 0%}
+	                <img border=0 src="/media/core/css/img/clickme.png" title="Click on the image to see more details!" />
+	                {% endif %}
+		          </div>
+		          <div style="position:relative;z-index:1;top:-10px;">
+		            <a href="/gstat/site/{{ site_name }}/treeview/vo_job/{{ vo.voname }}/">
+		              <img alt=" " src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/job/e-3h/small/" border=0  title="Click on the image to see more details!"/>
+		            </a>
+		          </div>
 	          </td>
               
-	          <td colspan="2">
-	            <a href="/gstat/site/{{ site_name }}/treeview/vo_online/{{ vo.voname }}/">
-	              <img alt=" " src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/online/e-3h/small/" border=0/>
-	            </a>
+	          <td colspan="2" style="text-align: center;">
+		          <div style="position:relative;z-index:2;left:-150px;">
+	                <img border=0 src="/media/core/css/img/clickme.png" title="Click on the image to see more details!" />
+		          </div>
+		          <div style="position:relative;z-index:1;top:-10px;">
+		            <a href="/gstat/site/{{ site_name }}/treeview/vo_online/{{ vo.voname }}/">
+		              <img alt=" " src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/online/e-3h/small/" border=0 title="Click on the image to see more details!"/>
+		            </a>
+		          </div>
 	          </td>
 	          
-	          <td colspan="2">
-	            <a href="/gstat/site/{{ site_name }}/treeview/vo_nearline/{{ vo.voname }}/">
-	              <img alt=" " src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/nearline/e-3h/small/" border=0/>
-	            </a>
+	          <td colspan="2" style="text-align: center;">
+		          <div style="position:relative;z-index:2;left:-150px;">
+	                <img border=0 src="/media/core/css/img/clickme.png" title="Click on the image to see more details!" />
+		          </div>
+		          <div style="position:relative;z-index:1;top:-10px;">
+		            <a href="/gstat/site/{{ site_name }}/treeview/vo_nearline/{{ vo.voname }}/">
+		              <img alt=" " src="/gstat/rrd/VOSite/{{ site_name }}/{{ vo.voname }}/nearline/e-3h/small/" border=0 title="Click on the image to see more details!"/>
+		            </a>
+		          </div>
 	          </td>
 
 	        </tr> 
