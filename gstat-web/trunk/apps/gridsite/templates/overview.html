@@ -126,6 +126,10 @@
           <tr> 
             <td>
               <a href="/gstat/site/{{ site_name }}/treeview/bdii_top/{{ status.alias }}">{{ status.alias }}</a>
+              <a href="/gstat/site/{{ site_name }}/treeview/bdii_top/{{ status.alias }}">
+                  <img border=0 src="/media/core/css/img/moredetails.png" title="Click me to see more details on monitoring and validation results!" style="margin-right: 8px;" />
+              </a>
+              
               <a href="/gstat/ldap#ldap://{{ status.alias }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Go to LDAP Browser for querying to this Top BDII."/> </a>
             </td> 
 <!-- remove two columns, only use alias to monitor
@@ -162,6 +166,9 @@
           <tr> 
             <td>
               <a href="/gstat/site/{{ site_name }}/treeview/bdii_site/{{ status.alias }}">{{ status.alias }}</a>
+              <a href="/gstat/site/{{ site_name }}/treeview/bdii_site/{{ status.alias }}">
+                  <img border=0 src="/media/core/css/img/moredetails.png" title="Click me to see more details on monitoring and validation results!" style="margin-right: 8px;" />
+              </a>
               <a href="/gstat/ldap#ldap://{{ status.alias }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Go to LDAP Browser for querying to this Site BDII."/> </a>
             </td> 
 <!-- remove two columns, only use alias to monitor
