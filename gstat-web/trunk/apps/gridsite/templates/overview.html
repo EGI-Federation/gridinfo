@@ -40,7 +40,8 @@
         $('#tabs_container').tabs();
         PageReload(300000);
         
-        $("[title]").tooltip({offset: [10, 2], effect: 'slide', tipClass: 'tooltip_thin'}).dynamic({ bottom: { direction: 'down', bounce: true } });
+        $("img[title]").tooltip({offset: [10, 2], effect: 'slide', tipClass: 'tooltip_thin'}).dynamic({ bottom: { direction: 'down', bounce: true } });
+        $(".title[title]").tooltip({events: {def: 'click, mouseleave'},offset: [10, 2], effect: 'slide', tipClass: 'tooltip_thin'});
     });  
 </script>
 {% endblock %}
@@ -125,12 +126,12 @@
           <tr> 
             <td>
               <a href="/gstat/site/{{ site_name }}/treeview/bdii_top/{{ status.alias }}">{{ status.alias }}</a>
-              <a href="/gstat/ldap#ldap://{{ status.alias }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Go to LDAP Browser for querying to this Top BDII"/> </a>
+              <a href="/gstat/ldap#ldap://{{ status.alias }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Go to LDAP Browser for querying to this Top BDII."/> </a>
             </td> 
 <!-- remove two columns, only use alias to monitor
             <td>
               <a href="/gstat/site/{{ site_name }}/treeview/bdii_top/{{ status.host }}">{{ status.host }}</a>
-              <a href="/gstat/ldap#ldap://{{ status.host }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Go to LDAP Browser for querying to this Top BDII"/> </a>
+              <a href="/gstat/ldap#ldap://{{ status.host }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Go to LDAP Browser for querying to this Top BDII."/> </a>
             </td> 
             <td>{{ status.instance }}</td> 
 -->
@@ -161,12 +162,12 @@
           <tr> 
             <td>
               <a href="/gstat/site/{{ site_name }}/treeview/bdii_site/{{ status.alias }}">{{ status.alias }}</a>
-              <a href="/gstat/ldap#ldap://{{ status.alias }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Go to LDAP Browser for querying to this Site BDII"/> </a>
+              <a href="/gstat/ldap#ldap://{{ status.alias }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Go to LDAP Browser for querying to this Site BDII."/> </a>
             </td> 
 <!-- remove two columns, only use alias to monitor
             <td>
               <a href="/gstat/site/{{ site_name }}/treeview/bdii_site/{{ status.host }}">{{ status.host }}</a>
-              <a href="/gstat/ldap#ldap://{{ status.host }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Go to LDAP Browser for querying to this Site BDII"/> </a>
+              <a href="/gstat/ldap#ldap://{{ status.host }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Go to LDAP Browser for querying to this Site BDII."/> </a>
             </td> 
             <td>{{ status.instance }}</td> 
 -->
@@ -246,15 +247,15 @@
           <th colspan="3" align="center" style="width:33%">Nearline Storage Resource (GB)</th>
         </tr>
         <tr>
-          <th align="center" title="The sum of PhysicalCPUs over all SubClusters.">Physical CPUs</th> 
-          <th align="center" title="The sum of LogicalCPUs over all SubClusters.">Logical CPUs</th>
-          <th align="center" title="The sum of product of SubClusterBenchmarkSI00 by SubClusterLogicalCPUs over all SubClusters.">SI2000</th>
-          <th align="center" title="The sum of TotalOnlineSize over all SEs.">TotalSize</th> 
-          <th align="center" title="The sum of UsedOnlineSize over all SEs.">UsedSize</th>
-          <th align="center" title="The quotient of UsedSize and TotalSize.">Usage Percentage</th>
-          <th align="center" title="The sum of TotalNearlineSize over all SEs.">TotalSize</th>
-          <th align="center" title="The sum of UsedNearlineSize over all SEs.">UsedSize</th>  
-          <th align="center" title="The quotient of UsedSize and TotalSize.">Usage Percentage</th> 
+          <th align="center" class="title" title="The sum of PhysicalCPUs over all SubClusters.">Physical CPUs</th> 
+          <th align="center" class="title" title="The sum of LogicalCPUs over all SubClusters.">Logical CPUs</th>
+          <th align="center" class="title" title="The sum of product of SubClusterBenchmarkSI00 by SubClusterLogicalCPUs over all SubClusters.">SI2000</th>
+          <th align="center" class="title" title="The sum of TotalOnlineSize over all SEs.">TotalSize</th> 
+          <th align="center" class="title" title="The sum of UsedOnlineSize over all SEs.">UsedSize</th>
+          <th align="center" class="title" title="The quotient of UsedSize and TotalSize.">Usage Percentage</th>
+          <th align="center" class="title" title="The sum of TotalNearlineSize over all SEs.">TotalSize</th>
+          <th align="center" class="title" title="The sum of UsedNearlineSize over all SEs.">UsedSize</th>  
+          <th align="center" class="title" title="The quotient of UsedSize and TotalSize.">Usage Percentage</th> 
         </tr>       
       </thead> 
       <tbody>    
@@ -376,13 +377,13 @@
 
 	        </tr> 
 	        <tr>
-	          <th align="center" title="The sum of TotalJobs over all VOViews related to this VO.">Total</th> 
-	          <th align="center" title="The sum of RunningJobs over all VOViews related to this VO.">Running</th>
-	          <th align="center" title="The sum of WaitingJobs over all VOViews related to this VO.">Waiting</th>
-	          <th align="center" title="The sum of TotalOnlineSize over all SAs related to this VO.">TotalSize</th>
-	          <th align="center" title="The sum of UsednlineSize over all SAs related to this VO.">UsedSize</th> 
-	          <th align="center" title="The sum of TotalNearlineSize over all SAs related to this VO.">TotalSize</th>
-	          <th align="center" title="The sum of UsedNearlineSize over all SAs related to this VO.">UsedSize</th> 
+	          <th align="center" class="title" title="The sum of TotalJobs over all VOViews related to this VO.">Total</th> 
+	          <th align="center" class="title" title="The sum of RunningJobs over all VOViews related to this VO.">Running</th>
+	          <th align="center" class="title" title="The sum of WaitingJobs over all VOViews related to this VO.">Waiting</th>
+	          <th align="center" class="title" title="The sum of TotalOnlineSize over all SAs related to this VO.">TotalSize</th>
+	          <th align="center" class="title" title="The sum of UsednlineSize over all SAs related to this VO.">UsedSize</th> 
+	          <th align="center" class="title" title="The sum of TotalNearlineSize over all SAs related to this VO.">TotalSize</th>
+	          <th align="center" class="title" title="The sum of UsedNearlineSize over all SAs related to this VO.">UsedSize</th> 
 
 	        </tr> 
 	      </thead> 
@@ -413,7 +414,9 @@
               
 	          <td colspan="2" style="text-align: center;">
 		          <div style="position:relative;z-index:2;left:-150px;">
+		            {% if vo.totalonlinesize or vo.totalonlinesize == 0%}
 	                <img border=0 src="/media/core/css/img/clickme.png" title="Click on the image to see more details!" />
+                    {% endif %}
 		          </div>
 		          <div style="position:relative;z-index:1;top:-10px;">
 		            <a href="/gstat/site/{{ site_name }}/treeview/vo_online/{{ vo.voname }}/">
@@ -424,7 +427,9 @@
 	          
 	          <td colspan="2" style="text-align: center;">
 		          <div style="position:relative;z-index:2;left:-150px;">
+		            {% if vo.totalnearlinesize or vo.totalnearlinesize == 0%}
 	                <img border=0 src="/media/core/css/img/clickme.png" title="Click on the image to see more details!" />
+                    {% endif %}
 		          </div>
 		          <div style="position:relative;z-index:1;top:-10px;">
 		            <a href="/gstat/site/{{ site_name }}/treeview/vo_nearline/{{ vo.voname }}/">
