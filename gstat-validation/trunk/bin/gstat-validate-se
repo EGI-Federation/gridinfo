@@ -460,8 +460,7 @@ def test_SEControlProtocol_Endpoint(key,entry):
                           'GlueSEControlProtocolEndpoint not a full SOAP URL', gsutils.get_site(key))
 
    if (entry['GlueSEControlProtocolType'][0] == "xroot"):
-      if (entry['GlueSEControlProtocolEndpoint'][0][:8] != "xroot://" or
-          entry['GlueSEControlProtocolEndpoint'][0][:7] != "root://"):
+      if not entry['GlueSEControlProtocolEndpoint'][0] in ["xroot://","root://"]:
          my_errors.log(key,'SEControlProtocol.Endpoint',
                           'GlueSEControlProtocolEndpoint protocol is not [x]root', gsutils.get_site(key))
 
