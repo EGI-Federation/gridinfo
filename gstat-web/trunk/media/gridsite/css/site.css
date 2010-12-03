@@ -16,3 +16,8 @@ tr.unhidden { display: table-row; }
 	color: #3D3D3D;
 	line-height:1.4em;
 }
+
+th.title {
+  cursor: pointer;
+  /* background: url('/media/core/css/img/info.png') no-repeat scroll right center #E6EEEE; */
+}

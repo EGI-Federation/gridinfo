@@ -20,7 +20,7 @@ Requires: pnp4nagios
 Requires: mod_wsgi
 Requires: mod_ssl
 Requires: mysql-server
-Requires: Django
+Requires: django > 1.2.1
 Requires: php
 Requires: MySQL-python > 1.2.1
 
