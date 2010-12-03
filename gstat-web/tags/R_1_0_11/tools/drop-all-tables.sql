@@ -1,0 +1,19 @@
+# mysql -h localhost -u gstat -p < drop-all-tables.sql
+DROP TABLE IF EXISTS gstat.glue_gluece;
+DROP TABLE IF EXISTS gstat.glue_gluecesebind;
+DROP TABLE IF EXISTS gstat.glue_gluecesebindgroup;
+DROP TABLE IF EXISTS gstat.glue_gluecluster;
+DROP TABLE IF EXISTS gstat.glue_gluelocation;
+DROP TABLE IF EXISTS gstat.glue_gluemultivalued;
+DROP TABLE IF EXISTS gstat.glue_gluesa;
+DROP TABLE IF EXISTS gstat.glue_gluese;
+DROP TABLE IF EXISTS gstat.glue_glueseaccessprotocol;
+DROP TABLE IF EXISTS gstat.glue_gluesecontrolprotocol;
+DROP TABLE IF EXISTS gstat.glue_glueservice;
+DROP TABLE IF EXISTS gstat.glue_glueservicedata;
+DROP TABLE IF EXISTS gstat.glue_gluesite;
+DROP TABLE IF EXISTS gstat.glue_gluesl;
+DROP TABLE IF EXISTS gstat.glue_gluesoftware;
+DROP TABLE IF EXISTS gstat.glue_gluesubcluster;
+DROP TABLE IF EXISTS gstat.glue_gluevoinfo;
+DROP TABLE IF EXISTS gstat.glue_gluevoview;
