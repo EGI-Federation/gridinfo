@@ -118,6 +118,7 @@ def overview(request, site_name):
     # Calculate the VO-shared storage space through all SA
     attributes = ["totalonlinesize", "usedonlinesize", "totalnearlinesize", "usednearlinesize"]
     sa_list = get_gluesas(service_list)
+    ignored_sa_online, ignored_sa_nearline = get_ignored_sas(service_list)
     vo_to_sa_mapping = get_vo_to_sa_mapping(sa_list)
     for sa in sa_list:
         try:
@@ -136,6 +137,15 @@ def overview(request, site_name):
                 for attr in attributes:
                     resource_dict[voname][attr] = 0
             for attr in attributes:
+                # ignore sa if InstalledOnlineCapacity or InstalledNearlineCapacity is 0
+                if sa.gluese_fk in ignored_sa_online:
+                    if sa.localid in ignored_sa_online[sa.gluese_fk]:
+                        if attr in ["totalonlinesize", "usedonlinesize"]:
+                            continue
+                if sa.gluese_fk in ignored_sa_nearline:
+                    if sa.localid in ignored_sa_nearline[sa.gluese_fk]:
+                        if attr in ["totalnearlinesize", "usednearlinesize"]:
+                            continue
                 resource_dict[voname][attr] += stats[attributes.index(attr)]     
     
     vo_resources = []

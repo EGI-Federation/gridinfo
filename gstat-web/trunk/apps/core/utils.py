@@ -66,57 +66,87 @@ def get_glueses(service_list):
 
 def get_gluevoviews(service_list, vo_name=None):
     """ get glue voview entities from glue database """
-    # check if there are duplicate entities in database, if so , ignore old data
-    latest_time = gluevoview.objects.latest('updated_at')
-    expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 60*6 )
+    try:
+        # check if there are duplicate entities in database, if so , ignore old data
+        latest_time = gluevoview.objects.latest('updated_at')
+        expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 60*6 )
+        
+        # get cluster uniqueid 
+        uniqueids = []
+        for service in service_list:
+            if service.type == 'CE': uniqueids.append(service.uniqueid)
     
-    # get cluster uniqueid 
-    uniqueids = []
-    for service in service_list:
-        if service.type == 'CE': uniqueids.append(service.uniqueid)
-
-    ces = gluece.objects.filter(gluecluster_fk__in = uniqueids)
-    uniqueids = [ce.uniqueid for ce in ces]
-    voviews = gluevoview.objects.filter(gluece_fk__in = uniqueids).exclude(updated_at__lt=expired)
-    if vo_name:
-        voview_list = []
-        vo_to_voview_mapping = get_vo_to_voview_mapping(voviews)
-        for voview in voviews:
-            try:
-                voname = vo_to_voview_mapping[voview.glueceuniqueid][voview.localid]
-            except KeyError, e:
-                continue
-            if voname == vo_name:
-                voview_list.append(voview)
-        voviews = voview_list
-
-    return voviews
+        ces = gluece.objects.filter(gluecluster_fk__in = uniqueids)
+        uniqueids = [ce.uniqueid for ce in ces]
+        voviews = gluevoview.objects.filter(gluece_fk__in = uniqueids).exclude(updated_at__lt=expired)
+        if vo_name:
+            voview_list = []
+            vo_to_voview_mapping = get_vo_to_voview_mapping(voviews)
+            for voview in voviews:
+                try:
+                    voname = vo_to_voview_mapping[voview.glueceuniqueid][voview.localid]
+                except KeyError, e:
+                    continue
+                if voname == vo_name:
+                    voview_list.append(voview)
+            voviews = voview_list
+    
+        return voviews
+    except gluevoview.DoesNotExist:
+        # return an empty QuerySet
+        return gluevoview.objects.none()
 
 def get_gluesas(service_list, vo_name=None):
     """ get glue sa entities from glue database """
-    # check if there are duplicate entities in database, if so , ignore old data
-    latest_time = gluesa.objects.latest('updated_at')
-    expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 60*6 )
-    
-    #get se uniqueid
-    uniqueids = []
-    for service in service_list:
-        if service.type == 'SE': uniqueids.append(service.uniqueid)
-
-    sas = gluesa.objects.filter(gluese_fk__in = uniqueids).exclude(updated_at__lt=expired)
-    if vo_name:
-        sa_list = []
-        vo_to_sa_mapping = get_vo_to_sa_mapping(sas)
-        for sa in sas:
-            try:
-                voname_list = vo_to_sa_mapping[sa.gluese_fk][sa.localid]
-            except KeyError, e:
-                    continue
-            if vo_name in voname_list:
-                sa_list.append(sa)
-        sas = sa_list
+    try:
+        # check if there are duplicate entities in database, if so , ignore old data
+        latest_time = gluesa.objects.latest('updated_at')
+        expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 60*6 )
         
-    return sas
+        #get se uniqueid
+        uniqueids = []
+        for service in service_list:
+            if service.type == 'SE': uniqueids.append(service.uniqueid)
+    
+        sas = gluesa.objects.filter(gluese_fk__in = uniqueids).exclude(updated_at__lt=expired)
+        if vo_name:
+            sa_list = []
+            vo_to_sa_mapping = get_vo_to_sa_mapping(sas)
+            for sa in sas:
+                try:
+                    voname_list = vo_to_sa_mapping[sa.gluese_fk][sa.localid]
+                except KeyError, e:
+                        continue
+                if vo_name in voname_list:
+                    sa_list.append(sa)
+            sas = sa_list
+            
+        return sas
+    except gluesa.DoesNotExist:
+        # return an empty QuerySet
+        return gluesa.objects.none()
+
+def get_ignored_sas(service_list):
+    """ get glue sa entities from glue database which should be ignored where there is any Installed[Online|Nearline]Capacity of 0 """
+
+    se_uniqueids = []
+    for service in service_list:
+        if service.type == 'SE': se_uniqueids.append(service.uniqueid)
+
+    multivalues = gluemultivalued.objects.filter(attribute='GlueSACapability', uniqueid__in=se_uniqueids, value='InstalledOnlineCapacity=0') | gluemultivalued.objects.filter(attribute='GlueSACapability', uniqueid__in=se_uniqueids, value='InstalledNearlineCapacity=0')
+    ignored_sa_online   = {}
+    ignored_sa_nearline = {}
+    for multivalue in multivalues:
+        if multivalue.value == 'InstalledOnlineCapacity=0':
+            if multivalue.uniqueid not in ignored_sa_online:
+                ignored_sa_online[multivalue.uniqueid] = []
+            ignored_sa_online[multivalue.uniqueid].append(multivalue.localid)
+        elif multivalue.value == 'InstalledNearlineCapacity=0':
+            if multivalue.uniqueid not in ignored_sa_nearline:
+                ignored_sa_nearline[multivalue.uniqueid] = []
+            ignored_sa_nearline[multivalue.uniqueid].append(multivalue.localid)
+        
+    return (ignored_sa_online, ignored_sa_nearline)
 
 def get_vo_to_voview_mapping(voview_list=None):
     # Create VO to VOView Mapping
@@ -751,9 +781,12 @@ def get_installed_capacities(site_list, vo_name=None, hepspec06=False):
             if not ce_vo_view.has_key(object.uniqueid):
                 ce_vo_view[object.uniqueid] = {}
             ce_vo_view[object.uniqueid][object.localid] = None
-    latest_time = gluevoview.objects.latest('updated_at')
-    expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 60*6 )
-    vo_view_list = gluevoview.objects.filter(gluece_fk__in = ce_cluster_mapping.keys()).exclude(updated_at__lt=expired)
+    try:
+        latest_time = gluevoview.objects.latest('updated_at')
+        expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 60*6 )
+        vo_view_list = gluevoview.objects.filter(gluece_fk__in = ce_cluster_mapping.keys()).exclude(updated_at__lt=expired)
+    except gluevoview.DoesNotExist:
+        vo_view_list =  gluevoview.objects.none()
 
     # Create a mapping between Sites and CEs
     for vo_view in vo_view_list:
@@ -804,9 +837,12 @@ def get_installed_capacities(site_list, vo_name=None, hepspec06=False):
                 se_sa[object.uniqueid] = {}
             se_sa[object.uniqueid][object.localid] = None
 
-        latest_time = gluesa.objects.latest('updated_at')
-        expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 60*6 )
-        sa_list = gluesa.objects.filter(gluese_fk__in = se_list).exclude(updated_at__lt=expired)
+        try:
+            latest_time = gluesa.objects.latest('updated_at')
+            expired = datetime.fromtimestamp( time.mktime(latest_time.updated_at.timetuple()) - 60*6 )
+            sa_list = gluesa.objects.filter(gluese_fk__in = se_list).exclude(updated_at__lt=expired)
+        except gluesa.DoesNotExist:
+            sa_list =  gluesa.objects.none()
 
         for sa in sa_list:
             if ( not se_sa.has_key(sa.gluese_fk)):
