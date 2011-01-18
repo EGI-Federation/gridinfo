@@ -259,13 +259,13 @@ def storage_graph_cmd(uniqueids, attribute, start_time, site_name='', small=Fals
         vname_total = 't_%s' %(count)
         vname_used  = 'u_%s' %(count)
         if len(uniqueids) == 1:
-            cdef_total.extend([vname_total, '1024', '1024', '1024', '*', '*', '*'])
-            cdef_used.extend([vname_used, '1024', '1024', '1024', '*', '*', '*'])
+            cdef_total.extend([vname_total, '1000', '1000', '1000', '*', '*', '*'])
+            cdef_used.extend([vname_used, '1000', '1000', '1000', '*', '*', '*'])
         else:
             #cdef_total += ['TIME', str(int(time.time())-900), 'GT', vname_total, vname_total, 'UN', '0', vname_total, 'IF', 'IF']
             #cdef_used += ['TIME', str(int(time.time())-900), 'GT', vname_used, vname_used, 'UN', '0', vname_used, 'IF', 'IF']
-            cdef_total += ['TIME', str(int(time.time())-900), 'GT', vname_total, '1024', '1024', '1024', '*', '*', '*', vname_total, 'UN', '0', vname_total, '1024', '1024', '1024', '*', '*', '*', 'IF', 'IF']
-            cdef_used += ['TIME', str(int(time.time())-900), 'GT', vname_used, '1024', '1024', '1024', '*', '*', '*', vname_used, 'UN', '0', vname_used, '1024', '1024', '1024', '*', '*', '*', 'IF', 'IF']
+            cdef_total += ['TIME', str(int(time.time())-900), 'GT', vname_total, '1000', '1000', '1000', '*', '*', '*', vname_total, 'UN', '0', vname_total, '1000', '1000', '1000', '*', '*', '*', 'IF', 'IF']
+            cdef_used += ['TIME', str(int(time.time())-900), 'GT', vname_used, '1000', '1000', '1000', '*', '*', '*', vname_used, 'UN', '0', vname_used, '1000', '1000', '1000', '*', '*', '*', 'IF', 'IF']
         if count != 1:
             cdef_total.append('+')
             cdef_used.append('+')
@@ -574,14 +574,14 @@ def vo_storage_graph_cmd(level, vose_dict, attribute, start_time, site_name='', 
             vname_total = 't_%s' %(count)
             vname_used  = 'u_%s' %(count)
             if len(ses) == 1: 
-                cdef_total.extend([vname_total, '1024', '1024', '1024', '*', '*', '*'])
-                cdef_used.extend([vname_used, '1024', '1024', '1024', '*', '*', '*'])
+                cdef_total.extend([vname_total, '1000', '1000', '1000', '*', '*', '*'])
+                cdef_used.extend([vname_used, '1000', '1000', '1000', '*', '*', '*'])
             else:
                 #cdef_total += ['TIME', str(int(time.time())-900), 'GT', vname_total, vname_total, 'UN', '0', vname_total, 'IF', 'IF']
                 #cdef_used  += ['TIME', str(int(time.time())-900), 'GT', vname_used,  vname_used,  'UN', '0', vname_used,  'IF', 'IF']
                 
-                cdef_total += ['TIME', str(int(time.time())-900), 'GT', vname_total, '1024', '1024', '1024', '*', '*', '*', vname_total, 'UN', '0', vname_total, '1024', '1024', '1024', '*', '*', '*', 'IF', 'IF']
-                cdef_used  += ['TIME', str(int(time.time())-900), 'GT', vname_used, '1024', '1024', '1024', '*', '*', '*', vname_used,  'UN', '0', vname_used, '1024', '1024', '1024', '*', '*', '*', 'IF', 'IF']
+                cdef_total += ['TIME', str(int(time.time())-900), 'GT', vname_total, '1000', '1000', '1000', '*', '*', '*', vname_total, 'UN', '0', vname_total, '1000', '1000', '1000', '*', '*', '*', 'IF', 'IF']
+                cdef_used  += ['TIME', str(int(time.time())-900), 'GT', vname_used, '1000', '1000', '1000', '*', '*', '*', vname_used,  'UN', '0', vname_used, '1000', '1000', '1000', '*', '*', '*', 'IF', 'IF']
             if count != 1:
                 cdef_total.append('+')
                 cdef_used.append('+')
