@@ -1,0 +1,659 @@
+#!/usr/bin/perl -w
+# lcg-infosites
+# versions <= 2.6.9 by Patricia Mendez Lorenzo
+# versions >= 3.0.0 by Maarten Litmaath
+
+my $version = '3.0.0';
+
+use Net::LDAP;
+use Net::LDAP::Entry;
+use strict;
+
+$ENV{LANG} = $ENV{LC_ALL} = 'C';
+(my $prog = $0) =~ s-.*/--;
+
+sub usage()
+{
+    my $msg = "Usage: $prog [options] selection(s)
+
+	|Options:
+	|    -f site_name
+	|    -h | --help
+	|    --is BDII
+	|    --trust host
+	|    -v {1 | 2 | 3}
+	|    -V | --version
+	|    --vo VO
+
+	|Selections:
+	|    all          dli         lfc          tag
+	|    bdii_site    dliLocal    lfcLocal     vobox
+	|    bdii_top     fts         myproxy      voms
+	|    ce           gridice     se           voms-admin
+	|    closeSE      lb          sitenames    voview
+	|    cream        lcg-ce      space        wms
+	";
+
+    $msg =~ s/^[ \t]+\|//gm;
+    print STDERR "$msg\n";
+    exit 1;
+}
+
+my ($f, $is, $v, $vo, @selections, %selected, $trust);
+$is = $ENV{LCG_GFAL_INFOSYS};
+$v  = 0;
+my %generic = (
+    "bdii_site" => "bdii_site",
+    "bdii_top"  => "bdii_top",
+    "myproxy"   => "MyProxy",
+);
+
+while (my $arg = shift @ARGV) {
+
+    if ($arg =~ /^-?-f$/) {
+	$f  = shift @ARGV or usage();
+	next;
+    }
+
+    if ($arg =~ /^-?-h(elp)?$/) {
+	usage();
+    }
+
+    if ($arg =~ /^-?-is$/) {
+	$is = shift @ARGV or usage();
+	next;
+    }
+
+    if ($arg =~ /^-?-trust$/) {
+	$trust = shift @ARGV or usage();
+	next;
+    }
+
+    if ($arg =~ /^-?-v$/) {
+	$v  = shift @ARGV or usage();
+	next;
+    }
+
+    if ($arg =~ /^-?-(V|version)$/) {
+	print "$version\n";
+	exit 0;
+    }
+
+    if ($arg =~ /^-?-vo$/) {
+	$vo = shift @ARGV or usage();
+	next;
+    }
+
+    if ($arg =~ /^(all|bdii_(site|top)|ce|closeSE|cream|dli(Local)?)$/i   ||
+	$arg =~ /^(fts|gridice|lb|lcg-ce|lfc(Local)?|myproxy|rb|se)$/i    ||
+	$arg =~ /^(sitenames|space|tag|vobox|voms(-admin)?|voview|wms)$/i) {
+	$arg =~ tr/A-Z/a-z/;
+	push @selections, $arg;
+	$selected{$arg} = 1;
+	next;
+    }
+
+    my $str = ($arg =~ /^-/) ? "option" : "selection";
+    print STDERR "$prog: unknown $str: $arg\n";
+    usage();
+}
+
+usage() if !@selections;
+
+$selected{"ce"} = $selected{"se"} = 1 if $selected{"all"};
+
+for (@selections) {
+    next if exists $generic{$_} || $_ eq "sitenames";
+
+    unless ($vo) {
+	chomp($vo = `voms-proxy-info -vo 2> /dev/null`);
+
+	unless ($vo) {
+	    print STDERR "$prog: the VO could not be determined\n";
+	    usage();
+	}
+    }
+
+    last;
+}
+
+unless ($is) {
+    print STDERR "$prog: LCG_GFAL_INFOSYS undefined and no BDII specified\n";
+    usage();
+}
+
+my $BDII;
+my $ldap;
+
+for my $bdii (split /,/, $is) {
+    $BDII = $bdii;
+    $BDII .= ":2170" unless $BDII =~ /:/;
+
+    last if defined($ldap = Net::LDAP->new($BDII)) && $ldap->bind;
+}
+
+die "$prog: no BDII could be contacted\n" .
+    "$prog: last BDII tried was '$BDII'\n" .
+    "$prog: $@\n"
+    unless $ldap;
+
+my $base = $f ? "mds-vo-name=$f,mds-vo-name=local,o=grid" : "o=grid";
+
+sub getCEinfo();
+sub getSEinfo();
+
+my (%CE, %Cluster, %SubCluster, %SubCluster2CE, %Members, %Tags);
+my (%SA, %Space, %SE);
+
+if ($selected{"tag"}) {
+    getCEinfo();
+
+    my (%host_tags, %seen);
+
+    for (keys %CE) {
+	my $host = $_;
+	$host =~ s/:.*//;
+
+	$host_tags{$host} = [] unless exists $host_tags{$host};
+
+	for (@{$Members{$Cluster{$_}}}) {
+	    for (@{$Tags{$_}}) {
+		push @{$host_tags{$host}}, $_ if /^VO-$vo-/
+		    && !$seen{"$host $_"}++;
+	    }
+	}
+    }
+
+    for (sort keys %host_tags) {
+	print "Name of the CE: $_\n";
+
+	for (sort @{$host_tags{$_}}) {
+	    print "\t$_\n";
+	}
+
+	print "\n";
+    }
+}
+
+if ($selected{"closese"}) {
+    getCEinfo();
+    getSEinfo();
+
+    my %CloseSE;
+
+    my $res = $ldap->search(base => "$base", filter =>
+	"(objectClass=GlueCESEBindGroup)");
+
+    for my $bind ($res->entries) {
+	my $ce = $bind->get_value("GlueCESEBindGroupCEUniqueID") or next;
+
+	next unless exists $CE{$ce};
+
+	$CloseSE{$ce} = [$bind->get_value("GlueCESEBindGroupSEUniqueID")];
+    }
+
+    for (sort keys %CE) {
+	print "Name of the CE: $_\n";
+
+	if (exists $CloseSE{$_}) {
+	    for (sort @{$CloseSE{$_}}) {
+		print "\t$_\n" if exists $SE{$_};
+	    }
+	}
+
+	print "\n";
+    }
+}
+
+if ($selected{"voview"}) {
+    my %VOView;
+    my $na = 'n.a';
+
+    my $res = $ldap->search(base => "$base", filter =>
+	"(&(ObjectClass=GlueVOView)(GlueCEAccessControlBaseRule=VO*:$vo))");
+
+    for my $vov ($res->entries) {
+	my $ce   = $vov->get_value("GlueChunkKey") or next;
+	$ce =~ s/GlueCEUniqueID=//i or next;
+
+	my $rjob = $vov->get_value("GlueCEStateRunningJobs")           || 0;
+	my $wjob = $vov->get_value("GlueCEStateWaitingJobs")           || 0;
+	my $tjob = $vov->get_value("GlueCEStateTotalJobs")             || 0;
+	my $free = $vov->get_value("GlueCEStateFreeJobSlots")          || 0;
+	my $ert  = $vov->get_value("GlueCEStateEstimatedResponseTime") || 0;
+	my $wrt  = $vov->get_value("GlueCEStateWorstResponseTime")     || 0;
+	my $dse  = $vov->get_value("GlueCEInfoDefaultSE")              || $na;
+	my $appd = $vov->get_value("GlueCEInfoApplicationDir")         || $na;
+
+	$VOView{$ce} = $v == 1 ? [$free, $tjob, $rjob, $wjob] :
+	    [$rjob, $wjob, $tjob, $free, $ert, $wrt, $dse, $appd];
+    }
+
+    if ($v == 1) {
+	printf "   Free   Total Running Waiting Queue\n"
+	    . "%s\n", '-' x 37;
+
+	for (sort keys %VOView) {
+	    printf "%7d %7d %7d %7d %s\n", @{$VOView{$_}}, $_;
+	}
+    } else {
+	printf "Running\tWaiting\tTotal\t Free\tResponseTime"
+	    . "\tWorstResponseTime\tSE%s\tSWArea%s\tQueue\n%s\n",
+	    ' ' x 28, ' ' x 24, '-' x 145;
+
+	for (sort keys %VOView) {
+	    printf "%7d\t%7d\t%5d\t%5d\t%12d\t%17d\t%-30s\t%-30s\t%s\n",
+		@{$VOView{$_}}, $_;
+	}
+    }
+}
+
+my %svcmap = (
+    "cream"      => "org.glite.ce.CREAM",
+    "dli"        => "data-location-interface",
+    "dlilocal"   => "local-data-location-interface",
+    "fts"        => "org.glite.FileTransfer",
+    "gridice"    => "gridice",
+    "lb"         => "org.glite.lb.Server",
+    "lcg-ce"     => "org.edg.gatekeeper",
+    "lfc"        => "lcg-file-catalog",
+    "lfclocal"   => "lcg-local-file-catalog",
+    "vobox"      => "VOBOX",
+    "voms"       => "org.glite.voms",
+    "voms-admin" => "org.glite.voms-admin",
+    "wms"        => "org.glite.wms.WMProxy",
+);
+
+for (@selections) {
+    next unless exists $svcmap{$_};
+
+    my @services;
+    my %seen;
+
+    my $res = $ldap->search(base => "$base", filter =>
+	"(&(objectClass=GlueService)(GlueServiceType=$svcmap{$_})" .
+	"(|(GlueServiceAccessControlBaseRule=VO*:$vo)" .
+	"(GlueServiceAccessControlRule=$vo)))");
+
+    for my $svc ($res->entries) {
+	my $endp = $svc->get_value("GlueServiceEndpoint") or next;
+	push @services, $endp;
+    }
+
+    for (sort @services) {
+	print "$_\n" unless $seen{$_}++;
+    }
+}
+
+for (@selections) {
+    next unless exists $generic{$_};
+
+    my @services;
+    my %seen;
+    my $myproxy_trust = defined $trust && $_ eq "myproxy";
+    my $prefixa = '(MYPROXY:)?authorized_renewers';
+    my $prefixd = '(MYPROXY:)?default_renewers';
+
+    my $res = $ldap->search(base => "$base", filter =>
+	"(&(objectClass=GlueService)(GlueServiceType=$generic{$_}))");
+
+    for my $svc ($res->entries) {
+	my $endp = $svc->get_value("GlueServiceEndpoint") or next;
+
+	unless ($myproxy_trust) {
+	    push @services, $endp;
+	    next;
+	}
+
+	my $old_match = 0;
+	my $new_match = 0;
+	my $def_ok    = 0;
+	my $def_bad   = 0;
+	my @rule = (
+	    $svc->get_value("GlueServiceAccessControlBaseRule"),
+	    $svc->get_value("GlueServiceAccessControlRule")
+	);
+
+	for (@rule) {
+	    $old_match = 1, last if
+		m{^(/.*[=/]$trust(/|$)|/?\*$)};
+
+	    $new_match = 1, next if
+		m{^$prefixa *[ =](.*[=/]$trust(/|$)|/?\*$)};
+
+	    $def_ok    = 1, next if
+		m{^$prefixd *[ =](.*[=/]$trust(/|$)|/?\*$)};
+
+	    $def_bad   = 1, next if
+		m{^$prefixd *[ =]};
+	}
+
+	push @services, $endp if $old_match ||
+	    $new_match && ($def_ok || !$def_bad);
+    }
+
+    for (sort @services) {
+	print "$_\n" unless $seen{$_}++;
+    }
+}
+
+if ($selected{"sitenames"}) {
+    my @Sites;
+
+    my $res = $ldap->search(base => "$base", filter => "objectClass=GlueSite");
+
+    for my $site ($res->entries) {
+	my $name = $site->get_value("GlueSiteName") or next;
+	push @Sites, $name;
+    }
+
+    for (sort @Sites) {
+	print "$_\n";
+    }
+}
+
+if ($selected{"ce"}) {
+    getCEinfo();
+
+    if (!$v && !$selected{"closese"} && !$selected{"tag"}) {
+	printf "#   CPU\t   Free\tTotal Jobs\tRunning\tWaiting"
+	    . "\tComputingElement\n%s\n", '-' x 64;
+
+	for (sort keys %CE) {
+	    printf "%7d\t%7d\t%10d\t%7d\t%7d\t%s\n", @{$CE{$_}}, $_;
+	}
+    } elsif ($v == 1) {
+	for (sort keys %CE) {
+	    print "$_\n";
+	}
+    } elsif ($v == 2) {
+	my $fmt = "%8s\t%-26s\t%-16s\t%-44s\t%s\n";
+
+	printf "$fmt%s\n", "RAM", "Operating System", "System Version",
+	    "Processor", "Subcluster", '-' x 130;
+
+	for (sort keys %SubCluster) {
+	    printf $fmt, @{$SubCluster{$_}}, $_;
+	}
+    } elsif ($v == 3) {
+	my %output;
+	my $fmt = "%8s\t%-26s\t%-16s\t%-44s\t%s\n";
+
+	printf "$fmt%s\n", "RAM", "Operating System",
+	    "OS Release", "Processor", "CE", '-' x 130;
+
+	for my $sc (sort keys %SubCluster) {
+	    for my $ce (sort @{$SubCluster2CE{$sc}}) {
+		my $line = sprintf "%8d\t%-26s\t%-16s\t%-44s\t%s\n",
+		    @{$SubCluster{$sc}}, $ce;
+
+		push @{$output{$ce}}, $line;
+	    }
+	}
+
+	for my $ce (sort keys %output) {
+	    for (@{$output{$ce}}) {
+		print;
+	    }
+	}
+    }
+}
+
+if ($selected{"space"}) {
+    getSEinfo();
+
+    my %space_tag;
+    my %seen;
+
+    my $res = $ldap->search(base => "$base", filter =>
+	"(&(ObjectClass=GlueVOInfo)(GlueVOInfoAccessControlBaseRule=VO*:$vo))");
+
+    for my $voinfo ($res->entries) {
+	my ($se, $sa);
+
+	for ($voinfo->get_value("GlueChunkKey")) {
+	    if (/^GlueSEUniqueID=(.+)/i) {
+		$se = $1;
+	    } elsif (/^GlueSALocalID=(.+)/i) {
+		$sa = $1;
+	    }
+	}
+
+	next unless defined $se && defined $sa;
+	next unless exists $SE{$se};
+
+	push @{$space_tag{$se}{$sa}},
+	    $voinfo->get_value("GlueVOInfoTag") || "-";
+    }
+
+    my $fmt = "%8s %8s %8s %8s %8s %8s %-22s %s\n";
+
+    printf $fmt, "Free", "Used", "Reserved",
+	"Free", "Used", "Reserved", "Tag", "SE";
+    printf $fmt, "Online", "Online", "Online",
+	"Nearline", "Nearline", "Nearline", "", "";
+    printf "%s\n", '-' x 79;
+
+    for my $se (sort keys %Space) {
+	my $host = $se;
+	$host =~ s/!$//;
+
+	for my $sa (sort keys %{$Space{$se}}) {
+	    push @{$space_tag{$host}{$sa}}, "-"
+		unless exists $space_tag{$host}{$sa};
+
+	    for my $tag (sort @{$space_tag{$host}{$sa}}) {
+		if ($se =~ /!$/) {
+		    $tag = "[disjoint]" if $tag eq "-";
+		}
+
+		my $line = sprintf $fmt, @{$Space{$se}{$sa}}, $tag, $host;
+		printf $line unless $seen{$line}++;
+	    }
+	}
+    }
+}
+
+if ($selected{"se"}) {
+    getSEinfo();
+
+    if ($v == 1) {
+	for (sort keys %SE) {
+	    print "$_\n";
+	}
+    } else {
+	printf "%16s%16s  %-5s\t%s\n%s\n", "Avail Space(kB)",
+	    "Used Space(kB)", "Type", "SE", '-' x 42;
+
+	for my $se (sort keys %SA) {
+	    my $host = $se;
+	    $host =~ s/!$//;
+	    my %seen;
+
+	    for my $sa (sort keys %{$SA{$se}}) {
+		my $line = sprintf "%16s%16s  %-5s\t%s\n",
+		    @{$SA{$se}{$sa}}, $host;
+		print $line unless $seen{$line}++;
+	    }
+	}
+    }
+}
+
+exit 0;
+
+sub getCEinfo()
+{
+    return if %CE;
+
+    my $ce_details = !$v && !$selected{"closese"} && !$selected{"tag"};
+    my $na = 'n.a';
+    my %cluster2ce;
+    my $sc_details = $v >= 2 && $selected{"ce"} || $selected{"tag"};
+
+    my $res = $ldap->search(base => "$base", filter =>
+	"(&(ObjectClass=GlueCE)(GlueCEAccessControlBaseRule=VO*:$vo))");
+
+    for my $ce ($res->entries) {
+	my $id = $ce->get_value("GlueCEUniqueID");
+
+	next unless $id;
+
+	if ($sc_details) {
+	    my $cl = $ce->get_value("GlueForeignKey") || $na;
+	    $cl =~ s/.*=//;
+	    $cl =~ tr/A-Z/a-z/;
+	    push @{$cluster2ce{$cl}}, $id;
+	    $Cluster{$id} = $cl if $selected{"tag"};
+	}
+
+	unless ($ce_details) {
+	    $CE{$id} = ();
+	    next;
+	}
+
+	my $tcpu = $ce->get_value("GlueCEInfoTotalCPUs")    || 0;
+	my $fcpu = $ce->get_value("GlueCEStateFreeCPUs")    || 0;
+	my $tjob = $ce->get_value("GlueCEStateTotalJobs")   || 0;
+	my $rjob = $ce->get_value("GlueCEStateRunningJobs") || 0;
+	my $wjob = $ce->get_value("GlueCEStateWaitingJobs") || 0;
+
+	$CE{$id} = [$tcpu, $fcpu, $tjob, $rjob, $wjob];
+    }
+
+    return unless $sc_details;
+
+    $res = $ldap->search(base => "$base", filter =>
+	"(ObjectClass=GlueSubCluster)");
+
+    for my $sc ($res->entries) {
+	my $id = $sc->get_value("GlueSubClusterUniqueID");
+	my $cl = $sc->get_value("GlueChunkKey");
+
+	next unless $id && $cl;
+
+	$cl =~ s/.*=//;
+	$cl =~ tr/A-Z/a-z/;
+
+	next unless exists $cluster2ce{$cl};
+
+	if ($v >= 2 && $selected{"ce"}) {
+	    my $ram = $sc->get_value("GlueHostMainMemoryRAMSize")      || 0;
+	    my $osn = $sc->get_value("GlueHostOperatingSystemName")    || $na;
+	    my $osv = $v == 3 ?
+		      $sc->get_value("GlueHostOperatingSystemRelease") || $na :
+		      $sc->get_value("GlueHostOperatingSystemVersion") || $na;
+	    my $cpu = $sc->get_value("GlueHostProcessorModel")         || $na;
+
+	    $cpu =~ s/\s+/ /g;
+
+	    $SubCluster{$id} = [$ram, $osn, $osv, $cpu];
+	    $SubCluster2CE{$id} = [@{$cluster2ce{$cl}}];
+	}
+
+	if ($selected{"tag"}) {
+	    $cl =~ s/.*=//;
+	    $cl =~ tr/A-Z/a-z/;
+	    push @{$Members{$cl}}, $id;
+	    $Tags{$id} = [$sc->get_value(
+		"GlueHostApplicationSoftwareRunTimeEnvironment")];
+	}
+    }
+}
+
+sub getSEinfo()
+{
+    return if %SE;
+
+    my $na = 'n.a';
+    my $n  = '000';
+    my $x;
+    my %Types;
+    my $details = $selected{"space"} || $selected{"se"} && $v != 1;
+
+    if ($selected{"se"} && $v != 1) {
+	my $res = $ldap->search(base => "$base", filter =>
+	    "(|(&(ObjectClass=GlueSEAccessProtocol)"  .
+		"(|(GlueSEAccessProtocolType=gsiftp)" .
+		"(GlueSEAccessProtocolType=xroot*)))" .
+	    "(&(ObjectClass=GlueSEControlProtocol)"   .
+		"(|(GlueSEControlProtocolType=SRM*)"  .
+		"(GlueSEControlProtocolType=xroot*))))",
+	    attrs => ['GlueChunkKey',
+		'GlueSEAccessProtocolType',
+		'GlueSEControlProtocolType']);
+
+	for my $p ($res->entries) {
+	    my $se = $p->get_value("GlueChunkKey") or next;
+	    my $tp = $p->get_value("GlueSEAccessProtocolType")  ||
+		     $p->get_value("GlueSEControlProtocolType") || "";
+
+	    $se =~ s/.*=//;
+	    $Types{$se} = '-' unless exists $Types{$se};
+
+	    if ($tp =~ /^gsiftp/i) {
+		$Types{$se} = 'gftp' if $Types{$se} eq '-';
+	    } elsif ($tp =~ /^SRM/i) {
+		$Types{$se} = 'SRM';
+	    } elsif ($tp =~ /^xroot/i) {
+		$Types{$se} = 'xroot' unless $Types{$se} eq 'SRM';
+	    }
+	}
+    }
+
+    my $res = $ldap->search(base => "$base", filter =>
+	"(&(ObjectClass=GlueSA)(|(GlueSAAccessControlBaseRule=VO*:$vo)" .
+	"(GlueSAAccessControlBaseRule=$vo)))");
+
+    for my $sa ($res->entries) {
+	my $host;
+	my $se = $sa->get_value("GlueChunkKey");
+
+	if ($se) {
+	    $se   =~ s/.*=//;
+	    $host = $se;
+	    $x    = '';
+	} else {
+
+	    #
+	    # dCache appears to publish GlueSA objects without ChunkKeys
+	    # for offline disks or tapes...
+	    #
+
+	    $se = $sa->dn;
+
+	    if ($se =~ s/.+,\s*GlueSEUniqueID\s*=\s*([^\s,]+)\s*,.+/$1!/i) {
+		($host = $se) =~ s/!$//;
+		$x = '';
+	    } else {
+		$host = $se = '-!';
+		$x = ++$n;
+	    }
+	}
+
+	$SE{$host} = 1;
+
+	next unless $details;
+
+	my $id = $sa->get_value("GlueSALocalID") || $na;
+	$id .= " $x" if $x;
+
+	if ($selected{"se"} && $v != 1) {
+	    my $av = $sa->get_value("GlueSAStateAvailableSpace")  || $na;
+	    my $us = $sa->get_value("GlueSAStateUsedSpace")       || $na;
+	    my $tp = $Types{$host} || '-';
+
+	    $SA{$host}{$id} = [$av, $us, $tp];
+	}
+
+	if ($selected{"space"}) {
+	    my $fo = $sa->get_value("GlueSAFreeOnlineSize")       || 0;
+	    my $uo = $sa->get_value("GlueSAUsedOnlineSize")       || 0;
+	    my $ro = $sa->get_value("GlueSAReservedOnlineSize")   || 0;
+	    my $fn = $sa->get_value("GlueSAFreeNearlineSize")     || 0;
+	    my $un = $sa->get_value("GlueSAUsedNearlineSize")     || 0;
+	    my $rn = $sa->get_value("GlueSAReservedNearlineSize") || 0;
+
+	    $Space{$se}{$id} = [$fo, $uo, $ro, $fn, $un, $rn];
+	}
+    }
+}
