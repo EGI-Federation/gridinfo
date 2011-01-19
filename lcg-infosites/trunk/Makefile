@@ -35,8 +35,9 @@ compile: prepare
 install: compile
 	@echo installing ...
 	@mkdir -p $(prefix)/bin/
-	@mkdir -p $(prefix)/var/gip/plugin/
-	@install -m 0755 src/lcg-infosites $(prefix)/bin/lcg-infosites
+	@mkdir -p $(prefix)/man/man1
+	@install -m 0755 src/lcg-infosites   $(prefix)/bin/lcg-infosites
+	@install -m 0644 man/lcg-infosites.1 $(prefix)/man/man1/lcg-infosites.1
 
 ####################################################################
 # Documentation

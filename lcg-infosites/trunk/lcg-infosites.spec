@@ -1,8 +1,8 @@
 Summary: lcg-infosites
 Name: lcg-infosites
-Version: 2.6.9
+Version: 3.0.0
 Vendor: LCG/CERN
-Release: 1
+Release: 3
 License: LCG
 Group: LCG
 Source: %{name}.src.tgz
@@ -27,6 +27,7 @@ make install prefix=%{buildroot}%{prefix}
 %files
 %defattr(-,root,root)
 %{prefix}/bin/lcg-infosites
+%{prefix}/man/man1/lcg-infosites.1
 
 %clean
 rm -rf %{buildroot}
