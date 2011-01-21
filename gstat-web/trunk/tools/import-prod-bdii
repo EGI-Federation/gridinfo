@@ -8,6 +8,10 @@ import xml.dom.minidom
 import logging
 import time
 from datetime import datetime
+try:
+    from xml.etree import ElementTree
+except ImportError:
+    from elementtree import ElementTree
 
 DIR = os.path.dirname(__file__)
 APPS_DIR = os.path.join(DIR, '..','apps')
@@ -63,6 +67,47 @@ for line in response:
         if created:
             s.save()
 
+# Get the list of top-level BDIIs from GOCDB
+GOCDBPI_URL="https://goc.gridops.org/gocdbpi/public/?method=get_service_endpoint&service_type=Top-BDII"
+
+hostname_list = []
+hostname_mapping = {}
+
+try:
+    url = GOCDBPI_URL
+    response = urllib2.urlopen(url).read()
+    
+    root = ElementTree.XML(response)
+    for service in root.findall("SERVICE_ENDPOINT"):
+        sitename = ""
+        hostname = ""
+        service_type = ""
+        in_production = ""
+        node_monitored = ""
+        for element in service.getchildren():
+            if element.tag == 'SITENAME':
+                sitename = element.text
+            if element.tag == 'HOSTNAME':
+                hostname = element.text
+            if element.tag == 'SERVICE_TYPE':
+                service_type = element.text
+            if element.tag == 'IN_PRODUCTION':
+                in_production = element.text
+            if element.tag == 'NODE_MONITORED':
+                node_monitored = element.text
+        if service_type == "Top-BDII" and in_production == "Y" and node_monitored == "Y":
+            hostname_list.append(hostname)
+            hostname_mapping[hostname]= [sitename]
+            log.info('site=%s, top_bdii=%s' % (sitename, hostname))    
+except Exception, e:
+    sys.stderr.write("Error: %s\n%s\n" % (url,e))
+
+
+""" 
+
+    Fetching top-level BDIIs from the LCG_GFAL_INFOSYS variables set in worknodes.
+    This function has been deprecated!
+    
 SAM_URL="http://lcg-sam.cern.ch:8080/same-pi/"
 
 hostname_list = {}
@@ -101,9 +146,9 @@ for site in sites:
                             except KeyError:
                                 hostname_list[hostname] = [ce]
                                 hostname_mapping[hostname]= [site]
+"""
 
-
-for hostname in hostname_list.keys():
+for hostname in hostname_list:
     # save top-level bdii
     value = "ldap://%s:2170/Mds-Vo-name=local,o=grid" %(hostname)
     (service_obj, created) = Entity.objects.get_or_create(uniqueid=value, type='bdii_top', hostname=hostname)
