@@ -338,7 +338,7 @@ if __name__ == "__main__":
 
    #Get WLCG Tiers
    tier_file = "/var/lib/gstat/wlcg-tier"
-   URL = 'http://gstat-wlcg.cern.ch/apps/topology/tier/all/json'
+   URL = 'http://gstat-wlcg.cern.ch/apps/topology/all/json'
    if ( os.path.exists(tier_file) ):
       last_mod_time = os.stat(tier_file)[8]
    else:
