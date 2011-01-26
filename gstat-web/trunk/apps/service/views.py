@@ -10,7 +10,7 @@ import socket
 import sys
 
 @cache_page(60 * 10)
-def main(request, type='', output=None):
+def main(request, type='bdii_top', output=None):
     services = {'bdii_top':  'Top BDII',
                 'bdii_site': 'Site BDII'}
 
