@@ -40,7 +40,7 @@
         $('#tabs_container').tabs();
         PageReload(300000);
         
-        $("img[title]").tooltip({offset: [10, 2], effect: 'slide', tipClass: 'tooltip_thin'}).dynamic({ bottom: { direction: 'down', bounce: true } });
+        //$("img[title]").tooltip({offset: [10, 2], effect: 'slide', tipClass: 'tooltip_thin'}).dynamic({ bottom: { direction: 'down', bounce: true } });
         $(".title[title]").tooltip({events: {def: 'click, mouseleave'},offset: [10, 2], effect: 'slide', tipClass: 'tooltip_thin'});
     });  
 </script>
@@ -127,7 +127,7 @@
             <td>
               <a href="/gstat/site/{{ site_name }}/treeview/bdii_top/{{ status.alias }}">{{ status.alias }}</a>
               <a href="/gstat/site/{{ site_name }}/treeview/bdii_top/{{ status.alias }}">
-                  <img border=0 src="/media/core/css/img/moredetails.png" title="Click me to see more details on monitoring and validation results!" style="margin-right: 8px;" />
+                  <img border=0 src="/media/core/css/img/moredetails.png" title="Click me to see more details on monitoring and validation results!" style="margin: 0px 8px;" />
               </a>
               
               <a href="/gstat/ldap#ldap://{{ status.alias }}:2170/"> <img border=0 src="/media/core/css/img/ldap.png" title="Go to LDAP Browser for querying to this Top BDII."/> </a>
@@ -167,7 +167,7 @@
             <td>
               <a href="/gstat/site/{{ site_name }}/treeview/bdii_site/{{ status.alias }}">{{ status.alias }}</a>
               <a href="/gstat/site/{{ site_name }}/treeview/bdii_site/{{ status.alias }}">
-                  <img border=0 src="/media/core/css/img/moredetails.png" title="Click me to see more details on monitoring and validation results!" style="margin-right: 8px;" />
+                  <img border=0 src="/media/core/css/img/moredetails.png" title="Click me to see more details on monitoring and validation results!" style="margin: 0px 8px;" />
               </a>
               <a href="/gstat/ldap#ldap://{{ status.alias }}:2170/o=grid"> <img border=0 src="/media/core/css/img/ldap.png" title="Go to LDAP Browser for querying to this Site BDII."/> </a>
             </td> 
@@ -292,7 +292,7 @@
                 if (r != 'N/A') {
                   $('#cpu').append(
                     $('<div></div>').attr({'style':'position:relative;z-index:2;left:-150px;'}).append(
-                      $('<img></img>').attr({'src':'/media/core/css/img/clickme.png', 'border':'0', 'title':'Click on the image to see more details!'})
+                      $('<img></img>').attr({'src':'/media/core/css/img/clickme.png', 'border':'0'})
                     )
                   );
                   $('#cpu').append(
@@ -314,7 +314,7 @@
                 if (r != 'N/A') {
                   $('#online').append(
                     $('<div></div>').attr({'style':'position:relative;z-index:2;left:-150px;'}).append(
-                      $('<img></img>').attr({'src':'/media/core/css/img/clickme.png', 'border':'0', 'title':'Click on the image to see more details!'})
+                      $('<img></img>').attr({'src':'/media/core/css/img/clickme.png', 'border':'0'})
                     )
                   );
                   $('#online').append(
@@ -336,7 +336,7 @@
                 if (r != 'N/A') {
                   $('#nearline').append(
                     $('<div></div>').attr({'style':'position:relative;z-index:2;left:-150px;'}).append(
-                      $('<img></img>').attr({'src':'/media/core/css/img/clickme.png', 'border':'0', 'title':'Click on the image to see more details!'})
+                      $('<img></img>').attr({'src':'/media/core/css/img/clickme.png', 'border':'0'})
                     )
                   );
                   $('#nearline').append(
@@ -409,7 +409,7 @@
 	          <td colspan="3" style="text-align: center;">
 		          <div style="position:relative;z-index:2;left:-150px;">
 		            {% if vo.totaljobs or vo.totaljobs == 0%}
-	                <img border=0 src="/media/core/css/img/clickme.png" title="Click on the image to see more details!" />
+	                <img border=0 src="/media/core/css/img/clickme.png" />
 	                {% endif %}
 		          </div>
 		          <div style="position:relative;z-index:1;top:-10px;">
@@ -422,7 +422,7 @@
 	          <td colspan="2" style="text-align: center;">
 		          <div style="position:relative;z-index:2;left:-150px;">
 		            {% if vo.totalonlinesize or vo.totalonlinesize == 0%}
-	                <img border=0 src="/media/core/css/img/clickme.png" title="Click on the image to see more details!" />
+	                <img border=0 src="/media/core/css/img/clickme.png" />
                     {% endif %}
 		          </div>
 		          <div style="position:relative;z-index:1;top:-10px;">
@@ -435,7 +435,7 @@
 	          <td colspan="2" style="text-align: center;">
 		          <div style="position:relative;z-index:2;left:-150px;">
 		            {% if vo.totalnearlinesize or vo.totalnearlinesize == 0%}
-	                <img border=0 src="/media/core/css/img/clickme.png" title="Click on the image to see more details!" />
+	                <img border=0 src="/media/core/css/img/clickme.png" />
                     {% endif %}
 		          </div>
 		          <div style="position:relative;z-index:1;top:-10px;">
