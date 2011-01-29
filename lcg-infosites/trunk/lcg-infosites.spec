@@ -1,6 +1,6 @@
 Summary: lcg-infosites
 Name: lcg-infosites
-Version: 3.0.0
+Version: 3.0.1
 Vendor: LCG/CERN
 Release: 3
 License: LCG

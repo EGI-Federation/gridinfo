@@ -1,4 +1,4 @@
-.TH LCG-INFOSITES "1" "Jan 2011" "lcg-infosites 3.0.0" "User Commands"
+.TH LCG-INFOSITES "1" "Jan 2011" "lcg-infosites 3.0.1" "User Commands"
 .SH NAME
 lcg-infosites \- list grid service information matching given criteria
 .SH SYNOPSIS
@@ -26,7 +26,7 @@ will be tried.
 For the '\fBmyproxy\fR' selection only list MyProxy servers that trust
 the given host for renewing proxies.
 .TP
-\fB\-v\fR {\fI1\fR | \fI2\fR | \fI3\fR}
+\fB\-v\fR {\fI1\fR | \fI2\fR | \fI3\fR | \fI4\fR}
 Change the output verbosity for certain selections (see below).
 .TP
 \fB\-V | \-\-version\fR
@@ -38,6 +38,9 @@ name.  By default the VO is determined from the user's VOMS proxy, even if
 it has expired.  The wildcard character '*' can be used to list service
 information pertaining to multiple VOs or VOMS attributes.
 .SH SELECTIONS
+.PP
+For any listings of service endpoints the corresponding site names are
+added when the '\fB-v\fR' option is supplied with argument '\fB4\fR'.
 .TP
 \fBall\fR
 Equivalent to selecting '\fBce\fR' and '\fBse\fR'.
@@ -65,6 +68,9 @@ and release, and processor type.  A CE will appear multiple times if it
 is associated with multiple SubClusters.  Note: the WMS currently cannot
 submit jobs to such a CE, unless \fIall\fR its SubClusters match the job
 requirements.
+.sp
+If the '\fB\-v\fR' option is supplied with argument '\fB4\fR', list the
+matching CE endpoints along with the corresponding site names.
 .TP
 \fBcloseSE\fR
 For each matching CE list the matching close SEs.  Close SEs that
@@ -112,6 +118,9 @@ information about SRM spaces.
 .sp
 If the '\fB\-v\fR' option is supplied with argument '\fB1\fR', list the
 matching SE endpoints.
+.sp
+If the '\fB\-v\fR' option is supplied with argument '\fB4\fR' (sic), list
+the matching SE endpoints along with the corresponding site names.
 .TP
 \fBsitenames\fR
 List the sites.

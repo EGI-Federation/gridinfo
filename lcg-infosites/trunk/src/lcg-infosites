@@ -3,7 +3,7 @@
 # versions <= 2.6.9 by Patricia Mendez Lorenzo
 # versions >= 3.0.0 by Maarten Litmaath
 
-my $version = '3.0.0';
+my $version = '3.0.1';
 
 use Net::LDAP;
 use Net::LDAP::Entry;
@@ -269,6 +269,7 @@ for (@selections) {
 
     my @services;
     my %seen;
+    my %site;
 
     my $res = $ldap->search(base => "$base", filter =>
 	"(&(objectClass=GlueService)(GlueServiceType=$svcmap{$_})" .
@@ -278,10 +279,38 @@ for (@selections) {
     for my $svc ($res->entries) {
 	my $endp = $svc->get_value("GlueServiceEndpoint") or next;
 	push @services, $endp;
+
+	if ($v == 4) {
+	    my $fk = $svc->get_value("GlueForeignKey") || '-';
+
+	    if ($fk =~ /^GlueSiteUniqueID=(.+)/) {
+		$site{$endp} = $1;
+	    } else {
+		my $dn = $svc->dn;
+		my $s1 = 'GlueServiceUniqueID';
+		my $s2 = 'Mds-Vo-name';
+
+		if ($dn =~ /^$s1\s*=\s*[^\s,]+\s*,\s*$s2\s*=\s*([^\s,]+)/i) {
+		    $site{$endp} = $1;
+		}
+	    }
+	}
+    }
+
+    my $fmt = "%-75s %s\n";
+
+    if ($v == 4) {
+	printf "$fmt%s\n", 'Service', 'Site', ('-' x 80);
     }
 
     for (sort @services) {
-	print "$_\n" unless $seen{$_}++;
+	next if $seen{$_}++;
+
+	if ($v == 4) {
+	    printf $fmt, $_, $site{$_};
+	} else {
+	    print "$_\n";
+	}
     }
 }
 
@@ -290,6 +319,7 @@ for (@selections) {
 
     my @services;
     my %seen;
+    my %site;
     my $myproxy_trust = defined $trust && $_ eq "myproxy";
     my $prefixa = '(MYPROXY:)?authorized_renewers';
     my $prefixd = '(MYPROXY:)?default_renewers';
@@ -299,6 +329,22 @@ for (@selections) {
 
     for my $svc ($res->entries) {
 	my $endp = $svc->get_value("GlueServiceEndpoint") or next;
+
+	if ($v == 4) {
+	    my $fk = $svc->get_value("GlueForeignKey") || '-';
+
+	    if ($fk =~ /^GlueSiteUniqueID=(.+)/) {
+		$site{$endp} = $1;
+	    } else {
+		my $dn = $svc->dn;
+		my $s1 = 'GlueServiceUniqueID';
+		my $s2 = 'Mds-Vo-name';
+
+		if ($dn =~ /^$s1\s*=\s*[^\s,]+\s*,\s*$s2\s*=\s*([^\s,]+)/i) {
+		    $site{$endp} = $1;
+		}
+	    }
+	}
 
 	unless ($myproxy_trust) {
 	    push @services, $endp;
@@ -332,8 +378,20 @@ for (@selections) {
 	    $new_match && ($def_ok || !$def_bad);
     }
 
+    my $fmt = "%-75s %s\n";
+
+    if ($v == 4) {
+	printf "$fmt%s\n", 'Service', 'Site', ('-' x 80);
+    }
+
     for (sort @services) {
-	print "$_\n" unless $seen{$_}++;
+	next if $seen{$_}++;
+
+	if ($v == 4) {
+	    printf $fmt, $_, $site{$_};
+	} else {
+	    print "$_\n";
+	}
     }
 }
 
@@ -395,6 +453,27 @@ if ($selected{"ce"}) {
 	    for (@{$output{$ce}}) {
 		print;
 	    }
+	}
+    } elsif ($v == 4) {
+	my %site;
+	my $res = $ldap->search(base => "$base", filter =>
+	    "(ObjectClass=GlueCluster)");
+
+	for my $cl ($res->entries) {
+	    my $id = $cl->get_value("GlueClusterUniqueID") or next;
+	    $id =~ tr/A-Z/a-z/;
+
+	    for ($cl->get_value("GlueForeignKey")) {
+		$site{$id} = $1, last if /^GlueSiteUniqueID=(.+)/;
+	    }
+	}
+
+	my $fmt = "%-70s %s\n";
+	printf "$fmt%s\n", 'CE', 'Site', ('-' x 75);
+
+	for (sort keys %CE) {
+	    my $cl = $Cluster{$_};
+	    printf $fmt, $_, exists $site{$cl} ? $site{$cl} : '-';
 	}
     }
 }
@@ -461,6 +540,37 @@ if ($selected{"se"}) {
 	for (sort keys %SE) {
 	    print "$_\n";
 	}
+    } elsif ($v == 4) {
+	my %site;
+	my $res = $ldap->search(base => "$base", filter =>
+	    "(ObjectClass=GlueSE)");
+
+	for my $se ($res->entries) {
+	    my $id = $se->get_value("GlueSEUniqueID") or next;
+
+	    next unless exists $SE{$id};
+
+	    my $fk = $se->get_value("GlueForeignKey");
+
+	    if (defined $fk && $fk =~ /^GlueSiteUniqueID=(.+)/i) {
+		$site{$id} = $1;
+	    } else {
+		my $dn = $se->dn;
+		my $s1 = 'GlueSEUniqueID';
+		my $s2 = 'Mds-Vo-name';
+
+		if ($dn =~ /^$s1\s*=\s*$id\s*,\s*$s2\s*=\s*([^\s,]+)/i) {
+		    $site{$id} = $1;
+		}
+	    }
+	}
+
+	my $fmt = "%-50s %s\n";
+	printf "$fmt%s\n", 'SE', 'Site', ('-' x 55);
+
+	for (sort keys %SE) {
+	    printf $fmt, $_, exists $site{$_} ? $site{$_} : '-';
+	}
     } else {
 	printf "%16s%16s  %-5s\t%s\n%s\n", "Avail Space(kB)",
 	    "Used Space(kB)", "Type", "SE", '-' x 42;
@@ -503,7 +613,7 @@ sub getCEinfo()
 	    $cl =~ s/.*=//;
 	    $cl =~ tr/A-Z/a-z/;
 	    push @{$cluster2ce{$cl}}, $id;
-	    $Cluster{$id} = $cl if $selected{"tag"};
+	    $Cluster{$id} = $cl if $selected{"tag"} || $v == 4;
 	}
 
 	unless ($ce_details) {
