@@ -73,6 +73,14 @@ if [ -e /opt/glite/var/tmp/gip ]; then
     chown -R ldap:ldap /opt/glite/var/tmp/gip 
 fi
 
+if [ -f /etc/init.d/ldap2.4 ]; then
+    /sbin/chkconfig --del ldap2.4
+fi
+
+if [ -f /etc/cron.daily/ldap-hot-db-backup2.4 ]; then
+    rm -f /etc/cron.daily/ldap-hot-db-backup2.4
+fi
+
 /sbin/chkconfig --add bdii
 if [ $? -ne 0 ]; then
   return $?
