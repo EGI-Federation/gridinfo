@@ -3,8 +3,8 @@
 import logging
 import unittest
 import sys
-import glue2
 import glue2.utils
+import glue2.EntryTest
 
 if __name__ == "__main__":
     config = glue2.utils.parse_options()
@@ -18,7 +18,7 @@ if __name__ == "__main__":
     if config.has_key('file'):
       source = "file://%s" % (config['file'])
     if config.has_key('host'):
-      source = "ldap://%s:%s/%s?filter=%s" % (config['host'], config['port'], config['bind'], filter)
+      source = "ldap://%s:%s/%s" % (config['host'], config['port'], config['bind'])
 
     ldif = glue2.utils.fast_read_ldif(source)
     dns_dict = glue2.utils.get_dns(ldif)
@@ -26,15 +26,11 @@ if __name__ == "__main__":
     for dn in dns_dict:
       entry = ldif[dns_dict[dn][0]:dns_dict[dn][1]].strip()
       entry = glue2.utils.convert_entry(entry)
-      for object_class in entry['objectClass']:
-          object_class = object_class[5:]
-          if object_class in glue2.OBJECTS:
-              print object_class
-              module = sys.modules['glue2.%sTest' %(object_class,)]
-              inst = getattr(module, '%sTest' %(object_class,))
-              test_names = unittest.TestLoader().getTestCaseNames(inst)
-              for test_name in test_names:
-                  suite.addTest(inst(test_name, entry))
+      module = sys.modules['glue2.EntryTest']
+      inst = getattr(module, 'EntryTest')
+      test_names = unittest.TestLoader().getTestCaseNames(glue2.EntryTest.EntryTest)
+      for test_name in test_names:
+          suite.addTest(inst(test_name, entry))
     unittest.TextTestRunner(verbosity=2).run(suite)
 
             

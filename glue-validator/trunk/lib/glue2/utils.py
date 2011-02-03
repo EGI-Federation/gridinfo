@@ -21,7 +21,7 @@ def parse_options():
         usage()
         sys.exit(2)
     for o, a in opts:
-        if o in ("-H", "--host"):
+        if o in ("-h", "--host"):
             config['host'] = a
         if o in ("-p", "--port"):
             config['port'] = a
@@ -59,7 +59,7 @@ def usage():
     sys.stderr.write('''
 
 Server Mode: Obtains LDIF from an OpenLDAP server.
- -g --host      Hostname of the LDAP server.
+ -h --host      Hostname of the LDAP server.
  -p --port      Port for the LDAP server.
  -b --bind      The bind point for the LDAP server. 
 
@@ -97,7 +97,6 @@ def fast_read_ldif(source):
     pid = os.fork()
 
     if pid:
-        
         # Close write file descriptor as we don't need it.
         os.close(write_fd)
      
@@ -111,7 +110,6 @@ def fast_read_ldif(source):
         return raw_ldif
 
     else:
-        
         # Close read file d
         os.close(read_fd)
         
@@ -127,8 +125,8 @@ def fast_read_ldif(source):
             url = source.split('/')
             host = url[2].split(':')[0]
             port = url[2].split(':')[1]
-            filter = url[3].replace("?filter=", " ")
-            command = "ldapsearch -LLL -x -h %s -p %s -b %s 2>/dev/null" % (host, port, filter)
+            bind = url[3]
+            command = "ldapsearch -LLL -x -h %s -p %s -b %s 2>/dev/null" % (host, port, bind)
             pipe = os.popen(command)
 
         elif(source[:7] == 'file://'):
