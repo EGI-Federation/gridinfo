@@ -1,9 +1,9 @@
 Summary: lcg-infosites
 Name: lcg-infosites
 Version: 3.0.1
-Vendor: LCG/CERN
-Release: 3
-License: LCG
+Vendor: EGEE
+Release: 2
+License: ASL 2.0
 Group: LCG
 Source: %{name}.src.tgz
 BuildArch: noarch
