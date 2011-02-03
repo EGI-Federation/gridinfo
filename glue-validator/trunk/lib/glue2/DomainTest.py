@@ -1,37 +1,16 @@
 #!/usr/bin/python
 
 import unittest
-import EntityTest
+import glue2.EntryTest
+EntryTest = glue2.EntryTest.EntryTest
 
-class DomainTest(EntityTest.EntityTest):
-
-    def __init__(self, test_name, entry):
-        EntityTest.EntityTest.__init__(self, test_name, entry)
-
-        self.SINGLE_VALUED_ATTRIBUTES.extend([ 
-                'GLUE2DomainId',
-                'GLUE2DomainDescription',
-                ])
-
-        self.MANDATORY_ATTRIBUTES.extend([
-                'GLUE2DomainId',
-                ])
-
-        self.DATA_TYPES.update({
-        'GLUE2DomainId' : 'uri', 
-        'GLUE2DomainDescription' : 'string',
-        'GLUE2DomainWWW' : 'url',
-        })
-
-if __name__ == '__main__':
-
-    class DomainTestTest(unittest.TestCase):
+class DomainTest(unittest.TestCase):
         
         def setUp(self):
             self.good_entry = {
                 'dn' : ['GLUE2DomainId=mysite.com,o=GLUE'],
                 'objectClass' : ['GLUE2Domain', 'GLUE2AdminDomain'], 
-                'GLUE2DomainId' : ['site://mysite.com'],
+                'GLUE2DomainID' : ['site://mysite.com'],
                 'GLUE2DomainDescription' : ['Example Grid Site'],
                 'GLUE2DomainWWW' : ['http://mysite.com'],
                 }
@@ -40,11 +19,13 @@ if __name__ == '__main__':
             '''Test a good entry.'''
             entry = self.good_entry
             suite = unittest.TestSuite()
-            test_names = unittest.TestLoader().getTestCaseNames(DomainTest)
+            test_names = unittest.TestLoader().getTestCaseNames(EntryTest)
             for test_name in test_names:
-                suite.addTest(DomainTest(test_name, entry))
+                suite.addTest(EntryTest(test_name, entry))
             self.assertTrue(unittest.TextTestRunner().run(suite).wasSuccessful())
 
-    suite = unittest.TestLoader().loadTestsFromTestCase(DomainTestTest)
+if __name__ == '__main__':
+
+    suite = unittest.TestLoader().loadTestsFromTestCase(DomainTest)
     unittest.TextTestRunner(verbosity=2).run(suite)
 

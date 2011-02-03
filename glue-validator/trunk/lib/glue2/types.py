@@ -1,4 +1,5 @@
 #!/usr/bin/python
+import re
 import glue2.data
 
 def is_DN(value):
@@ -10,13 +11,13 @@ def is_ObjectClass(value):
       return True
    else:
       return False
-def is_string( value):
+def is_String( value):
    if value == '':
       return False
    else:
       return True
 
-def is_extended_boolean_t( value):
+def is_ExtendedBoolean_t( value):
    value = value.lower()
    if value in ['false', 'true', 'undefined']:
       return True
@@ -37,7 +38,7 @@ def is_URI( value):
       else:
          return False
 
-def is_url( value):
+def is_URL( value):
    # RFC 1738: http://www.ietf.org/rfc/rfc1738.txt
    # Protocols accepted: http|ftp|https|ftps|sftp
    # Protocols rejected on purpose: gopher|news|nntp|telnet|mailto|file|etc.
