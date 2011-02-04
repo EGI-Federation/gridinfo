@@ -126,7 +126,7 @@ def get_osg_urls():
 
 def get_egi_urls():
 
-    egi_goc_url = "http://goc.gridops.org/gocdbpi/public/?method=get_site_list&certification_status=Certified&production_status=Production"
+    egi_goc_url = "http://goc.egi.eu/gocdbpi/public/?method=get_site_list&certification_status=Certified&production_status=Production"
 
     try:
         response = urllib2.urlopen(egi_goc_url).read()
