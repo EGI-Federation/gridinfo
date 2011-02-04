@@ -48,7 +48,7 @@ def is_URL( value):
    else:
       return 0
    
-def is_real_32( value):
+def is_Real_32( value):
    # IEE 754-2008: http://en.wikipedia.org/wiki/IEEE_754-2008
    # I just check it is a floating point number
    floatingpoint = "[0-9]+(.[0-9]+)*"
@@ -57,28 +57,28 @@ def is_real_32( value):
    else:
       return False
 
-def is_contact_type( value):
+def is_ContactType_t( value):
    value = value.lower()
    if value in ['general', 'security', 'sysadmin', 'usersupport']:
       return True
    else:
       return False
 
-def is_u_int_64( value):
+def is_U_int_64( value):
    # Check http://en.wikipedia.org/wiki/Integer_(computer_science)
    if re.match("^[0-9]+$", value):
       if long(value) <= 18446744073709551615L:
          return True
       return False
 
-def is_datetime_t( value):
+def is_DateTime_t( value):
    # Check http://www.w3.org/TR/xmlschema-2/#dateTime
    dateTime = "^-?[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1])T([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z?$"
    if re.match(dateTime, value):
       return True
    return False
 
-def is_email( email):
+def is_Email_t( email):
    if len(email) > 7:
       if re.match("mailto:[ ]*.+\\@(\\[?)[a-zA-Z0-9\\-\\.]+\\.([a-zA-Z]{2,3}|[0-9]{1,3})(\\]?)$", email) != None:
          return True
