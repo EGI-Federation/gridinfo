@@ -208,7 +208,7 @@ gsutils.get_site(dn))
                my_errors.log(gsutils.get_unique_id(dn),'service.attribute.missing', 'The GlueService entry is missing the attribute, %s' %(attribute), gsutils.get_site(dn))
 
           
-   url = "https://goc.gridops.org/gocdbpi/public/?method=get_service_endpoint&sitename="
+   url = "https://goc.egi.eu/gocdbpi/public/?method=get_service_endpoint&sitename="
    goc_services = {}
    goc_not_production = {}
    goc_not_monitored = {}

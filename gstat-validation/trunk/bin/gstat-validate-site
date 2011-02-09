@@ -361,7 +361,7 @@ if __name__ == "__main__":
 
    # Get NGI list
    NGI_file = "/var/lib/gstat/NGI.xml"
-   URL = "https://next.gocdb.eu/gocdbpi/public/?method=get_roc_list&roc=NGI_%"
+   URL = "https://goc.egi.eu/gocdbpi/public/?method=get_roc_list&roc=NGI_%"
    if ( os.path.exists(NGI_file) ):
       last_mod_time = os.stat(NGI_file)[8]
    else:
