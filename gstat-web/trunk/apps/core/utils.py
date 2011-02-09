@@ -126,14 +126,17 @@ def get_gluesas(service_list, vo_name=None):
         # return an empty QuerySet
         return gluesa.objects.none()
 
-def get_ignored_sas(service_list):
+def get_ignored_sas(service_list=None):
     """ get glue sa entities from glue database which should be ignored where there is any Installed[Online|Nearline]Capacity of 0 """
 
-    se_uniqueids = []
-    for service in service_list:
-        if service.type == 'SE': se_uniqueids.append(service.uniqueid)
+    if service_list:
+        se_uniqueids = []
+        for service in service_list:
+            if service.type == 'SE': se_uniqueids.append(service.uniqueid)
+        multivalues = gluemultivalued.objects.filter(attribute='GlueSACapability', uniqueid__in=se_uniqueids, value='InstalledOnlineCapacity=0') | gluemultivalued.objects.filter(attribute='GlueSACapability', uniqueid__in=se_uniqueids, value='InstalledNearlineCapacity=0')
+    else:
+        multivalues = gluemultivalued.objects.filter(attribute='GlueSACapability', value='InstalledOnlineCapacity=0') | gluemultivalued.objects.filter(attribute='GlueSACapability', value='InstalledNearlineCapacity=0')
 
-    multivalues = gluemultivalued.objects.filter(attribute='GlueSACapability', uniqueid__in=se_uniqueids, value='InstalledOnlineCapacity=0') | gluemultivalued.objects.filter(attribute='GlueSACapability', uniqueid__in=se_uniqueids, value='InstalledNearlineCapacity=0')
     ignored_sa_online   = {}
     ignored_sa_nearline = {}
     for multivalue in multivalues:

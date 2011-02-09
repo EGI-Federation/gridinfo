@@ -285,6 +285,8 @@ data = {}
 datasources = {'storage':   ['totalonlinesize', 'usedonlinesize', 'totalnearlinesize', 'usednearlinesize']}
 # Store Total, Used, Reserved storage space
 objects = gluesa.objects.all()
+# Get the lists of SA which should be ignored because of zero values of SACapability.
+ignored_sa_online, ignored_sa_nearline = get_ignored_sas()
 for sa in objects:
     try:
         voname_list = vo_to_sa_mapping[sa.gluese_fk][sa.localid]
@@ -303,6 +305,16 @@ for sa in objects:
                 data[se][vo][key] = [0,0,0,0]        
             
             for attr in datasources[key]:
+                # ignore SA with zero values of InstalledOnlineCapacity or InstalledNearlineCapacity
+                if sa.gluese_fk in ignored_sa_online:
+                    if sa.localid in ignored_sa_online[sa.gluese_fk]:
+                        if attr in ["totalonlinesize", "usedonlinesize"]:
+                            continue
+                if sa.gluese_fk in ignored_sa_nearline:
+                    if sa.localid in ignored_sa_nearline[sa.gluese_fk]:
+                        if attr in ["totalnearlinesize", "usednearlinesize"]:
+                            continue
+                
                 value = sa.__getattribute__(attr)
                 if (value != "999999"): 
                     data[se][vo][key][datasources[key].index(attr)] += str2int(value)    
