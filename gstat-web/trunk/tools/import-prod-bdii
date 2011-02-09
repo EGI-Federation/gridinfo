@@ -68,7 +68,7 @@ for line in response:
             s.save()
 
 # Get the list of top-level BDIIs from GOCDB
-GOCDBPI_URL="https://goc.gridops.org/gocdbpi/public/?method=get_service_endpoint&service_type=Top-BDII"
+GOCDBPI_URL="https://goc.egi.eu/gocdbpi/public/?method=get_service_endpoint&service_type=Top-BDII"
 
 hostname_list = []
 hostname_mapping = {}
