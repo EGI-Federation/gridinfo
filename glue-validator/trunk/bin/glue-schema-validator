@@ -48,7 +48,7 @@ directory       ''' + config['tmp_dir'] + '''
         file.close()
 
         # Start slapd server
-        command='slapd -f ' + config['tmp_dir'] + '/slapd.conf -h ldap://localhost:21700'
+        command='/usr/sbin/slapd -f ' + config['tmp_dir'] + '/slapd.conf -h ldap://localhost:21700'
 
         response=os.system(command)
         time.sleep(1)
