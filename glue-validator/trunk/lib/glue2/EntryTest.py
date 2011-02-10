@@ -21,6 +21,7 @@ class EntryTest(unittest.TestCase):
             self.objects = None
 
     def test_object_class(self):
+        '''Verifying the object class'''
         message = "The entry %s does not contain any object class" % (self.dn)
         self.assertTrue('objectClass' in self.entry , message)
         if 'objectClass' in self.entry:
