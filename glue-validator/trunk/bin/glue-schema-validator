@@ -19,11 +19,23 @@ def start_slapd():
     signal.signal(signal.SIGINT, handler)
     
     process_pid = os.getpid()
+    core = None
+    if os.path.exists('/etc/openldap/schema/core.schema'):
+        core = '/etc/openldap/schema/core.schema'
+    elif os.path.exists('/etc/ldap/schema/core.schema'):
+        core = '/etc/ldap/schema/core.schema'
+    else:
+        sys.stderr.write("Error: Could not fine core.schema file, do you have OpenLDAP installed?\n")
+        sys.exit(1)    
+
+    if not os.path.exists('/etc/ldap/schema/GLUE20.schema'):
+        sys.stderr.write("Error: Could not fine GLUE20.schema file, do you have glue-schema installed?\n")
+        sys.exit(1)    
     config['tmp_dir'] = tempfile.mkdtemp()
     if os.path.exists(config['tmp_dir']):
         file=open(config['tmp_dir'] + '/slapd.conf','w')
         file.write('''
-include /etc/openldap/schema/core.schema
+include ''' + core + '''
 include /etc/ldap/schema/GLUE20.schema
 
 pidfile         ''' + config['tmp_dir'] + '''/slapd.pid
@@ -31,12 +43,13 @@ argsfile        ''' + config['tmp_dir'] + '''/slapd.args
 idletimeout     120
 sizelimit       80000
 timelimit       2400
+moduleload      back_bdb
 
 #######################################################################
 # database definitions
 #######################################################################
 
-database        hdb
+database        bdb
 cachesize       60000
 dbnosync
 suffix          "o=glue
@@ -116,9 +129,6 @@ if __name__ == "__main__":
     ordered_dns = dns.keys()
     ordered_dns.sort(lambda x, y: cmp(len(x), len(y)))
     start_slapd()
-    total = 0
-    fail = 0
-    ok = 0
 
     defaults = {
         'o=glue'  : '''dn: o=glue
@@ -136,13 +146,12 @@ GLUE2GroupID: grid
 
     for dn in defaults:
         if not dn in dns:
-            total += 1
             entry = glue2.utils.convert_entry(defaults[dn])
             result  = test_ldif(entry)
-            if result:
-                ok += 1
-            else:
-                fail += 1
+
+    total = 0
+    fail = 0
+    ok = 0
             
     for dn in ordered_dns:  
         entry = ldif[dns[dn][0]:dns[dn][1]].strip()
