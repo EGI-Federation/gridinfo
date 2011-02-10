@@ -27,11 +27,11 @@ def start_slapd():
         core = '/etc/ldap/schema/core.schema'
         backend = "moduleload      back_bdb"
     else:
-        sys.stderr.write("Error: Could not fine core.schema file, do you have OpenLDAP installed?\n")
+        sys.stderr.write("Error: Could not find core.schema file, do you have OpenLDAP installed?\n")
         sys.exit(1)    
 
     if not os.path.exists('/etc/ldap/schema/GLUE20.schema'):
-        sys.stderr.write("Error: Could not fine GLUE20.schema file, do you have glue-schema installed?\n")
+        sys.stderr.write("Error: Could not find GLUE20.schema file, do you have glue-schema installed?\n")
         sys.exit(1)    
     config['tmp_dir'] = tempfile.mkdtemp()
     if os.path.exists(config['tmp_dir']):
@@ -107,7 +107,7 @@ def test_ldif(entry):
         return True
     except Exception, e:
 #        print "FAIL"
-        message = "Error: Entry with dn %s %s %s\n" %(dn, e[0]['desc'], e[0]['info'])
+        message = "Error: %s\n%s\n%s\n\n" %(dn, e[0]['desc'], e[0]['info'])
         sys.stderr.write(message)
         return False
     
