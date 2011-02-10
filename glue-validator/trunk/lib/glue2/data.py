@@ -1,9 +1,16 @@
 schema = {
     'GLUE2Entity' : {
-        'dn' : ('DN', True, True),
-        'objectClass' : ('ObjectClass', True, True),
+        'dn' : ('DN_t', True, True),
+        'objectClass' : ('ObjectClass', False, True),
         },
-
+    'GLUE2Group' : {
+        'GLUE2GroupID' : ('URI', True, True),
+        },
+    'GLUE2Extension' : {
+        'GLUE2ExtensionLocalID' : ('LocalID_t', True, True),
+        'GLUE2ExtensionKey' : ('String', True, True),
+        'GLUE2ExtensionValue' : ('String', True, True),
+},
     'GLUE2Location' : {
         'GLUE2LocationID' : ('URI', True, True),
         'GLUE2LocationAddress' : ('String', True, False),
@@ -36,7 +43,7 @@ schema = {
         },
     'GLUE2Service' : {
         'GLUE2ServiceID' : ('URI', True, True),
-        'GLUE2ServiceCapability' : ('Capability_t', True, False),
+        'GLUE2ServiceCapability' : ('Capability_t', False, False),
         'GLUE2ServiceType' : ('ServiceType_t', True, True),
         'GLUE2ServiceQualityLevel' : ('QualityLevel_t', True, True),
         'GLUE2ServiceStatusInfo' : ('URL', True, False),
@@ -45,7 +52,7 @@ schema = {
     'GLUE2Endpoint' : {
         'GLUE2EndpointID' : ('URI', True, True),
         'GLUE2EndpointURL' : ('URL', True, True),
-        'GLUE2EndpointCapability' : ('Capability_t', True, False),
+        'GLUE2EndpointCapability' : ('Capability_t', False, False),
         'GLUE2EndpointTechnology' : ('EndpointTechnology_t', True, False),
         'GLUE2EndpointInterfaceName' : ('InterfaceName_t', True, True),
         'GLUE2EndpointInterfaceVersion' : ('String', True, False),
@@ -76,6 +83,7 @@ schema = {
         'GLUE2PolicyUserDomainForeignKey' : ('URL', True, False),
         'GLUE2PolicyEndpointForeignKey' : ('URI', True, False),
         },
+    'GLUE2AccessPolicy' : {},
     'GLUE2Share' : {
         'GLUE2ShareID' : ('URI', True, True),
         'GLUE2ShareServiceForeignKey' : ('URI', True, False),
