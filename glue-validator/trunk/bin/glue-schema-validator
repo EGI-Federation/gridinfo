@@ -106,7 +106,6 @@ def test_ldif(entry):
         connect.result()
         return True
     except Exception, e:
-#        print "FAIL"
         message = "Error: %s\n%s\n%s\n\n" %(dn, e[0]['desc'], e[0]['info'])
         sys.stderr.write(message)
         return False
@@ -140,21 +139,32 @@ o: glue''',
 objectClass: GLUE2Group
 GLUE2GroupID: resource
 ''',        
-        'GLUE2GroupID=grid, o=glue' : '''dn: GLUE2GroupID=grid, o=glue
+        'GLUE2GroupID=grid,o=glue' : '''dn: GLUE2GroupID=grid,o=glue
 objectClass: GLUE2Group
 GLUE2GroupID: grid
 '''
         }
 
-    for dn in defaults:
-        if not dn in dns:
-            entry = glue2.utils.convert_entry(defaults[dn])
-            result  = test_ldif(entry)
-
     total = 0
     fail = 0
     ok = 0
+
+    for dn in defaults:
+        if dn.lower() in ordered_dns:
+            entry = ldif[dns[dn.lower()][0]:dns[dn.lower()][1]].strip()
+            entry = glue2.utils.convert_entry(entry)
+            total += 1
+            result  = test_ldif(entry)
+            if result:
+                ok += 1
+            else:
+                fail += 1
+            ordered_dns.remove(dn.lower())
             
+        else:
+            entry = glue2.utils.convert_entry(defaults[dn])
+            result  = test_ldif(entry)
+
     for dn in ordered_dns:  
         entry = ldif[dns[dn][0]:dns[dn][1]].strip()
         entry = glue2.utils.convert_entry(entry)
