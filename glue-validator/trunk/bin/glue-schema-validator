@@ -20,10 +20,12 @@ def start_slapd():
     
     process_pid = os.getpid()
     core = None
+    backend = ""
     if os.path.exists('/etc/openldap/schema/core.schema'):
         core = '/etc/openldap/schema/core.schema'
     elif os.path.exists('/etc/ldap/schema/core.schema'):
         core = '/etc/ldap/schema/core.schema'
+        backend = "moduleload      back_bdb"
     else:
         sys.stderr.write("Error: Could not fine core.schema file, do you have OpenLDAP installed?\n")
         sys.exit(1)    
@@ -43,7 +45,7 @@ argsfile        ''' + config['tmp_dir'] + '''/slapd.args
 idletimeout     120
 sizelimit       80000
 timelimit       2400
-moduleload      back_bdb
+''' + backend + '''
 
 #######################################################################
 # database definitions
