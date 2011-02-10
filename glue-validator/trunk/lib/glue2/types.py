@@ -88,7 +88,7 @@ def is_UInt64( value):
 def is_DateTime_t( value):
    # Check http://www.w3.org/TR/xmlschema-2/#dateTime
    dateTime = "^-?[0-9]{4}-(0[0-9]|1[0-2])-([0-2][0-9]|3[0-1])T([0-1][0-9]|2[0-3]):[0-5][0-9]:[0-5][0-9]Z?$"
-2010-12-02T17:22:37+00:00
+
    if re.match(dateTime, value):
       return True
    return False
