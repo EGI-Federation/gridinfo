@@ -1,5 +1,6 @@
 #!/usr/bin/python
 import re
+import sys
 import glue2.data
 
 def is_DN_t(value):
@@ -70,7 +71,14 @@ def is_ContactType_t( value):
    else:
       return False
 
-def is_U_int_64( value):
+def is_UInt32( value):
+   # Check http://en.wikipedia.org/wiki/Integer_(computer_science)
+   if re.match("^[0-9]+$", value):
+      if int(value) <= sys.maxint:
+         return True
+      return False
+
+def is_UInt64( value):
    # Check http://en.wikipedia.org/wiki/Integer_(computer_science)
    if re.match("^[0-9]+$", value):
       if long(value) <= 18446744073709551615L:
@@ -204,6 +212,47 @@ def is_Capability_t(value):
       'security.delegation',
       'security.identymapping'
       ]   
+   if value in types:
+      return True
+   else:
+      return False
+
+def is_StorageCapacity_t(value):
+   types = [
+      'online', 
+      'installedonline', 
+      'nearline', 
+      'installednearline', 
+      'offline', 
+      'cache'
+      ]
+   if value in types:
+      return True
+   else:
+      return False
+
+def is_StorageAccessProtocol_t(value):
+   types = [
+      'afs',
+      'dcap',
+      'file',
+      'gsidcap',
+      'gsiftp',
+      'gsirfio',
+      'http',
+      'https',
+      'nfs',
+      'rfio',
+      'root',
+      'xrootd'
+      ]
+   if value in types:
+      return True
+   else:
+      return False
+
+def is_ExpirationMode_t(value):
+   types = ['neverexpire', 'releasewhenexpired Support', 'warnwhenexpired']
    if value in types:
       return True
    else:

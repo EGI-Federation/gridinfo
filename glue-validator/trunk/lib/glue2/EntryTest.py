@@ -57,7 +57,7 @@ class EntryTest(unittest.TestCase):
                         data_type = glue2.data.schema[obj][attribute][0]
                         for value in self.entry[attribute]:
                             check = getattr(glue2.types, 'is_' + data_type)
-                            message = "The field %s with value %s does not follow the type %s in %s" % (attribute, value, data_type, self.dn)
+                            message = "The field %s with value '%s' does not follow the type %s in %s" % (attribute, value, data_type, self.dn)
                             self.assertTrue(check(value), message)
 
 if __name__ == '__main__':

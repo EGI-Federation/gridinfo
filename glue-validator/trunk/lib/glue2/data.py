@@ -1,4 +1,7 @@
 schema = {
+    'organization' : {
+        'o' : ('String', True, True),
+        },
     'GLUE2Entity' : {
         'dn' : ('DN_t', True, True),
         'objectClass' : ('ObjectClass', False, True),
@@ -80,7 +83,7 @@ schema = {
         'GLUE2PolicyID' : ('URI', True, True),
         'GLUE2PolicyScheme' : ('PolicyScheme_t', True, True),
         'GLUE2PolicyRule' : ('String', True, True),
-        'GLUE2PolicyUserDomainForeignKey' : ('URL', True, False),
+        'GLUE2PolicyUserDomainForeignKey' : ('URI', True, False),
         'GLUE2PolicyEndpointForeignKey' : ('URI', True, False),
         },
     'GLUE2AccessPolicy' : {},
@@ -292,4 +295,6 @@ schema = {
         'GLUE2ToComputingServiceStorageServiceForeignKey' : ('URI', True, False),
         'GLUE2ToComputingServiceSComputingServiceForeignKey' : ('URI', True, False),
         },
+    'GLUE2StorageEndpoint' : {}, 
+    'GLUE2StorageManager' : {}, 
     }
