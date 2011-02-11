@@ -12,7 +12,6 @@ BuildArch: noarch
 Prefix: /opt/glite
 BuildRoot: %{_tmppath}/%{name}-%{version}-build
 Packager: EGEE
-Requires: glite-info-generic
 
 %description
 An information plugin to be used with the Generic Information Provider. This provider will download the Freedom of Choices for Resources page. 
