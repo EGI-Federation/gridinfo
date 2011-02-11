@@ -4,7 +4,7 @@ Summary: glite-info-plugin-fcr
 Name: glite-info-plugin-fcr
 Version: 2.0.0
 Vendor: EGEE
-Release: 1
+Release: 3
 License: EGEE
 Group: EGEE
 Source: %{name}.src.tgz
