@@ -1,0 +1,38 @@
+#!/usr/bin/env python
+
+import logging
+import unittest
+import sys
+import glue2.utils
+import glue2.EntryTest
+
+if __name__ == "__main__":
+    config = glue2.utils.parse_options()
+    log = logging.getLogger(sys.argv[0])
+    hdlr = logging.StreamHandler(sys.stderr)
+    formatter = logging.Formatter('[%(levelname)s]: %(message)s')
+    hdlr.setFormatter(formatter)
+    log.addHandler(hdlr)
+    log.setLevel(config['debug'])
+
+    if config.has_key('file'):
+      source = "file://%s" % (config['file'])
+    if config.has_key('host'):
+      source = "ldap://%s:%s/%s" % (config['host'], config['port'], config['bind'])
+
+    ldif = glue2.utils.fast_read_ldif(source)
+    dns_dict = glue2.utils.get_dns(ldif)
+    suite = unittest.TestSuite()
+    for dn in dns_dict:
+      entry = ldif[dns_dict[dn][0]:dns_dict[dn][1]].strip()
+      entry = glue2.utils.convert_entry(entry)
+      module = sys.modules['glue2.EntryTest']
+      inst = getattr(module, 'EntryTest')
+      test_names = unittest.TestLoader().getTestCaseNames(glue2.EntryTest.EntryTest)
+      for test_name in test_names:
+          suite.addTest(inst(test_name, entry))
+    unittest.TextTestRunner(verbosity=2).run(suite)
+
+            
+
+ #             inst.validate(entry, log)
