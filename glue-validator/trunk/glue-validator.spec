@@ -1,6 +1,6 @@
 Summary: GLUE 2.0 Valiation Scripts
 Name: glue-validator
-Version: 0.0.1
+Version: 0.0.2
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: EGEE
