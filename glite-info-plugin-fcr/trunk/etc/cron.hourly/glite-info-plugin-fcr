@@ -1,0 +1,136 @@
+#!/usr/bin/python
+import os
+import sys
+import pickle
+import signal
+import urllib2
+from datetime import datetime
+try:
+
+   from xml.etree import ElementTree
+
+except ImportError:
+
+   from elementtree import ElementTree
+
+
+
+def handler(signum, frame):
+    if ( signum ==14 ):
+        raise IOError, "Get Black List Timed Out!"
+
+
+def get_critical():
+  
+   url = "http://grid-monitoring-preprod.cern.ch/myegi/sam-pi/status_of_service_in_profile?vo_name=cms&profile_name=CMS_BLACKLIST&output=xml"
+
+   try:
+      response = urllib2.urlopen(url).read()
+   except Exception, e:
+      sys.stderr.write(e)
+      sys.exit(1)
+
+   critical = []
+   root = ElementTree.XML(response)
+   for profile in root.findall("Profile"):
+       for service in profile.getchildren():
+          hostname = service.attrib['hostname']
+          flavour = service.attrib['flavour']
+          status =  service.attrib['status']
+          if status == 'CRITICAL':
+             critical.append(hostname)
+
+   return critical
+
+def get_dns():
+   command = "ldapsearch -LLL -x -h sam-bdii.cern.ch -p 2170 -b mds-vo-name=local,o=grid"
+   predicate = "'(&(|(objectclass=gluece)(objectclass=gluevoview))(GlueCEAccessControlBaseRule=VO:cms))' dn"
+   output = os.popen(command + ' ' + predicate).read()
+   output = output.replace('\n ', '')
+   output = output.replace('\n\n', '\n')
+   dns = output.split('\n')[:-1]
+   return dns
+
+def get_hostname(dn):
+   hostname = None
+   nodes = dn.split(',')
+   for node in nodes:
+      if node.split('=')[0].lower() == 'glueceuniqueid':
+         hostname = node.split('=')[1]
+         hostname = hostname.split(':')[0]
+   return hostname
+
+def get_sitename(dn):
+   sitename = None
+   nodes = dn.split(',')
+   for node in nodes:
+      if node.split('=')[0].lower() == 'mds-vo-name':
+         if not node.split('=')[1].lower() == 'local':
+            sitename = node.split('=')[1]
+   return sitename
+
+def get_header():
+   header = '''############################################################################
+#
+# FCR exclude LDIF file 
+# Created at %s 
+#
+############################################################################
+
+''' %(datetime.ctime(datetime.now()),)
+   return header
+
+def get_section():
+   section = '''############################################################################
+# VO cms
+############################################################################
+
+'''
+   return section
+
+def get_statement():
+   statement = '''changetype:modify
+delete: GlueCEAccessControlBaseRule
+GlueCEAccessControlBaseRule: VO:cms
+
+'''
+   return statement
+
+
+if __name__ == "__main__":
+
+    # Create Timeout Alarm
+   signal.signal(signal.SIGALRM, handler)
+   signal.alarm(10)
+
+   critical_services = get_critical()
+   dns = get_dns()
+
+   signal.alarm(0)          # Disable the alarm
+
+   sites = {}
+   for dn in dns:
+      hostname = get_hostname(dn)
+      if hostname in critical_services:
+         sitename = get_sitename(dn)
+         if not sitename in sites:
+            sites[sitename] = {}
+         if not hostname in sites[sitename]:
+            sites[sitename][hostname] = []
+         sites[sitename][hostname].append(dn)
+
+
+   cache_file = "/var/cache/fcr/exclude.ldif"
+   input_fh=open(cache_file, 'w')
+   input_fh.write(get_header())
+   input_fh.write(get_section())
+   for site in sites:
+      for hostname in sites[site]:
+         input_fh.write('# site:%s, node: %s\n\n' %(site,hostname,))
+         for dn in sites[site][hostname]:
+            input_fh.write(dn)
+            input_fh.write(get_statement())
+   input_fh.close()
+
+
+
