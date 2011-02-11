@@ -177,6 +177,7 @@ GLUE2GroupID: grid
     stop_slapd()
     if fail > 0:
         print "Test Failed! (%i/%i)" %(ok,total)
+        sys.exit(1)
     else:
         print "Test Passed! (%i/%i)" %(ok,total)
-
+        sys.exit()
