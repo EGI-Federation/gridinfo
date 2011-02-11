@@ -1,4 +1,3 @@
-prefix=/opt/glite
 package=glite-info-plugin-fcr
 
 .PHONY: configure install clean rpm
@@ -7,8 +6,11 @@ all: configure
 
 install: 
 	@echo installing ...
-	@mkdir -p $(prefix)/libexec/
-	@install -m 0755 src/glite-info-plugin-fcr $(prefix)/libexec
+	@mkdir -p $(prefix)/opt/glite/libexec
+	@mkdir -p $(prefix)/var/cache/fcr
+	@mkdir -p $(prefix)/etc/cron.hourly
+	@install -m 0755 src/glite-info-plugin-fcr $(prefix)/opt/glite/libexec
+	@install -m 0755 etc/cron.hourly/generate-fcr-exclude-file $(prefix)/etc/cron.hourly/
 
 clean:
 	rm -f *~ 
