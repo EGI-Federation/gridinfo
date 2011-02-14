@@ -262,7 +262,7 @@ foreach(@urls){
 
 	if ($options{g}){
 	    my $site = $4;
-	    $site =~s/,o=grid$//;
+	    $site =~s/,o=grid.*$//;
 	    $site =~s/^.*=//;
 	    if ( $site eq 'resource'){
 		$bind = 'GLUE2GroupID=resource,o=glue';
