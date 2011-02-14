@@ -1,5 +1,5 @@
 Name:		glite-info-provider-ldap
-Version:	1.3.2
+Version:	1.3.3
 Release:	1%{?dist}
 Summary:	LDAP information provider
 Group:		System/Monitoring
@@ -36,5 +36,7 @@ rm -rf %{buildroot}
 %attr(-, ldap, ldap) /opt/glite/var/cache/gip/
 
 %changelog
+* Mon Feb 14 2011 Laurence Field <laurence.field@cern.ch> - 1.3.3-1
+- Fixed bug 78067
 * Thu Apr 1 2010 Laurence Field <laurence.field@cern.ch> - 1.3.0-1
 - New version that can also obtain Glue 2.0 information
