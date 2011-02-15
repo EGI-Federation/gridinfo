@@ -255,5 +255,12 @@ def is_ExpirationMode_t(value):
    else:
       return False
 
+def is_EndpointHealthState_t(value):
+   types = ['critical', 'ok', 'other', 'unknown', 'warning']
+   if value in types:
+      return True
+   else:
+      return False
+
 if __name__ == '__main__':
    pass
