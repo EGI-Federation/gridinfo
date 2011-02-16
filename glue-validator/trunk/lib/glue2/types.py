@@ -262,5 +262,12 @@ def is_EndpointHealthState_t(value):
    else:
       return False
 
+def is_EndpointTechnology_t(value):
+   types = [ 'corba', 'jndi', 'webservice' ]
+   if value in types:
+      return True
+   else:
+      return False
+   
 if __name__ == '__main__':
    pass
