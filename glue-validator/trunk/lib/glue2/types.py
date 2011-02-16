@@ -268,6 +268,13 @@ def is_EndpointTechnology_t(value):
       return True
    else:
       return False
+
+def is_ServingState_t(value):
+   types = [ 'closed', 'draining', 'production', 'queueing' ]
+   if value in types:
+      return True
+   else:
+      return False
    
 if __name__ == '__main__':
    pass
