@@ -87,6 +87,7 @@ schema = {
         'GLUE2PolicyEndpointForeignKey' : ('URI', True, False),
         },
     'GLUE2AccessPolicy' : {},
+    'GLUE2MappingPolicy' : {},
     'GLUE2Share' : {
         'GLUE2ShareID' : ('URI', True, True),
         'GLUE2ShareServiceForeignKey' : ('URI', True, False),
