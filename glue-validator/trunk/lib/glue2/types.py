@@ -284,7 +284,7 @@ def is_Staging_t(value):
       return False
 
 def is_JobDescription_t(value):
-   types = [ 'condor', 'egee:jdl', 'globus:rsl', 'nordugrid:xrsl', 'ogf:jsdl:1.0']
+   types = [ 'condor', 'egee:jdl', 'globus:rsl', 'nordugrid:xrsl', 'ogf:jsdl:1.0', 'glite:jdl']
    if value in types:
       return True
    else:
