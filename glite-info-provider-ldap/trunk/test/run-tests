@@ -22,6 +22,10 @@ cat ldif-v2.0/*.ldif > ${working_dir}/test-2.ldif
 slapadd -f ${working_dir}/slapd.conf -l ${working_dir}/test-2.ldif -b o=glue 2>/dev/null
 echo "OK"
 
+echo -n "Creating cache file for SITE_2 ..."
+cat cache/SITE_2.ldif > /opt/glite/var/cache/gip/grid.conf/SITE_2.ldif
+echo "OK"
+
 echo -n "Starting SLAPD  ... "
 /usr/sbin/slapd -h ldap://${HOST}:${PORT} -f ${working_dir}/slapd.conf -u $(id -un)
 sleep 2
@@ -74,6 +78,33 @@ else
     echo "OK"
 fi
 
+echo -n "Testing Service Status Change for cached file ... "
+${command} -c ${working_dir}/config/grid.conf -m local | grep "GlueServiceStatus: Unknown" >/dev/null
+if [ $? -gt 0 ]; then 
+    echo "Fail"
+    RETVAL=1
+else
+    echo "OK"
+fi
+
+echo -n "Testing CE Status Change for cached file ... "
+${command} -c ${working_dir}/config/grid.conf -m local | grep "GlueCEStatus: Unknown" >/dev/null
+if [ $? -gt 0 ]; then 
+    echo "Fail"
+    RETVAL=1
+else
+    echo "OK"
+fi
+
+echo -n "Testing SE Status Change for cached file ... "
+${command} -c ${working_dir}/config/grid.conf -m local | grep "GlueSEStatus: Unknown" >/dev/null
+if [ $? -gt 0 ]; then 
+    echo "Fail"
+    RETVAL=1
+else
+    echo "OK"
+fi
+
 echo -n "Testing site-level operation for glue 2.0 ... "
 ${command} -c ${working_dir}/config/site.conf -g mydomain.com | grep gservice_1 >/dev/null
 if [ $? -gt 0 ]; then 
@@ -94,15 +125,6 @@ fi
 
 echo -n "Testing top-level operation for glue 2.0 ... "
 ${command} -c ${working_dir}/config/grid.conf -g local | grep site_1 >/dev/null
-if [ $? -gt 0 ]; then 
-    echo "Fail"
-    RETVAL=1
-else
-    echo "OK"
-fi
-
-echo -n "Testing top-level operation for glue 2.0 wo massaging ... "
-${command} -c ${working_dir}/config/grid.conf -g none | grep site_1,o=glue >/dev/null
 if [ $? -gt 0 ]; then 
     echo "Fail"
     RETVAL=1
@@ -134,6 +156,9 @@ kill $(cat ${working_dir}/db/slapd.pid)
 
 echo "Cleaning the temporary directory ... "
 rm -rf ${working_dir}
+
+echo "Cleaning GIP cache ... "
+rm -rf /opt/glite/var/cache/gip/*
 
 if [ ${RETVAL} -eq 1 ]; then 
     echo "Tests Failed"
