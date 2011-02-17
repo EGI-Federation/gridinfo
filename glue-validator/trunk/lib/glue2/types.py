@@ -275,6 +275,13 @@ def is_ServingState_t(value):
       return True
    else:
       return False
+
+def is_Staging_t(value):
+   types = [ 'none', 'stagingin', 'staginginout', 'stagingout']
+   if value in types:
+      return True
+   else:
+      return False
    
 if __name__ == '__main__':
    pass
