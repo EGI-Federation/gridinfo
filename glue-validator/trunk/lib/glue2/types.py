@@ -325,7 +325,7 @@ def is_Staging_t(value):
       return False
 
 def is_Benchmark_t(value):
-   types = [ 'bogomips', 'cfp2006', 'cint2006', 'linpack', 'specfp2000', 'specint2000', 'HEP-SPEC06' ]
+   types = [ 'bogomips', 'cfp2006', 'cint2006', 'linpack', 'specfp2000', 'specint2000', 'hep-spec06' ]
    if value in types:
       return True
    else:
