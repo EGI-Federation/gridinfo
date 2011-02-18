@@ -283,6 +283,13 @@ def is_Staging_t(value):
    else:
       return False
 
+def is_Benchmark_t(value):
+   types = [ 'bogomips', 'cfp2006', 'cint2006', 'linpack', 'specfp2000', 'specint2000' ]
+   if value in types:
+      return True
+   else:
+      return False
+
 def is_JobDescription_t(value):
    types = [ 'condor', 'egee:jdl', 'globus:rsl', 'nordugrid:xrsl', 'ogf:jsdl:1.0', 'glite:jdl']
    if value in types:
