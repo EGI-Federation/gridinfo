@@ -23,6 +23,7 @@ slapadd -f ${working_dir}/slapd.conf -l ${working_dir}/test-2.ldif -b o=glue 2>/
 echo "OK"
 
 echo -n "Creating cache file for SITE_2 ..."
+mkdir -p /opt/glite/var/cache/gip/grid.conf/
 cat cache/SITE_2.ldif > /opt/glite/var/cache/gip/grid.conf/SITE_2.ldif
 echo "OK"
 
@@ -88,7 +89,7 @@ else
 fi
 
 echo -n "Testing CE Status Change for cached file ... "
-${command} -c ${working_dir}/config/grid.conf -m local | grep "GlueCEStatus: Unknown" >/dev/null
+${command} -c ${working_dir}/config/grid.conf -m local | grep "GlueCEStateStatus: Unknown" >/dev/null
 if [ $? -gt 0 ]; then 
     echo "Fail"
     RETVAL=1
@@ -143,6 +144,16 @@ fi
 
 echo -n "Testing recursion protection for glite 2.0 ... "
 ${command} -c ${working_dir}/config/recursion.conf -g site_2 | grep site_2 >/dev/null
+if [ ! $? -gt 0 ]; then 
+    echo "Fail"
+    RETVAL=1
+else
+    echo "OK"
+fi
+
+
+echo -n "Testing cache delete ... "
+${command} -c ${working_dir}/config/grid.conf -m local -v 1 | grep "GlueServiceUniqueID: service.cern.ch" >/dev/null
 if [ ! $? -gt 0 ]; then 
     echo "Fail"
     RETVAL=1
