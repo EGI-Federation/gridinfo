@@ -338,6 +338,20 @@ for (<$tmp_dir/*.err>){
     unlink($_);
 }
 
+#Change cache status values
+if( -d $cache_dir ){
+    my @files=glob("$cache_dir/*.ldif");
+    foreach my $file (@files) {
+	$file_info =  stat($file);
+	my $mtime=$file_info->mtime;
+	my $atime=$file_info->atime;
+	`sed -i 's/GlueServiceStatus:.*/GlueServiceStatus: Unknown/g' $file`;
+	`sed -i 's/GlueCEStateStatus:.*/GlueCEStateStatus: Unknown/g' $file`;
+	`sed -i 's/GlueSEStatus:.*/GlueSEStatus: Unknown/g' $file`;
+	utime $atime, $mtime, $file;
+    }
+}
+
 my $file_size;
 for (<$tmp_dir/*.ldif>){
     $file_info =  stat($_);
@@ -356,6 +370,8 @@ for (<$tmp_dir/*.ldif>){
     }
 }
 
+#Get Time again
+$current_time=time;
 # Delete old files from the cache
 for (<$cache_dir/*.ldif>){
     $file_info =  stat($_);
