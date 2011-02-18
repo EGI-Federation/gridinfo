@@ -247,6 +247,7 @@ schema = {
         'GLUE2ToStorageServiceComputingServiceForeignKey' : ('URI', True, False),
         'GLUE2ToStorageServiceForeignKey' : ('URI', True, False),
                 },
+    'GLUE2StorageService' : {},
     'GLUE2StorageServiceCapacity' : {
         'GLUE2StorageServiceCapacityID' : ('URI', True, True),
         'GLUE2StorageServiceCapacityType' : ('StorageCapacity_t', True, False),
