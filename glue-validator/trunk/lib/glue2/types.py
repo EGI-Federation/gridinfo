@@ -46,14 +46,32 @@ def is_URI( value):
 
 def is_URL( value):
    # RFC 1738: http://www.ietf.org/rfc/rfc1738.txt
-   # Protocols accepted: http|ftp|https|ftps|sftp
+   # Protocols accepted: see is_allowed_URL_Schema
    # Protocols rejected on purpose: gopher|news|nntp|telnet|mailto|file|etc.
-   url = "(((http|ftp|https|ftps|sftp)://)|(www\.))+(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(/[a-zA-Z0-9\&amp;%_\./-~-]*)?"
-   if re.match(url, value):
-      return 1
-   else:
-      return 0
+   url = "(?:(?:([a-z0-9+.-]+)://)|(www\.))+(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(/[a-zA-Z0-9\&amp;%_\./-~-]*)?"
+   m = re.match(url,value)
+   if m is None:
+      return False
+   return is_allowed_URL_Schema(m.group(1))
 
+def is_allowed_URL_Schema(value):
+   types = [
+      'http',
+      'ftp',
+      'https',
+      'ftps',
+      'sftp',
+      'gsiftp',
+      'xroot',
+      'dcap',
+      'gsidcap',
+      'httpg'
+      ]
+   if value in types:
+      return True
+   else:
+      return False
+   
    
 def is_Real32( value):
    # IEE 754-2008: http://en.wikipedia.org/wiki/IEEE_754-2008
@@ -107,7 +125,7 @@ def is_QualityLevel_t(value):
       return False
 
 def is_InterfaceName_t(value):
-   return is_ServiceType_t(value)
+   return is_ServiceType_t(value) or is_allowed_URL_Schema(value)
 
 def is_PolicyScheme_t(value):
    schemes = ['basic', 'gacl', 'org.glite.standard']
@@ -118,6 +136,7 @@ def is_PolicyScheme_t(value):
 
 def is_ServiceType_t(value):
    types = [
+      'org.dcache.storage',
       'org.glite.wms.WMProxy',
       'org.glite.lb.Server',
       'org.glite.ce.CREAM',
@@ -209,6 +228,28 @@ def is_Capability_t(value):
       'security.delegation',
       'security.identymapping'
       ]   
+   if value in types:
+      return True
+   else:
+      return False
+
+def is_RetentionPolicy_t(value):
+   types = [
+      'custodial',
+      'output',
+      'replica'
+      ]
+   if value in types:
+      return True
+   else:
+      return False
+
+def is_AccessLatency_t(value):
+   types = [
+      'online',
+      'nearline',
+      'offline'
+      ]
    if value in types:
       return True
    else:
