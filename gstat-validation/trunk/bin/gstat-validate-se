@@ -603,10 +603,10 @@ def test_ACBR(key,entry,attribute,type):
    ##          bugs in clients.  See:
    ##               https://savannah.cern.ch/bugs/?57919
    ##               https://savannah.cern.ch/bugs/?57827
-   # for val in entry[attribute]:
-   #   if ( val[0] != "/" and val[:3] != "VO:" and val[:6] != "VOMS:/" ):
-   #      my_errors.log(key,type+'.AccessControlBaseRule',
-   #                       val+' ACBR has an invalid format', gsutils.get_site(key))
+   for val in entry[attribute]:
+      if ( val[0] != "/" and val[:3] != "VO:" and val[:6] != "VOMS:/" ):
+         my_errors.log(key,type+'.AccessControlBaseRule',
+                       val+' ACBR has an invalid format', gsutils.get_site(key))
 
 
 
