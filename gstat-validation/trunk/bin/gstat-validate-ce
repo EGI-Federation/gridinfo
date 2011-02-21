@@ -231,6 +231,17 @@ def test_glue_SubCluster(key,entry):
       my_errors.log(gsutils.get_unique_id(key),'SubCluster.UniqueID.Unique',
                     'GlueSubClusterUniqueID is not unique', gsutils.get_site(key))
 
+   # Test Memory Size
+   for attribute in ("GlueHostMainMemoryRAMSize", "GlueHostMainMemoryVirtualSize"):
+      if ( entry.has_key(attribute)):
+         try:
+            if int(entry[attribute][0]) > 300000:
+               message = "%s is greater than 300GB." %(attribute)
+               my_errors.log(gsutils.get_unique_id(key),'gstat.value.error', message, gsutils.get_site(key))
+         except ValueError, e:
+               message = "The value for %s is not an integer." %(attribute)
+               my_errors.log(gsutils.get_unique_id(key),'gstat.value.error', message, gsutils.get_site(key))
+
    # Test for Logical and Physical CPU and SMPSize entries
    logging.debug("Testing SubCluster for PhysicalCPUs,LogicalCPUs,SMPSize > 0")
 

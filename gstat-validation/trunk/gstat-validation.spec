@@ -24,10 +24,10 @@ python setup.py build
 
 %install
 python setup.py install --root=$RPM_BUILD_ROOT --record=INSTALLED_FILES
-chmod 777 $RPM_BUILD_ROOT/var/lib/gstat/locations
-chmod 777 $RPM_BUILD_ROOT/var/lib/gstat/wlcg-tier
-chmod 777 $RPM_BUILD_ROOT/var/lib/gstat/service-types
-chmod 777 $RPM_BUILD_ROOT/var/lib/gstat/NGI.xml
+chmod 666 $RPM_BUILD_ROOT/var/lib/gstat/locations
+chmod 666 $RPM_BUILD_ROOT/var/lib/gstat/wlcg-tier
+chmod 666 $RPM_BUILD_ROOT/var/lib/gstat/service-types
+chmod 666 $RPM_BUILD_ROOT/var/lib/gstat/NGI.xml
 
 %clean
 rm -rf $RPM_BUILD_ROOT
