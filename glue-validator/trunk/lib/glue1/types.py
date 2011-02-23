@@ -49,6 +49,7 @@ def is_URL( value):
 
 def is_allowed_URL_Schema(value):
    types = [
+      'gram',
       'http',
       'ftp',
       'https',
@@ -175,12 +176,8 @@ def is_ServiceType_t(value):
       return False
     
 def is_AccessLatency_t(value):
-   types = [
-      'online',
-      'nearline',
-      'offline'
-      ]
-   if value in types:
+   types = ['online', 'nearline', 'offline']
+   if value.lower() in types:
       return True
    else:
       return False
@@ -199,7 +196,7 @@ def is_StorageCapacity_t(value):
    else:
       return False
 
-def is_StorageAccessProtocol_t(value):
+def is_AccessProtocol_t(value):
    types = [
       'afs',
       'dcap',
@@ -220,11 +217,12 @@ def is_StorageAccessProtocol_t(value):
       return False
 
 def is_ExpirationMode_t(value):
-   types = ['neverexpire', 'releasewhenexpired Support', 'warnwhenexpired']
+   types = [ 'neverExpire', 'warnWhenExpired', 'releaseWhenExpired' ]
    if value in types:
       return True
    else:
       return False
+
 def is_ServingState_t(value):
    types = [ 'closed', 'draining', 'production', 'queueing' ]
    if value in types:
@@ -239,5 +237,53 @@ def is_Staging_t(value):
    else:
       return False
 
+def is_ACBR_t(value):
+  if value[0] == "/" or value[:3] != "VO:" or value[:6] != "VOMS:/":
+     return True
+  else:
+     return False
+
+def is_RetentionPolicy_t(value):
+   types = [ 'custodial', 'output', 'replica' ]
+   if value.lower() in types:
+      return True
+   else:
+      return False
+
+def is_SAType_t(value):
+   types = [ 'permanent', 'durable', 'volatile', 'other' ]
+   if value.lower() in types:
+      return True
+   else:
+      return False
+
+def is_ControlProtocol_t(value):
+   types = ['srm']
+   if value.lower() in types:
+      return True
+   else:
+      return False
+
+def is_lrms_t(value):
+   types = ['bqs' , 'condor', 'edges', 'pbs', 'loadleveler', 'lsf', 'sge', 
+            'torque']
+   if value.lower() in types:
+      return True
+   else:
+      return False
+
+def is_Boolean(value):
+   types = ['TRUE' , 'FALSE']
+   if value in types:
+      return True
+   else:
+      return False
+
+def is_SEStatus_t(value):
+   types = ['Queuing' , 'Production', 'Closed', 'Draining']
+   if value.lower() in types:
+      return True
+   else:
+      return False
 if __name__ == '__main__':
    pass
