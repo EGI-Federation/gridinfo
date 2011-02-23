@@ -89,6 +89,13 @@ def is_ContactType_t( value):
    else:
       return False
 
+def is_Int32( value):
+   # Check http://en.wikipedia.org/wiki/Integer_(computer_science)
+   if re.match("^(?:[-+])?[0-9]+$", value):
+      if -sys.maxint <= int(value) <= sys.maxint:
+         return True
+      return False
+
 def is_UInt32( value):
    # Check http://en.wikipedia.org/wiki/Integer_(computer_science)
    if re.match("^[0-9]+$", value):
@@ -125,7 +132,11 @@ def is_QualityLevel_t(value):
       return False
 
 def is_InterfaceName_t(value):
-   return is_ServiceType_t(value) or is_allowed_URL_Schema(value)
+   interfaces = [ 'ogf.bes', 'ogf.srm' ]
+   if value in interfaces:
+       return True
+   else:
+       return is_ServiceType_t(value) or is_allowed_URL_Schema(value)
 
 def is_PolicyScheme_t(value):
    schemes = ['basic', 'gacl', 'org.glite.standard']
@@ -158,6 +169,7 @@ def is_ServiceType_t(value):
       'org.glite.ChannelAgent',
       'org.glite.Delegation',
       'org.glite.KeyStore',
+      'org.nordugrid.execution.arex',
       'SRM',
       'gsiftp',
       'org.edg.gatekeeper',
@@ -198,7 +210,7 @@ def is_ServiceType_t(value):
       return False
     
 def is_Capability_t(value):
-   types =[   
+   types = [   
       'data.access.flatfiles',
       'data.access.relational',
       'data.access.xml',
@@ -232,6 +244,51 @@ def is_Capability_t(value):
       return True
    else:
       return False
+
+def is_AppEnvState_t(value):
+   states = [
+      'installable',
+      'installationfailed',
+      'installedbroken',
+      'installednotverified',
+      'installedverified',
+      'installingautomatically',
+      'installingmanually',
+      'notinstallable',
+      'pendingremoval'
+      'removing'
+      ]
+   if value in states:
+      return True
+   else:
+      return False
+
+def is_SchedulingPolicy_t(value):
+   policies = [
+      'fairshare',
+      'fifo',
+      'random'
+      ]
+   if value in policies:
+      return True
+   else:
+      return False
+
+def is_ComputingActivityType_t(value):
+   types = [
+      'collectionelement',
+      'parallelelement',
+      'single',
+      'workflownode'
+      ]
+   if value in types:
+      return True
+   else:
+      return False
+
+def is_ComputingActivityState_t(value):
+    # open season!
+    return True
 
 def is_RetentionPolicy_t(value):
    types = [
