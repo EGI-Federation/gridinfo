@@ -1,6 +1,10 @@
 schema = {
+    'GlueTop' : {},
+    'GlueKey' : {},
+    'GlueSchemaVersion' : {
+},
     'GlueSite' : {
-        'GlueSiteUniqueID' : ('ID', True, True),
+        'GlueSiteUniqueID' : ('String', True, True),
         'GlueSiteName' : ( 'String', True, False),
         'GlueSiteDescription' : ( 'String', True, True),
         'GlueSiteEmailContact' : ( 'Email_t', True, False),
@@ -15,7 +19,7 @@ schema = {
         'GlueSiteOtherInfo' : ( 'String', False, False),
         },
     'GlueService' : {
-        'GlueServiceUniqueID' : ('ID', True, True),
+        'GlueServiceUniqueID' : ('String', True, True),
         'GlueServiceName' : ( 'String', True, True),
         'GlueServiceType' : ( 'ServiceType_t', True, True),
         'GlueServiceVersion' : ( 'String', True, True),
@@ -33,13 +37,13 @@ schema = {
         'GlueServiceValue' : ( 'String', True, True),
         },
     'GlueCluster' : {
-        'GlueClusterUniqueID' : ('ID', True, True),
+        'GlueClusterUniqueID' : ('String', True, True),
         'GlueClusterName' : ( 'String', True, True),
         'GlueClusterTmpDir' : ( 'String', True, True),
         'GlueClusterWNTmpDir' : ( 'String', True, True),
         },
     'GlueCE' : {
-        'GlueCEUniqueID' : ('ID', True, True),
+        'GlueCEUniqueID' : ('String', True, True),
         'GlueCEName' : ( 'String', True, True),
         'GlueCEImplementationName' : ( 'String', True, True),
         'GlueCEImplementationVersion' : ( 'String', True, True),
@@ -85,10 +89,10 @@ schema = {
         'GlueCEAccessControlBaseRule' : ( 'ACBR_t', False, True),
         },
     'GlueVOView' : {
-        'GlueVOViewLocalID' : ('ID', True, True),
+        'GlueVOViewLocalID' : ('String', True, True),
         },
     'GlueSubCluster' : {
-        'GlueSubClusterUniqueID' : ('ID', True, True),
+        'GlueSubClusterUniqueID' : ('String', True, True),
         'GlueSubClusterName' : ( 'String', True, True),
         'GlueSubClusterPhysicalCPUs' : ( 'Int32', True, True),
         'GlueSubClusterLogicalCPUs' : ( 'Int32', True, True),
@@ -145,7 +149,7 @@ schema = {
         'GlueSEUsedNearlineSize' : ( 'Int32', True, True),
         },
     'GlueSA' : {
-    'GlueSALocalID' : ( 'ID', True, True),
+    'GlueSALocalID' : ( 'String', True, True),
     'GlueSARoot' : ( 'String', True, True),
     'GlueSAPath' : ( 'String', True, True),
     'GlueSAType' : ( 'SAType_t', True, True),
