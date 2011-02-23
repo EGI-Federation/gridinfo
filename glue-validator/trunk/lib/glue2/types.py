@@ -138,6 +138,19 @@ def is_InterfaceName_t(value):
    else:
        return is_ServiceType_t(value) or is_allowed_URL_Schema(value)
 
+def is_JobDescription_t(value):
+   descriptions = [
+      'condor',
+      'egee:jdl',
+      'globus:rsl',
+      'nordugrid:xrsl',
+      'ogf:jsdl:1.0',
+      ]
+   if value in descriptions:
+       return True
+   else:
+       return False
+
 def is_PolicyScheme_t(value):
    schemes = ['basic', 'gacl', 'org.glite.standard']
    if value in schemes:
@@ -267,7 +280,7 @@ def is_SchedulingPolicy_t(value):
    policies = [
       'fairshare',
       'fifo',
-      'random'
+      'random',
       ]
    if value in policies:
       return True
@@ -289,6 +302,141 @@ def is_ComputingActivityType_t(value):
 def is_ComputingActivityState_t(value):
     # open season!
     return True
+
+def is_AccessMode_t(value):
+    # not described in the spec 
+    return True
+
+def is_ApplicationHandle_t(value):
+   types = [
+      'executable',
+      'module',
+      'Path',
+      'softenv',
+      ]
+   if value in types:
+      return True
+   else:
+      return False
+
+def is_CPUMultiplicity_t(value):
+   types = [
+      'multicpu-multicore',
+      'multicpu-singlecore',
+      'singlecpu-multicore',
+      'singlecpu-singlecore',
+      ]
+   if value in types:
+      return True
+   else:
+      return False
+
+def is_DataStoreType_t(value):
+   types = [
+      'disk'
+      'optical'
+      'tape'
+      ]
+   if value in types:
+      return True
+   else:
+      return False
+
+def is_License_t(value):
+   types = [
+      'commercial',
+      'opensource',
+      'unknown',
+      ]
+   if value in types:
+      return True
+   else:
+      return False
+
+def is_NetworkInfo_t(value):
+   types = [
+      '100megabitethernet'
+      'gigabitethernet'
+      'infiniband'
+      'myrinet'
+      ]
+   if value in types:
+      return True
+   else:
+      # let it pass
+      return True
+
+def is_OSFamily_t(value):
+   types = [
+      'linux',
+      'macosx',
+      'solaris',
+      'windows',
+      ]
+   if value in types:
+      return True
+   else:
+      return False
+
+def is_OSName_t(value):
+   types = [
+      'aix',
+      'centos',
+      'debian',
+      'fedoracore',
+      'gentoo',
+      'leopard',
+      'linux-rocks',
+      'mandrake',
+      'redhatenterpriseas',
+      'scientificlinux',
+      'scientificlinuxcern',
+      'suse',
+      'ubuntu',
+      'windowsvista',
+      'windowsxp',
+      ]
+   if value in types:
+      return True
+   else:
+      # let it pass
+      return True
+
+
+def is_ParallelSupport_t(value):
+   types = [
+      'mpi',
+      'none',
+      'openmp',
+      ]
+   if value in types:
+      return True
+   else:
+      return False
+
+def is_Platform_t(value):
+   types = [
+      'amd64',
+      'i386',
+      'itanium',
+      'powerpc',
+      'sparc',
+      ]
+   if value in types:
+      return True
+   else:
+      return False
+
+def is_ReservationPolicy_t(value):
+   types = [
+      'mandatory',
+      'none',
+      'optional',
+      ]
+   if value in types:
+      return True
+   else:
+      return False
 
 def is_RetentionPolicy_t(value):
    types = [
