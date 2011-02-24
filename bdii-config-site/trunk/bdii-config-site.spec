@@ -1,5 +1,5 @@
 Name:		bdii-config-site
-Version:	0.9.0
+Version:	0.9.1
 Release:	1%{?dist}
 Summary:	Site BDII configration files
 Group:		System/Monitoring
@@ -9,6 +9,7 @@ BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
 Requires:	bdii
+Requires:	glite-info-provider-release
 Requires:	glite-info-provider-ldap
 Requires:	glite-info-provider-service
 Requires:	glite-info-static
@@ -26,6 +27,13 @@ Configration files for the Site BDII.
 %install
 rm -rf %{buildroot}
 make install prefix=%{buildroot}
+
+%post
+if [ ! -f /opt/glite/etc/gip/provider/glite-info-provider-release ]; then 
+    if [ -f /opt/glite/libexec/glite-info-provider-release ]; then 
+        ln -s /opt/glite/libexec/glite-info-provider-release /opt/glite/etc/gip/provider/glite-info-provider-release
+    fi
+fi
 
 %clean
 rm -rf %{buildroot}
