@@ -29,7 +29,6 @@ schema = {
     'GLUE2Contact' : {
         'GLUE2ContactID' : ('URI', True, True),
         'GLUE2ContactName' : ('String', True, False),
-        'GLUE2ContactOtherInfo' : ('String', False, False),
         'GLUE2ContactDetail' : ('URI', True, True),
         'GLUE2ContactType' : ('ContactType_t', True, True),
         'GLUE2ContactDomainForeignKey' : ('URI', True, False),
@@ -37,7 +36,6 @@ schema = {
     'GLUE2Domain' : {
         'GLUE2DomainID' : ('URI', True, True),
         'GLUE2DomainName' : ('String', True, False),
-        'GLUE2DomainOtherInfo' : ('String', False, False),
         'GLUE2DomainDescription' : ('String', True, False),
         'GLUE2DomainWWW' : ('URL', False, False),
         },
@@ -246,7 +244,6 @@ schema = {
     'GLUE2ApplicationEnvironment' : {
         'GLUE2ApplicationEnvironmentID' : ('URI', True, True),
         'GLUE2ApplicationEnvironmentName' : ('String', True, False),
-        'GLUE2ApplicationEnvironmentOtherInfo' : ('String', False, False),
         'GLUE2ApplicationEnvironmentAppName' : ('String', True, True),
         'GLUE2ApplicationEnvironmentAppVersion' : ('String', True, False),
         'GLUE2ApplicationEnvironmentRepository' : ('URL', True, False),
