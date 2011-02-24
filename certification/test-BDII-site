@@ -56,6 +56,16 @@ else
     echo "OK"
 fi 
 
+echo -n "Testing the publication of metapackage_glite-BDII_site entry at resource-level: "
+filter="(&(objectClass=GlueServiceData)(GlueServiceDataKey=metapackage_glite-BDII_site)) GlueServiceDataKey"
+${command} ${bind} ${filter} | grep "metapackage_glite-BDII_site" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
 bind="-b GLUE2GroupID=resource,o=glue "
 
 echo -n "Testing the publication of GLUE2 service entry at resource-level: "
