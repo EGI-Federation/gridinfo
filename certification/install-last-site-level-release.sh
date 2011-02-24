@@ -1,6 +1,7 @@
 #!/bin/bash
 
-wget http://grid-deployment.web.cern.ch/grid-deployment/glite/repos/3.2/glite-BDII_site.repo -O /etc/yum.repos.d/glite-BDII_site.repo 
+repo='http://grid-deployment.web.cern.ch/grid-deployment/glite/repos/3.2/glite-BDII_site.repo'
+wget ${repo} -O /etc/yum.repos.d/glite-BDII_site.repo 
 yum install -y glite-BDII_site
 
 MY_DOMAIN=$(hostname -d)
