@@ -2,8 +2,8 @@
 %define _topdir %{topdir} 
 Summary: glite-info-provider-release
 Name: glite-info-provider-release
-Version: x
-Release: y
+Version: 1.0.2
+Release: 1%{?dist}
 License: ASL 2.0
 Group:          System/Middleware
 Source: %{name}.src.tgz
