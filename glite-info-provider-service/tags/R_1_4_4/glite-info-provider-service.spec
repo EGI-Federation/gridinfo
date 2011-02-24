@@ -1,6 +1,6 @@
 Name:		glite-info-provider-service
 Version:	1.4.4
-Release:	0%{?dist}
+Release:	1%{?dist}
 Summary:	The GLUE service information provider
 Group:		System/Monitoring
 License:	ASL 2.0
