@@ -1,5 +1,5 @@
 #!/bin/bash
-# ./test-BDII-site 2>&1 | tee test.log
+# ./test-BDII-top 2>&1 | tee test.log
 
 command="ldapsearch -LLL -x -h $(hostname -f) -p 2170 "
 bind="-b mds-vo-name=resource,o=grid "
@@ -46,9 +46,9 @@ else
     echo "OK"
 fi 
 
-echo -n "Testing the publication of metapackage_glite-BDII_site entry at resource-level: "
-filter="(&(objectClass=GlueServiceData)(GlueServiceDataKey=metapackage_glite-BDII_site)) GlueServiceDataKey"
-${command} ${bind} ${filter} | grep "metapackage_glite-BDII_site" >/dev/null 2>/dev/null
+echo -n "Testing the publication of metapackage_glite-BDII_top entry at resource-level: "
+filter="(&(objectClass=GlueServiceData)(GlueServiceDataKey=metapackage_glite-BDII_top)) GlueServiceDataKey"
+${command} ${bind} ${filter} | grep "metapackage_glite-BDII_top" >/dev/null 2>/dev/null
 if [ $? -gt 0 ]; then
     echo "FAIL"
     RETVAL=1
