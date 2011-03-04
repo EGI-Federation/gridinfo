@@ -1,5 +1,5 @@
 Name:		glite-info-provider-ldap
-Version:	1.3.4
+Version:	1.3.5
 Release:	1%{?dist}
 Summary:	LDAP information provider
 Group:		System/Monitoring
@@ -36,6 +36,8 @@ rm -rf %{buildroot}
 %attr(-, ldap, ldap) /opt/glite/var/cache/gip/
 
 %changelog
+* Fri Mar 4 2011 Laurence Field <laurence.field@cern.ch> - 1.3.5-1
+- Implemented IS-220
 * Fri Feb 18 2011 Laurence Field <laurence.field@cern.ch> - 1.3.4-1
 - Implemented IS-207
 * Mon Feb 14 2011 Laurence Field <laurence.field@cern.ch> - 1.3.3-1
