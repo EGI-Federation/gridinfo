@@ -99,7 +99,7 @@ if ($options{d}) {
 	    . " GlueCEStateEstimatedResponseTime GlueCEStateWorstResponseTime";
 }else{
     $filter = "'(|(objectClass=GlueTop)(objectClass=MDS)"
-	. "(objectClass=GlueClusterTop)"
+	. "(objectClass=GlueClusterTop)(objectClass=GlueCETop)"
 	. "(objectClass=GlueGeneralTop)(objectClass=GlueSETop)"
 	. "(objectClass=GlueSATop))'";
 }
