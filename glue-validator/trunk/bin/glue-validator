@@ -22,6 +22,9 @@ if __name__ == "__main__":
 
     ldif = validator.utils.fast_read_ldif(source)
     dns_dict = validator.utils.get_dns(ldif)
+    if len(dns_dict) == 0:
+        sys.stderr.write("Error: No LDAP entries returned from %s\n" %(source,))
+        sys.exit(1)
     suite = unittest.TestSuite()
     for dn in dns_dict:
       entry = ldif[dns_dict[dn][0]:dns_dict[dn][1]].strip()
