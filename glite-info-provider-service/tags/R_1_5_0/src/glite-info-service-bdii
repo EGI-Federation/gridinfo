@@ -1,0 +1,36 @@
+#!/bin/bash
+
+# init function for the BDII service publisher, to export some variables
+
+# The first two can be overridden by external definitions of the variables,
+# e.g. if the advertised host name should be an alias
+
+BDII_CONF=${BDII_CONF:-/opt/bdii/etc/bdii.conf}
+
+BDII_HOST=${BDII_HOST:-`hostname -f`}
+
+# Default values - normally overridden by bdii.conf
+
+BDII_PORT_READ=2170
+BDII_BIND=o=grid
+BDII_DIR=/opt/bdii
+BDII_UPDATE_LDIF=http://
+
+BDII_PID_FILE=${BDII_PID_FILE:-/var/run/bdii-update.pid}
+
+# NB The bdii.conf file is normally only readable by the bdii user,
+# but that should be OK when this is run by the info provider
+
+if [ -r "$BDII_CONF" ]; then
+    . "$BDII_CONF"
+fi
+
+# Write to stdout - will be imported by the info provider
+
+echo BDII_PORT_READ=$BDII_PORT_READ
+echo BDII_BIND=$BDII_BIND
+echo BDII_DIR=$BDII_DIR
+echo BDII_UPDATE_LDIF=$BDII_UPDATE_LDIF
+echo BDII_HOST=$BDII_HOST
+echo BDII_PID_FILE=$BDII_PID_FILE
+
