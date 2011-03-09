@@ -30,5 +30,5 @@
 
 BDII_top_FUNCTIONS="
 config_info_service_bdii_top
-config_bdii_5.1
+config_bdii_5.2
 "

@@ -2,7 +2,7 @@
 %define _topdir %{topdir} 
 Summary: glite-yaim-bdii module configures the top level BDII and site BDII.
 Name: glite-yaim-bdii
-Version: 4.1.12
+Version: 4.2.0
 Vendor: EGEE
 Release: 1
 License: EGEE
