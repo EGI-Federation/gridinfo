@@ -5,6 +5,10 @@ command="ldapsearch -LLL -x -h $(hostname -f) -p 2170 "
 bind="-b mds-vo-name=resource,o=grid "
 
 ${command} ${bind} 
+ps -ef 
+ls /var/lib/bdii/gip/provider
+tail -n 1000 /var/log/bdii/bdii-update.log
+
 
 RETVAL=0
 
