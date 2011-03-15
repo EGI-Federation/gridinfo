@@ -1,0 +1,4 @@
+#!/bin/sh
+
+/usr/sbin/glite-info-static -m site -c site.cfg -i glue -t glue2
+
