@@ -1,5 +1,5 @@
 Name:		bdii-config-top
-Version:	0.0.9
+Version:	1.0.0
 Release:	1%{?dist}
 Summary:	Top BDII configration files
 Group:		System/Monitoring
@@ -31,15 +31,9 @@ make install prefix=%{buildroot}
 %post
 if [ ! -f /opt/glite/etc/gip/provider/glite-info-provider-release ]; then
     if [ -f /opt/glite/libexec/glite-info-provider-release ]; then
-        ln -s /opt/glite/libexec/glite-info-provider-release /opt/glite/etc/gip/provider/glite-info-provider-release
+        ln -s /opt/glite/libexec/glite-info-provider-release /var/lib/bdii/gip/provider/glite-info-provider-release
     fi
 fi
-
-if [ -f /opt/glite/etc/gip/provider/glite-info-provider-egee ]; then
-    rm -f /opt/glite/etc/gip/provider/glite-info-provider-egee
-fi
-
-
 
 %clean
 rm -rf %{buildroot}
@@ -47,12 +41,14 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 
-/opt/glite/etc/gip/provider/glite-info-provider-service-bdii-top
-/opt/glite/etc/gip/provider/glite-info-provider-top
-/opt/glite/etc/gip/provider/glite-info-provider-service-bdii-top-glue2
-/opt/glite/etc/gip/provider/glite-info-provider-top-glue2
-/opt/glite/etc/gip/plugin/glite-info-plugin-fcr
+/var/lib/bdii/gip/provider/glite-info-provider-service-bdii-top
+/var/lib/bdii/gip/provider/glite-info-provider-top
+/var/lib/bdii/gip/provider/glite-info-provider-service-bdii-top-glue2
+/var/lib/bdii/gip/provider/glite-info-provider-top-glue2
+/var/lib/bdii/gip/plugin/glite-info-plugin-fcr
 
 %changelog
+* Tue Mar 15 2011 Laurence Field <laurence.field@cern.ch> - 1.0.0-1
+- Made FSH Compliant
 * Mon Sep 06 2010 Laurence Field <laurence.field@cern.ch> - 0.0.6-1
 - New package
