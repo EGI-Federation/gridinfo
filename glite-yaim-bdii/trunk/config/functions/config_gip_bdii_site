@@ -38,15 +38,14 @@ return ${retcode}
 
 config_gip_bdii_site () {
 
+site_urls_file=/etc/bdii/gip/site-urls.conf
 
-INSTALL_ROOT=${INSTALL_ROOT:-/opt}
-
-if [ -f ${INSTALL_ROOT}/glite/etc/gip/site-urls.conf ]; then
-   rm -f ${INSTALL_ROOT}/glite/etc/gip/site-urls.conf
+if [ -f ${site_urls_file} ]; then
+   rm -f ${site_urls_file}
 fi
 
 for REGION in $BDII_REGIONS; do
-   echo "$REGION  `eval echo '$'BDII_${REGION}_URL`" >> $INSTALL_ROOT/glite/etc/gip/site-urls.conf
+   echo "$REGION  `eval echo '$'BDII_${REGION}_URL`" >> ${site_urls_file}
 done	
 
 return 0
