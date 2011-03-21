@@ -5,9 +5,7 @@
 # These can be overridden by external definitions of the variables,
 # e.g. if the advertised host name should be an alias
 
-GLITE_LOCATION=${GLITE_LOCATION:-/opt/glite}
-
-MYPROXY_CONF=${MYPROXY_CONF:-${GLITE_LOCATION}/etc/myproxy-server.conf}
+MYPROXY_CONF=${MYPROXY_CONF:-/etc/myproxy-server.conf}
 
 MYPROXY_HOST=${MYPROXY_HOST:-`hostname -f`}
 
@@ -22,6 +20,6 @@ echo MYPROXY_PORT=$MYPROXY_PORT
 # myproxy doesn't seem to have a pid file, but the init.d script
 # does create and remove this lock file
 
-echo MYPROXY_PID_FILE=/var/lock/subsys/myproxy
+echo MYPROXY_PID_FILE=/var/lock/subsys/myproxy-server
 
 

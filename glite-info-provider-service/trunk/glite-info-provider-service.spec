@@ -1,5 +1,5 @@
 Name:		glite-info-provider-service
-Version:	1.5.0
+Version:	1.5.1
 Release:	1%{?dist}
 Summary:	The GLUE service information provider
 Group:		System/Monitoring
@@ -60,6 +60,7 @@ rm -rf %{buildroot}
 /etc/glite/info/service/glite-info-glue2-vobox.conf.template
 /etc/glite/info/service/glite-info-glue2-frontier.conf.template
 /etc/glite/info/service/glite-info-glue2-squid.conf.template
+/etc/glite/info/service/glite-info-glue2-myproxy.conf.template
 /etc/glite/info/service/glite-info-service-test.conf.template
 /etc/glite/info/service/glite-info-service-amga.conf.template
 /etc/glite/info/service/glite-info-service-bdii.conf.template
