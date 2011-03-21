@@ -18,9 +18,9 @@
 ##############################################################################
 
 GLITE_HOME=${GLITE_HOME:-/opt/glite}
-CONFIG=${GLITE_HOME}/etc/gip/site-urls.conf
+CONFIG=/etc/bdii/gip/site-urls.conf
 SCRIPT=${GLITE_HOME}/libexec/glite-info-provider-ldap
-DEFAULTS=${GLITE_HOME}/etc/glite-info-site-defaults.conf
+DEFAULTS=/etc/bdii/gip/glite-info-site-defaults.conf
 
 # Check for the existence of the configuration file.
 if [ -f ${DEFAULTS} ]; then
