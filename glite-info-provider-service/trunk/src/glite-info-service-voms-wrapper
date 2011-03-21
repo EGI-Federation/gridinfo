@@ -34,6 +34,7 @@ for vo in $vos ; do
 	export GLITE_INFO_SERVICE_VO=$vo
 # The UniqueID needs to have the VO name appended to make it unique
 	glite-info-service $config $sitename ${uniqueid}_$vo
+	glite-info-service-glue2 $config $sitename ${uniqueid}_$vo
 
     fi
 
