@@ -139,23 +139,8 @@ if ($options{s}){
     $max_file_size=int($options{s});
 }
 
-# Figure out the location of the glite var directory
-my $var_dir;
-if (exists($ENV{GLITE_LOCATION_VAR})) {
-    $var_dir = "$ENV{GLITE_LOCATION_VAR}";
-} elsif (exists($ENV{GLITE_LOCATION})) {
-    $var_dir = "$ENV{GLITE_LOCATION}/var";
-} else {
-    $var_dir = "/opt/glite/var";
-}
-
-# Figure out the location of the glite etc directory
-my $etc_dir;
-if (exists($ENV{GLITE_LOCATION})) {
-    $etc_dir = "$ENV{GLITE_LOCATION}/etc";
-} else {
-    $etc_dir = "/opt/glite/etc";
-}
+# Set the location of the var directory
+my $var_dir = "/var/lib/bdii/gip";
 
 my @ldif;
 
