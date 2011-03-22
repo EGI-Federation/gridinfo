@@ -1,0 +1,20 @@
+dn: Mds-Vo-name=site_2,o=grid
+objectClass: Mds
+Mds-Vo-name: site_2
+
+dn: GlueSiteUniqueID=MySite_2,Mds-Vo-name=site_2,Mds-Vo-name=local,o=grid
+objectClass: GlueTop
+objectClass: GlueSite
+objectClass: GlueKey
+objectClass: GlueSchemaVersion
+GlueSiteUniqueID: MySite_2
+GlueSiteName: MyName
+GlueSiteDescription: Test Site
+GlueSiteLongitude: 0
+GlueSiteLatitude: 0
+GlueSiteEmailContact: unset
+GlueSiteWeb: http://site.com
+GlueSiteLocation: Somewhere
+GlueSchemaVersionMajor: 1
+GlueSchemaVersionMinor: 3
+
