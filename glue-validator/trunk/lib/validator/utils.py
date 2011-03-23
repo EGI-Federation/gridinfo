@@ -167,8 +167,7 @@ def get_dns(ldif):
         if (dn_index == -1):
             break
         end_dn_index = ldif.find("\n", dn_index, last_dn_index) 
-        dn = ldif[dn_index + 4 :end_dn_index].lower() 
-        end_entry_index = ldif.find("\n\n", dn_index, last_dn_index) 
+        dn = ldif[ dn_index + 4 : end_dn_index ].lower() 
         dns[dn] = (dn_index, last_dn_index)
         last_dn_index = dn_index
     return dns

@@ -2,6 +2,7 @@
 
 import logging
 import unittest
+import os
 import sys
 import validator.utils
 import validator.EntryTest
@@ -16,7 +17,12 @@ if __name__ == "__main__":
     log.setLevel(config['debug'])
 
     if config.has_key('file'):
-      source = "file://%s" % (config['file'])
+        if os.path.exists(config['file']):
+            source = "file://%s" % (config['file'])
+        else:
+            sys.stderr.write("Error: File %s does not exist\n" %(config['file'],))
+            sys.exit(1)
+
     if config.has_key('host'):
       source = "ldap://%s:%s/%s" % (config['host'], config['port'], config['bind'])
 
@@ -27,7 +33,7 @@ if __name__ == "__main__":
         sys.exit(1)
     suite = unittest.TestSuite()
     for dn in dns_dict:
-      entry = ldif[dns_dict[dn][0]:dns_dict[dn][1]].strip()
+      entry = ldif[dns_dict[dn][0]:dns_dict[dn][1]]
       entry = validator.utils.convert_entry(entry)
       module = sys.modules['validator.EntryTest']
       inst = getattr(module, 'EntryTest')
