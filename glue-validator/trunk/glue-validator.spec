@@ -1,6 +1,6 @@
 Summary: GLUE 2.0 Valiation Scripts
 Name: glue-validator
-Version: 0.0.2
+Version: 0.0.3
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: EGEE
@@ -32,5 +32,7 @@ rm -rf $RPM_BUILD_ROOT
 
 
 %changelog
+* Wed Mar 23 2011 Laurence Field <laurence.field@cern.ch>  - 0.0.3-1
+- Fixed IS-229 
 * Tue Jan 18 2011 Laurence Field <laurence.field@cern.ch>  - 0.0.1-1
 - Initial Version
