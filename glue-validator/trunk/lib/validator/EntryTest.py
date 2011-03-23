@@ -16,7 +16,7 @@ class EntryTest(unittest.TestCase):
         if 'objectClass' in entry:
             self.objects = entry['objectClass']
         else:
-            self.objects = None
+            self.objects = []
 
         self.schema = __import__('%s.data' %(test_class,)).data.schema 
         self.types = __import__('%s.types' %(test_class,)).types
