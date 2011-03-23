@@ -2,7 +2,7 @@
 %define _topdir %{topdir} 
 Summary: glite-yaim-bdii module configures the top level BDII and site BDII.
 Name: glite-yaim-bdii
-Version: 4.2.1
+Version: 4.3.0
 Vendor: EGEE
 Release: 1
 License: EGEE
@@ -29,6 +29,7 @@ make install prefix=%{buildroot}%{prefix}
 %{prefix}/yaim/functions/config_*
 %{prefix}/yaim/defaults/*.pre
 %config %{prefix}/yaim/node-info.d/glite-*
+%config %{prefix}/yaim/node-info.d/emi-*
 %{prefix}/yaim/examples/siteinfo/services/glite-*
 %{prefix}/yaim/etc/versions/%{name}
 %doc LICENSE
