@@ -1,0 +1,43 @@
+#!/bin/bash
+#set -x
+script=../bin/glue2-validator
+output=$(mktemp)
+export PYTHONPATH=../lib
+
+function test_ldif {
+    echo -n "Testing ${ldif} ... " 
+    ${script} -f $1 > ${output} 2>${output}.err
+    if [ $? -gt 0 ]; then 
+	echo "FAIL" 1>&2
+	cat ${output}
+	cat ${output}.err
+	return
+    fi
+    #if [ $(wc -l ${output} | sed 's/ .*//') -ne 2 ]; then
+#	echo "FAIL" 1>&2
+#	cat ${output}
+#	cat ${output}.err
+#	return
+#    fi
+    grep "$2" ${output}.err >/dev/null 2>&1
+    if [ $? -gt 0 ]; then 
+	echo "FAIL" 1>&2
+	cat ${output}.err
+	return
+    fi
+    echo "OK"
+}  
+
+ldif=ldif/GLUE2AdminDomain/AdminDomain.ldif
+message="The field GLUE2DomainId with value"
+test_ldif ${ldif} "${message}"
+
+ldif=ldif/GLUE2Location/Location.ldif
+message="^"
+test_ldif ${ldif} "${message}"
+
+ldif=ldif/GLUE2Contact/Contact.ldif
+message="^"
+test_ldif ${ldif} "${message}"
+
+rm -f ${output}
