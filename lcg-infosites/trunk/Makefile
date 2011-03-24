@@ -1,68 +1,47 @@
-PACKAGE_NAME=lcg-infosites
-####################################################################
-# Distribution Makefile
-####################################################################
+NAME= $(shell grep Name: *.spec | sed 's/^[^:]*:[^a-zA-Z]*//' )
+VERSION= $(shell grep Version: *.spec | sed 's/^[^:]*:[^0-9]*//' )
+RELEASE= $(shell grep Release: *.spec |cut -d"%" -f1 |sed 's/^[^:]*:[^0-9]*//')
+build=$(shell pwd)/build
+DATE=$(shell date "+%a, %d %b %Y %T %z")
 
-.PHONY: configure install clean
+default: 
+	@echo "Nothing to do"
 
-all: compile
-
-####################################################################
-# Prepare
-####################################################################
-
-prepare: 
-	@mkdir -p build
-
-####################################################################
-# Configure
-####################################################################
-
-configure: 
-	@echo "No configuration required, use either 'make install' or 'make rpm'."
-
-####################################################################
-# Compile
-####################################################################
-
-compile: prepare
-	@echo "No compile required, use either 'make install' or 'make rpm'."
-
-####################################################################
-# Install
-####################################################################
-
-install: compile
+install:
 	@echo installing ...
-	@mkdir -p $(prefix)/bin/
-	@mkdir -p $(prefix)/man/man1
-	@install -m 0755 src/lcg-infosites   $(prefix)/bin/lcg-infosites
-	@install -m 0644 man/lcg-infosites.1 $(prefix)/man/man1/lcg-infosites.1
-
-####################################################################
-# Documentation
-####################################################################
-
-doc: 
-	@echo "No documentation required, use either 'make install' or 'make rpm'."
-####################################################################
-# Install Doc
-####################################################################
-
-install-doc: doc
-	@echo installing  docs...
+	@mkdir -p $(prefix)/usr/bin/
+	@mkdir -p $(prefix)/usr/share/man/man1
+	@install -m 0755 src/lcg-infosites   $(prefix)/usr/bin/lcg-infosites
+	@install -m 0644 man/lcg-infosites.1 $(prefix)/usr/share/man/man1/lcg-infosites.1
 
 
-####################################################################
-# Build Distribution
-####################################################################
+dist:
+	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
+	rsync -HaS --exclude ".svn" --exclude "$(build)" * $(build)/$(NAME)-$(VERSION)/
+	cd $(build); tar --gzip -cf $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)/; cd -
 
-dist: prepare 
-	@tar --gzip -cf build/$(PACKAGE_NAME).src.tgz *
+sources: dist
+	cp $(build)/$(NAME)-$(VERSION).tar.gz .
 
-rpm: dist
-	@rpmbuild -ta build/$(PACKAGE_NAME).src.tgz 
+deb: dist
+	cd $(build)/$(NAME)-$(VERSION); dpkg-buildpackage -us -uc; cd -
 
-clean::
-	rm -f *~ test/*~ etc/*~ doc/*~ src/*~ $(PACKAGE_NAME).src.tgz 
-	rm -rf build
+prepare: dist
+	@mkdir -p  $(build)/RPMS/noarch
+	@mkdir -p  $(build)/SRPMS/
+	@mkdir -p  $(build)/SPECS/
+	@mkdir -p  $(build)/SOURCES/
+	@mkdir -p  $(build)/BUILD/
+	cp $(build)/$(NAME)-$(VERSION).tar.gz $(build)/SOURCES 
+
+srpm: prepare
+	@rpmbuild -bs --define='_topdir ${build}' $(NAME).spec
+
+rpm: srpm
+	@rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE).src.rpm
+
+clean:
+	rm -f *~ $(NAME)-$(VERSION).tar.gz
+	rm -rf $(build)
+
+.PHONY: dist srpm rpm sources clean 
