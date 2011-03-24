@@ -1,30 +1,47 @@
-PACKAGE_NAME=lcg-info
-.PHONY: configure install clean
+NAME= $(shell grep Name: *.spec | sed 's/^[^:]*:[^a-zA-Z]*//' )
+VERSION= $(shell grep Version: *.spec | sed 's/^[^:]*:[^0-9]*//' )
+RELEASE= $(shell grep Release: *.spec |cut -d"%" -f1 |sed 's/^[^:]*:[^0-9]*//')
+build=$(shell pwd)/build
+DATE=$(shell date "+%a, %d %b %Y %T %z")
 
-all: configure
+default: 
+	@echo "Nothing to do"
 
-prepare:
-	mkdir -p build
+install:
+	@echo installing ...
+	@mkdir -p $(prefix)/usr/bin/
+	@mkdir -p $(prefix)/usr/share/man/man1
+	@install -m 0755 src/lcg-info   $(prefix)/usr/bin/lcg-info
+	@install -m 0644 src/lcg-info.1 $(prefix)/usr/share/man/man1/lcg-info.1
 
-configure:
-	@echo "No configuration required, use either 'make install' or 'make rpm'."
 
-compile:
-	@echo "No compiling required, use either 'make install' or 'make rpm'."
+dist:
+	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
+	rsync -HaS --exclude ".svn" --exclude "$(build)" * $(build)/$(NAME)-$(VERSION)/
+	cd $(build); tar --gzip -cf $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)/; cd -
 
-install: 
-	@echo installing...
-	@mkdir -p $(prefix)/bin
-	@mkdir -p $(prefix)/man/man1
-	@install -m 0755 src/lcg-info $(prefix)/bin/lcg-info
-	@install -m 0644 src/lcg-info.1 $(prefix)/man/man1/lcg-info.1
+sources: dist
+	cp $(build)/$(NAME)-$(VERSION).tar.gz .
 
-dist: prepare
-	@tar --gzip -cf build/$(PACKAGE_NAME).src.tgz src Makefile lcg-info.spec
+deb: dist
+	cd $(build)/$(NAME)-$(VERSION); dpkg-buildpackage -us -uc; cd -
 
-rpm: dist
-	@rpmbuild -ta build/$(PACKAGE_NAME).src.tgz
+prepare: dist
+	@mkdir -p  $(build)/RPMS/noarch
+	@mkdir -p  $(build)/SRPMS/
+	@mkdir -p  $(build)/SPECS/
+	@mkdir -p  $(build)/SOURCES/
+	@mkdir -p  $(build)/BUILD/
+	cp $(build)/$(NAME)-$(VERSION).tar.gz $(build)/SOURCES 
+
+srpm: prepare
+	@rpmbuild -bs --define='_topdir ${build}' $(NAME).spec
+
+rpm: srpm
+	@rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE).src.rpm
 
 clean:
-	rm -f *~
-	rm -rf build
+	rm -f *~ $(NAME)-$(VERSION).tar.gz
+	rm -rf $(build)
+
+.PHONY: dist srpm rpm sources clean 
