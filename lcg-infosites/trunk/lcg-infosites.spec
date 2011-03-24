@@ -1,34 +1,33 @@
-Summary: lcg-infosites
-Name: lcg-infosites
-Version: 3.0.1
-Vendor: EGEE
-Release: 2
-License: ASL 2.0
-Group: LCG
-Source: %{name}.src.tgz
-BuildArch: noarch
-Prefix: /opt/lcg
-BuildRoot: %{_tmppath}/%{name}-%{version}-build
-Packager: LCG
-
-Obsoletes: lcg-info-api-ldap
+Name:		lcg-infosites
+Version:	3.1.0
+Release:	1%{?dist}
+Summary:	lcg-infosites
+Group:		System Environment/Daemons
+License:	ASL 2.0
+Source:		%{name}-%{version}.tar.gz
+BuildArch:	noarch
+BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
 %description
-information system wrapper
+Information System Client
 
 %prep
-
-%setup -c
+%setup -q
 
 %build
-make install prefix=%{buildroot}%{prefix}
 
-
-%files
-%defattr(-,root,root)
-%{prefix}/bin/lcg-infosites
-%{prefix}/man/man1/lcg-infosites.1
+%install
+rm -rf %{buildroot}
+make install prefix=%{buildroot}
 
 %clean
 rm -rf %{buildroot}
 
+%files
+%defattr(-,root,root,-)
+/usr/bin/lcg-infosites
+/usr/share/man/man1
+
+%changelog
+* Thu Mar 24 2011 Laurence Field <laurence.field@cern.ch> - 3.1.0
+- FHS compliant
