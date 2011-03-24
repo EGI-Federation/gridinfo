@@ -1,0 +1,164 @@
+.TH LCG-INFOSITES "1" "Jan 2011" "lcg-infosites 3.0.1" "User Commands"
+.SH NAME
+lcg-infosites \- list grid service information matching given criteria
+.SH SYNOPSIS
+.B lcg-infosites
+[\fIoptions\fR] \fIselection(s)\fR
+.br
+.SH DESCRIPTION
+.PP
+\fBlcg-infosites\fR provides a user-friendly way to query the EGI/WLCG
+information system for services that match given criteria.
+The supported options and selections are detailed below.
+.SH OPTIONS
+.TP
+\fB\-f \fIsite_name\fR
+Restrict the listed service information to the given site.
+.TP
+\fB\-h | \-\-help\fR
+Display a usage reminder and exit.
+.TP
+\fB\-\-is\fR \fIBDII_host\fR[\fI:port\fR]
+Indicate the BDII to be used.  By default the BDII(s) in $LCG_GFAL_INFOSYS
+will be tried.
+.TP
+\fB\-\-trust\fR \fIhost\fR
+For the '\fBmyproxy\fR' selection only list MyProxy servers that trust
+the given host for renewing proxies.
+.TP
+\fB\-v\fR {\fI1\fR | \fI2\fR | \fI3\fR | \fI4\fR}
+Change the output verbosity for certain selections (see below).
+.TP
+\fB\-V | \-\-version\fR
+Output version information and exit.
+.TP
+\fB\-\-vo\fR \fIVO\fR
+Restrict the listed service information to the given VO or VOMS attribute
+name.  By default the VO is determined from the user's VOMS proxy, even if
+it has expired.  The wildcard character '*' can be used to list service
+information pertaining to multiple VOs or VOMS attributes.
+.SH SELECTIONS
+.PP
+For any listings of service endpoints the corresponding site names are
+added when the '\fB-v\fR' option is supplied with argument '\fB4\fR'.
+.TP
+\fBall\fR
+Equivalent to selecting '\fBce\fR' and '\fBse\fR'.
+.TP
+\fBbdii_site\fR
+List site BDII endpoints.
+.TP
+\fBbdii_top\fR
+List top BDII endpoints.
+.TP
+\fBce\fR
+If no '\fB\-v\fR' option is supplied, list matching CE endpoints with their
+total and free CPU counts and their total, running and waiting job counts.
+.sp
+If the '\fB\-v\fR' option is supplied with argument '\fB1\fR', list the
+matching CE endpoints.
+.sp
+If the '\fB\-v\fR' option is supplied with argument '\fB2\fR', list the
+matching GLUE SubClusters with their values for RAM, operating system name
+and version, and processor type.
+.sp
+If the '\fB\-v\fR' option is supplied with argument '\fB3\fR', list the
+matching CE endpoints with their values for RAM, operating system name
+and release, and processor type.  A CE will appear multiple times if it
+is associated with multiple SubClusters.  Note: the WMS currently cannot
+submit jobs to such a CE, unless \fIall\fR its SubClusters match the job
+requirements.
+.sp
+If the '\fB\-v\fR' option is supplied with argument '\fB4\fR', list the
+matching CE endpoints along with the corresponding site names.
+.TP
+\fBcloseSE\fR
+For each matching CE list the matching close SEs.  Close SEs that
+do not match the VO criteria are skipped.
+.TP
+\fBcream\fR
+List the matching CREAM endpoints.
+.TP
+\fBdli\fR, \fBdliLocal\fR
+List the Data Location Interface endpoints corresponding to the matching
+global or local LCG File Catalog endpoints (see below).  The DLI is used
+by the WMS to resolve Logical File Names and files identified by GUIDs.
+.TP
+\fBfts\fR
+List matching instances of the File Transfer Service.
+.TP
+\fBgridice\fR
+List matching collector endpoints for GridICE monitoring services.
+.TP
+\fBlb\fR
+List matching Logging and Bookkeeping endpoints.
+.TP
+\fBlcg-ce\fR
+List the matching LCG-CE endpoints.
+.TP
+\fBlfc\fR, \fBlfcLocal\fR
+List the global or local LCG File Catalog endpoints.  Each VO can have
+only a single global LFC at most, but (also) can have multiple local LFC
+instances.
+.TP
+\fBmyproxy\fR
+List the MyProxy service endpoints.  If the '\fI--trust\fR' option
+is specified, only those endpoints are listed that support the given
+host as an \fIauthorized renewer\fR of proxies.  This allows the user
+to find MyProxy servers that support e.g.\ a given WMS host.
+.TP
+\fBse\fR
+If no '\fB\-v\fR' option is supplied, list matching SE endpoints with their
+amounts of available and used space (deprecated legacy attributes, in kB) and
+their types.  The type is \fISRM\fR if the SE supports the Storage Resource
+Manager interface version 1.1 or 2.2, else \fIxroot\fR if it supports the
+\fIXroot(d)\fR interface, else \fIgftp\fR if it supports \fIgsiftp\fR
+(GridFTP), else '-'.  See the '\fBspace\fR' selection for detailed
+information about SRM spaces.
+.sp
+If the '\fB\-v\fR' option is supplied with argument '\fB1\fR', list the
+matching SE endpoints.
+.sp
+If the '\fB\-v\fR' option is supplied with argument '\fB4\fR' (sic), list
+the matching SE endpoints along with the corresponding site names.
+.TP
+\fBsitenames\fR
+List the sites.
+.TP
+\fBspace\fR
+For each matching SRM space on the matching SE endpoints list the amounts
+of free, used and reserved space in GB for online and nearline latencies and,
+if defined, the tag (space token user description) identifying the space.
+.TP
+\fBtag\fR
+For each matching CE list the matching software tags published by the CE.
+.TP
+\fBvobox\fR
+List the matching VOBOX endpoints.
+.TP
+\fBvoms\fR
+List the matching VOMS endpoints.
+.TP
+\fBvoms-admin\fR
+List the matching VOMS-Admin endpoints.
+.TP
+\fBvoview\fR
+If no '\fB\-v\fR' option is supplied, list matching CE endpoints with their
+matching VO-specific attributes: the running, waiting and total job counts,
+the free job slots, the estimated and worst response times, the default SE
+and the location of the software area.
+.sp
+If the '\fB\-v\fR' option is supplied with argument '\fB1\fR', list the
+matching CE endpoints with a subset of the matching VO-specific attributes:
+the free job slots and the total, running and waiting job counts.
+This allows for easier comparison with the output for the '\fBce\fR'
+selection.
+.TP
+\fBwms\fR
+List the matching Workload Management System endpoints.
+.SH AUTHOR
+Versions <= 2.6.9 by Patricia Mendez Lorenzo
+.br
+Versions >= 3.0.0 by Maarten Litmaath
+.SH "REPORTING BUGS"
+Report bugs via GGUS (http://ggus.org).
