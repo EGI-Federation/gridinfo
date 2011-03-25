@@ -5,7 +5,7 @@
 # These can be overridden by external definitions of the variables,
 # e.g. if the advertised host name should be an alias
 
-MYPROXY_CONF=${MYPROXY_CONF:-/etc/myproxy-server.conf}
+MYPROXY_CONF=${MYPROXY_CONF:-/etc/myproxy-server.config}
 
 MYPROXY_HOST=${MYPROXY_HOST:-`hostname -f`}
 
