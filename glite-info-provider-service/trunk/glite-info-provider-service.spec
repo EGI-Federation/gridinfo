@@ -1,5 +1,5 @@
 Name:		glite-info-provider-service
-Version:	1.5.1
+Version:	1.5.2
 Release:	1%{?dist}
 Summary:	The GLUE service information provider
 Group:		System/Monitoring
@@ -92,6 +92,8 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Mar 25 2011 Laurence Field <laurence.field@cern.ch> - 1.5.2-1
+- Changed the value of MYPROXY_CONF
 * Tue Mar 08 2011 Laurence Field <laurence.field@cern.ch> - 1.5.0-1
 - Now FHS Compliant
 * Tue Apr 06 2010 Laurence Field <laurence.field@cern.ch> - 1.3.3-1
