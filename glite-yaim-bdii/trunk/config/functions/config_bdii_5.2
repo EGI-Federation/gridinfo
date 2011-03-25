@@ -64,7 +64,7 @@ BDII_RAM_DISK=${BDII_RAM_DISK}
 EOF
 
 if [ -f /etc/bdii/bdii-slapd.conf ]; then
-  sed -i  "s/.*rootpw.*/rootpw   ${BDII_PASSWD}/" /etc/bdii/bdii-slapd.conf
+  sed -i  "s#.*rootpw.*#rootpw   ${BDII_PASSWD}#" /etc/bdii/bdii-slapd.conf
 fi
 
 if [ -f /etc/init.d/ldap2.4 ]; then
