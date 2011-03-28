@@ -68,7 +68,7 @@ def read_config(config_file):
             except ValueError:
                 log.error("The value for parameter '%s' is not a boolean" %(parameter,))
                 sys.exit(1)
-        for parameter in ['output_file', 'manual_file', 'cache_dir']:
+        for parameter in ['output_file', 'manual_file', 'cache_dir', 'certification_status']:
             config[parameter] = config_parser.get('configuration', parameter)
     except ConfigParser.NoSectionError, e:
         log.error("Missing section 'configuration' in the configuration file %s." %(config_file,))
@@ -124,9 +124,9 @@ def get_osg_urls():
 
     return osg_urls
 
-def get_egi_urls():
+def get_egi_urls(status):
 
-    egi_goc_url = "http://goc.egi.eu/gocdbpi/public/?method=get_site_list&certification_status=Certified&production_status=Production"
+    egi_goc_url = "http://goc.egi.eu/gocdbpi/public/?method=get_site_list&certification_status=%s&production_status=Production" %(status,)
 
     try:
         response = urllib2.urlopen(egi_goc_url).read()
@@ -190,6 +190,7 @@ if __name__ == "__main__":
     setup_logging()
     config = None
     parse_args()
+
     if not config:
         log.error("No configuration file given.")
         usage()
@@ -197,7 +198,14 @@ if __name__ == "__main__":
 
     egi_urls = None
     if config['EGI']:
-        egi_urls = get_egi_urls()
+        if not config['certification_status'] in ["Candidate", "Uncertified", 
+                                                  "Certified", "Closed", 
+                                                  "Suspended"]:
+            message = "'%s' is not a valid certification_status." \
+                %(config['certification_status'],)
+            log.error(message)
+            sys.exit(1)
+        egi_urls = get_egi_urls(config['certification_status'])
         pickle_file = config['cache_dir'] + '/' + 'EGI.pkl'
         if len(egi_urls) > 0:
             file_handle = open(pickle_file, 'wb')
