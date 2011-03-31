@@ -4,8 +4,6 @@
 command="ldapsearch -LLL -x -h $(hostname -f) -p 2170 "
 bind="-b mds-vo-name=resource,o=grid "
 
-${command} ${bind}
-
 RETVAL=0
 
 echo -n "Testing the publication of service entry at resource-level: "
