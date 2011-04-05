@@ -15,12 +15,10 @@
 # limitations under the License.
 ##############################################################################
 
-GLITE_HOME=${GLITE_HOME:-/opt/glite}
-export PATH=$PATH:${GLITE_HOME}/libexec
-CONFIG=${GLITE_HOME}/etc/glite-info-service-bdii-top.conf
-TEMPLATE=${GLITE_HOME}/etc/glite-info-service-bdii-top.conf.template
-SCRIPT=${GLITE_HOME}/libexec/glite-info-service
-DEFAULTS=${GLITE_HOME}/etc/glite-info-site-defaults.conf
+CONFIG=/etc/bdii/gip/etc/glite-info-service-bdii-top.conf
+TEMPLATE=/etc/glite/info/service/glite-info-service-bdii-top.conf.template
+SCRIPT=/usr/bin/glite-info-service
+DEFAULTS=/etc/bdii/gip/etc/glite-info-site-defaults.conf
 
 # Check for the existence of the configuration file.
 if [ -f ${DEFAULTS} ]; then
