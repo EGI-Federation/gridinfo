@@ -50,13 +50,7 @@ fi
 
 SITE_COUNTRY=$(echo ${SITE_LOC} | rev | cut -d"," -f1 | rev )
 
-
 outfile=/etc/glite-info-static/site/site.cfg
-
-grep SITE_COUNTRY $outfile
-if [ $? -gt 0 ]; then
-   echo "SITE_COUNTRY = YaimLand" >>$outfile
-fi
 
 sed -i "s/SITE_LON\s*=/SITE_LONG =/" $outfile
 sed -i "s/SITE_NAME\s*=.*/SITE_NAME = $SITE_NAME/" $outfile
