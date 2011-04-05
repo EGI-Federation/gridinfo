@@ -1,16 +1,13 @@
-prefix=/opt/glite
-package=glite-yaim-bdii
-name=$Name:  $
-tag:=$(shell echo $(name) | sed 's/^[^:]*: //' )
-version:=$(shell echo "$(tag)" | sed 's/^.*R_//' | sed 's/_/\./g')
-release:=$(shell echo "$(version)" | sed 's/.*\.//')
-version:=$(shell echo "$(version)" | sed 's/\(.*\)\.[0-9]*/\1/')
+NAME= $(shell grep Name: *.spec | sed 's/^[^:]*:[^a-zA-Z]*//' )
+VERSION= $(shell grep Version: *.spec | sed 's/^[^:]*:[^0-9]*//' )
+RELEASE= $(shell grep Release: *.spec |cut -d"%" -f1 |sed 's/^[^:]*:[^0-9]*//')
+build=$(shell pwd)/build
+DATE=$(shell date "+%a, %d %b %Y %T %z")
 
-.PHONY: configure install clean rpm
+default: 
+	@echo "Nothing to do"
 
-all: configure
-
-install: 
+install:
 	@echo installing ...
 	@mkdir -p $(prefix)/yaim/functions
 	@mkdir -p $(prefix)/yaim/node-info.d
@@ -19,7 +16,7 @@ install:
 	@mkdir -p $(prefix)/yaim/examples/siteinfo/services
 	@mkdir -p $(prefix)/yaim/defaults
 	@mkdir -p $(prefix)/yaim/etc/versions
-	@echo "$(package) $(version)-$(release)" > $(prefix)/yaim/etc/versions/$(package)
+	@echo "$(NAME) $(VERSION)-$(RELEASE)" > $(prefix)/yaim/etc/versions/$(NAME)
 
 	@install -m 0644 config/functions/config_* $(prefix)/yaim/functions
 	@install -m 0644 config/node-info.d/glite-* $(prefix)/yaim/node-info.d
@@ -27,24 +24,33 @@ install:
 	@install -m 0644 config/defaults/*.pre $(prefix)/yaim/defaults
 	@install -m 0644 config/services/glite* $(prefix)/yaim/examples/siteinfo/services/.
 
+dist:
+	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
+	rsync -HaS --exclude ".svn" --exclude "$(build)" * $(build)/$(NAME)-$(VERSION)/
+	cd $(build); tar --gzip -cf $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)/; cd -
 
-clean::
-	rm -f *~ test/*~ etc/*~ doc/*~ src/*~  
-	rm -rf rpmbuild 
+sources: dist
+	cp $(build)/$(NAME)-$(VERSION).tar.gz .
 
-rpm:
-	@mkdir -p  rpmbuild/RPMS/noarch
-	@mkdir -p  rpmbuild/SRPMS/
-	@mkdir -p  rpmbuild/SPECS/
-	@mkdir -p  rpmbuild/SOURCES/
-	@mkdir -p  rpmbuild/BUILD/
+deb: dist
+	cd $(build)/$(NAME)-$(VERSION); dpkg-buildpackage -us -uc; cd -
 
-ifneq ("$(tag)","ame:")
-	@sed -i 's/^Version:.*/Version: $(version)/' $(package).spec
-	@sed -i 's/^Release:.*/Release: $(release)/' $(package).spec
-endif
-	@tar --gzip --exclude='*CVS*' -cf rpmbuild/SOURCES/${package}.src.tgz *
-	@rpmbuild -ba ${package}.spec
+prepare: dist
+	@mkdir -p  $(build)/RPMS/noarch
+	@mkdir -p  $(build)/SRPMS/
+	@mkdir -p  $(build)/SPECS/
+	@mkdir -p  $(build)/SOURCES/
+	@mkdir -p  $(build)/BUILD/
+	cp $(build)/$(NAME)-$(VERSION).tar.gz $(build)/SOURCES 
 
+srpm: prepare
+	@rpmbuild -bs --define='_topdir ${build}' $(NAME).spec
 
+rpm: srpm
+	@rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE).src.rpm
 
+clean:
+	rm -f *~ $(NAME)-$(VERSION).tar.gz
+	rm -rf $(build) rpmbuild
+
+.PHONY: dist srpm rpm sources clean 

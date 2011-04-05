@@ -1,42 +1,35 @@
-%define topdir %(pwd)/rpmbuild
-%define _topdir %{topdir} 
-Summary: glite-yaim-bdii module configures the top level BDII and site BDII.
-Name: glite-yaim-bdii
-Version: 4.3.1
-Vendor: EGEE
-Release: 1
-License: EGEE
-Group: EGEE
-Source: %{name}.src.tgz
-BuildArch: noarch
-Prefix: /opt/glite
-Requires: glite-yaim-core
-BuildRoot: %{_tmppath}/%{name}-%{version}-build
-Packager: EGEE
+Name:		glite-yaim-bdii
+Version:	4.3.2
+Release:	1%{?dist}
+Summary:	glite-yaim-bdii module configures the top level BDII and site BDI
+Group:		Development/Tools
+License:	Apache Software Li
+Source:		%{name}-%{version}.tar.gz
+BuildArch:	noarch
+BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
 %description
 This package contains the yaim functions necessary to configure the top level and site BDII.
 
 %prep
-
-%setup -c
+%setup -q
 
 %build
-make install prefix=%{buildroot}%{prefix}
+# Nothing to build
 
-%files
-%defattr(-,root,root)
-%{prefix}/yaim/functions/config_*
-%{prefix}/yaim/defaults/*.pre
-%config %{prefix}/yaim/node-info.d/glite-*
-%config %{prefix}/yaim/node-info.d/emi-*
-%{prefix}/yaim/examples/siteinfo/services/glite-*
-%{prefix}/yaim/etc/versions/%{name}
-%doc LICENSE
-
+%install
+rm -rf %{buildroot}/opt/glite
+make install prefix=%{buildroot}/opt/glite
 
 %clean
 rm -rf %{buildroot}
 
-
-
+%files
+%defattr(-,root,root,-)
+/opt/glite/yaim/functions/config_*
+/opt/glite/yaim/defaults/*.pre
+%config /opt/glite/yaim/node-info.d/glite-*
+%config /opt/glite/yaim/node-info.d/emi-*
+/opt/glite/yaim/examples/siteinfo/services/glite-*
+/opt/glite/yaim/etc/versions/%{name}
+%doc LICENSE
