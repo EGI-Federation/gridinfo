@@ -1,5 +1,5 @@
 Name:		bdii-config-site
-Version:	1.0.1
+Version:	1.0.2
 Release:	1%{?dist}
 Summary:	Site BDII configration files
 Group:		System/Monitoring
@@ -50,6 +50,8 @@ rm -rf %{buildroot}
 /var/lib/bdii/gip/provider/glite-info-provider-site-glue2
 
 %changelog
+* Tue Apr 05 2011 Laurence Field <laurence.field@cern.ch> - 1.0.2-1
+- Fixed error due to new version of glite-info-provider-service
 * Mon Mar 21 2011 Laurence Field <laurence.field@cern.ch> - 1.0.1-1
 - Changed config location to /etc/bdii/gip
 * Tue Mar 15 2011 Laurence Field <laurence.field@cern.ch> - 1.0.0-1
