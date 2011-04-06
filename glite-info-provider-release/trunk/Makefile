@@ -1,37 +1,44 @@
-prefix=/opt/glite
-package=glite-info-provider-release
-name=$Name:  $
-tag:=$(shell echo $(name) | sed 's/^[^:]*: //' )
-version:=$(shell echo "$(tag)" | sed 's/^.*R_//' | sed 's/_/\./g')
-release:=$(shell echo "$(version)" | sed 's/.*\.//')
-version:=$(shell echo "$(version)" | sed 's/\(.*\)\.[0-9]*/\1/')
+NAME= $(shell grep Name: *.spec | sed 's/^[^:]*:[^a-zA-Z]*//' )
+VERSION= $(shell grep Version: *.spec | sed 's/^[^:]*:[^0-9]*//' )
+RELEASE= $(shell grep Release: *.spec |cut -d"%" -f1 |sed 's/^[^:]*:[^0-9]*//')
+build=$(shell pwd)/build
+DATE=$(shell date "+%a, %d %b %Y %T %z")
 
-.PHONY: configure install clean rpm
+default: 
+	@echo "Nothing to do"
 
-all: configure
-
-install: 
+install:
 	@echo installing ...
-	@mkdir -p ${prefix}/libexec/
-	@install -m 0755 src/glite-info-provider-release ${prefix}/libexec
+	@mkdir -p ${prefix}/opt/glite/libexec/
+	@install -m 0755 src/glite-info-provider-release ${prefix}/opt/glite/libexec
 
-clean::
-	rm -f *~ test/*~ etc/*~ doc/*~ src/*~  
-	rm -rf rpmbuild 
+dist:
+	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
+	rsync -HaS --exclude ".svn" --exclude "$(build)" * $(build)/$(NAME)-$(VERSION)/
+	cd $(build); tar --gzip -cf $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)/; cd -
 
-rpm:
-	@mkdir -p  RPMS
-	@mkdir -p  rpmbuild/RPMS/noarch
-	@mkdir -p  rpmbuild/SRPMS/
-	@mkdir -p  rpmbuild/SPECS/
-	@mkdir -p  rpmbuild/SOURCES/
-	@mkdir -p  rpmbuild/BUILD/
+sources: dist
+	cp $(build)/$(NAME)-$(VERSION).tar.gz .
 
-ifneq ("$(tag)","ame:")
-	@sed -i 's/^Version:.*/Version: $(version)/' $(package).spec
-	@sed -i 's/^Release:.*/Release: $(release)/' $(package).spec
-endif
-	@tar --gzip --exclude='*CVS*' -cf rpmbuild/SOURCES/${package}.src.tgz *
-	rpmbuild -ba ${package}.spec
-	cp rpmbuild/RPMS/noarch/*.rpm rpmbuild/SRPMS/*.rpm RPMS/.
+deb: dist
+	cd $(build)/$(NAME)-$(VERSION); dpkg-buildpackage -us -uc; cd -
 
+prepare: dist
+	@mkdir -p  $(build)/RPMS/noarch
+	@mkdir -p  $(build)/SRPMS/
+	@mkdir -p  $(build)/SPECS/
+	@mkdir -p  $(build)/SOURCES/
+	@mkdir -p  $(build)/BUILD/
+	cp $(build)/$(NAME)-$(VERSION).tar.gz $(build)/SOURCES 
+
+srpm: prepare
+	@rpmbuild -bs --define='_topdir ${build}' $(NAME).spec
+
+rpm: srpm
+	@rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE).src.rpm
+
+clean:
+	rm -f *~ $(NAME)-$(VERSION).tar.gz
+	rm -rf $(build)
+
+.PHONY: dist srpm rpm sources clean 
