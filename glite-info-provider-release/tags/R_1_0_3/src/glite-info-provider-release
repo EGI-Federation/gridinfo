@@ -1,0 +1,63 @@
+#!/usr/bin/perl -w
+
+use POSIX;
+use FileHandle;
+use strict;
+use Net::LDAP;
+use Sys::Hostname;
+my $host = hostname;
+my $port = 2170;
+
+my($ldap) = Net::LDAP->new($host,port => $port) or die "Can't bind to ldap: $!\n";
+
+$ldap->bind;
+
+my($mesg) = $ldap->search( base => "mds-vo-name=resource,o=grid",filter => '(objectclass=*)');
+
+$mesg->code && die $mesg->error;
+
+my($entry);
+
+my $glite_dir = "/opt/glite/";
+my $glite_var_dir = "/opt/glite/var";
+
+if (exists($ENV{GLITE_LOCATION})) {
+    $glite_dir = "$ENV{GLITE_LOCATION}";
+} 
+
+if (exists($ENV{GLITE_LOCATION_VAR})) {
+    $glite_var_dir = "$ENV{GLITE_LOCATION_VAR}";
+} else {
+    $glite_var_dir = "$glite_dir/var";
+}
+
+my %metapackage_versions ; 
+my @services = ();
+
+chomp(my $glite_version=`$glite_dir/bin/glite-version`);
+chomp(my @metapackage_names=`$glite_dir/bin/glite-version -l`);
+foreach(@metapackage_names) {
+  chomp(my $metapackage_version=`$glite_dir/bin/glite-version -n $_ -v`);
+  $metapackage_versions{$_} = $metapackage_version;
+}
+
+foreach $entry ($mesg->all_entries) {
+  my @dns = grep /^GlueServiceUniqueID=.*,mds-vo-name=resource,o=grid/i, $entry->dn;
+ 
+  foreach (@dns) {
+    m/GlueServiceUniqueID=([^,]*),/;
+    my $ID=$1;
+    print "dn: GlueServiceDataKey=glite-version,GlueServiceUniqueID=$ID,mds-vo-name=resource,o=grid\n";
+    print "objectClass: GlueTop\nobjectClass: GlueServiceData\nobjectClass: GlueKey\n";
+    print "GlueServiceDataKey: glite-version\nGlueServiceDataValue: $glite_version\nGlueChunkKey: GlueServiceUniqueID=$ID\n\n";
+
+    if (%metapackage_versions) {
+      foreach (keys (%metapackage_versions)) {
+	print "dn: GlueServiceDataKey=metapackage_$_,GlueServiceUniqueID=$ID,mds-vo-name=resource,o=grid\n";
+        print "objectClass: GlueTop\nobjectClass: GlueServiceData\nobjectClass: GlueKey\n";
+	print "GlueServiceDataKey: metapackage_$_\nGlueServiceDataValue: $metapackage_versions{$_}\nGlueChunkKey: GlueServiceUniqueID=$ID\n\n";
+      }
+    }
+  }
+}
+
