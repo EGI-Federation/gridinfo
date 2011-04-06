@@ -1,5 +1,8 @@
 schema = {
     'Mds' : {},
+    'organization' : {
+        'o' : ('String', True, True),
+        },
     'GlueTop' : {},
     'GlueCETop' : {},
     'GlueSATop' : {},
