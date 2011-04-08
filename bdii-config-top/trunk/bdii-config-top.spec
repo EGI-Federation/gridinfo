@@ -28,13 +28,6 @@ Configration files for the Top BDII.
 rm -rf %{buildroot}
 make install prefix=%{buildroot}
 
-%post
-if [ ! -f /opt/glite/etc/gip/provider/glite-info-provider-release ]; then
-    if [ -f /opt/glite/libexec/glite-info-provider-release ]; then
-        ln -s /opt/glite/libexec/glite-info-provider-release /var/lib/bdii/gip/provider/glite-info-provider-release
-    fi
-fi
-
 %clean
 rm -rf %{buildroot}
 
