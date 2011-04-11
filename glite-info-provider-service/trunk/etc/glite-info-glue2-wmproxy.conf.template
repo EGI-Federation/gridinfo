@@ -1,6 +1,6 @@
 
 # This is the configuration file for the GlueService information provider
-# for a myproxy
+# for a wmproxy
 
 # Many of the entries are commands which will be executed
 # using backquotes in perl. They should write to stdout - the return
@@ -10,23 +10,23 @@
 # A non-zero return code will abort the provider
 # Environment variables can be set by writing to stdout (x=y)
 
-init = glite-info-service-myproxy
+init = glite-info-service-wmproxy
 
 # The service type should follow the official list in
 # http://glueschema.forge.cnaf.infn.it/V12/ServiceType
 
-service_type = MyProxy
+service_type = org.glite.wms.WMProxy
 
 # This should be a command which returns the service interface version
-# in the format 3[.2[.1]] - for myproxy just set this to 2.0.0 for now
-# (this seems to be the current protocol version for all MyProxies).
+# in the format 3[.2[.1]]. Set to the wmproxy RPM version for now, but this is probably
+# wrong, it should be the protocol version.
 
-get_version = echo 2.0.0
+get_version = rpm -q glite-wms-wmproxy --queryformat '%{version}\n'
 
 # A command to return the service endpoint to stdout (uses variables set
 # in the init script)
 
-get_endpoint = echo myproxy://$MYPROXY_HOST:$MYPROXY_PORT/
+get_endpoint = echo https://$WMPROXY_HOST:$WMPROXY_PORT/glite_wms_wmproxy_server
 
 # A command to check the status of the service. The status message should be
 # returned to stdout - it can be multi-line, the output will be massaged
@@ -34,52 +34,60 @@ get_endpoint = echo myproxy://$MYPROXY_HOST:$MYPROXY_PORT/
 # The return code should indicate the status:
 # 0 = OK, 1 = Critical, 2 = Warning, 3 = Unknown, other = Other
 
-get_status = glite-info-service-test MYPROXY && test -f /var/lock/subsys/myproxy-server && netstat -an --inet --inet6 | grep "^tcp .* \(::\|0.0.0.0\):${MYPROXYPORT:-7512} .*LISTEN" >/dev/null 2>&1
+get_status = glite-info-service-test WMPROXY && $GLITE_LOCATION/etc/init.d/glite-wms-wmproxy status
 
 # The URL of a WSDL document describing the service
 # If the string does not start with "http" this will be omitted
 
-WSDL_URL = nohttp://not.a.web.service/
+WSDL_URL = http://trinity.datamat.it/projects/EGEE/WMProxy/WMProxy.wsdl
 
 # A URL to a web page defining the service semantics, e.g. a manual
 # If the string does not start with "http" this will be omitted
 
-semantics_URL = http://grid.ncsa.uiuc.edu/myproxy/
+semantics_URL = https://edms.cern.ch/file/674643/1/EGEE-JRA1-TEC-674643-WMPROXY-guide-v0-3.pdf
 
 # StartTime: A command to return the service start time.
 # This should be a unix timestamp, the info provider converts it to ISO8601
 
-get_starttime = perl -e '@st=stat($ENV{MYPROXY_PID_FILE});print "@st[10]\n";'
+get_starttime = perl -e '@st=stat($ENV{WMPROXY_PID_FILE});print "@st[10]\n";'
 
 # Owner: this should return a list of owner VO names, one per line
 # Null entries will be omitted
-# myproxy is not VO-specific (?)
+# Needs to be set at config time, no easy way to get it dynamically
 
 get_owner = echo
 
 # A list of AccessControlBaseRule strings to indicate who is allowed to
 # have access to the service - at the simplest this is the same as the
 # Owner but with the VO names prefixed by "VO:"
-# MyProxy has a complex authorisation system for various different
-# actions. These are published by taking the rules from the config file
-# and putting them out as ACBRs with the special scheme MYPROXY.
+# Needs to be set at config time, no easy way to get it dynamically
 
-get_acbr = egrep '^(authorized_renewers|default_renewers|authorized_retrievers|efault_retrievers|authorized_key_retrievers|default_key_retrievers|trusted_retrevers|default_trusted_retrievers)' $MYPROXY_CONF | sed 's/^\(.*\)[ ][ ]*"\(.*\).*$/MYPROXY:\1=\2/'
+get_acbr = echo
+
+# ServiceData entries if any, as a list of key=value pairs
+# This will normally call a separate script
+# Here we print the host DN to match against the MyProxy authz
+
+get_data = echo -n DN= && grid-cert-info -file /etc/grid-security/hostcert.pem -subject
+
+# Associated services - not used here
+
+get_services = echo
 
 # New GLUE 2 attributes start here
 
 # Capabilities are not very well-defined yet!
 
-get_capabilities = echo security.credentialstorage
+get_capabilities = echo -e "executionmanagement.candidatesetgenerator\nexecutionmanagement.jobdescription\nexecutionmanagement.jobmanager"
 
 # These three identify the specific implementation as opposed to the generic
 # protocol. NB this version is single-valued.
 
 get_implementor = echo gLite
 
-get_implementationname = echo MyProxy
+get_implementationname = echo WMS
 
-get_implementationversion = rpm -q myproxy-server | cut -d- -f3
+get_implementationversion = rpm -q glite-wms-wmproxy --queryformat '%{version}\n'
 
 # The Quality Level for this endpoint: 1 = development, 2 = testing,
 # 3 = pre-production and 4 = production
@@ -90,6 +98,6 @@ get_qualitylevel = echo 4
 # The ServingState for this Endpoint: 1 = closed, 2 = draining,
 # 3 = queueing, 4 = production (NB "production" has a different meaning
 # here to the QualityLevel)
-# Probably not meaningful here
+# No mechanism yet to set this
 
 get_servingstate = echo 4

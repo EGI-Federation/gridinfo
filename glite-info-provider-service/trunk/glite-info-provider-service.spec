@@ -61,6 +61,7 @@ rm -rf %{buildroot}
 /etc/glite/info/service/glite-info-glue2-frontier.conf.template
 /etc/glite/info/service/glite-info-glue2-squid.conf.template
 /etc/glite/info/service/glite-info-glue2-myproxy.conf.template
+/etc/glite/info/service/glite-info-glue2-wmproxy.conf.template
 /etc/glite/info/service/glite-info-service-test.conf.template
 /etc/glite/info/service/glite-info-service-amga.conf.template
 /etc/glite/info/service/glite-info-service-bdii.conf.template
