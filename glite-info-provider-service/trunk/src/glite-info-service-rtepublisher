@@ -43,7 +43,11 @@ case "$1" in
 # Fourth try: recent versions still have no pid/lock file and a different
 # process name.
 
-    GRIDFTP_PROC_FILE=`/bin/ps axwww | awk '/globus-gridftp-server/ { print "/proc/"$1 }' | head -n 1`
+#    GRIDFTP_PROC_FILE=`/bin/ps axwww | awk '/globus-gridftp-server/ { print "/proc/"$1 }' | head -n 1`
+
+# Fifth try: the previous line could pick up the awk line itself ...
+
+    GRIDFTP_PROC_FILE=`/bin/ps axwww | grep -v awk | awk '/globus-gridftp-server/ { print "/proc/"$1 }' | head -n 1`
 
 # Write to stdout - will be imported by the info provider
 

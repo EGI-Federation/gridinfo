@@ -13,6 +13,8 @@
 #
 # Stephen Burke, v 1.0 February 2010
 #
+# 05/04/11: Remove objectClass: GLUE2Entity line as it doesn't seem to be needed
+#
 # Arguments are:
 #    -   the GLUE2DomainID (i.e. the site unique ID)
 #    -   the GLUE2ServiceID (i.e. the unique ID for the Service object),
@@ -45,7 +47,7 @@ use strict;
 use POSIX qw(strftime);
 
 # Version number for this code
-my $gigs_version = "1.0";
+my $gigs_version = "1.1";
 
 # Hostname for debugging info
 my $host = `hostname -f`;
@@ -144,7 +146,6 @@ print "dn: GLUE2ServiceID=$UID,$bind_dn\n";
 
 # Print the boilerplate objectclass declarations and unique ID
 
-print "objectClass: GLUE2Entity\n";
 print "objectClass: GLUE2Service\n";
 
 # This is a bit of a kludge to provide some quick support for

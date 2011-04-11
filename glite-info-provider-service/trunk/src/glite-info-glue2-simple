@@ -13,6 +13,8 @@
 #
 # Stephen Burke, v 1.0 March 2010
 #
+# 05/04/11: Add the endpoint type (extracted from the config file name) to the Service ID
+#
 # Arguments are:
 #    - a configuration file for the Endpoint information, optionally*
 #      followed by a comma-separated configuration file for the
@@ -149,9 +151,16 @@ if (!$SID) {
     chomp($host);
     my $check = `cksum $Endpoint_conf | cut -d\" \" -f 1`;
     chomp($check);
+# ... but we can cheat by assuming that the config file name follows the
+# standard convention ...
+    $Endpoint_conf =~ m/glite-info-\w+-(.+).conf/;
+    my $typeguess = $1;
+    if (!$typeguess) {
+	$typeguess = "unknown";
+    }
 # Note that this may cause trouble if hostname -f does not return an fqdn,
 # but I think that is normally required by other things anyway 
-    $SID = $host . "_" . $check;
+    $SID = $host . "_" . $typeguess . "_" . $check;
 }
 
 # No default needed here, the provider constructs it

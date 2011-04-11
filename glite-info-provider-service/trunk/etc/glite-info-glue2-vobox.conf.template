@@ -82,7 +82,7 @@ get_implementor = echo gLite
 
 get_implementationname = echo VOBOX
 
-get_implementationversion = rpm -qa | grep glite-VOBOX | cut -d- -f3
+get_implementationversion = rpm -q glite-VOBOX --queryformat '%{version}\n'
 
 # The Quality Level for this endpoint: 1 = development, 2 = testing,
 # 3 = pre-production and 4 = production

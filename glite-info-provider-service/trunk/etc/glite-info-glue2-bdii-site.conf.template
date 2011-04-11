@@ -67,7 +67,7 @@ get_implementor = echo gLite
 
 get_implementationname = echo BDII
 
-get_implementationversion = rpm -qa | grep bdii | cut -d- -f2
+get_implementationversion = rpm -q bdii --queryformat '%{version}\n'
 
 # The Quality Level for this endpoint: 1 = development, 2 = testing,
 # 3 = pre-production and 4 = production

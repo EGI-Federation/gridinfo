@@ -8,6 +8,12 @@
 #
 # Stephen Burke, v 1.0 February 2010
 #
+# 05/04/11: Remove objectClass: GLUE2Entity lines as they don't seem to be needed
+# 05/04/11: Add EMI version info as OtherInfos if defined
+# 05/04/11: Change the DowntimeInfo text from goc.gridops.org to goc.egi.eu
+# 11/04/11: Change the StartTime format from local time to UTC for strict
+#           conformance with the schema
+#
 # In general this code is expected to be called from a wrapper script
 # which also generates the parent Service object
 #
@@ -43,10 +49,14 @@ my $command;
 
 # Info provider version and hostname for debugging
 
-my $gige_version = "1.0";
+my $gige_version = "1.1";
 
 my $host = `hostname -f`;
 chomp($host);
+
+# Location of a file containing the EMI version number
+
+my $emiversion = "/etc/emi-version";
 
 # Hardwire the data validity period to 1 hour for now
 my $validity = "3600";
@@ -133,6 +143,8 @@ foreach (<$fh>) {
 	$config{$key} = $value;
     }
 }
+
+close $fh;
 
 # Check that all configuration items are set to something
 
@@ -309,7 +321,6 @@ print "dn: GLUE2EndpointID=$UID,$bind_dn\n";
 
 # Print the boilerplate objectclass declarations and unique ID
 
-print "objectClass: GLUE2Entity\n";
 print "objectClass: GLUE2Endpoint\n";
 
 # This is a kludge to give some quick support for Computing and
@@ -358,6 +369,20 @@ foreach (@OtherInfo) {
 print "GLUE2EntityOtherInfo: InfoProviderName=glite-info-glue2-endpoint\n";
 print "GLUE2EntityOtherInfo: InfoProviderVersion=$gige_version\n";
 print "GLUE2EntityOtherInfo: InfoProviderHost=$host\n";
+
+# Version number for EMI if it exists
+
+if (my $ev = new FileHandle $emiversion) {
+    foreach (<$ev>) {
+	s/\s+//g;
+	if ($_) {
+	    print "GLUE2EntityOtherInfo: MiddlewareName=EMI\n";
+	    print "GLUE2EntityOtherInfo: MiddlewareVersion=$_\n";
+	    last;
+	}
+    }
+    close $ev;
+}
 
 # The URL is mandatory - printed as it comes apart from basic checks,
 # i.e. we don't check that it actually is a URL, but we should at least
@@ -527,6 +552,8 @@ if ($ServingState < 1 || $ServingState > 4) {
 # convert it. The conversion function was shamelessly stolen from the web.
 # This uses local time rather than UTC, both formats are valid and it
 # might be useful to know the timezone at the server.
+# Actually that comment was for GLUE 1, the GLUE 2 schema specifies that the
+# timezone must be UTC - however leave the old code in case we ever decide to relax it
 
 # No white space, should just be a number
 $ST =~ s/\s+//g;
@@ -543,9 +570,11 @@ if ($ST) {
     }
 # We need to munge the timezone indicator to add a colon between
 # the hours and minutes
-    my $tz = strftime("%z", localtime($ST));
-    $tz =~ s/(\d{2})(\d{2})/$1:$2/;
-    my $StartTime = strftime("%Y-%m-%dT%H:%M:%S", localtime($ST)) . $tz;
+#    my $tz = strftime("%z", localtime($ST));
+#    $tz =~ s/(\d{2})(\d{2})/$1:$2/;
+#    my $StartTime = strftime("%Y-%m-%dT%H:%M:%S", localtime($ST)) . $tz;
+# Same thing in UTC as required by the schema
+    my $StartTime = strftime("%Y-%m-%dT%H:%M:%SZ", gmtime($ST));
 # No error checks as strftime should return something reasonable
     print "GLUE2EndpointStartTime: $StartTime\n";
 }
@@ -573,9 +602,9 @@ foreach (@TrustedCA) {
     }
 }
 
-# Downtimes are handled by the GOC DB in EGEE, so not published here
+# Downtimes are handled by the GOC DB in EGI, so not published here (yet?)
 
-print "GLUE2EndpointDownTimeInfo: See the GOC DB for downtimes: https://goc.gridops.org/\n";
+print "GLUE2EndpointDownTimeInfo: See the GOC DB for downtimes: https://goc.egi.eu/\n";
 
 # Finally print the upward link to the parent Service
 
@@ -651,7 +680,6 @@ print "dn: GLUE2PolicyID=$APUID,GLUE2EndpointID=$UID,$bind_dn\n";
 
 # Print the boilerplate objectclass declarations and unique ID
 
-print "objectClass: GLUE2Entity\n";
 print "objectClass: GLUE2Policy\n";
 print "objectClass: GLUE2AccessPolicy\n";
 print "GLUE2PolicyID: $APUID\n";
