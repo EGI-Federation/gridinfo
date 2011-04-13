@@ -1,0 +1,106 @@
+LCG-INFO(1)           User Contributed Perl Documentation          LCG-INFO(1)
+
+
+
+SSYYNNOOPPSSIISS
+        lcg-info --list-ce [--bdii bdii] [--vo vo] [--sed] [--debug]
+                 [--query query] [--attrs list]
+
+        lcg-info --list-se [--bdii bdii] [--vo vo] [--sed] [--debug]
+                 [--query query] [--attrs list]
+
+        lcg-info --list-service [--bdii bdii] [--vo vo] [--sed] [--debug]
+                 [--query query] [--attrs list]
+
+        lcg-info --list-site [--bdii bdii] [--vo vo] [--sed] [--debug]
+                 [--query query] [--attrs list]
+
+        lcg-info --list-attrs
+
+        lcg-info --help
+
+OOPPTTIIOONNSS
+       ----hheellpp  Prints the manual page and exits.
+
+       ----lliisstt--aattttrrss
+               Prints a list of the attributes that can be queried.
+
+       ----lliisstt--ccee
+               Lists the CEs which satisfy a query, or all the CEs if no query
+               is given.
+
+       ----lliisstt--ssee
+               Lists the SEs which satisfy a query, or all the SEs if no query
+               is given.
+
+       ----lliisstt--sseerrvviiccee
+               Lists the services which satisfy a query, or all the services
+               if no query is given.
+
+       ----lliisstt--ssiittee
+               Lists the sites which satisfy a query, or all the services if
+               no query is given.
+
+       ----qquueerryy Restricts the output to the CEs/SEs/services/sites which sat-
+               isfy the given query.
+
+       ----bbddiiii  Allows to specify a BDII in the form <hostname>:<port>. If not
+               given, the value of the environmental variable LCG_GFAL_INFOSYS
+               is used. If that is not defined, the command returns an error.
+
+       ----sseedd   Prints the output in a "sed-friendly" format: "%" separate the
+               CE/SE/service/site identifier and the printed attributes, "&"
+               separate the values of multi-valued attributes.
+
+       ----ddeebbuugg Prints warning messages if the information system publishes
+               inconstistent information.
+
+       ----aattttrrss Specifies the attributes whose values should be printed.
+
+       ----vvoo    Restricts the output to CEs/SEs/services/sites where the given
+               VO is authorized. Mandatory when VO-dependent attributes are
+               queried upon.  The value can be expressed as <vo>, VO:<vo> or
+               VOMS:<fqan>, where <fqan> is a VOMS Fully Qualified Attribute
+               Name. The * wildcard is allowed. When used with --list-ce, <vo>
+               and VO:<vo> are equivalent.
+
+DDEESSCCRRIIPPTTIIOONN
+       This program allows the user to query the WLCG, LDAP-based information
+       system. It requires the environmental variable LCG_GFAL_INFOSYS, or the
+       --bdii option, to be set to a comma-separated list of BDII endpoints to
+       be interrogated, e.g. mybdii.domain.org:2170.  All BDII endpoints in
+       the list are queried until one answers.
+
+       It prints the list of the CEs/SEs/services/sites satisfying a given
+       query along with a list of specified attributes. If CEs are listed, SE-
+       related and service-related attributes are ignored and viceversa.
+
+       The query syntax is like this:
+
+       attr1 op1 valueN,...attrN opN valueN
+
+       where attrN is an attribute name, opN is =, >= or <=, and the cuts are
+       ANDed. The cuts are comma-separated and spaces are not allowed. OR and
+       NOT and not supported in this version. Values can have the * wildcard.
+
+       VVOOVViieewwss
+
+       In order to access the VOView information, the --list-ce option must be
+       used.  If any VOView attribute is to be printed, the value of the
+       attribute is printed for all VOViews selected by the query expression.
+       Therefore it is advised to use a query expression that will select not
+       more than one VOView per CE.
+
+KKNNOOWWNN BBUUGGSS
+       Queries with inequalities on integer attributes may not work if the
+       BDII runs Openldap 2.0.x.
+
+AAUUTTHHOORR
+       Written by Andrea Sciaba.
+
+RREEPPOORRTTIINNGG BBUUGGSS
+       Report bugs via GGUS (http://ggus.org).
+
+
+
+perl v5.8.5                       2008-04-22                       LCG-INFO(1)
