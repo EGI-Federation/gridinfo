@@ -1,6 +1,6 @@
 Name:		lcg-info
-Version:	1.12.1
-Release:	2%{?dist}
+Version:	1.12.2
+Release:	1%{?dist}
 Summary:	lcg-info
 Group:		System Environment/Daemons
 License:	ASL 2.0
@@ -29,11 +29,13 @@ rm -rf %{buildroot}
 /usr/share/man/man1
 
 %changelog
-* Thu Apr 14 2011 Andrea Sciaba <Andrea.Sciaba@cern.ch>   - 1.12.1-2
+* Thu Apr 14 2011 Andrea Sciaba <Andrea.Sciaba@cern.ch>   - 1.12.2
+- Indicate that bugs should be reported via GGUS
+
+* Thu Apr 14 2011 Andrea Sciaba <Andrea.Sciaba@cern.ch>   - 1.12.1
 - Added support for VOInfo objects
 - Removed requirement for GLUE 1.3
 - Various bug fixes
-- Indicate that bugs should be reported via GGUS
 
 * Thu Mar 24 2011 Laurence Field <laurence.field@cern.ch> - 1.12.0
 - FHS compliant
