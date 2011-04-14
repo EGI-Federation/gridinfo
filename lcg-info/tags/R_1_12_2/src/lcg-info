@@ -1,0 +1,1075 @@
+#!/usr/bin/perl -w
+######################################################################
+#
+# Tool to query the LCG-2 information system
+#
+# Author: Andrea Sciaba' <Andrea.Sciaba@cern.ch>
+#
+# Version: 1.12.2
+#
+# History:
+# - 1.12.2: Indicate that bugs should be reported via GGUS
+# - 1.12.1: Removed requirement for GLUE 1.3; various bug fixes
+# - 1.12.0: Made compatible only with GLUE 1.3; added support for
+#           VOInfo objects
+# - 1.11.4: $LCG_GFAL_INFOSYS can now contain a comma-separated list
+#           of BDII endpoints; slightly improved error messages and
+#           option parsing
+# - 1.11.3: fixed bug which prevented from seeing SubCluster
+#           attributes when the SubCluster name differs from its
+#           Cluster name
+# - 1.11.2: --vo <vo> can be expressed with the VO:<vo> and
+#           VOMS:<FQAN> syntax
+#           added several Glue attributes for GlueCE and GlueSubCluster
+#           Cluster redefined as GlueCEInfoHostName
+# - 1.11.1: removed the assumption that the SubCluster and its
+#           Cluster have the same name
+# - 1.11.0: supports Glue object class GlueSite; some attributes
+#           added
+# - 1.10.0: supports Glue object class GlueService
+# - 1.9.1: preliminary support for VOViews with FQAN
+# - 1.9.0: added VOView support and corresponding attributes;
+#          added FreeJobSlots attribute; replaced the -quiet
+#          option with the -debug option having the opposite
+#          meaning
+# - 1.8.1: fix for the bug which prevented the CloseCE to be
+#          correctly retrieved for some SEs
+# - 1.8: added the attributes SEName, SEArch, SESite and Path.
+#        added --quiet option to suppress warning messages
+# - 1.7: added the SEPort attribute
+#        Type renamed to SEType
+#        Fixed bug for which --vo <vo> option did not work properly
+# - 1.6: added the Accesspoint attribute
+# - 1.5: patched a bug with cuts on SubCluster attributes ignored
+#        if no SubCluster is selected
+# - 1.4: patched a bug with attributes on SubCluster attributes
+#        not printed if no cuts on SubCluster attributes made
+# - 1.3: Added new attributes and corrected OSVersion to OSRelease
+#        patched a bug with cuts on SubCluster attributes ignored if
+#        no SubClusters attributes are printed
+# - 1.2: First public release
+######################################################################
+
+use Getopt::Long;
+use Net::LDAP;
+use Net::LDAP::Filter;
+use Pod::Usage;
+
+# Global variables
+my $NAME = "lcg-info";
+my $ldap;
+my $bdii = '';
+my $base = 'o=grid';
+my $querypattern = '^(\w+)\s*(=|>=|<=)\s*([\S]+)';
+
+# Contains the attributes used in the query
+@exprs = ();
+
+# Contains the attributes to print
+@attrs = ();
+
+# Maps the simple attribute names to their Glue properties
+my %attrmap  = (
+		CE             => {glue => "GlueCEUniqueID",
+				   obj  => "GlueCE"},
+		LRMS           => {glue => "GlueCEInfoLRMSType",
+				   obj  => "GlueCE"},
+		LRMSVersion    => {glue => "GlueCEInfoLRMSVersion",
+				   obj  => "GlueCE"},
+		JobManager     => {glue => "GlueCEInfoJobManager",
+				   obj  => "GlueCE"},
+		CEAppDir       => {glue => "GlueCEInfoApplicationDir",
+				   obj  => "GlueCE"},
+		CEDefaultSE    => {glue => "GlueCEInfoDefaultSE",
+				   obj  => "GlueCE"},
+		TotalCPUs      => {glue => "GlueCEInfoTotalCPUs",
+				   obj  => "GlueCE"},
+		FreeCPUs       => {glue => "GlueCEStateFreeCPUs",
+				   obj  => "GlueCE"},
+		FreeJobSlots   => {glue => "GlueCEStateFreeJobSlots",
+				   obj  => "GlueCE"},
+		AssignedJobSlots => {glue => "GlueCEPolicyAssignedJobSlots",
+				   obj  => "GlueCE"},
+		Priority       => {glue => "GlueCEPolicyPriority",
+				   obj  => "GlueCE"},
+		VOFreeJobSlots => {glue => "GlueCEStateFreeJobSlots",
+				   obj  => "GlueVOView"},
+		RunningJobs    => {glue => "GlueCEStateRunningJobs",
+				   obj  => "GlueCE"},
+		VORunningJobs  => {glue => "GlueCEStateRunningJobs",
+				   obj  => "GlueVOView"},
+		TotalJobs      => {glue => "GlueCEStateTotalJobs",
+				   obj  => "GlueCE"},
+		VOTotalJobs    => {glue => "GlueCEStateTotalJobs",
+				   obj  => "GlueVOView"},
+		WaitingJobs    => {glue => "GlueCEStateWaitingJobs",
+				   obj  => "GlueCE"},
+		VOWaitingJobs  => {glue => "GlueCEStateWaitingJobs",
+				   obj  => "GlueVOView"},
+		CEVOs          => {glue => "GlueCEAccessControlBaseRule",
+				   obj  => "GlueCE"},
+		VOCEVOs        => {glue => "GlueCEAccessControlBaseRule",
+				   obj  => "GlueVOView"},
+		CEStatus       => {glue => "GlueCEStateStatus",
+				   obj  => "GlueCE"},
+		MaxWCTime      => {glue => "GlueCEPolicyMaxWallClockTime",
+				   obj  => "GlueCE"},
+		MaxCPUTime     => {glue => "GlueCEPolicyMaxCPUTime",
+				   obj  => "GlueCE"},
+		EstRespTime    => {glue => "GlueCEStateEstimatedResponseTime",
+				   obj  => "GlueCE"},
+		VOEstRespTime  => {glue => "GlueCEStateEstimatedResponseTime",
+				   obj  => "GlueVOView"},
+		WorstRespTime  => {glue => "GlueCEStateWorstResponseTime",
+				   obj  => "GlueCE"},
+		VOWorstRespTime => {glue => "GlueCEStateWorstResponseTime",
+				   obj  => "GlueVOView"},
+		MaxTotalJobs   => {glue => "GlueCEPolicyMaxTotalJobs",
+				   obj  => "GlueCE"},
+		MaxRunningJobs => {glue => "GlueCEPolicyMaxRunningJobs",
+				   obj  => "GlueCE"},
+		Cluster        => {glue => "GlueCEInfoHostName",
+				   obj  => "GlueCE"},
+		Memory         => {glue => "GlueHostMainMemoryRAMSize",
+				   obj  => "GlueSubCluster"},
+		VMemory        => {glue => "GlueHostMainMemoryVirtualSize",
+				   obj  => "GlueSubCluster"},
+		InboundIP      => {glue => "GlueHostNetworkAdapterInboundIP",
+				   obj  => "GlueSubCluster"},
+		OutboundIP     => {glue => "GlueHostNetworkAdapterOutboundIP",
+				   obj  => "GlueSubCluster"},
+		OS             => {glue => "GlueHostOperatingSystemName",
+				   obj  => "GlueSubCluster"},
+		OSRelease      => {glue => "GlueHostOperatingSystemRelease",
+				   obj  => "GlueSubCluster"},
+		OSVersion      => {glue => "GlueHostOperatingSystemVersion",
+				   obj  => "GlueSubCluster"},
+		Processor      => {glue => "GlueHostProcessorModel",
+				   obj  => "GlueSubCluster"},
+		ClockSpeed     => {glue => "GlueHostProcessorClockSpeed",
+				   obj  => "GlueSubCluster"},
+		CPUVendor      => {glue => "GlueHostProcessorVendor",
+				   obj  => "GlueSubCluster"},
+		PhysicalCPU    => {glue => "GlueSubClusterPhysicalCPUs",
+				   obj  => "GlueSubCluster"},
+		LogicalCPU     => {glue => "GlueSubClusterLogicalCPUs",
+				   obj  => "GlueSubCluster"},
+		TmpDir         => {glue => "GlueSubClusterTmpDir",
+				   obj  => "GlueSubCluster"},
+		WNTmpDir       => {glue => "GlueSubClusterWNTmpDir",
+				   obj  => "GlueSubCluster"},
+		PlatformArch   => {glue => "GlueHostArchitecturePlatformType",
+				   obj  => "GlueSubCluster"},
+		SMPSize        => {glue => "GlueHostArchitectureSMPSize",
+				   obj  => "GlueSubCluster"},
+		CINT2000       => {glue => "GlueHostBenchmarkSI00",
+				   obj  => "GlueSubCluster"},
+		CFP2000        => {glue => "GlueHostBenchmarkSF00",
+				   obj  => "GlueSubCluster"},
+		Tag            => {glue => "GlueHostApplicationSoftwareRunTimeEnvironment",
+				   obj  => "GlueSubCluster"},
+		CloseSE        => {glue => "GlueCESEBindGroupSEUniqueID",
+				   obj  => "GlueCESEBindGroup"},
+		SE             => {glue => "GlueSEUniqueID",
+				   obj  => "GlueSE"},
+                SEName         => {glue => "GlueSEName",
+                                   obj  => "GlueSE"},
+                SEArch         => {glue => "GlueSEArchitecture",
+                                   obj  => "GlueSE"},
+		SESite         => {glue => "GlueForeignKey",
+				   obj  => "GlueSE"},
+                SAID           => {glue => "GlueSALocalID",
+                                   obj  => "GlueSA"},
+                SAName         => {glue => "GlueSAName",
+                                   obj  => "GlueSA"},
+                Path           => {glue => "GlueSAPath",
+                                   obj  => "GlueSA"},
+		SAVOs          => {glue => "GlueSAAccessControlBaseRule",
+				   obj  => "GlueSA"},
+		TotalOnline    => {glue => "GlueSATotalOnlineSize",
+				   obj  => "GlueSA"},
+		UsedOnline     => {glue => "GlueSAUsedOnlineSize",
+				   obj  => "GlueSA"},
+		FreeOnline     => {glue => "GlueSAFreeOnlineSize",
+				   obj  => "GlueSA"},
+		ReservedOnline => {glue => "GlueSAReservedOnlineSize",
+				   obj  => "GlueSA"},
+		TotalNearline  => {glue => "GlueSATotalNearlineSize",
+				   obj  => "GlueSA"},
+		UsedNearline   => {glue => "GlueSAUsedNearlineSize",
+				   obj  => "GlueSA"},
+		FreeNearline   => {glue => "GlueSAFreeNearlineSize",
+				   obj  => "GlueSA"},
+		ReservedNearline => {glue => "GlueSAReservedOnlineSize",
+				   obj  => "GlueSA"},
+		RetentionPol   => {glue => "GlueSARetentionPolicy",
+				   obj  => "GlueSA"},
+		AccessLat      => {glue => "GlueSAAccessLatency",
+				   obj  => "GlueSA"},
+		SACapability   => {glue => "GlueSACapability",
+				   obj  => "GlueSA"},
+		VOInfoID  => {glue => "GlueVOInfoLocalID",
+				   obj  => "GlueVOInfo"},
+		VOInfoName     => {glue => "GlueVOInfoName",
+				   obj  => "GlueVOInfo"},
+		VOInfoPath     => {glue => "GlueVOInfoPath",
+				   obj  => "GlueVOInfo"},
+		VOInfoTag      => {glue => "GlueVOInfoTag",
+				   obj  => "GlueVOInfo"},
+		VOInfoVOs      => {glue => "GlueVOInfoAccessControlBaseRule",
+				   obj  => "GlueVOInfo"},
+		VOInfoSA       => {glue => "GlueChunkKey",
+				   obj  => "GlueVOInfo"},
+		CloseCE        => {glue => "GlueCESEBindGroupCEUniqueID",
+				   obj  => "GlueCESEBindGroup"},
+		ProtType       => {glue => "GlueSEAccessProtocolType",
+				   obj  => "GlueSEAccessProtocol"},
+		ProtEP         => {glue => "GlueSEAccessProtocolEndpoint",
+				   obj  => "GlueSEAccessProtocol"},
+		ProtVersion    => {glue => "GlueSEAccessProtocolVersion",
+				   obj  => "GlueSEAccessProtocol"},
+		ProtCapability => {glue => "GlueSEAccessProtocolCapability",
+				   obj  => "GlueSEAccessProtocol"},
+		ProtMaxStreams => {glue => "GlueSEAccessProtocolMaxStreams",
+				   obj  => "GlueSEAccessProtocol"},
+		MountInfo      => {glue => "GlueCESEBindMountInfo",
+				   obj  => "GlueCESEBind"},
+		ServiceID      => {glue => "GlueServiceUniqueID",
+				   obj  => "GlueService"},
+		ServiceType    => {glue => "GlueServiceType",
+				   obj  => "GlueService"},
+		ServiceName    => {glue => "GlueServiceName",
+				   obj  => "GlueService"},
+		ServiceVersion => {glue => "GlueServiceVersion",
+				   obj  => "GlueService"},
+		ServiceEndpoint => {glue => "GlueServiceEndpoint",
+				   obj  => "GlueService"},
+		ServiceAccesspoint => {glue => "GlueServiceAccessPointURL",
+				   obj  => "GlueService"},
+		ServiceURI     => {glue => "GlueServiceURI",
+				   obj  => "GlueService"},
+		ServiceStatus  => {glue => "GlueServiceStatus",
+				   obj  => "GlueService"},
+		ServiceStatusInfo => {glue => "GlueServiceStatusInfo",
+				   obj  => "GlueService"},
+		ServiceWSDL    => {glue => "GlueServiceWSDL",
+				   obj  => "GlueService"},
+		ServiceOwner   => {glue => "GlueServiceOwner",
+				   obj  => "GlueService"},
+		ServiceVOs     => {glue => "GlueServiceAccessControlBaseRule",
+				   obj  => "GlueService"},
+		ServiceSite    => {glue => "GlueForeignKey",
+				   obj  => "GlueService"},
+		SiteID         => {glue => "GlueSiteUniqueID",
+				   obj  => "GlueSite"},
+		SiteName       => {glue => "GlueSiteName",
+				   obj  => "GlueSite"},
+		SiteDesc       => {glue => "GlueSiteDescription",
+				   obj  => "GlueSite"},
+		SiteSupport    => {glue => "GlueSiteUserSupportContact",
+				   obj  => "GlueSite"},
+		SiteAdmin      => {glue => "GlueSiteSysAdminContact",
+				   obj  => "GlueSite"},
+		SiteLocation   => {glue => "GlueSiteLocation",
+				   obj  => "GlueSite"},
+		SiteSecurity   => {glue => "GlueSiteSecurityContact",
+				   obj  => "GlueSite"},
+		SiteInfo       => {glue => "GlueSiteOtherInfo",
+				   obj  => "GlueSite"},
+		_cluster       => {glue => "GlueClusterUniqueID",
+				   obj  => "GlueCluster"},
+		_clusterfk     => {glue => "GlueForeignKey",
+				   obj  => "GlueCluster"},
+                _clusterck     => {glue => "GlueChunkKey",
+                                   obj  => "GlueSubCluster"}
+	       );
+
+# Lists the VO-dependent attributes
+my @voattrs = ("VORunningJobs", "VOTotalJobs",
+	       "VOWaitingJobs", "VOFreeJobSlots", "VOEstRespTime",
+	       "VOWorstRespTime", "VOInfoName", "VOInfoPath", "VOInfoTag");
+
+# Argument parsing
+$attrlist = $help = $celist = $selist = $servicelist =$sitelist =
+    $debug = $sed = 0;
+$query = $attrs = $vo = '';
+GetOptions('help' => \$help,
+	   'list-ce'    => \$celist,
+	   'list-se'    => \$selist,
+	   'list-service' => \$servicelist,
+	   'list-site' => \$sitelist,
+	   'query=s'    => \$query,
+	   'list-attrs' => \$attrlist,
+	   'attrs=s'    => \$attrs,
+	   'vo=s'       => \$vo,
+	   'bdii=s'     => \$bdii,
+	   'debug'     => \$debug,
+	   'sed'        => \$sed
+	   ) or pod2usage("$NAME: wrong arguments.\n");
+
+if ( $celist+$selist+$servicelist+$sitelist+$attrlist+$help != 1) {
+    pod2usage("$NAME: use one an only one option among:\n  --list-ce, --list-se, --list-service, --list-site, --list-attrs, --help\n");
+}
+
+pod2usage(-exitval => 0,
+	  -verbose => 2) if $help;
+pod2usage("$NAME: wrong arguments.\n") if (@ARGV > 0);
+$silent = !$debug;
+
+# BDII server(s)
+if ( ! $bdii and ! $attrlist ) {
+    $bdii = $ENV{LCG_GFAL_INFOSYS} or die("$NAME: LCG_GFAL_INFOSYS undefined.\n");
+}
+@bdiilist = split /,/, $bdii;
+
+# Add VO restriction
+if ( $vo ) {
+    my $cevo = $vo;
+
+# Force new VO format: VO:<vo>
+    $cevo = "VO:$vo" if ($vo !~ /^VO/);
+    $query .= ",CEVOs=$cevo,VOCEVOs=$cevo,SAVOs=$cevo,ServiceVOs=$cevo";
+    $vofilter = "(|(GlueCEAccessControlBaseRule=$cevo)(GlueSAAccessControlBaseRule=$cevo)(GlueVOInfoAccessControlBaseRule=$cevo)(GlueServiceAccessControlBaseRule=$cevo)(GlueServiceAccessControlRule=$cevo))";
+}
+
+# Verbose print formats
+if ( $sed ) {
+    $fheadce = $fheadse = $fheadservice = $fheadsite = "%s";
+    $fattr = "%%";
+    $fval = "%s";
+    $fval2 = "&%s";
+} else {
+    $fheadce = "- CE: %s\n";
+    $fheadse = "- SE: %s\n";
+    $fheadservice = "- Service: %s\n";
+    $fheadsite = "- Site: %s\n";
+    $fattr = "  - %-20s";
+    $fval = "%s\n";
+    $fval2 = "                        %-30s\n";
+}
+
+# Drive the program
+if ( $attrlist == 1 ) {
+    &list_attrs;
+} elsif ($celist == 1) {             # List CEs satisfying the query
+    &ce_query($query, $attrs);
+} elsif ($selist == 1) {             # List SEs satisfying the query
+    &se_query($query, $attrs);
+} elsif ($servicelist == 1) {        # List Services satisfying the query
+    &service_query($query, $attrs);
+} elsif ($sitelist == 1) {        # List Services satisfying the query
+    &site_query($query, $attrs);
+}
+
+# End program
+exit 0;
+
+################################################################
+# Function to print all the attribute names
+################################################################
+sub list_attrs {
+    my @objs = ();
+    my %objs = ();
+    my %glues = ();
+    my $format = "%-18s  %-20s  %-30s\n";
+
+    foreach my $attr ( keys %attrmap ) {
+	next if ( $attr =~ /^_/ );
+	my $obj = $attrmap{$attr}->{obj};
+	my $glue = $attrmap{$attr}->{glue};
+	if ( ! grep(/^$obj$/, @objs) ) {
+	    push @objs, $obj;
+	}
+	$objs{$attr} = $obj;
+	$glues{$attr} = $glue;
+    }
+
+# Print attributes alphabetically ordered using objectclass
+    printf $format, "Attribute name", "Glue object class", "Glue attribute name";
+    foreach my $obj ( sort @objs ) {
+	foreach my $attr ( keys %attrmap ) {
+	    next if ( $attr =~ /^_/ );
+	    if ( $objs{$attr} eq $obj ) {
+		printf $format, $attr, $objs{$attr}, $glues{$attr};
+	    }
+	}
+    }
+}
+    
+##################################################################
+# Function to return the list of CEs with some cuts on attributes
+##################################################################
+sub ce_query {
+    my ($query, $attrs) = @_;
+
+# Parse the query from the command line
+    &parse_query($query, $attrs);
+
+# Open the connection to the BDII
+    &bdii_init;
+
+# Retrieve CE list for LDAP search
+    my %ceattrs;
+    my %clattrs;
+    my $ces1;
+    my $ces2;
+    my $ces;
+    my @cls;
+    my $arref;
+    my $hashref;
+
+# Query on GlueCE attributes
+    ($arref, $hashref) = &Glue_find("GlueCE", "GlueCEUniqueID", {}, \@exprs, \@attrs, 2);
+    @ces1 = @$arref;
+    %ceattrs = %$hashref;
+
+# Query on VOView attributes
+    ($arref, $hashref) = &Glue_find("GlueVOView", "GlueChunkKey", \%ceattrs, \@exprs, \@attrs, 0);
+    %ceattrs = %$hashref;
+    @ces1 = intersect_array(\@ces1, $arref) if $arref;
+
+# Query on GlueCESEBindGroup attributes
+    ($arref, $hashref) = &Glue_find("GlueCESEBindGroup", "GlueCESEBindGroupCEUniqueID", \%ceattrs, \@exprs, \@attrs, 0);
+    %ceattrs = %$hashref;
+    @ces1 = intersect_array(\@ces1, $arref) if $arref;
+
+# Query on GlueSubCluster attributes
+    ($arref, $hashref) = &Glue_find("GlueSubCluster", "GlueSubClusterUniqueID", {}, \@exprs, [ @attrs, "_clusterck" ], 0);    
+
+# Continue only if GlueSubCluster attributes are given
+    %clattrs = %$hashref;
+    if ( $arref ) {
+	@cls = @$arref;
+    } else {
+	@cls = keys %$hashref;
+    }
+    
+# Query on GlueClusters to find out the corresponding CEs
+    foreach my $subcl ( @cls ) {
+        my $cl = $clattrs{$subcl}->{"_clusterck"}->[0];
+	my ($arref2, $hashref2) = &Glue_find("GlueCluster", "GlueClusterUniqueID", {}, [ "_cluster=$cl" ], [ "_clusterfk" ], 0);
+	
+	my %c = %$hashref2;
+	my @c = map( @{${$c{$_}}{"_clusterfk"}}, @$arref2 ); # CEs corresponding to the cluster
+	foreach ( @c ) {
+	    s/^.*GlueCEUniqueID=\s*//;
+	    my $ce = $_;
+	    push @ces2, $ce;
+# Copy SubCluster attributes to hash with CE attributes
+	    if ( %clattrs ) {
+		foreach my $a ( keys %{$clattrs{$subcl}} ) {
+		    push (@{${$ceattrs{$ce}}{$a}}, @{${$clattrs{$subcl}}{$a}});
+		}
+	    }
+	}
+    }
+    @ces1 = intersect_array(\@ces1, \@ces2) if ( $arref );
+
+# Print the CE list
+    my @p = split /,/, $attrs;
+    foreach my $ce ( sort @ces1 ) {
+	printf $fheadce, $ce;
+	foreach my $a ( @p ) {
+	    my $arref = ${$ceattrs{$ce}}{$a};
+	    printf $fattr, "$a";
+	    if ( defined @$arref ) {
+		my @v = @$arref;
+		my $first = 1;
+		foreach my $val ( @v ) {
+		    if ( $first ) {
+			printf $fval, $val;
+			$first = 0;
+		    } else {
+			printf $fval2, $val;
+		    }
+		}
+	    } else {
+		printf $fval, "_UNDEF_";
+	    }
+	}
+	print "\n";
+    }
+    $ldap->unbind();
+}
+
+################################################################
+# Function to return the list of SEs with some cuts on attributes
+################################################################
+sub se_query {
+    my $query = shift;
+    my $attrs = shift;
+
+    my %seattrs = ();
+
+# Parse the query from the command line
+    &parse_query($query, $attrs);
+
+# Open the connection to the BDII
+    &bdii_init;
+
+# Retrieve SE list for LDAP search
+
+# Query on GlueSE attributes; in any case get list of SEs
+    my ($arref, $hashref) = &Glue_find("GlueSE", "GlueSEUniqueID", \%seattrs, \@exprs, \@attrs, 2);
+    %seattrs = %$hashref;
+    my @ses = @$arref;
+
+# Query on GlueSA attributes if any, otherwise do nothing
+    ($arref, $hashref) = &Glue_find("GlueSA", "GlueChunkKey", \%seattrs, \@exprs, \@attrs, 0);
+    %seattrs = %$hashref;
+    @ses = intersect_array(\@ses, $arref) if $arref;
+
+# Query on GlueSEAccessProtocol attributes if any, otherwise do nothing
+    ($arref, $hashref) = &Glue_find("GlueSEAccessProtocol", "GlueChunkKey", \%seattrs, \@exprs, \@attrs, 0);
+    %seattrs = %$hashref;
+    @ses = intersect_array(\@ses, $arref) if $arref;
+
+# Query on GlueSEControlProtocol attributes if any, otherwise do nothing
+    ($arref, $hashref) = &Glue_find("GlueSEControlProtocol", "GlueChunkKey", \%seattrs, \@exprs, \@attrs, 0);
+    %seattrs = %$hashref;
+    @ses = intersect_array(\@ses, $arref) if $arref;
+
+# Query on GlueVOInfo attributes if any, otherwise do nothing
+    ($arref, $hashref) = &Glue_find("GlueVOInfo", "GlueChunkKey", \%seattrs, \@exprs, \@attrs, 0);
+    %seattrs = %$hashref;
+    @ses = intersect_array(\@ses, $arref) if $arref;
+
+# Query on GlueCESEBindGroup attributes
+    ($arref, $hashref) = &Glue_find("GlueCESEBindGroup", "GlueCESEBindGroupSEUniqueID", \%seattrs, \@exprs, \@attrs, 0);
+    %seattrs = %$hashref;
+    @ses = intersect_array(\@ses, $arref) if $arref;
+
+# Query on GLueCESEBind attributes
+    ($arref, $hashref) = &Glue_find("GlueCESEBind", "GlueCESEBindSEUniqueID", \%seattrs, \@exprs, \@attrs, 0);
+    %seattrs = %$hashref;
+    @ses = intersect_array(\@ses, $arref) if $arref;
+
+# Print the SE list
+    my @p = split /,/, $attrs;
+    @ses = remove_dup(@ses);
+    foreach my $se ( sort @ses ) {
+	printf $fheadse, $se;
+	foreach my $a ( @p ) {
+	    my $arref = ${$seattrs{$se}}{$a};
+	    printf $fattr, $a;
+	    if ( defined @$arref ) {
+		my @v = @$arref;
+		my $first = 1;
+		foreach my $val ( @v ) {
+		    if ( $first ) {
+			printf $fval, $val;
+			$first = 0;
+		    } else {
+			printf $fval2, $val;
+		    }
+		}
+	    } else {
+		printf $fval, "_UNDEF_";
+	    }
+	}
+	print "\n";
+    }
+    $ldap->unbind();
+}
+
+######################################################################
+# Function to return the list of Services with some cuts on attributes
+######################################################################
+sub service_query {
+    my $query = shift;
+    my $attrs = shift;
+
+    my %serviceattrs = ();
+
+# Parse the query from the command line
+    &parse_query($query, $attrs);
+
+# Open the connection to the BDII
+    &bdii_init;
+
+# Retrieve service list for LDAP search
+
+# Query on GlueService attributes
+    my ($arref, $hashref) = &Glue_find("GlueService", "GlueServiceUniqueID", \%serviceattrs, \@exprs, \@attrs, 2);
+    my @services = @$arref;
+    %serviceattrs = %$hashref;
+
+# Print the services list
+    my @p = split /,/, $attrs;
+    foreach my $service ( sort @services ) {
+	printf $fheadservice, $service;
+	foreach my $a ( @p ) {
+	    my $arref = ${$serviceattrs{$service}}{$a};
+	    printf $fattr, $a;
+	    if ( defined @$arref ) {
+		my @v = @$arref;
+		my $first = 1;
+		foreach my $val ( @v ) {
+		    if ( $first ) {
+			printf $fval, $val;
+			$first = 0;
+		    } else {
+			printf $fval2, $val;
+		    }
+		}
+	    } else {
+		printf $fval, "_UNDEF_";
+	    }
+	}
+	print "\n";
+    }
+    $ldap->unbind();
+}
+
+###################################################################
+# Function to return the list of Sites with some cuts on attributes
+###################################################################
+sub site_query {
+    my $query = shift;
+    my $attrs = shift;
+
+    my %siteattrs = ();
+
+# Parse the query from the command line
+    &parse_query($query, $attrs);
+
+# Open the connection to the BDII
+    &bdii_init;
+
+# Retrieve site list for LDAP search
+
+# Query on GlueSite attributes
+    my ($arref, $hashref) = &Glue_find("GlueSite", "GlueSiteUniqueID", \%siteattrs, \@exprs, \@attrs, 2);
+    my @sites = @$arref;
+    %siteattrs = %$hashref;
+
+# Print the sites list
+    my @p = split /,/, $attrs;
+    foreach my $site ( sort @sites ) {
+	printf $fheadsite, $site;
+	foreach my $a ( @p ) {
+	    my $arref = ${$siteattrs{$site}}{$a};
+	    printf $fattr, $a;
+	    if ( defined @$arref ) {
+		my @v = @$arref;
+		my $first = 1;
+		foreach my $val ( @v ) {
+		    if ( $first ) {
+			printf $fval, $val;
+			$first = 0;
+		    } else {
+			printf $fval2, $val;
+		    }
+		}
+	    } else {
+		printf $fval, "_UNDEF_";
+	    }
+	}
+	print "\n";
+    }
+    $ldap->unbind();
+}
+
+######################################################################
+# Parses a query and an attribute list from the command line and puts
+# the expressions in the @exprs array and in the @attrs array
+# Expressions in a query are delimited by commas and ANDed
+######################################################################
+
+sub parse_query {
+    my $query = shift;
+    my $attrs = shift;
+    my @qattrs = split /,/, $query;
+    my @pattrs = split /,/, $attrs;
+
+# Parse query expression
+    foreach my $attr ( @qattrs ) {
+	next if ( $attr eq '');
+	if ($attr =~ m/$querypattern/) {
+	    my $name = $1;
+	    my $op = $2;
+	    my $value = $3;
+	    my $obj = $attrmap{$1}->{obj} or die("$NAME: unknown attribute in query.\n");
+	    push @exprs, $attr;
+	} else {
+	    die("$NAME: syntax error in query.\n");
+	}
+    }
+
+# Parse attributes expression
+    foreach my $attr ( @pattrs ) {
+	if ($attr =~ m/^(\w+)$/) {
+	    my $name = $1;
+	    my $obj = $attrmap{$1}->{obj} or die("$NAME: unknown attribute in attribute list.\n");
+	    push @attrs, $attr;
+	} else {
+	    die("$NAME: syntax error in attribute list.\n");
+	}
+    }
+}
+
+################################################################
+# Opens a connection to the BDII
+################################################################
+sub bdii_init {
+
+    foreach my $bdii (@bdiilist) {
+	unless ($ldap = Net::LDAP->new($bdii)) {
+	    warn("$NAME: failed to contact BDII $bdii.\n");
+	    next;
+	}
+	$mesg = $ldap->bind;
+	if ($mesg->is_error()) {
+	    warn("$NAME: error in binding the BDII:\n$mesg->error_text().\n");
+	    next;
+	} else {
+	    warn("$NAME: contacted BDII $bdii.\n") if ($debug);
+	    return;
+	}
+    }
+    die("$NAME: error in contacting all BDII.\n");
+}
+
+####################################################################
+# Selects Glue objects of the given class using the input query and
+# saves the desired attributes, indexing them by the specified
+# unique id. The attributes are returned in a hash structure:
+# { $uniqueid => { $attribute => [ list of values ] } }
+# Inputs:  objectclass          (scalar)
+#          unique id            (scalar)
+#          attribute hash       (hash)
+#          query expressions    (array)
+#          attribute list       (array)
+#          query option         (scalar)
+#            = 2: always query and return the array of objects
+#            = 1: always query; return the array of objects only if cuts
+#                 were applied
+#            = 0: query only if cuts where applied or attributes have
+#                 to be saved
+# Outputs: array of objects     (array-ref)
+#          attribute hash       (hash-ref)
+####################################################################
+sub Glue_find {
+    my ($objclass, $uniqueid, $hashref, $aref1, $aref2, $doquery) = @_;
+    my %objattrs = %$hashref;
+    my @exprs = @$aref1;
+    my @attrs = @$aref2;
+    my @objs = ();
+
+# See if any attribute requires the VO to be specified
+    my $addvo = 0;
+    
+# Prepare LDAP filter    
+    my $filter = "(&(objectclass=$objclass)";
+    foreach my $expr ( @exprs ) {
+	$expr =~ m/$querypattern/;
+	my $obj = $attrmap{$1}->{obj};
+	next unless ( $obj eq $objclass );
+	$doquery = 2;   # Means that there are cuts of this class
+	my $gluename = $attrmap{$1}->{glue};
+	$addvo = 1 if grep /^$1$/, @voattrs;
+	$filter .= "($gluename$2$3)";
+    }
+
+# See if there is an attribute to print of the given objectclass
+    my $doattr = 0;
+    $doattr = 1 if grep( $_ eq $objclass, map($attrmap{$_}->{obj}, @attrs) );
+    $addvo = 1 if map( {my $a=$_;grep(/^$a$/, @voattrs)} @attrs );
+
+# Deal with attributes requiring the VO to be specified
+    unless ( $vo ) {
+	die "$NAME: you must specify --vo <vo>.\n" if ( $addvo );
+    }
+    $filter .= ")";
+
+    if ( $vo && ($objclass eq 'GlueCE' || $objclass eq 'GlueSA' || $objclass eq 'GlueVOInfo' || $objclass eq 'GlueService')) {
+	$filter = '(&' . $filter . $vofilter . ')';
+    }
+
+# Exit here if no attribute of the given objectclass is cut upon or to be
+# printed
+    return (0, \%objattrs) if ($doquery == 0 and $doattr == 0);
+
+# Search the BDII for the Objects
+    my $mesg = $ldap->search(base   => $base,
+			     filter => $filter);
+    if ( $mesg->is_error() ) {
+	$ldap->unbind();
+	die ("$NAME: error searching the BDII:\n$mesg->error()\n");
+    }
+
+# Get the Objects
+    my $secattr;
+
+# Allows to pass a second attribute using (UniqueID,Attribute)
+    if ( $uniqueid =~ /(.*),(.*)/ ) {
+	($uniqueid, $secattr) = split /(.*),(.*)/, $uniqueid;
+    }
+
+    my %seen_dn = ();
+    foreach my $entry ( $mesg->entries() ) {
+	my $dn = $entry->dn();
+	$dn = &reduce_dn($dn);
+	if ($seen_dn{"$dn"}) {
+	    next;
+	} else {
+	    $seen_dn{"$dn"} = 1;
+	}
+	my @obj = $entry->get_value($uniqueid);
+	foreach my $obj ( @obj ) {
+	    if ( $obj and ($uniqueid eq "GlueChunkKey" or
+			   $uniqueid eq "GlueForeignKey")) {
+
+# In case of VOInfo objects skip the GLUESALocalID value
+		if ( $objclass eq 'GlueVOInfo' ) {
+		    next if ($obj =~ /GlueSALocalID/);
+		}
+		(my $a, $obj) = split /=/, $obj;
+	    }
+
+# Skip value if value does not match second attribute (if defined)
+	    if ($secattr) {
+		next unless ($obj =~ /$secattr/);
+		(my $a, $obj) = split /=/, $obj;
+	    }		
+	    if ( ! $obj ) {
+		print STDERR "$NAME: $uniqueid attribute missing from entry " . $entry->dn(). "\n" if ( ! $silent );
+		next;
+	    }
+# Get the attributes of the given objectclass
+	    my %hash = ();
+	    %hash = %{$objattrs{$obj}} if ( $objattrs{$obj} );
+
+	    foreach my $attr ( @attrs ) {
+
+# Process only attributes of this class
+		next unless ( $attrmap{$attr}->{obj} eq $objclass );
+		my @array = ();
+		@array = @{$hash{$attr}} if ( $hash{$attr} );
+		my $gluename = $attrmap{$attr}->{glue};
+		my @ctrs = $entry->get_value($gluename);
+		if ( ! @ctrs ) {
+		    print STDERR "$NAME: $gluename attribute missing from entry $dn\n" if ( ! $silent );
+		    @ctrs = ("_UNDEF_");
+		}
+
+# Horrible hack for VOInfo objects to depurate VOInfoSA from GlueSEUniqueID entries
+		if ( $objclass eq 'GlueVOInfo' ) {
+		    my @newctrs;
+		    foreach my $i ( @ctrs ) {
+			next if ( $i =~ /GlueSE/ );
+			push @newctrs, $i;
+		    }
+		    @ctrs = @newctrs;
+		}
+		@ctrs = map{ s/Glue.*=//; $_ } @ctrs; # Strip any initial Glue name from value
+
+		my @a = (@array, @ctrs); # Append values to existing array
+		$hash{$attr} = \@a;
+		$objattrs{$obj} = { %hash };
+	    }
+	    push @objs, $obj;
+	}
+    }
+
+
+
+    if ( $doquery == 2 ) {
+	return (\@objs, \%objattrs);
+    } else {
+	return (0, \%objattrs);
+    }
+}
+
+sub remove_dup {
+    my @a;
+    foreach my $i ( @_ ) {
+	my $is = 0;
+	foreach my $j ( @a ) {
+	    $is = 1 if $i eq $j;
+	}
+	push (@a, $i) if not $is;
+    }
+    return @a;
+}
+
+sub reduce_dn {
+    my $dn = shift;
+    $dn =~ s/Mds-Vo-name=.*,Mds-Vo-name=local,//;
+    return $dn;
+}
+
+####################################################################
+# Function to create the intersection of two arrays removing
+# any duplicates
+####################################################################
+sub intersect_array {
+    my $a = shift;
+    my @ce1 = @$a;
+    $a = shift;
+    my @ce2 = @$a;
+    my @result;
+
+    for ( my $i = 0; $i < @ce1; $i++ ) {
+	my $c = 0;
+	for ( my $j = 0; $j < @ce2; $j++ ) {
+	    $c = 1 if ( $ce1[$i] eq $ce2[$j] );
+	}
+	my $is = 0;
+	for ( my $k = 0; $k < @result; $k++ ) {
+	    $is = 1 if ( $ce1[$i] eq $result[$k]);
+	}
+	push (@result, $ce1[$i]) if ( $c and not $is);
+    }
+    return @result;
+}
+
+####################################################################
+# Function to check if in a query or attribute list there is an
+# attribute of a given objectclass
+####################################################################
+sub check_objclass {
+    my ($obj, $hasharray) = @_;
+    my %hash = %$hasharray;
+    return 1 if ( @{$hash{$obj}} > 0 );
+    return 0;
+}
+
+__END__
+
+=pod
+=head1 NAME
+lcg-info - Queries the WLCG information system
+
+=head1 SYNOPSIS
+
+ lcg-info --list-ce [--bdii bdii] [--vo vo] [--sed] [--debug]
+          [--query query] [--attrs list]
+
+ lcg-info --list-se [--bdii bdii] [--vo vo] [--sed] [--debug]
+          [--query query] [--attrs list]
+
+ lcg-info --list-service [--bdii bdii] [--vo vo] [--sed] [--debug]
+          [--query query] [--attrs list]
+
+ lcg-info --list-site [--bdii bdii] [--vo vo] [--sed] [--debug]
+          [--query query] [--attrs list]
+
+ lcg-info --list-attrs
+
+ lcg-info --help
+
+=head1 OPTIONS
+
+=over 8
+
+=item B<--help>
+
+Prints the manual page and exits.
+
+=item B<--list-attrs>
+
+Prints a list of the attributes that can be queried.
+
+=item B<--list-ce>
+
+Lists the CEs which satisfy a query, or all the CEs if no query is given.
+
+=item B<--list-se>
+
+Lists the SEs which satisfy a query, or all the SEs if no query is given.
+
+=item B<--list-service>
+
+Lists the services which satisfy a query, or all the services if no query
+is given.
+
+=item B<--list-site>
+
+Lists the sites which satisfy a query, or all the services if no query
+is given.
+
+=item B<--query>
+
+Restricts the output to the CEs/SEs/services/sites which satisfy the given
+query.
+
+=item B<--bdii>
+
+Allows to specify a BDII in the form <hostname>:<port>. If not given, the
+value of the environmental variable LCG_GFAL_INFOSYS is used. If that is
+not defined, the command returns an error.
+
+=item B<--sed>
+
+Prints the output in a "sed-friendly" format: "%" separate the
+CE/SE/service/site
+identifier and the printed attributes, "&" separate the values of
+multi-valued attributes.
+
+=item B<--debug>
+
+Prints warning messages if the information system publishes inconstistent
+information.
+
+=item B<--attrs>
+
+Specifies the attributes whose values should be printed.
+
+=item B<--vo>
+
+Restricts the output to CEs/SEs/services/sites where the given VO is
+authorized. Mandatory when VO-dependent attributes are queried upon.
+The value can be expressed as <vo>, VO:<vo> or
+VOMS:<fqan>, where <fqan> is a VOMS Fully Qualified Attribute Name. The
+* wildcard is allowed. When used with --list-ce, <vo> and VO:<vo> are
+equivalent.
+
+=back
+
+=head1 DESCRIPTION
+
+This program allows the user to query the WLCG, LDAP-based information
+system. It requires the environmental variable LCG_GFAL_INFOSYS,
+or the --bdii option, to be set to a comma-separated list of BDII
+endpoints to be interrogated, e.g. mybdii.domain.org:2170.
+All BDII endpoints in the list are queried until one answers.
+
+It prints the list of the CEs/SEs/services/sites satisfying a given query
+along with a list of specified attributes. If CEs are listed, SE-related and
+service-related attributes are ignored and viceversa.
+
+The query syntax is like this:
+
+=over 2
+
+=item attr1 op1 valueN,...attrN opN valueN
+
+=back
+
+where attrN is an attribute name, opN is =, >= or <=, and the cuts are
+ANDed. The cuts are comma-separated and spaces are not allowed. OR and NOT
+and not supported in this version. Values can have the * wildcard.
+
+=head2 VOViews
+
+In order to access the VOView information, the --list-ce option must be used.
+If any VOView attribute is to be printed, the value of the attribute is
+printed for all VOViews selected by the query expression. Therefore it is
+advised to use a query expression that will select not more than one VOView
+per CE.
+
+=head1 KNOWN BUGS
+
+Queries with inequalities on integer attributes may not work if the BDII
+runs Openldap 2.0.x.
+
+=head1 AUTHOR
+
+Written by Andrea Sciaba.
+
+=head1 REPORTING BUGS
+
+Report bugs via GGUS (http://ggus.org).
+
+=cut
