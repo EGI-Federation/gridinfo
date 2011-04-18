@@ -1,5 +1,5 @@
 Name:		bdii-config-top
-Version:	1.0.1
+Version:	1.0.2
 Release:	1%{?dist}
 Summary:	Top BDII configration files
 Group:		System/Monitoring
@@ -11,7 +11,6 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 Requires:	bdii
 Requires:	openldap2.4-servers
 Requires:	glite-info-provider-ldap
-Requires:	glite-info-provider-release
 Requires:	glite-info-provider-service
 Requires:	glite-info-update-endpoints
 
@@ -41,6 +40,8 @@ rm -rf %{buildroot}
 /var/lib/bdii/gip/plugin/glite-info-plugin-fcr
 
 %changelog
+* Tue Apr 18 2011 Laurence Field <laurence.field@cern.ch> - 1.0.2-1
+- Removed the dependency on glite-info-provider-release
 * Tue Apr 05 2011 Laurence Field <laurence.field@cern.ch> - 1.0.1-1
 - Fixes for change in glite-info-service
 * Tue Mar 15 2011 Laurence Field <laurence.field@cern.ch> - 1.0.0-1
