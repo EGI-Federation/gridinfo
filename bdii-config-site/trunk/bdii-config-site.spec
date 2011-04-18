@@ -1,5 +1,5 @@
 Name:		bdii-config-site
-Version:	1.0.2
+Version:	1.0.3
 Release:	1%{?dist}
 Summary:	Site BDII configration files
 Group:		System/Monitoring
@@ -9,7 +9,6 @@ BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
 Requires:	bdii
-Requires:	glite-info-provider-release
 Requires:	glite-info-provider-ldap
 Requires:	glite-info-provider-service
 Requires:	glite-info-static
@@ -43,6 +42,8 @@ rm -rf %{buildroot}
 /var/lib/bdii/gip/provider/glite-info-provider-site-glue2
 
 %changelog
+* Tue Apr 18 2011 Laurence Field <laurence.field@cern.ch> - 1.0.3-1
+- Removed the dependency on glite-info-provider-release
 * Tue Apr 05 2011 Laurence Field <laurence.field@cern.ch> - 1.0.2-1
 - Fixed error due to new version of glite-info-provider-service
 * Mon Mar 21 2011 Laurence Field <laurence.field@cern.ch> - 1.0.1-1
