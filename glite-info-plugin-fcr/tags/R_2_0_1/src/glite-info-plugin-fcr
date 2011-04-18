@@ -1,0 +1,86 @@
+#!/usr/bin/python
+##############################################################################
+# Copyright (c) Members of the EGEE Collaboration. 2004.
+# See http://www.eu-egee.org/partners/ for details on the copyright
+# holders.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at #
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS
+# OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
+import os
+import sys
+import getopt
+import signal
+import urllib2
+
+
+# Figure out the location of the glite var directory
+var_dir = None
+if ( os.environ.has_key('GLITE_LOCATION_VAR') ):
+    var_dir = os.environ['GLITE_LOCATION_VAR']
+elif ( os.environ.has_key('GLITE_LOCATION') ):
+    var_dir = "%s/var" % os.environ['GLITE_LOCATION']
+else: 
+    var_dir = "/opt/glite/var"
+
+url = "http://lcg-fcr.cern.ch:8083/fcr-data/exclude.ldif"
+cache_file = var_dir + "/cache/gip/plugin/fcr/fcr.ldif"
+
+
+def usage():
+    sys.stderr.write('''Usage: %s [ OPTIONS]
+This information plugin downloads the FCR LDIF file from the web page and writes the result to stdout. A cache is maintained of the file in case the page is unavailable. 
+    ''')
+try:
+    opts, args = getopt.getopt(sys.argv[1:], "hu:", ["help", "url"])
+except getopt.GetoptError:
+    sys.stderr.write("Error: Invalid option specified.\n")
+    usage()
+    sys.exit(2)
+
+for o, a in opts:
+    if o in ("-u", "--url"):
+        url = a
+    if o in ("-h", "--help"):
+        usage()
+        sys.exit(0)
+
+def handler(signum, frame):
+    if ( signum ==14 ):
+        raise IOError, "Timed Out!"
+
+if ( not os.path.exists( os.path.dirname(cache_file) )):
+     os.makedirs(os.path.dirname(cache_file))
+
+# Create Timeout Alarm
+signal.signal(signal.SIGALRM, handler)
+signal.alarm(10)
+
+try:
+    result = urllib2.urlopen(url).readlines()
+    input_fh=open(cache_file, 'w')
+    for line in result:
+        input_fh.write(line)
+        sys.stdout.write(line)
+    input_fh.close()
+except Exception, e:
+    if (os.path.exists(cache_file)):
+        result = open(cache_file).readlines()
+        for line in result:
+            sys.stdout.write(line)
+
+signal.alarm(0)          # Disable the alarm
+
+
+
+                                                                        
