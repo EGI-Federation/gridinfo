@@ -1,0 +1,105 @@
+#!/bin/bash
+
+RETVAL=0
+
+echo "Running lcg-info Tests ..."
+
+echo -n "Testing the behaviour with nonexisting server: "
+export LCG_GFAL_INFOSYS=no.such.machine.cern.ch
+lcg-info --vo dteam --list-ce -attr Tag >/dev/null 2>/dev/null
+if [ $? -ne 22 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+export LCG_GFAL_INFOSYS=lcg-bdii.cern.ch:2170
+
+echo -n "Testing the listing of software tags: "
+lcg-info --vo dteam --list-ce --attr Tag | grep "VO-" >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the listing of CE attributes: "
+lcg-info --vo dteam --list-ce --attr OS,OSVersion,OSRelease,Processor,TotalCPUs,FreeCPUs,CEVOs | grep OS >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the listing of SE attributes: "
+lcg-info --vo dteam --list-se --attr SEName,SEArch,Path | grep SE >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo "Running lcg-infosites Tests ..."
+
+echo -n "Testing the behaviour with nonexisting server: "
+export LCG_GFAL_INFOSYS=no.such.machine.cern.ch
+lcg-infosites --vo dteam tag >/dev/null 2>/dev/null
+if [ $? -ne 22 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+export LCG_GFAL_INFOSYS=lcg-bdii.cern.ch:2170
+
+echo -n "Testing the listing of sites: "
+lcg-infosites --vo dteam sitenames >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+services="ce se closeSE lfc lfcLocal rb dli dliLocal vobox fts"
+for service in ${services}; do 
+    echo -n "Testing the listing of ${service} services: "
+    lcg-infosites --vo dteam ${service} >/dev/null 2>/dev/null
+    if [ $? -gt 0 ]; then
+	echo "FAIL"
+	RETVAL=1
+    else
+	echo "OK"
+    fi 
+done
+
+echo -n "Testing the listing of CEs with the -v 2 option: "
+lcg-infosites --vo dteam -v 2 ce >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Testing the listing of software tags: "
+lcg-infosites --vo dteam tag >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+if [ ${RETVAL} -eq 1 ]; then
+    echo "Test Failed"
+    exit 1
+else
+    echo "Test Passed"
+    exit 0
+fi
