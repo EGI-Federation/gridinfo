@@ -19,7 +19,7 @@ error_messages= {
 
 #Define the service types
 service_types = { 'org.glite.wms.WMProxy' : 'WMS', 'SRM' : 'SRM', 'CE': 'CE', 'org.glite.ce.CREAM' : 'CE' }
-goc_service_types = { 'WMS' : 'org.glite.wms.WMProxy', 'SRM' : 'SRM', 'CE' : 'CE', 'CREAM-CE' : 'CE'}
+goc_service_types = { 'WMS' : 'org.glite.wms.WMProxy', 'SRM' : 'SRM', 'CE' : 'CE', 'CREAM-CE' : 'CE', 'ARC-CE' : 'CE' } 
    
 # Create and XML parser for the GOC DB
 class GOCHandler(xml.sax.handler.ContentHandler):
@@ -51,6 +51,8 @@ class GOCHandler(xml.sax.handler.ContentHandler):
          self.host_buffer += data
       if self.inType:
          if data == "CREAM-CE":
+            self.type_buffer += "CE"
+         elif data == "ARC-CE":
             self.type_buffer += "CE"
          else:
             self.type_buffer += data
@@ -220,7 +222,7 @@ gsutils.get_site(dn))
       goc_services[site.lower()] = handler.mapping
       goc_not_production[site.lower()] = handler.not_production
       goc_not_monitored[site.lower()] = handler.not_monitored
-         
+
 # Check to see if Services are published
 for site in services.keys():
    if goc_services.has_key(site):
