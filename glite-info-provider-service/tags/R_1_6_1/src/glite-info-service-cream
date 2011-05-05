@@ -1,0 +1,21 @@
+#!/bin/bash
+
+# init function for the CREAM/CEMon service publishers, to export some variables
+
+# CREAM and CEMon are on the same host/port (within tomcat), only the
+# web service endpoint is different
+
+# Host and port can be overridden by setting environment variables in the
+# wrapper script
+
+CREAM_PORT=${CREAM_PORT:-8443}
+CREAM_HOST=${CREAM_HOST:-`hostname -f`}
+
+CREAM_PID_FILE=${CREAM_PID_FILE:-/var/run/tomcat5.pid}
+
+# Write to stdout - will be imported by the info provider
+
+echo CREAM_PORT=$CREAM_PORT
+echo CREAM_HOST=$CREAM_HOST
+echo CREAM_PID_FILE=$CREAM_PID_FILE
+
