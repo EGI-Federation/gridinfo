@@ -1,5 +1,5 @@
 Name:		glite-info-provider-service
-Version:	1.6.2
+Version:	1.6.3
 Release:	1%{?dist}
 Summary:	The GLUE service information provider
 Group:		System/Monitoring
@@ -96,6 +96,8 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Thu May 05 2011 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.6.3-1
+- ... and fix a missing tab in the make file ...
 * Thu May 05 2011 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.6.2-1
 - Add the ldif from the test config to the rpm
 * Thu May 05 2011 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.6.1-1
