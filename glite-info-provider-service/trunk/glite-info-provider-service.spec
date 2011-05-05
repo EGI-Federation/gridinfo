@@ -1,5 +1,5 @@
 Name:		glite-info-provider-service
-Version:	1.5.2
+Version:	1.6.1
 Release:	1%{?dist}
 Summary:	The GLUE service information provider
 Group:		System/Monitoring
@@ -88,11 +88,16 @@ rm -rf %{buildroot}
 /etc/glite/info/service/glite-info-glue2-test.conf.template
 /etc/glite/info/service/glite-info-glue2-service-test.conf.template
 /etc/glite/info/service/glite-info-glue2-bdii-site.conf.template
+/etc/glite/info/service/glue1.test.ldif
+/etc/glite/info/service/glue2.test.ldif
+/etc/glite/info/service/glue2.test.ldif.prev
 %doc /usr/share/doc/%{name}/README
 %doc /usr/share/doc/%{name}/README-GLUE2
 
 
 %changelog
+* Thu May 05 2011 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.6.1-1
+- Various minor bug fixes, see patch #4534 for details
 * Fri Mar 25 2011 Laurence Field <laurence.field@cern.ch> - 1.5.2-1
 - Changed the value of MYPROXY_CONF
 * Tue Mar 08 2011 Laurence Field <laurence.field@cern.ch> - 1.5.0-1
