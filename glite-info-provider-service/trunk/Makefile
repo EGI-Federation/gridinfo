@@ -16,6 +16,7 @@ install:
 	@install -m 0755 src/glite-info-service-* $(prefix)/usr/bin/
 	@install -m 0755 src/glite-info-glue2-* $(prefix)/usr/bin/
 	@install -m 0644 etc/*.template $(prefix)/etc/glite/info/service
+        @install -m 0644 etc/*.test.ldif* $(prefix)/etc/glite/info/service
 	@install -m 0644 doc/README $(prefix)/usr/share/doc/glite-info-provider-service
 	@install -m 0644 doc/README-GLUE2 $(prefix)/usr/share/doc/glite-info-provider-service
 
