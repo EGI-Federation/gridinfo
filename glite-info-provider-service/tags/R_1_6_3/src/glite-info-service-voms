@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# Helper script for the VOMS service publisher
+# Argument is the VO name
+
+if [ x$1 == "x" ]; then
+    echo No VO name defined
+    exit 1
+fi
+
+VOMS_VO=$1
+
+VOMS_CONF=$GLITE_LOCATION/etc/voms/$VOMS_VO/voms.conf
+
+if [ -r $VOMS_CONF ]; then
+    VOMS_PORT=`grep [\-]-port $VOMS_CONF | cut -d= -f2`
+else
+    echo No configuration file $VOMS_CONF found for VO $VOMS_VO
+    exit 2
+fi
+
+VOMS_HOST=${VOMS_HOST:-`hostname -f`}
+
+VOMS_LOCK_FILE=$GLITE_LOCATION_VAR/lock/subsys/voms.$VOMS_VO
+
+echo VOMS_HOST=$VOMS_HOST
+echo VOMS_PORT=$VOMS_PORT
+echo VOMS_VO=$VOMS_VO
+echo VOMS_LOCK_FILE=$VOMS_LOCK_FILE
+
+
