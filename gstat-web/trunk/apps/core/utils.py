@@ -760,7 +760,7 @@ def get_installed_capacities(site_list, vo_name=None, hepspec06=False):
             else:
                 # Get SI2000 capacities
                 site_data[site_id][2] += str2int(sub_cluster.logicalcpus) * str2int(sub_cluster.benchmarksi00)
-        except KeyError, e:
+        except (KeyError, ValueError):
             continue
 
     #Get ce/cluster mapping
