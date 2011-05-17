@@ -4,7 +4,7 @@ import os
 import sys;
 import ldap;
 import time;
-import glue2.utils;
+import validator.utils;
 import tempfile;
 import signal;
 import logging;
