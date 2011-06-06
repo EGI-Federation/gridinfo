@@ -1,5 +1,5 @@
 Name:		glite-info-provider-ldap
-Version:	1.4.0
+Version:	1.4.1
 Release:	1%{?dist}
 Summary:	LDAP information provider
 Group:		System/Monitoring
@@ -9,9 +9,10 @@ URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
 Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
+Requires:       openldap-servers
 
 %description
-An informatio provider that queries a number of LDAP sources and return the result. 
+An information provider that queries a number of LDAP sources and return the result. 
 
 %prep
 %setup -q
