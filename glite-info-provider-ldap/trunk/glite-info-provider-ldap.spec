@@ -37,6 +37,8 @@ rm -rf %{buildroot}
 %attr(-, ldap, ldap) /opt/glite/var/cache/gip/
 
 %changelog
+* Mon Jun 06 2011 Laurence Field <laurence.field@cern.ch> - 1.4.1-1
+- Fix for bug #81637 (Missing dependency)
 * Tue Mar 22 2011 Laurence Field <laurence.field@cern.ch> - 1.4.0-1
 - Change the location of the var directory
 * Fri Mar 4 2011 Laurence Field <laurence.field@cern.ch> - 1.3.5-1
