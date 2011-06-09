@@ -1,6 +1,6 @@
 Summary: Gstat Valiation Scripts
 Name: gstat-validation
-Version: 2.0.46
+Version: 2.0.47
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: EGEE
@@ -37,6 +37,8 @@ rm -rf $RPM_BUILD_ROOT
 /var/lib/gstat 
 
 %changelog
+* Thu Jun 09 2011 Laurence Field <laurence.field@cern.ch>  - 2.0.47-1
+- Fix for IS-240 
 * Thu Jun 09 2011 Laurence Field <laurence.field@cern.ch>  - 2.0.46-1
 - Fix for IS-237 
 * Tue Jan 25 2011 Laurence Field <laurence.field@cern.ch>  - 2.0.44-1
