@@ -455,7 +455,7 @@ def test_SEControlProtocol_Endpoint(key,entry):
                           'GlueSEControlProtocolEndpoint port not specified', gsutils.get_site(key))
 
       if (entry['GlueSEControlProtocolEndpoint'][0][slash+1:] not in
-               ("srm/managerv1","srm/managerv2")): 
+               ("srm/managerv1","srm/managerv2","srm/v2/server")): 
          my_errors.log(key,'SEControlProtocol.Endpoint',
                           'GlueSEControlProtocolEndpoint not a full SOAP URL', gsutils.get_site(key))
 
