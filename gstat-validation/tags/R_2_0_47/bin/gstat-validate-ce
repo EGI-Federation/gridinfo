@@ -339,7 +339,7 @@ def test_ACBR(key,entry,attribute,type):
    logging.debug("Testing %s for %s" %(type,entry[attribute][0]))
 
    for val in entry[attribute]:
-      if ( val[0] != "/" and val[:3] != "VO:" and val[:6] != "VOMS:/" and val[:4] != "DENY" ):
+      if ( val[0] != "/" and val[:3] != "VO:" and val[:6] != "VOMS:/" and val[:6] != "DENY:/" ):
          my_errors.log(gsutils.get_unique_id(key),
                          type+'.AccessControlBaseRule.Value',
                          val+' ACBR has an invalid format', gsutils.get_site(key))
