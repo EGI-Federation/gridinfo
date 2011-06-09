@@ -1,0 +1,41 @@
+dn: GLUE2DomainId=cern.ch,o=glue
+objectClass: GLUE2Domain
+objectClass: GLUE2AdminDomain
+GLUE2DomainId: cern.ch
+GLUE2DomainDescription: Testing
+GLUE2DomainWWW: http://www.cern.ch/
+
+dn: GLUE2LocationId=location.cern.ch,GLUE2DomainId=$SITE_NAME,o=glue
+objectClass: GLUE2Location
+GLUE2LocationId: location.cern.ch
+GLUE2LocationCountry: Geneva, Switzerland
+GLUE2LocationDomainForeignKey: cern.ch
+
+dn: GLUE2ContactId=general.contact.cern.ch,GLUE2DomainId=$SITE_NAME,o=glue
+objectClass: GLUE2Contact
+GLUE2ContactId: general.contact.cern.ch
+GLUE2ContactDetail: mailto:admin@cern.ch
+GLUE2ContactType: general
+GLUE2ContactDomainForeignKey: cern.ch
+
+dn: GLUE2ContactId=security.contact.cern.ch,GLUE2DomainId=$SITE_NAME,o=glue
+objectClass: GLUE2Contact
+GLUE2ContactId: security.contact.cern.ch
+GLUE2ContactDetail: mailto:admin@cern.ch
+GLUE2ContactType: security
+GLUE2ContactDomainForeignKey: cern.ch
+
+dn: GLUE2ContactId=sysadmin.contact.cern.ch,GLUE2DomainId=$SITE_NAME,o=glue
+objectClass: GLUE2Contact
+GLUE2ContactId: sysadmin.contact.cern.ch
+GLUE2ContactDetail: mailto:admin@cern.ch
+GLUE2ContactType: sysadmin
+GLUE2ContactDomainForeignKey: cern.ch
+
+dn: GLUE2ContactId=usersupport.contact.cern.ch,GLUE2DomainId=$SITE_NAME,o=glue
+objectClass: GLUE2Contact
+GLUE2ContactId: usersupport.contact.cern.ch
+GLUE2ContactDetail: mailto:admin@cern.ch
+GLUE2ContactType: usersupport
+GLUE2ContactDomainForeignKey: cern.ch
+
