@@ -288,7 +288,7 @@ def process_tuple(dn, tuple, table_name, multivalues, insts, gluemultivalueds, g
             try:
                 value = fkvalues[1]
             except Exception, e:
-                log.warn('Wrong value for Key:' + key + '. Value:' + tuple[key] + ' in ' + table_name_lower + '.' + methodName)
+                log.warn('Wrong format for FK value:' + tmpvalue + ' in ' + table_name_lower + '.' + methodName)
                 continue #sys.exit()
             # Check if method exists
             try:
