@@ -1,0 +1,8 @@
+#!/usr/bin/make -f 
+SCRATCH=${PWD}/scratch
+
+location=/usr/libexec/grid-monitoring/probes/org.bdii
+
+install:
+	mkdir -p $(prefix)$(location)
+	install -m 0755 ${SCRATCH}/check_bdii_entries $(prefix)$(location)
