@@ -357,7 +357,7 @@ if __name__ == "__main__":
       for site in tier_data:
          tier = site['Tier']
          site_name = site['Site']
-         tiers[site_name] = tier
+         tiers[site_name] = tier[5:]
 
    # Get NGI list
    NGI_file = "/var/lib/gstat/NGI.xml"
