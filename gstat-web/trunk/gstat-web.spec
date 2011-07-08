@@ -1,6 +1,6 @@
 Summary: GStat Web Applciation
 Name: gstat-web
-Version: 1.0.12
+Version: 1.0.13
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: Apache license v2.0
@@ -49,4 +49,4 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 /var/log/gstat
 
-%changelog -f ChangeLog
+
