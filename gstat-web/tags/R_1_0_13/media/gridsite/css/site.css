@@ -1,0 +1,23 @@
+/** General styles **/
+a:link { text-decoration: none;}
+a:visited {text-decoration: none;}
+a.bold { font-weight: bold;}
+a.glue { color: #EA7618; font-weight: bold; font-size:7px;}
+
+/** Table Row Expanding **/
+tr.hidden { display: none; }
+tr.unhidden { display: table-row; }
+
+/** TreeView **/
+#tree {
+	font-family: Verdana, helvetica, arial, sans-serif;
+	font-size: 8pt;
+	background: #fff;
+	color: #3D3D3D;
+	line-height:1.4em;
+}
+
+th.title {
+  cursor: pointer;
+  /* background: url('/media/core/css/img/info.png') no-repeat scroll right center #E6EEEE; */
+}
