@@ -108,7 +108,7 @@ if __name__ == "__main__":
          official_service_types[line.strip()] = None
             
    # Set filter to reduced the amount of information 
-   filter = "'(|(objectclass=GlueService)(objectClass=GlueSite)(objectClass=GlueCE))'"
+   filter = "'(|(objectclass=GlueService)(objectClass=GlueSite)(objectClass=GlueCE)(objectClass=GlueCluster))'"
 
    if config.has_key('file'):
       source = "file://%s" % (config['file'])
@@ -119,9 +119,38 @@ if __name__ == "__main__":
    dns = gsutils.get_dns(ldif)
    log.info("Found %s entries" %(len(dns)) )
 
+   # Iterate through LDIF to create Cluster to Site mapping.
+   cluster_mapping = {}
+   for dn in dns:
+      entry = ldif[dns[dn][0]:dns[dn][1]].strip()
+      entry = gsutils.convert_entry(entry)
+      for object_class in entry['objectClass']:
+         if ( object_class == "GlueCluster" ):
+            cluster = None
+            attribute = 'GlueClusterUniqueID'
+            try:
+               cluster = entry[attribute][0]
+            except:
+               pass
+            attribute= 'GlueForeignKey'
+            FKs = entry[attribute]
+            site = None
+            for FK in FKs:
+               try:
+                  index = FK.index('=')
+                  key = FK[:index]
+                  value = FK[index+1:]
+                  if ( key == 'GlueSiteUniqueID'):
+                     site = value.lower()
+               except ValueError:
+                  my_errors.log(gsutils.get_unique_id(dn),
+                                'service.attribute.syntax',
+                                'The GlueCluster entry %s attribute has a syntax error, expect key=value syntax' %(attribute), gsutils.get_site(dn))
+            cluster_mapping[cluster] = site
+
+   # Iterate through LDIF entries and test.
    sites = []
    services = {}
-   # Iterate through LDIF entries and test.
    for dn in dns:
       entry = ldif[dns[dn][0]:dns[dn][1]].strip()
       entry = gsutils.convert_entry(entry)
@@ -129,21 +158,33 @@ if __name__ == "__main__":
          if ( object_class == "GlueCE" ):
             type = 'CE'
             attribute = 'GlueCEInfoHostName'
+            host = None
             try:
                host = entry[attribute][0]
+            except:
+               pass
+            
+            cluster = None
+            attribute = 'GlueCEHostingCluster'
+            try:
+               cluster = entry[attribute][0]
+            except:
+               pass
 
-               # Get Site Name
-               site = gsutils.get_site(dn)
-               
-               if services.has_key(site):
-                  if services[site].has_key(host):
+            site = None
+            try:
+               site = cluster_mapping[cluster]
+            except:
+               pass
+
+            if services.has_key(site):
+               if services[site].has_key(host):
+                  if not service_types[type] in services[site][host]:
                      services[site][host].append(service_types[type])
-                  else:
-                     services[site][host] = [ service_types[type] ]
                else:
-                  services[site] = { host : [ service_types[type] ] }
-            except KeyError, e:
-               my_errors.log(gsutils.get_unique_id(dn),'service.attribute.missing', 'The GlueCluster entry is missing the attribute, %s' %(attribute), gsutils.get_site(dn))
+                  services[site][host] = [ service_types[type] ]
+            else:
+               services[site] = { host : [ service_types[type] ] }
 
          if ( object_class == "GlueService" ):
             
@@ -191,7 +232,8 @@ gsutils.get_site(dn))
                         site = gsutils.get_site(dn)
                   if services.has_key(site):
                      if services[site].has_key(host):
-                        services[site][host].append(service_types[type])
+                        if not service_types[type] in services[site][host]:
+                           services[site][host].append(service_types[type])
                      else:
                         services[site][host] = [ service_types[type] ]
                   else:
@@ -246,7 +288,7 @@ for site in goc_services.keys():
             try:
                goc_services[site][host].index(service)
             except:
-               my_errors.log(service + "_" + host,'service.published', 'The Service %s on %s is not registered in the GOC DB.' %(service, host), site)
+               my_errors.log(service + "_" + host,'service.registered', 'The Service %s on %s is not registered in the GOC DB.' %(service, host), site)
 
 if (len(dns) == 0 ):
    details = "No results returned."
