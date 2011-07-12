@@ -80,6 +80,8 @@ if [ $? -ne 0 ]; then
   return $?
 fi
 
+/sbin/chkconfig bdii on
+
 /sbin/service bdii stop
 /sbin/service bdii start
 
