@@ -18,7 +18,7 @@
 CONFIG=/etc/bdii/gip/etc/glite-info-service-bdii-top.conf
 TEMPLATE=/etc/glite/info/service/glite-info-service-bdii-top.conf.template
 SCRIPT=/usr/bin/glite-info-service
-DEFAULTS=/etc/bdii/gip/etc/glite-info-site-defaults.conf
+DEFAULTS=/etc/bdii/gip/glite-info-site-defaults.conf
 
 # Check for the existence of the configuration file.
 if [ -f ${DEFAULTS} ]; then
@@ -26,7 +26,6 @@ if [ -f ${DEFAULTS} ]; then
 fi
 
 SITE_NAME=${SITE_NAME:-$(hostname -d) }
-BDII_HOST=${SITE_BDII_HOST:-$(hostname -f) }
 export BDII_HOST
 
 # Check for the existence of the configuration file.
