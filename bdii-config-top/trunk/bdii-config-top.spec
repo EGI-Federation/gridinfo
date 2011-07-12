@@ -1,5 +1,5 @@
 Name:		bdii-config-top
-Version:	1.0.2
+Version:	1.0.3
 Release:	1%{?dist}
 Summary:	Top BDII configration files
 Group:		System/Monitoring
@@ -40,6 +40,8 @@ rm -rf %{buildroot}
 /var/lib/bdii/gip/plugin/glite-info-plugin-fcr
 
 %changelog
+* Tue Apr 12 2011 Laurence Field <laurence.field@cern.ch> - 1.0.3-1
+- Fixed #84230 and # 84242
 * Tue Apr 18 2011 Laurence Field <laurence.field@cern.ch> - 1.0.2-1
 - Removed the dependency on glite-info-provider-release
 * Tue Apr 05 2011 Laurence Field <laurence.field@cern.ch> - 1.0.1-1
