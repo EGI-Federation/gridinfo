@@ -2,7 +2,7 @@
 %define _topdir %{topdir} 
 Summary: glite-info-plugin-fcr
 Name: glite-info-plugin-fcr
-Version: 2.0.1
+Version: 2.0.2
 Vendor: EGEE
 Release: 1
 License: EGEE
