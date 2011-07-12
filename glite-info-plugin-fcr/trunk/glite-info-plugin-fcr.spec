@@ -32,7 +32,6 @@ make install prefix=%{buildroot}
 %files
 %dir /var/cache/fcr
 %{prefix}/libexec/glite-info-plugin-fcr
-/etc/cron.hourly/generate-fcr-exclude-file
 
 %clean
 rm -rf %{buildroot}
