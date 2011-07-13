@@ -2,7 +2,7 @@ name= ${shell grep Name: *.spec | sed 's/^[^:]*: //' }
 version= ${shell grep Version: *.spec | sed 's/^[^:]*: //' }
 build=${shell pwd}/build
 
-SCRATCH=${PWD}/scratch
+SCRATCH=${PWD}/build
 CC  = /usr/bin/gcc
 CFLAGS  = -Wall -O2 -g -DLDAP_DEPRECATED
 LDFLAGS = -lldap
