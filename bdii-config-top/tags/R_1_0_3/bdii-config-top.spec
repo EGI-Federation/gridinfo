@@ -40,7 +40,7 @@ rm -rf %{buildroot}
 /var/lib/bdii/gip/plugin/glite-info-plugin-fcr
 
 %changelog
-* Tue Apr 12 2011 Laurence Field <laurence.field@cern.ch> - 1.0.3-1
+* Tue Jul 12 2011 Laurence Field <laurence.field@cern.ch> - 1.0.3-1
 - Fixed #84230 and #84242
 * Tue Apr 18 2011 Laurence Field <laurence.field@cern.ch> - 1.0.2-1
 - Removed the dependency on glite-info-provider-release
