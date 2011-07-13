@@ -1,5 +1,6 @@
 name= ${shell grep Name: *.spec | sed 's/^[^:]*: //' }
 version= ${shell grep Version: *.spec | sed 's/^[^:]*: //' }
+release= $(shell grep Release: *.spec |cut -d"%" -f1 |sed 's/^[^:]*:[^0-9]*//')
 build=${shell pwd}/build
 
 SCRATCH=${PWD}/build
@@ -33,8 +34,8 @@ prepare: dist
 srpm: prepare
 	@rpmbuild -bs --define='_topdir ${build}' $(name).spec
 
-rpm: prepare
-	@rpmbuild -bb --define='_topdir ${build}' $(name).spec
+rpm: srpm
+	@rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(name)-$(version)-$(release).src.rpm
 
 deb: rpm
 	fakeroot alien build/RPMS/noarch/${name}-${version}-1.noarch.rpm
