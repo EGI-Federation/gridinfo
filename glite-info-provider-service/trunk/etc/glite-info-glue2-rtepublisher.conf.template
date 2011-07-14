@@ -18,7 +18,12 @@ init = glite-info-service-rtepublisher init
 # The service type should follow the official list in
 # http://glueschema.forge.cnaf.infn.it/V12/ServiceType
 
-service_type = org.glite.RTEPublisher
+#service_type = org.glite.RTEPublisher
+
+# Use a different type since this will be done a bit differently
+# for GLUE 2. However for now keep rtepublisher for the template and helper
+# script names.
+service_type = org.glite.ce.ApplicationPublisher
 
 # This should be a command which returns the service interface version
 # in the format 3[.2[.1]] - just hardwire to 1.0.0 here
@@ -67,7 +72,7 @@ get_acbr = glite-info-service-rtepublisher vos | sed 's!\(.*\)!VOMS:/\1/Role=lcg
 # ServiceData entries if any, as a list of key=value pairs
 # This will normally call a separate script
 
-get_data = glite-info-service-rtepublisher subclusters
+get_data = glite-info-service-rtepublisher executionenvironments
 
 # New GLUE 2 attributes start here
 
