@@ -13,6 +13,7 @@
 # 05/04/11: Change the DowntimeInfo text from goc.gridops.org to goc.egi.eu
 # 11/04/11: Change the StartTime format from local time to UTC for strict
 #           conformance with the schema
+# 14/07/11: Allow for Extension objects with duplicate Keys
 #
 # In general this code is expected to be called from a wrapper script
 # which also generates the parent Service object
@@ -49,7 +50,7 @@ my $command;
 
 # Info provider version and hostname for debugging
 
-my $gige_version = "1.1";
+my $gige_version = "1.2";
 
 my $host = `hostname -f`;
 chomp($host);
@@ -354,7 +355,7 @@ my @last = split /\./, $Type;
 my $Name = $last[$#last] . " endpoint for Service " . $SUID;
 print "GLUE2EntityName: $Name\n";
 
-# OtherInfo strings are just ouput as they come, apart from some basic checks
+# OtherInfo strings are just output as they come, apart from some basic checks
 # for length and whitespace (NB blank values are not valid LDIF)
 
 foreach (@OtherInfo) {
@@ -618,6 +619,8 @@ print "\n";
 # by default, although in some cases an OtherInfo may be sufficient.
 
 my %items = ();
+my $ext = 0;
+my $keyext = "";
 
 foreach (@Extensions) {
 # Should be key=value pairs
@@ -633,11 +636,14 @@ foreach (@Extensions) {
 	trunc($value);
 # Don't output anything if the key is null
         if (length($key) > 0) {
+	    $ext++;
+# Allow for duplicate keys (= as separator since it isn't allowed as above)
+	    $keyext = $key . "=" . $ext;
 # Value seems to be a mandatory attribute, so:
 	    if ($value){
-		$items{$key} = $value;
+		$items{$keyext} = $value;
 	    } else {
-		$items{$key} = "UNDEFINEDVALUE";
+		$items{$keyext} = "UNDEFINEDVALUE";
 	    }
         }else{
             print STDERR "Extension Key has 0 length, value is: " . $value . "\n";
@@ -647,11 +653,10 @@ foreach (@Extensions) {
 
 # Now print the Extension objects - the order is random but it doesn't matter
 
-my $ext = 0;
 my $ELID = "0";
-while ( my ($key, $value) = each(%items) ) {
+while ( my ($keyx, $value) = each(%items) ) {
+    (my $key, $ext) = split /=/, $keyx;
 # Extensions only need a local ID - but note that the Key may not be unique
-    $ext++;
     $ELID = $key . "_" . $ext;
     print "dn: GLUE2ExtensionLocalID=$ELID,GLUE2EndpointID=$UID,$bind_dn\n";
     print "objectClass: GLUE2Extension\n";

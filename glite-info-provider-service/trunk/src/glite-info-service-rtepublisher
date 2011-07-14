@@ -73,6 +73,20 @@ case "$1" in
 
     ;;
 
+    executionenvironments)
+
+# This is a GLUE 2 equivalent for the subcluster publication. It's
+# assumed that the ID (GLUE2ResourceID) is the same as the SubCluster ID.
+# Also in GLUE 2 we can have multiple Extension objects with the same
+# Key, so we can publish them more sensibly.
+
+    ls -pQ $RTEPUBLISHER_PATH | grep /$ | cut -d\" -f2 | sed s/^/GLUE2ResourceID=/
+
+    exit $?
+
+    ;;
+
+
     vos)
 
 # VO names are the names of directories one level below the subcluster
@@ -86,5 +100,5 @@ case "$1" in
 
 esac
 
-echo "Usage: glite-info-service-rtepublisher <init|subclusters|vos>"
+echo "Usage: glite-info-service-rtepublisher <init|subclusters|executionenvironments|vos>"
 exit 1
