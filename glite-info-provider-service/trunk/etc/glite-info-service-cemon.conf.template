@@ -43,7 +43,7 @@ WSDL_URL = http://grid.pd.infn.it/cemon/wsdl/org.glite.ce-mon_service.wsdl
 # A URL to a web page defining the service semantics, e.g. a manual
 # If the string does not start with "http" this will be omitted
 
-semantics_URL = https://edms.cern.ch/document/585040
+semantics_URL = http://wiki.italiangrid.org/twiki/bin/view/CEMon/FunctionalDescription
 
 # StartTime: A command to return the service start time.
 # This should be a unix timestamp, the info provider converts it to ISO8601
