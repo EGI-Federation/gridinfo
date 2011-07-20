@@ -2,6 +2,8 @@
 # This is the configuration file for the GlueService information provider
 # for a VOMS server
 
+# Now extended for GLUE 2 attributes
+
 # Many of the entries are commands which will be executed
 # using backquotes in perl. They should write to stdout - the return
 # code is not relevant except for init and status.
@@ -11,7 +13,7 @@
 # Environment variables can be set by writing to stdout (x=y)
 
 # The init script takes the VO name as an argument; this is generally
-# set by the glite-info-service-voms-wrapper script
+# set by the glite-info-glue2-voms script
 
 init = glite-info-service-voms $GLITE_INFO_SERVICE_VO
 
@@ -21,9 +23,9 @@ init = glite-info-service-voms $GLITE_INFO_SERVICE_VO
 service_type = org.glite.voms
 
 # This should be a command which returns the service interface version
-# in the format 3[.2[.1]]. Set to the server RPM version.
+# in the format 3[.2[.1]]. Set to 1.0.0 in the absence of better information.
 
-get_version = rpm -q voms-server --queryformat '%{version}\n'
+get_version = echo 1
 
 # A command to return the service endpoint to stdout (uses variables set
 # in the init script)
@@ -36,7 +38,7 @@ get_endpoint = echo voms://$VOMS_HOST:$VOMS_PORT/$VOMS_VO
 # The return code should indicate the status:
 # 0 = OK, 1 = Critical, 2 = Warning, 3 = Unknown, other = Other
 
-get_status = glite-info-service-test VOMS && /etc/init.d/voms status $VOMS_VO
+get_status = glite-info-service-test VOMS && glite-info-service-status voms $VOMS_VO
 
 # The URL of a WSDL document describing the service
 # If the string does not start with "http" this will be omitted
@@ -64,11 +66,29 @@ get_owner = echo $VOMS_VO
 
 get_acbr = echo VO:$VOMS_VO
 
-# ServiceData entries if any, as a list of key=value pairs
-# This will normally call a separate script
+# New GLUE 2 attributes start here
 
-get_data = echo
+# Capabilities are not very well-defined yet!
 
-# Associated services - not used here
+get_capabilities = echo security.attributeauthority
 
-get_services = echo
+# These three identify the specific implementation as opposed to the generic
+# protocol. NB this version is single-valued.
+
+get_implementor = echo gLite
+
+get_implementationname = echo VOMS
+
+get_implementationversion = rpm -q voms-server --queryformat '%{version}\n'
+
+# The Quality Level for this endpoint: 1 = development, 2 = testing,
+# 3 = pre-production and 4 = production
+# No mechanism yet to set this
+
+get_qualitylevel = echo 4
+
+# The ServingState for this Endpoint: 1 = closed, 2 = draining,
+# 3 = queueing, 4 = production (NB "production" has a different meaning
+# here to the QualityLevel)
+
+get_servingstate = echo 4
