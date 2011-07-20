@@ -20,9 +20,9 @@ init = glite-info-service-cream
 service_type = org.glite.ce.Monitor
 
 # This should be a command which returns the service interface version
-# in the format 3[.2[.1]]. Set to 1.0.0 in the absence of anything better.
+# in the format 3[.2[.1]]. Extract from the xml config file.
 
-get_version = echo 1
+get_version = grep -m 1 InterfaceVersion /etc/glite-ce-monitor/cemonitor-config.xml | sed 's/^.*InterfaceVersion="\(.*\)".*$/\1/'
 
 # A command to return the service endpoint to stdout (uses variables set
 # in the init script)
@@ -38,14 +38,13 @@ get_endpoint = echo https://$CREAM_HOST:$CREAM_PORT/ce-monitor/services/CEMonito
 get_status = glite-info-service-test CEMON && glite-info-service-status tomcat5
 
 # The URL of a WSDL document describing the service
-# If the string does not start with "http" this will be omitted
 
-WSDL_URL = http://grid.pd.infn.it/cemon/wsdl/org.glite.ce-mon_service.wsdl
+get_WSDL = echo https://$CREAM_HOST:$CREAM_PORT/ce-monitor/services/CEMonitor?wsdl 
 
 # A URL to a web page defining the service semantics, e.g. a manual
 # If the string does not start with "http" this will be omitted
 
-semantics_URL = https://edms.cern.ch/document/585040
+semantics_URL = http://wiki.italiangrid.org/twiki/bin/view/CEMon/FunctionalDescription
 
 # StartTime: A command to return the service start time.
 # This should be a unix timestamp, the info provider converts it to ISO8601
