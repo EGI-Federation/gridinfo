@@ -23,6 +23,7 @@ init = glite-info-service-rtepublisher init
 # Use a different type since this will be done a bit differently
 # for GLUE 2. However for now keep rtepublisher for the template and helper
 # script names.
+
 service_type = org.glite.ce.ApplicationPublisher
 
 # This should be a command which returns the service interface version
@@ -87,7 +88,7 @@ get_capabilities = echo information.publication
 
 get_implementor = echo gLite
 
-get_implementationname = echo RTEPublisher
+get_implementationname = echo ApplicationPublisher
 
 get_implementationversion = rpm -q lcg-info-dynamic-software --queryformat '%{version}\n'
 
