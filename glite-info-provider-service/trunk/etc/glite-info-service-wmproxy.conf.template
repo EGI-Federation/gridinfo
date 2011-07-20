@@ -20,9 +20,6 @@ service_type = org.glite.wms.WMProxy
 # This should be a command which returns the service interface version
 # in the format 3[.2[.1]]. Set to the RPM version.
 
-#get_version = rpm -qa | grep glite-wms-wmproxy | cut -d- -f 4,5 | cut -d. -f 1,2,3
-
-# Change following suggestion by Michel Jouvin
 get_version = rpm -q glite-wms-wmproxy --queryformat '%{version}\n'
 
 # A command to return the service endpoint to stdout (uses variables set
@@ -36,17 +33,17 @@ get_endpoint = echo https://$WMPROXY_HOST:$WMPROXY_PORT/glite_wms_wmproxy_server
 # The return code should indicate the status:
 # 0 = OK, 1 = Critical, 2 = Warning, 3 = Unknown, other = Other
 
-get_status = glite-info-service-test WMPROXY && $GLITE_LOCATION/etc/init.d/glite-wms-wmproxy status
+get_status = glite-info-service-test WMPROXY && /etc/init.d/glite-wms-wmproxy status
 
 # The URL of a WSDL document describing the service
 # If the string does not start with "http" this will be omitted
 
-WSDL_URL = http://trinity.datamat.it/projects/EGEE/WMProxy/WMProxy.wsdl
+WSDL_URL = http://web.infn.it/gLiteWMS/images/WMS/Docs/wmproxy.wsdl
 
 # A URL to a web page defining the service semantics, e.g. a manual
 # If the string does not start with "http" this will be omitted
 
-semantics_URL = https://edms.cern.ch/file/674643/1/EGEE-JRA1-TEC-674643-WMPROXY-guide-v0-3.pdf
+semantics_URL = http://web.infn.it/gLiteWMS/images/WMS/Docs/wmproxy-guide.pdf
 
 # StartTime: A command to return the service start time.
 # This should be a unix timestamp, the info provider converts it to ISO8601
@@ -70,7 +67,11 @@ get_acbr = echo
 # This will normally call a separate script
 # Here we print the host DN to match against the MyProxy authz
 
-get_data = echo -n DN= && grid-cert-info -file /etc/grid-security/hostcert.pem -subject
+#get_data = echo -n DN= && grid-cert-info -file /etc/grid-security/hostcert.pem -subject
+
+# Change to use openssl to avoid the dependency on globus
+
+get_data = echo -n DN= && openssl x509 -in /etc/grid-security/hostcert.pem -noout -subject | cut -d = -f 2-
 
 # Associated services - not used here
 
