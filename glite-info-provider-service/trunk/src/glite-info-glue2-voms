@@ -196,7 +196,7 @@ foreach (@endpoint_ldif) {
 	($Attr, $Cap) = split /:/, $_, 2;
 	$Cap =~ s/\s+//g;
 # The Service accumulates all the (distinct) Capabilities of its Endpoints
-	if ( !($Capabilities =~ m/,$Cap[,$]/) ) {
+	if ( !($Capabilities =~ m/,$Cap/) ) {
 # Make a comma-separated list (with a leading comma)
 	    $Capabilities = $Capabilities . "," . $Cap;
 	}
