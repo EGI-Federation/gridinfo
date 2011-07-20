@@ -11,11 +11,14 @@ if [ "x$1" == "x" ]; then
     exit 3
 fi
 
+service=$1
+shift
+
 # Try to avoid localised strings
 export LANG=C
 
 # Collect the stdout and return code from service status
-string=`/sbin/service $1 status`
+string=`/sbin/service $service status $@`
 rc=$?
 
 # Strip out the standard representation of pids

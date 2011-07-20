@@ -23,18 +23,17 @@ uniqueid=${3:-${host}_org.glite.voms_${check}}
 # Get the list of configured VOs (plus any other directories which happen
 # to be in the voms directory!)
 
-vos=`find $GLITE_LOCATION/etc/voms/ -type d -printf "%f "`
+vos=`find /etc/voms/ -type d -printf "%f "`
 
 for vo in $vos ; do
 
 # Real VOs will have a voms.conf file in the directory
-    if test -f $GLITE_LOCATION/etc/voms/$vo/voms.conf ; then
+    if test -f /etc/voms/$vo/voms.conf ; then
 
 # Set a variable to define the VO for this invocation
 	export GLITE_INFO_SERVICE_VO=$vo
 # The UniqueID needs to have the VO name appended to make it unique
 	glite-info-service $config $sitename ${uniqueid}_$vo
-	glite-info-service-glue2 $config $sitename ${uniqueid}_$vo
 
     fi
 
