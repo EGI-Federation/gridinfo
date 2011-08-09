@@ -22,7 +22,7 @@ def handler(signum, frame):
 
 def get_critical():
   
-   url = "http://grid-monitoring-exp.cern.ch/myegi/sam-pi/status_of_service_in_profile?vo_name=cms&profile_name=CMS_BLACKLIST&output=xml"
+   url = "http://grid-monitoring.cern.ch/myegi/sam-pi/status_of_service_in_profile?vo_name=cms&profile_name=CMS_BLACKLIST&output=xml"
 
    try:
       response = urllib2.urlopen(url).read()
