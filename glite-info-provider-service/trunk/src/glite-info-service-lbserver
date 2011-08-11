@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# SB 11/8/11 Updated for EMI paths
+
 # init function for the LB server service publisher, to export some variables
 
 # There is no config file for the LB server
@@ -7,9 +9,13 @@
 LBSERVER_PORT=${LBSERVER_PORT:-9003}
 LBSERVER_HOST=${LBSERVER_HOST:-`hostname -f`}
 
-GLITE_LOCATION_VAR=${GLITE_LOCATION_VAR:-/var/glite}
+# GLITE_LOCATION_VAR=${GLITE_LOCATION_VAR:-/var/glite}
 
-LBSERVER_PID_FILE=${LBSERVER_PID_FILE:-${GLITE_LOCATION_VAR}/glite-lb-bkserverd.pid}
+# LBSERVER_PID_FILE=${LBSERVER_PID_FILE:-${GLITE_LOCATION_VAR}/glite-lb-bkserverd.pid}
+
+# EMI has files in standard locations
+
+LBSERVER_PID_FILE=${LBSERVER_PID_FILE:-/var/run/glite-lb-bkserverd.pid}
 
 # Write to stdout - will be imported by the info provider
 
