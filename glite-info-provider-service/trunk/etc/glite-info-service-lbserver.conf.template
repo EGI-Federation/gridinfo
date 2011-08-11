@@ -33,7 +33,7 @@ get_endpoint = echo https://$LBSERVER_HOST:$LBSERVER_PORT/
 # The return code should indicate the status:
 # 0 = OK, 1 = Critical, 2 = Warning, 3 = Unknown, other = Other
 
-get_status = glite-info-service-test LBSERVER && $GLITE_LOCATION/etc/init.d/glite-lb-bkserverd status
+get_status = glite-info-service-test LBSERVER && glite-info-service-status glite-lb-bkserverd
 
 # The URL of a WSDL document describing the service
 # If the string does not start with "http" this will be omitted
