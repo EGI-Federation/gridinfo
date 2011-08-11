@@ -47,3 +47,66 @@ directory to the PATH, and run the following command:
 
 glite-info-glue2-simple glite-info-glue2-test.conf.template,glite-info-glue2-service-test.conf.template
 
+
+glite-info-glue2-service
+
+This is a simple script which massages its arguments into a valid GLUE2Service
+object, which it prints to stdout. All the information is passed in the
+arguments; this is not especially elegant, but the Service object is fairly
+simple and this covers everything which is likely to be needed. Several of
+the arguments are comma-separated lists, which implies that the list elements
+should not contain commas, but in practice this should not be a significant
+restriction. There is no support for Extension objects, but they can easily
+be appended after this script has been called. The script is called like:
+
+glite-info-glue2-service <site-ID> <service-ID> <service-type> <endpoint-info> [<other-info> [<other-info>] ...]
+
+site-ID: The unique name for the hosting site, i.e. the GLUE2DomainID.
+
+service-ID: The unique ID for this Service (GLUE2ServiceID). This is optionally
+followed by a comma-separated list of IDs of Services to which this Service
+is related (GLUE2ServiceServiceForeignKey).
+
+service-type: The GLUE2ServiceType, optionally followed by a comma-separated
+list of GLUE2ServiceCapability attributes.
+
+endpoint-info: a string summarising the Endpoints contained in the Service.
+This string in turn has the format:
+
+<quality-level>[,<complexity>[,<status-info>[,<status-info>[,...]]]]
+
+quality-level: The highest QualityLevel among the Endpoints
+(GLUE2ServiceQualityLevel).
+
+complexity: A string of the form <e>[:<s>[:<r>]] (default e=1, s=0, r=0) where
+e, s and r are the counts of the numbers of Endpoint types, Shares and
+Resources as defined for the GLUE2ServiceComplexity attribute. 
+
+status-info: Any number of strings which will be printed verbatim as
+GLUE2ServiceStatusInfo attributes.
+
+other-info: Any number of strings may be passed as extra arguments, which are
+simply printed verbatim as GLUE2EntityOtherInfo attributes.
+
+The Validity attribute is currently hardwired to 3600, i.e. 1 hour, which
+seems a reasonable default for a dynamic object. The CreationTime is set
+as the provider is run, and the Name is of the form <site>-<type>, where
+<type> is the final component in the ServiceType, assuming a dot-separated
+format.
+
+For diagnostic purposes the information provider name, version and the
+name of the host on which it ran are printed as OtherInfo items, e.g.:
+
+InfoProviderName=glite-info-glue2-service
+InfoProviderVersion=1.1
+InfoProviderHost=host.name
+
+To provide a basic level of support for Computing and Storage Services,
+if the Type is org.glite.ce or org.glite.se the provider adds
+
+objectClass: GLUE2ComputingService
+objectClass: GLUE2StorageService
+
+respectively. However it's quite likely that this will not be used and may
+therefore be removed in future versions.
+
