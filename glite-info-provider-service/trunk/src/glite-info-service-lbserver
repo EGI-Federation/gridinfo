@@ -15,7 +15,7 @@ LBSERVER_HOST=${LBSERVER_HOST:-`hostname -f`}
 
 # EMI has files in standard locations
 
-LBSERVER_PID_FILE=${LBSERVER_PID_FILE:-/var/run/glite-lb-bkserverd.pid}
+LBSERVER_PID_FILE=${LBSERVER_PID_FILE:-/var/glite/glite-lb-bkserverd.pid}
 
 # Write to stdout - will be imported by the info provider
 
