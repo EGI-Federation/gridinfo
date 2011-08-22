@@ -1,5 +1,5 @@
 Name:		bdii-config-site
-Version:	1.0.4
+Version:	1.0.5
 Release:	1%{?dist}
 Summary:	Site BDII configration files
 Group:		System/Monitoring
@@ -42,7 +42,7 @@ rm -rf %{buildroot}
 /var/lib/bdii/gip/provider/glite-info-provider-site-glue2
 
 %changelog
-* Tue Jul 12 2011 Laurence Field <laurence.field@cern.ch> - 1.0.4-1
+* Tue Aug 22 2011 Laurence Field <laurence.field@cern.ch> - 1.0.5-1
 - Fixed #84241
 * Tue Apr 18 2011 Laurence Field <laurence.field@cern.ch> - 1.0.3-1
 - Removed the dependency on glite-info-provider-release
