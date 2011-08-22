@@ -15,7 +15,7 @@
 # limitations under the License.
 ##############################################################################
 
-CONFIG=/etc/bdii/gip/etc/glite-info-service-bdii-top.conf
+CONFIG=/etc/bdii/gip/glite-info-service-bdii-top.conf
 TEMPLATE=/etc/glite/info/service/glite-info-glue2-bdii-top.conf.template
 SCRIPT=/usr/bin/glite-info-glue2-simple
 DEFAULTS=/etc/bdii/gip/glite-info-site-defaults.conf
