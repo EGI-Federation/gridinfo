@@ -5,17 +5,18 @@ Name: emi-nagios-bdii
 Version: 1.0.10
 Vendor: EMI
 Release: 1%{?dist}
-License:ASL 2.0
-Group: Monitoring
+License: Apache Software License
+Group: Unspecified
 Source: %{name}-%{version}.src.tgz
 Prefix: /
 BuildRoot: %{_tmppath}/%{name}-%{version}-build
 Obsoletes: grid-monitoring-probes-org.bdii
+Provides: grid-monitoring-probes-org.bdii
 Requires: openldap
-#BuildRequires: openldap-devel
+BuildRequires: openldap-devel
 
 %description
-This package contains Nagios compatible checks for a WLCG Information System instance (BDII).
+Nagios checks for a the BDII.
 
 %prep
 
