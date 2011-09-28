@@ -163,6 +163,7 @@ def is_ServiceType_t(value):
       'org.dcache.storage',
       'org.glite.wms.WMProxy',
       'org.glite.lb.Server',
+      'org.glite.ce.ApplicationPublisher',
       'org.glite.ce.CREAM',
       'org.glite.ce.Monitor',
       'org.glite.rgma.Consumer',
