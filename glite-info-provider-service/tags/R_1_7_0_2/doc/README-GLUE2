@@ -1,0 +1,112 @@
+
+This is a brief description of the current support for GLUE 2.0 in
+the glite-info-provider-service package - this file will be expanded later.
+
+The provider glite-info-service-glue2 is a direct drop-in subsitute for
+glite-info-service, which reads the same configuration file and
+writes essentially the same information in the GLUE 2 format. This
+provider is intended only for initial testing and will not be developed
+further.
+
+glite-info-glue2-service is a script which creates a GLUE 2 Service
+object using information passed via its arguments. This is more
+of a text processor than a true info provider and is intended to be
+called from a higher-level script, although it could be called
+directly for very simple cases.
+
+glite-info-glue2-endpoint is a provider to generate GLUE 2 Endpoint
+and AccessPolicy objects. This uses a configuration file which is similar
+to, and backward-compatible with, the file used for the GLUE 1 provider,
+but supports extra parameters to enable the new GLUE 2 attributes
+to be published. This allows essentially all GLUE 2 features to
+be used.
+
+glite-info-glue2-simple is a wrapper script which calls the service and
+endpoint scripts mentioned above. It only supports simple services
+with a single Endpoint, but this covers the majority of the current
+uses for the GLUE 1 provider. It is backward-compatible with the
+GLUE 1 provider in the sense that it can be called with the same
+arguments and the same config file, but is a lot more flexible. In particular
+it allows a second configuration file to specify attributes
+in the Service object.
+
+Extended configuration files for the various supported services will
+be added over time, starting with the BDII itself. In some cases,
+e.g. VOMS, a service-specific wrapper script will also be needed as
+there may be multiple Endpoints per Service.
+
+This provider can potentially be used as a skeleton for Computing and Storage
+services, but these will need substantial further development which is
+beyond the scope of a generic provider.
+
+The rpm contains two test configuration files in the etc directory,
+which can be used to test the functionality of the provider and can
+also be used as a template to develop configurations for new services. To
+perform such a test, make the etc directory the cwd, add the src
+directory to the PATH, and run the following command:
+
+glite-info-glue2-simple glite-info-glue2-test.conf.template,glite-info-glue2-service-test.conf.template
+
+
+glite-info-glue2-service
+
+This is a simple script which massages its arguments into a valid GLUE2Service
+object, which it prints to stdout. All the information is passed in the
+arguments; this is not especially elegant, but the Service object is fairly
+simple and this covers everything which is likely to be needed. Several of
+the arguments are comma-separated lists, which implies that the list elements
+should not contain commas, but in practice this should not be a significant
+restriction. There is no support for Extension objects, but they can easily
+be appended after this script has been called. The script is called like:
+
+glite-info-glue2-service <site-ID> <service-ID> <service-type> <endpoint-info> [<other-info> [<other-info>] ...]
+
+site-ID: The unique name for the hosting site, i.e. the GLUE2DomainID.
+
+service-ID: The unique ID for this Service (GLUE2ServiceID). This is optionally
+followed by a comma-separated list of IDs of Services to which this Service
+is related (GLUE2ServiceServiceForeignKey).
+
+service-type: The GLUE2ServiceType, optionally followed by a comma-separated
+list of GLUE2ServiceCapability attributes.
+
+endpoint-info: a string summarising the Endpoints contained in the Service.
+This string in turn has the format:
+
+<quality-level>[,<complexity>[,<status-info>[,<status-info>[,...]]]]
+
+quality-level: The highest QualityLevel among the Endpoints
+(GLUE2ServiceQualityLevel).
+
+complexity: A string of the form <e>[:<s>[:<r>]] (default e=1, s=0, r=0) where
+e, s and r are the counts of the numbers of Endpoint types, Shares and
+Resources as defined for the GLUE2ServiceComplexity attribute. 
+
+status-info: Any number of strings which will be printed verbatim as
+GLUE2ServiceStatusInfo attributes.
+
+other-info: Any number of strings may be passed as extra arguments, which are
+simply printed verbatim as GLUE2EntityOtherInfo attributes.
+
+The Validity attribute is currently hardwired to 3600, i.e. 1 hour, which
+seems a reasonable default for a dynamic object. The CreationTime is set
+as the provider is run, and the Name is of the form <site>-<type>, where
+<type> is the final component in the ServiceType, assuming a dot-separated
+format.
+
+For diagnostic purposes the information provider name, version and the
+name of the host on which it ran are printed as OtherInfo items, e.g.:
+
+InfoProviderName=glite-info-glue2-service
+InfoProviderVersion=1.1
+InfoProviderHost=host.name
+
+To provide a basic level of support for Computing and Storage Services,
+if the Type is org.glite.ce or org.glite.se the provider adds
+
+objectClass: GLUE2ComputingService
+objectClass: GLUE2StorageService
+
+respectively. However it's quite likely that this will not be used and may
+therefore be removed in future versions.
+
