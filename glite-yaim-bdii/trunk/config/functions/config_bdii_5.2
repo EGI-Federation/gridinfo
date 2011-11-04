@@ -57,6 +57,10 @@ if [ -f ${SYS_CONFIG_FILE} ]; then
   mv ${SYS_CONFIG_FILE} ${SYS_CONFIG_FILE}.old
 fi
 
+if [ -f /usr/sbin/slapd2.4 ]; then 
+  SLAPD=/usr/sbin/slapd2.4
+fi
+
 cat << EOF > ${SYS_CONFIG_FILE}
 SLAPD_CONF=${SLAPD_CONF}
 SLAPD=${SLAPD}
