@@ -1,10 +1,10 @@
 Name:		glite-info-provider-service
 Version:	1.7.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	The GLUE service information provider
 Group:		System/Monitoring
 License:	ASL 2.0
-Source:		%{name}-%{version}.tar.gz
+Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
