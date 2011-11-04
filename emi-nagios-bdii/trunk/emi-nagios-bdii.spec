@@ -1,10 +1,8 @@
-%define debug_package %{nil} 
-
 Summary: BDII Nagios monitoring Probe
 Name: emi-nagios-bdii
 Version: 1.0.10
 Vendor: EMI
-Release: 1%{?dist}
+Release: 2%{?dist}
 License: Apache Software License
 Group: Unspecified
 Source: %{name}-%{version}.src.tgz
