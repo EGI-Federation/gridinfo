@@ -1,10 +1,10 @@
 Name:		bdii-config-top
 Version:	1.0.4
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Top BDII configration files
 Group:		System/Monitoring
 License:	ASL 2.0
-Source:		%{name}-%{version}.tar.gz
+Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
