@@ -1,10 +1,10 @@
 Name:		glite-info-static
 Version:	0.2.0
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Core component for the glite-info-static framework.
 Group:		System/Monitoring
 License:	ASL 2.0
-Source:		%{name}-%{version}.tar.gz
+Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
