@@ -1,27 +1,46 @@
-package=glite-info-plugin-fcr
+NAME= $(shell grep Name: *.spec | sed 's/^[^:]*:[^a-zA-Z]*//' )
+VERSION= $(shell grep Version: *.spec | sed 's/^[^:]*:[^0-9]*//' )
+RELEASE= $(shell grep Release: *.spec |cut -d"%" -f1 |sed 's/^[^:]*:[^0-9]*//')
+build=$(shell pwd)/build
+DATE=$(shell date "+%a, %d %b %Y %T %z")
+dist=$(shell rpm --eval '%dist' | sed 's/%dist/.el5/')
 
-.PHONY: configure install clean rpm
+default: 
+	@echo "Nothing to do"
 
-all: configure
-
-install: 
+install:
 	@echo installing ...
 	@mkdir -p $(prefix)/opt/glite/libexec
 	@mkdir -p $(prefix)/var/cache/fcr
-#	@mkdir -p $(prefix)/etc/cron.hourly
 	@install -m 0755 src/glite-info-plugin-fcr $(prefix)/opt/glite/libexec
-#	@install -m 0755 etc/cron.hourly/generate-fcr-exclude-file $(prefix)/etc/cron.hourly/
+
+dist:
+	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
+	rsync -HaS --exclude ".svn" --exclude "$(build)" * $(build)/$(NAME)-$(VERSION)/
+	cd $(build); tar --gzip -cf $(NAME)-$(VERSION).src.tgz $(NAME)-$(VERSION)/; cd -
+
+sources: dist
+	cp $(build)/$(NAME)-$(VERSION).src.tgz .
+
+deb: dist
+	cd $(build)/$(NAME)-$(VERSION); dpkg-buildpackage -us -uc; cd -
+
+prepare: dist
+	@mkdir -p  $(build)/RPMS/noarch
+	@mkdir -p  $(build)/SRPMS/
+	@mkdir -p  $(build)/SPECS/
+	@mkdir -p  $(build)/SOURCES/
+	@mkdir -p  $(build)/BUILD/
+	cp $(build)/$(NAME)-$(VERSION).src.tgz $(build)/SOURCES 
+
+srpm: prepare
+	@rpmbuild -bs --define="dist ${dist}" --define='_topdir ${build}' $(NAME).spec
+
+rpm: srpm
+	@rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE)${dist}.src.rpm
 
 clean:
-	rm -f *~ 
-	rm -rf rpmbuild 
+	rm -f *~ $(NAME)-$(VERSION).src.tgz
+	rm -rf $(build)
 
-rpm:
-	@mkdir -p  rpmbuild/RPMS/noarch
-	@mkdir -p  rpmbuild/SRPMS/
-	@mkdir -p  rpmbuild/SPECS/
-	@mkdir -p  rpmbuild/SOURCES/
-	@mkdir -p  rpmbuild/BUILD/
-	@tar --gzip -cf rpmbuild/SOURCES/${package}.src.tgz *
-	@rpmbuild -ba ${package}.spec
-
+.PHONY: dist srpm rpm sources clean 
