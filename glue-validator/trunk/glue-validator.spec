@@ -1,8 +1,8 @@
 Summary: GLUE 2.0 Valiation Scripts
 Name: glue-validator
 Version: 0.0.3
-Release: 1%{?dist}
-Source0: %{name}-%{version}.tar.gz
+Release: 2%{?dist}
+Source0: %{name}-%{version}.src.tgz
 License: EGEE
 Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-buildroot
