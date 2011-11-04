@@ -9,6 +9,7 @@ BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
 Requires:	bdii
+Requires:       openldap2.4-servers
 Requires:	glite-info-provider-ldap
 Requires:	glite-info-provider-service
 Requires:	glite-info-static
