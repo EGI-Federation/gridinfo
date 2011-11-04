@@ -1,10 +1,10 @@
 Name:		glite-yaim-bdii
-Version:	4.3.4
+Version:	4.3.5
 Release:	1%{?dist}
 Summary:	glite-yaim-bdii module configures the top level BDII and site BDI
 Group:		Development/Tools
 License:	Apache Software Li
-Source:		%{name}-%{version}.tar.gz
+Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 

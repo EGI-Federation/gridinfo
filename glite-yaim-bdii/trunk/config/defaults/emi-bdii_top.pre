@@ -12,8 +12,8 @@ GIP_TIMEOUT=300
 # Use a ram disk for the top level BDII to imporve performance
 BDII_RAM_DISK=yes
 
-# Use OpenLDAP 2.4 for the top-level BDII
-SLAPD=/usr/sbin/slapd2.4
+# Use OpenLDAP for the top-level BDII
+SLAPD=/usr/sbin/slapd
 
 # Use the slapd.conf file for OpenLDAP 2.4
 SLAPD_CONF=/etc/bdii/bdii-top-slapd.conf
