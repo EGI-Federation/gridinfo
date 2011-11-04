@@ -1,0 +1,19 @@
+# Check the validity of this URL in the documentation
+BDII_HTTP_URL="http://lcg-bdii-conf.cern.ch/bdii-conf/bdii.conf"
+
+# The Freedom of Choice of Resources service allows a top-level BDII
+# to be instructed to remove VO-specific access control lines for
+# resources that do not meet the VO requirements
+BDII_FCR=http://lcg-fcr.cern.ch:8083/fcr-data/exclude.ldif
+
+# The timeout value to be used with dynamic plug-ins. 
+GIP_TIMEOUT=300
+
+# Use a ram disk for the top level BDII to imporve performance
+BDII_RAM_DISK=yes
+
+# Use OpenLDAP for the top-level BDII
+SLAPD=/usr/sbin/slapd
+
+# Use the slapd.conf file for OpenLDAP 2.4
+SLAPD_CONF=/etc/bdii/bdii-top-slapd.conf
