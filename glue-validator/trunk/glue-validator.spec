@@ -4,7 +4,8 @@ Version: 1.0.0
 Release: 1%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-# wget -O %{name}-%{version}.tar.gz "http://svnweb.cern.ch/world/wsvn/gridinfo/glue-validator/tags/R_1_0_0?op=dl"
+#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_1_0_0 %{name}-%{version}
+#  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source0: %{name}-%{version}.tar.gz
 License: ASL 2.0
 Group: Development/Libraries
