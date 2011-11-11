@@ -12,13 +12,13 @@ install:
 	@echo installing ...
 
 sources: dist
-	cp dist/${NAME}-${VERSION}.src.tgz .
+	cp dist/${NAME}-${VERSION}.tar.gz .
 
 dist:
 	python setup.py sdist
 	tar -zxvf dist/${NAME}-${VERSION}.tar.gz 
 	tar -zcvf ${NAME}-${VERSION}.tar.gz ${NAME}-${VERSION} 
-	mv ${NAME}-${VERSION}.tar.gz dist/${NAME}-${VERSION}.src.tgz
+	mv ${NAME}-${VERSION}.tar.gz dist/${NAME}-${VERSION}.tar.gz
 	rm -rf ${NAME}-${VERSION} 
 
 prepare: dist
@@ -27,7 +27,7 @@ prepare: dist
 	@mkdir -p  build/SPECS/
 	@mkdir -p  build/SOURCES/
 	@mkdir -p  build/BUILD/
-	cp dist/${NAME}-${VERSION}.src.tgz build/SOURCES 
+	cp dist/${NAME}-${VERSION}.tar.gz build/SOURCES 
 
 srpm: prepare
 	@rpmbuild -bs --define="dist ${dist}" --define='_topdir ${build}' $(NAME).spec 
