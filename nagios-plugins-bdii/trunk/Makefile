@@ -23,7 +23,7 @@ install:
 sources: dist
 
 dist:
-	tar --gzip --exclude ".svn" --exclude ".svn" -cf ${NAME}-${VERSION}.src.tgz *
+	tar --gzip --exclude ".svn" --exclude ".svn" -cf ${NAME}-${VERSION}.tar.gz *
 
 prepare: dist
 	@mkdir -p  build/RPMS/noarch
@@ -31,7 +31,7 @@ prepare: dist
 	@mkdir -p  build/SPECS/
 	@mkdir -p  build/SOURCES/
 	@mkdir -p  build/BUILD/
-	cp ${NAME}-${VERSION}.src.tgz build/SOURCES 
+	cp ${NAME}-${VERSION}.tar.gz build/SOURCES 
 
 srpm: prepare
 	@rpmbuild -bs --define="dist ${dist}" --define='_topdir ${build}' $(NAME).spec
@@ -43,7 +43,7 @@ deb: rpm
 	fakeroot alien build/RPMS/noarch/${NAME}-${VERSION}-1.noarch.rpm
 
 clean:
-	@rm -f *~ bin/*~ etc/*~ data/*~ ${NAME}-*.src.tgz
+	@rm -f *~ bin/*~ etc/*~ data/*~ ${NAME}-*.tar.gz
 	@rm -rf build dist MANIFEST
 
 .PHONY: dist srpm rpm sources clean 
