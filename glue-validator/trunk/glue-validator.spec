@@ -31,6 +31,7 @@ python setup.py build
 
 %install
 python setup.py install --root=$RPM_BUILD_ROOT 
+ls -l  %{buildroot}%{_bindir}/%{name}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -38,16 +39,7 @@ rm -rf $RPM_BUILD_ROOT
 %files
 %defattr(-,root,root)
 %{python_sitelib}/glue2
-/usr/local/lib/python2.7/dist-packages/glue2/__init__.py
-/usr/local/lib/python2.7/dist-packages/glue2/types.py
-/usr/local/lib/python2.7/dist-packages/glue2/data.py
-/usr/local/lib/python2.7/dist-packages/glue2/__init__.pyc
-/usr/local/lib/python2.7/dist-packages/glue2/__init__.pyo
-/usr/local/lib/python2.7/dist-packages/glue2/types.pyc
-/usr/local/lib/python2.7/dist-packages/glue2/types.pyo
-/usr/local/lib/python2.7/dist-packages/glue2/data.pyc
-/usr/local/lib/python2.7/dist-packages/glue2/data.pyo
-/usr/local/bin/glue-validator
+%{_bindir}/glue-validator
 
 %changelog
 * Fri Nov 11 2011 Laurence Field <laurence.field@cern.ch>  - 1.0.0-1

@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import re
 import sys
 import glue2.data
@@ -544,5 +543,3 @@ def is_JobDescription_t(value):
    else:
       return False
    
-if __name__ == '__main__':
-   pass
