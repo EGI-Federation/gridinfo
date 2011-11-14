@@ -1,6 +1,6 @@
 Name:		glite-info-provider-service
-Version:	1.7.0
-Release:	2%{?dist}
+Version:	1.8.0
+Release:	1%{?dist}
 Summary:	The GLUE service information provider
 Group:		System/Monitoring
 License:	ASL 2.0
@@ -32,6 +32,7 @@ rm -rf %{buildroot}
 /usr/bin/glite-info-glue2-service
 /usr/bin/glite-info-glue2-endpoint
 /usr/bin/glite-info-glue2-simple
+/usr/bin/glite-info-glue2-multi
 /usr/bin/glite-info-glue2-voms
 /usr/bin/glite-info-service
 /usr/bin/glite-info-service-glue2
@@ -92,15 +93,19 @@ rm -rf %{buildroot}
 /etc/glite/info/service/glite-info-service-rtepublisher.conf.template
 /etc/glite/info/service/glite-info-service-gatekeeper.conf.template
 /etc/glite/info/service/glite-info-glue2-test.conf.template
+/etc/glite/info/service/glite-info-glue2-test2.conf.template
 /etc/glite/info/service/glite-info-glue2-service-test.conf.template
 /etc/glite/info/service/glue1.test.ldif
 /etc/glite/info/service/glue2.test.ldif
+/etc/glite/info/service/glue2.multi.test.ldif
 /etc/glite/info/service/glue2.test.ldif.prev
 %doc /usr/share/doc/%{name}/README
 %doc /usr/share/doc/%{name}/README-GLUE2
 
 
 %changelog
+* Mon Nov 14 2011 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.8.0-1
+- New provider glite-info-glue2-multi, see bug 86646
 * Thu Jul 21 2011 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.7.0-1
 - Various updates for voms, CREAM and WMS, see bugs 80789, 81840, 82645, 83105, 83313, 84373
 * Thu May 05 2011 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.6.3-1
