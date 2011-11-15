@@ -10,7 +10,6 @@ Source0: %{name}-%{version}.tar.gz
 License: ASL 2.0
 Group: Applications/System
 BuildRoot: %{_tmppath}/%{name}-%{version}-build
-Prefix: %{_prefix}
 Requires: openldap
 BuildRequires: openldap-devel
 Url: http://tomtools.cern.ch/confluence/display/IS/BDII+Nagios+Probe
@@ -19,18 +18,17 @@ Url: http://tomtools.cern.ch/confluence/display/IS/BDII+Nagios+Probe
 Nagios checks for a the BDII.
 
 %prep
-
 %setup -q
 
 %build
-make compile prefix=%{buildroot}%{prefix}
+make compile prefix=%{buildroot}
 
 %install
-make install prefix=%{buildroot}%{prefix}
+make install prefix=%{buildroot}
 
 %files
 %defattr(-,root,root)
-%{prefix}%{_lib}/nagios/plugins/contrib/check_bdii_entries
+%{_libdir}/nagios/plugins/contrib/check_bdii_entries
 
 %clean
 rm -rf %{buildroot}

@@ -5,25 +5,25 @@ build=$(shell pwd)/build
 DATE=$(shell date "+%a, %d %b %Y %T %z")
 dist=$(shell rpm --eval '%dist' | sed 's/%dist/.el5/')
 
-SCRATCH=${PWD}/build
 CC  = /usr/bin/gcc
 CFLAGS  = -Wall -O2 -g -DLDAP_DEPRECATED
 LDFLAGS = -lldap
 SRC = src
-LOCATION=/usr/lib64/nagios/plugins/contrib/
 
 compile: 
-	mkdir -p ${SCRATCH}
-	$(CC) $(CFLAGS) $(LDFLAGS) $(SRC)/check_bdii_entries.c -o ${SCRATCH}/check_bdii_entries
+	mkdir -p ${build}
+	$(CC) $(CFLAGS) $(LDFLAGS) $(SRC)/check_bdii_entries.c -o ${build}/check_bdii_entries
 
 install:
-	mkdir -p $(prefix)$(LOCATION)
-	install -m 0755 ${SCRATCH}/check_bdii_entries $(prefix)$(LOCATION)
+	mkdir -p $(prefix)/usr/lib64/nagios/plugins/contrib/
+	install -m 0755 ${build}/check_bdii_entries $(prefix)/usr/lib64/nagios/plugins/contrib/
 
 sources: dist
 
 dist:
-	tar --gzip --exclude ".svn" --exclude ".svn" -cf ${NAME}-${VERSION}.tar.gz *
+	mkdir -p  $(build)/$(NAME)-$(VERSION)/
+	rsync -HaS --exclude ".svn" --exclude "$(build)" * $(build)/$(NAME)-$(VERSION)/
+	cd $(build); tar --gzip -cf $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)/; cd -
 
 prepare: dist
 	@mkdir -p  build/RPMS/noarch
@@ -31,13 +31,13 @@ prepare: dist
 	@mkdir -p  build/SPECS/
 	@mkdir -p  build/SOURCES/
 	@mkdir -p  build/BUILD/
-	cp ${NAME}-${VERSION}.tar.gz build/SOURCES 
+	cp $(build)/$(NAME)-$(VERSION).tar.gz $(build)/SOURCES
 
 srpm: prepare
-	@rpmbuild -bs --define="dist ${dist}" --define='_topdir ${build}' $(NAME).spec
+	rpmbuild -bs --define="dist ${dist}" --define='_topdir ${build}' $(NAME).spec
 
 rpm: srpm
-	@rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE)${dist}.src.rpm
+	rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE)${dist}.src.rpm
 
 deb: rpm
 	fakeroot alien build/RPMS/noarch/${NAME}-${VERSION}-1.noarch.rpm
