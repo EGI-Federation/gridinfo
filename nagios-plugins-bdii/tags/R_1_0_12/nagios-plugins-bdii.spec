@@ -20,6 +20,7 @@ Nagios checks for a the BDII.
 %setup -q
 
 %build
+CFLAGS='%{optflags}'
 make compile
 
 %install
