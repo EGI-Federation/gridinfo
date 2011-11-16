@@ -6,7 +6,6 @@ DATE=$(shell date "+%a, %d %b %Y %T %z")
 dist=$(shell rpm --eval '%dist' | sed 's/%dist/.el5/')
 
 CC  = /usr/bin/gcc
-CFLAGS  = -Wall -O2 -g -DLDAP_DEPRECATED
 LDFLAGS = -lldap
 SRC = src
 
@@ -15,8 +14,8 @@ compile:
 	$(CC) $(CFLAGS) $(LDFLAGS) $(SRC)/check_bdii_entries.c -o ${build}/check_bdii_entries
 
 install:
-	mkdir -p $(prefix)/usr/lib64/nagios/plugins/contrib/
-	install -m 0755 ${build}/check_bdii_entries $(prefix)/usr/lib64/nagios/plugins/contrib/
+	mkdir -p $(prefix)/usr/lib64/nagios/plugins/
+	install -m 0755 ${build}/check_bdii_entries $(prefix)/usr/lib64/nagios/plugins/
 
 sources: dist
 
