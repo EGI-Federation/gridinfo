@@ -2,17 +2,24 @@ Name:		glue-service-provider
 Version:	1.8.0
 Release:	1%{?dist}
 Summary:	The GLUE service information provider
-Group:		System/Monitoring
 License:	ASL 2.0
+# The source for this package was pulled from upstream's vcs.  Use the
+# following commands to generate the tarball:
+#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-service-provider/tags/R_1_0_8 %{name}-%{version}
+#  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
+Group: Development/Libraries
+URL: https://tomtools.cern.ch/confluence/display/IS/ResourceBDII
 
 %description
 The GLUE service information provider
 
 %prep
 %setup -q
+
+%build
 
 %install
 rm -rf %{buildroot}
