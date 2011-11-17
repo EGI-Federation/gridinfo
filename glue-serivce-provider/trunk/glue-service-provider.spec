@@ -1,10 +1,10 @@
-Name:		glite-info-provider-service
+Name:		glue-service-provider
 Version:	1.8.0
 Release:	1%{?dist}
 Summary:	The GLUE service information provider
 Group:		System/Monitoring
 License:	ASL 2.0
-Source:		%{name}-%{version}.src.tgz
+Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
@@ -13,9 +13,6 @@ The GLUE service information provider
 
 %prep
 %setup -q
-
-%build
-# Nothing to build
 
 %install
 rm -rf %{buildroot}
@@ -26,9 +23,8 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%dir /usr/bin
 %dir /etc/glite/info/service
-%dir /usr/share/doc/%{name}
+%dir /usr/share/doc/glite-info-provider-service
 /usr/bin/glite-info-glue2-service
 /usr/bin/glite-info-glue2-endpoint
 /usr/bin/glite-info-glue2-simple
@@ -99,9 +95,8 @@ rm -rf %{buildroot}
 /etc/glite/info/service/glue2.test.ldif
 /etc/glite/info/service/glue2.multi.test.ldif
 /etc/glite/info/service/glue2.test.ldif.prev
-%doc /usr/share/doc/%{name}/README
-%doc /usr/share/doc/%{name}/README-GLUE2
-
+%doc /usr/share/doc/glite-info-provider-service/README
+%doc /usr/share/doc/glite-info-provider-service/README-GLUE2
 
 %changelog
 * Mon Nov 14 2011 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.8.0-1
