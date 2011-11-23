@@ -42,6 +42,7 @@ rm -rf %{buildroot}
 /usr/bin/glite-info-service-glue2-beta
 /usr/bin/glite-info-service-test
 /usr/bin/glite-info-service-amga
+/usr/bin/glite-info-service-argus
 /usr/bin/glite-info-service-bdii
 /usr/bin/glite-info-service-gridice
 /usr/bin/glite-info-service-vobox
@@ -60,6 +61,9 @@ rm -rf %{buildroot}
 /usr/bin/glite-info-service-gatekeeper
 /usr/bin/glite-info-service-status
 /etc/glite/info/service/glite-info-glue2-amga.conf.template
+/etc/glite/info/service/glite-info-glue2-argus-pap.conf.template
+/etc/glite/info/service/glite-info-glue2-argus-pep.conf.template
+/etc/glite/info/service/glite-info-glue2-argus-pdp.conf.template
 /etc/glite/info/service/glite-info-glue2-bdii-site.conf.template
 /etc/glite/info/service/glite-info-glue2-bdii-top.conf.template
 /etc/glite/info/service/glite-info-glue2-lbserver.conf.template
@@ -74,6 +78,9 @@ rm -rf %{buildroot}
 /etc/glite/info/service/glite-info-glue2-wmproxy.conf.template
 /etc/glite/info/service/glite-info-service-test.conf.template
 /etc/glite/info/service/glite-info-service-amga.conf.template
+/etc/glite/info/service/glite-info-service-argus-pap.conf.template
+/etc/glite/info/service/glite-info-service-argus-pep.conf.template
+/etc/glite/info/service/glite-info-service-argus-pdp.conf.template
 /etc/glite/info/service/glite-info-service-bdii.conf.template
 /etc/glite/info/service/glite-info-service-bdii-site.conf.template
 /etc/glite/info/service/glite-info-service-bdii-top.conf.template
@@ -98,6 +105,7 @@ rm -rf %{buildroot}
 /etc/glite/info/service/glite-info-glue2-test.conf.template
 /etc/glite/info/service/glite-info-glue2-test2.conf.template
 /etc/glite/info/service/glite-info-glue2-service-test.conf.template
+/etc/glite/info/service/glite-info-glue2-service-argus.conf.template
 /etc/glite/info/service/glue1.test.ldif
 /etc/glite/info/service/glue2.test.ldif
 /etc/glite/info/service/glue2.multi.test.ldif
@@ -106,6 +114,8 @@ rm -rf %{buildroot}
 %doc /usr/share/doc/glite-info-provider-service/README-GLUE2
 
 %changelog
+* Wed Nov 23 2011 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.8.0-1
+- New Config for Argus, see bug 86646
 * Mon Nov 14 2011 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.8.0-1
 - New provider glite-info-glue2-multi, see bug 86646
 * Thu Jul 21 2011 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.7.0-1
