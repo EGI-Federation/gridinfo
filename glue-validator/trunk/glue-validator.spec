@@ -31,15 +31,14 @@ Valiation scripts for an LDAP based information system using the Glue 2.0 schema
 python setup.py build
 
 %install
-python setup.py install --root=$RPM_BUILD_ROOT 
-ls -l  %{buildroot}%{_bindir}/%{name}
+%{__python} setup.py install --skip-build --root $RPM_BUILD_ROOT 
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
-%{python_sitelib}/glue2
+%{python_sitelib}/*
 %{_bindir}/glue-validator
 
 %changelog
