@@ -1,7 +1,7 @@
 Summary: GLUE 2.0 Valiation Scripts
 Name: glue-validator
 Version: 1.0.0
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
 #   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_1_0_0 %{name}-%{version}
@@ -12,7 +12,7 @@ Group: Development/Libraries
 BuildRoot: %{_tmppath}/%{name}-buildroot
 Prefix: %{_prefix}
 BuildArchitectures: noarch
-BuildRequires: python2-devel
+BuildRequires: python-devel
 Requires: openldap-clients
 Url: http://cern.ch/glue
 
