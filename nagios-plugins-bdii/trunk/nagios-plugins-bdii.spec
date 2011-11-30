@@ -1,7 +1,7 @@
 Summary: BDII Nagios monitoring Probe
 Name: nagios-plugins-bdii
 Version: 1.0.12
-Release: 1%{?dist}
+Release: 2%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
 #   svn export http://svnweb.cern.ch/guest/gridinfo/nagios-plugins-bdii/tags/R_1_0_12 %{name}-%{version}
