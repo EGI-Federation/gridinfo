@@ -19,7 +19,7 @@
 #include <errno.h>
 #include <unistd.h>
 #include <limits.h>
-#include "ldap.h"
+#include <ldap.h>
 #define __USE_MISC
 #include <time.h>  
 #include <sys/time.h>  

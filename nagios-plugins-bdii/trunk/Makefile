@@ -6,7 +6,7 @@ DATE=$(shell date "+%a, %d %b %Y %T %z")
 dist=$(shell rpm --eval '%dist' | sed 's/%dist/.el5/')
 
 CC  = /usr/bin/gcc
-LDFLAGS = -lldap
+LDFLAGS = -lldap -DLDAP_DEPRECATED
 SRC = src
 
 compile: 
@@ -18,10 +18,12 @@ install:
 	install -m 0755 ${build}/check_bdii_entries $(prefix)/usr/lib64/nagios/plugins/
 
 sources: dist
+	cp $(build)/$(NAME)-$(VERSION).tar.gz .
 
 dist:
 	mkdir -p  $(build)/$(NAME)-$(VERSION)/
-	rsync -HaS --exclude ".svn" --exclude "$(build)" * $(build)/$(NAME)-$(VERSION)/
+
+	rsync -HaS --exclude .svn --exclude 'build*' * $(build)/$(NAME)-$(VERSION)/
 	cd $(build); tar --gzip -cf $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)/; cd -
 
 prepare: dist
