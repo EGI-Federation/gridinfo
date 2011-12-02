@@ -450,11 +450,17 @@ def get_voview_job_stats(voview_list):
     """ calculate job numbers in glue voview entities """
     attributes = ["totaljobs", "runningjobs", "waitingjobs"]
     stats = [0, 0, 0]
+    voview_to_subclustermapping = {}
+    #Create a dict that can be used to map the vo view to a subcluster
+    subcluster_capacities = {}
+    # Create a dict of subcluster capacities (GlueSubClusterLogicalCPUs)
     for voview in voview_list:
         for attr in attributes:
             value = voview.__getattribute__(attr)
             if (attr == "waitingjobs" and value == "444444"): value="0"
-            stats[attributes.index(attr)] += str2int(value)
+            # If the capacity is greater than 0 add the value
+            if ( subcluster_capacities[voview_to_subclustermapping[voview]] > 0 ):
+                stats[attributes.index(attr)] += str2int(value)
     return  stats    
 
 def get_sa_storage_stats(sa_list):
