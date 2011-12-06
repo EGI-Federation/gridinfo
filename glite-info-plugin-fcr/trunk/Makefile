@@ -11,8 +11,10 @@ default:
 install:
 	@echo installing ...
 	@mkdir -p $(prefix)/opt/glite/libexec
+	@mkdir -p $(prefix)/etc/cron.hourly/
 	@mkdir -p $(prefix)/var/cache/fcr
-	@install -m 0755 src/glite-info-plugin-fcr $(prefix)/opt/glite/libexec
+	@install -m 0755 src/glite-info-plugin-fcr $(prefix)/opt/glite/libexec/
+	@install -m 0755 etc/cron.hourly/generate-fcr-exclude-file $(prefix)/etc/cron.hourly/
 
 dist:
 	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
