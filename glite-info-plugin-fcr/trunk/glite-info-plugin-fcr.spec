@@ -1,6 +1,6 @@
 Name: glite-info-plugin-fcr
-Version: 2.0.2
-Release: 2%{?dist} 
+Version: 3.0.0
+Release: 1%{?dist} 
 Summary: glite-info-plugin-fcr
 Group:          System Environment/Daemons
 License:        ASL 2.0
@@ -24,6 +24,7 @@ make install prefix=%{buildroot}
 %files
 %dir /var/cache/fcr
 /opt/glite/libexec/glite-info-plugin-fcr
+/etc/cron.hourly/generate-fcr-exclude-file
 
 %clean
 rm -rf %{buildroot}
