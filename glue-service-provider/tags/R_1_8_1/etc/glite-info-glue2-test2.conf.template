@@ -1,0 +1,104 @@
+
+# This is a second test configuration file for the GLUE2Endpoint publisher
+
+# Many of the entries are commands which will be executed
+# using backquotes in perl. They should write to stdout - the return
+# code is not relevant except for init and status.
+
+# The init command allows any setup command to be executed
+# A non-zero return code will abort the provider
+# Environment variables can be set by writing to stdout (x=y)
+
+init = echo GLITE_INFO_GLUE2_TEST2=still.testing
+
+# The service type (in fact the EndpointInterfaceName) should for now
+# continue to follow the official list for Glue 1 in
+# http://glueschema.forge.cnaf.infn.it/V12/ServiceType
+
+service_type = glue2.test.service2
+
+# Glue 2 allows extra information to be attached to any object
+
+get_otherinfo = echo -e "Some different information\n$GLITE_INFO_GLUE2_TEST2\nEven more information"
+
+# A command to return the service endpoint to stdout
+
+get_endpoint = echo https://this.is.another.dummy.endpoint/
+
+# Capabilities are not well-defined yet!
+
+get_capabilities = echo -e "information.model.test3\ninformation.model.test2"
+
+# Most services will be "webservice" or nothing
+
+get_technology = echo not.a.webservice
+
+# This should be a command which returns the service interface version
+# NB in Glue 2 we can have multiple versions
+
+get_version = echo -e "3.0.0\n2.0.0\n2.2.2"
+
+# Most services probably don't have interface extensions
+
+get_interfaceextensions = echo "thisonedoes"
+
+# Web services should have a WSDL and may or may not have a profile
+
+get_WSDL = echo http://some.other.domain/test2service.wsdl
+
+get_profiles = echo http://some.other.domain/test2service.profile
+
+# A URL to a web page defining the service semantics, e.g. a manual
+
+get_semantics = echo http://svnweb.cern.ch/world/wsvn/gridinfo/glite-info-provider-service/trunk/doc/
+
+# These three identify the specific implementation as opposed to the generic
+# protocol. NB this version is single-valued.
+
+get_implementor = echo Still Stephen Burke
+
+get_implementationname = echo Glue 2 test 2 configuration
+
+get_implementationversion = echo 2.0.0
+
+# The Quality Level for this endpoint: 1 = development, 2 = testing,
+# 3 = pre-production and 4 = production
+
+get_qualitylevel = echo 1
+
+# A command to check the status of the service. The status message should be
+# returned to stdout - it can be multi-line, the output will be massaged
+# and truncated if necessary. 
+# The return code should indicate the status:
+# 0 = OK, 1 = Critical, 2 = Warning, 3 = Unknown, other = Other
+
+get_status = /sbin/service crond status
+
+# The ServingState for this Endpoint: 1 = closed, 2 = draining,
+# 3 = queueing, 4 = production (NB "production" has a different meaning
+# here to the QualityLevel)
+
+get_servingstate = echo 1
+
+# StartTime: A command to return the service start time.
+# This should be a unix timestamp, the info provider converts it to ISO8601
+
+get_starttime = perl -e '@st=stat("/var/run/crond.pid");print "@st[10]\n";'
+
+# Extensions if any, as a list of key=value pairs
+# This will normally call a separate script
+# 14/7/11: Add a regression test for bug #84373 (duplicate keys)
+
+get_extensions = echo -e "world=earth\nsupport=sun\nsupport=gravity"
+
+# A list of AccessControlBaseRule strings to indicate who is allowed to
+# have access to the service - at the simplest this is the same as the
+# Owner but with the VO names prefixed by "VO:"
+
+get_acbr = echo -e "VO:dteam\nVO:ops"
+
+# This effecively corresponds to the Owner in Glue 1; in Glue 2 it becomes
+# a list of UserDomain IDs, typically a list of VO names
+
+get_owner = echo -e "dteam\nops"
+
