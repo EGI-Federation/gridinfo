@@ -4,6 +4,7 @@ RELEASE= $(shell grep Release: *.spec |cut -d"%" -f1 |sed 's/^[^:]*:[^0-9]*//')
 build=$(shell pwd)/build
 DATE=$(shell date "+%a, %d %b %Y %T %z")
 dist=$(shell rpm --eval '%dist' | sed 's/%dist/.el5/')
+lib_dir=$(shell rpm --eval '%{_libdir}' )
 
 CC  = /usr/bin/gcc
 LDFLAGS = -lldap -DLDAP_DEPRECATED
@@ -14,9 +15,9 @@ compile:
 	$(CC) $(CFLAGS) $(LDFLAGS) $(SRC)/check_bdii_entries.c -o ${build}/check_bdii_entries
 
 install:
-	mkdir -p $(prefix)/usr/lib64/nagios/plugins/
+	mkdir -p $(prefix)$(lib_dir)/nagios/plugins/
 	mkdir -p $(prefix)/usr/share/doc/$(NAME)-$(VERSION)
-	install -m 0755 ${build}/check_bdii_entries $(prefix)/usr/lib64/nagios/plugins/
+	install -m 0755 ${build}/check_bdii_entries $(prefix)/$(lib_dir)/nagios/plugins/
 	install -m 0644 LICENSE $(prefix)/usr/share/doc/$(NAME)-$(VERSION)
 
 sources: dist
