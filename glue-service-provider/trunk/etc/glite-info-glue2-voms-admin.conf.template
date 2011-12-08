@@ -41,7 +41,11 @@ get_status = glite-info-service-test VOMS_ADMIN && glite-info-service-status tom
 # If the string does not start with "http" this will be omitted
 # This seems a bit silly, but it's the best I can find
 
-WSDL_URL = http://svn.research-infrastructures.eu/public/d4science/gcube/trunk/vo-management/VOMS-ADMIN/schema/glite-security-voms-admin-2.0.2.wsdl
+#WSDL_URL = http://svn.research-infrastructures.eu/public/d4science/gcube/trunk/vo-management/VOMS-ADMIN/schema/glite-security-voms-admin-2.0.2.wsdl
+
+# It seems that voms-admin now has several WSDLs
+
+get_WSDL = echo -e "https://$VOMS_ADMIN_HOST:$VOMS_ADMIN_PORT/voms/cms/services/VOMSAttributes?wsdl\nhttps://$VOMS_ADMIN_HOST:$VOMS_ADMIN_PORT/voms/cms/services/VOMSAdmin?wsdl\nhttps://$VOMS_ADMIN_HOST:$VOMS_ADMIN_PORT/voms/cms/services/VOMSSaml?wsdl\nhttps://$VOMS_ADMIN_HOST:$VOMS_ADMIN_PORT/voms/cms/services/VOMSACL?wsdl\nhttps://$VOMS_ADMIN_HOST:$VOMS_ADMIN_PORT/voms/cms/services/VOMSCompatibility?wsdl\nhttps://$VOMS_ADMIN_HOST:$VOMS_ADMIN_PORT/voms/cms/services/VOMSRegistration?wsdl\nhttps://$VOMS_ADMIN_HOST:$VOMS_ADMIN_PORT/voms/cms/services/VOMSCertificates?wsdl"
 
 # A URL to a web page defining the service semantics, e.g. a manual
 # If the string does not start with "http" this will be omitted

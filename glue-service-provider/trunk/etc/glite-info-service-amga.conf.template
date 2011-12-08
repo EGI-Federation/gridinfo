@@ -34,7 +34,7 @@ get_endpoint = echo amga://$AMGA_HOST:$AMGA_PORT/
 # The return code should indicate the status:
 # 0 = OK, 1 = Critical, 2 = Warning, 3 = Unknown, other = Other
 
-get_status = glite-info-service-test AMGA && /sbin/service mdservice status
+get_status = glite-info-service-test AMGA && glite-info-service-status mdservice
 
 # The URL of a WSDL document describing the service
 # If the string does not start with "http" this will be omitted
@@ -44,7 +44,7 @@ WSDL_URL = nohttp://not.a.web.service/
 # A URL to a web page defining the service semantics, e.g. a manual
 # If the string does not start with "http" this will be omitted
 
-semantics_URL = https://twiki.cern.ch/twiki/bin/view/EGEE/GliteAMGA
+semantics_URL = https://twiki.cern.ch/twiki/pub/EMI/AMGA/amga-manual.pdf
 
 # StartTime: A command to return the service start time.
 # This should be a unix timestamp, the info provider converts it to ISO8601
