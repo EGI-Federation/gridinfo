@@ -1,0 +1,32 @@
+#!/bin/bash
+
+# init function for the WMProxy service publisher, to export some variables
+
+# Updated for EMI locations: SB 20/7/11 (will no longer work with a gLite WMS)
+
+WMPROXY_PORT_DEFAULT=${WMPROXY_PORT:-7443}
+WMPROXY_HOST_DEFAULT=${WMPROXY_HOST:-`hostname -f`}
+
+WMPROXY_CONF=${WMPROXY_CONF:-/etc/glite-wms/glite_wms_wmproxy_httpd.conf}
+
+WMS_LOCATION_VAR=${WMS_LOCATION_VAR:-/var}
+
+# The greps here may be fragile
+
+# eval here for safety, not currently needed
+eval WMPROXY_PORT=`grep ^Listen $WMPROXY_CONF | cut -d" " -f2`
+WMPROXY_PORT=${WMPROXY_PORT:-${WMPROXY_PORT_DEFAULT}}
+
+eval WMPROXY_HOST=`grep ^ServerName $WMPROXY_CONF | cut -d" " -f2 | cut -d: -f1`
+WMPROXY_HOST=${WMPROXY_HOST:-${WMPROXY_HOST_DEFAULT}}
+
+# eval needed here because it needs a variable substitution
+eval WMPROXY_PID_FILE=`grep ^PidFile $WMPROXY_CONF | cut -d" " -f2`
+WMPROXY_PID_FILE=${WMPROXY_PID_FILE:-/var/httpd-wmproxy.pid}
+
+# Write to stdout - will be imported by the info provider
+
+echo WMPROXY_PORT=$WMPROXY_PORT
+echo WMPROXY_HOST=$WMPROXY_HOST
+echo WMPROXY_PID_FILE=$WMPROXY_PID_FILE
+
