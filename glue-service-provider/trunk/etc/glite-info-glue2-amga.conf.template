@@ -46,7 +46,7 @@ WSDL_URL = nohttp://not.a.web.service/
 # A URL to a web page defining the service semantics, e.g. a manual
 # If the string does not start with "http" this will be omitted
 
-semantics_URL = https://twiki.cern.ch/twiki/bin/view/EGEE/GliteAMGA
+semantics_URL = https://twiki.cern.ch/twiki/pub/EMI/AMGA/amga-manual.pdf
 
 # StartTime: A command to return the service start time.
 # This should be a unix timestamp, the info provider converts it to ISO8601
@@ -79,7 +79,7 @@ get_implementor = echo gLite
 
 get_implementationname = echo AMGA
 
-get_implementationversion = rpm -q glite-amga-server --queryformat '%{version}\n'
+get_implementationversion = rpm -q emi.amga.server --queryformat '%{version}\n'
 
 # The Quality Level for this endpoint: 1 = development, 2 = testing,
 # 3 = pre-production and 4 = production

@@ -10,7 +10,7 @@
 # A non-zero return code will abort the provider
 # Environment variables can be set by writing to stdout (x=y)
 
-init = glite-info-service-myproxy
+init = glite-info-service-myproxy init
 
 # The service type should follow the official list in
 # http://glueschema.forge.cnaf.infn.it/V12/ServiceType
@@ -34,7 +34,7 @@ get_endpoint = echo myproxy://$MYPROXY_HOST:$MYPROXY_PORT/
 # The return code should indicate the status:
 # 0 = OK, 1 = Critical, 2 = Warning, 3 = Unknown, other = Other
 
-get_status = glite-info-service-test MYPROXY && test -f /var/lock/subsys/myproxy-server && netstat -an --inet --inet6 | grep "^tcp .* \(::\|0.0.0.0\):${MYPROXYPORT:-7512} .*LISTEN" >/dev/null 2>&1
+get_status = glite-info-service-test MYPROXY && glite-info-service-myproxy status
 
 # The URL of a WSDL document describing the service
 # If the string does not start with "http" this will be omitted

@@ -5,9 +5,7 @@
 # These can be overridden by external definitions of the variables,
 # e.g. if the advertised host name should be an alias
 
-GLITE_LOCATION=${GLITE_LOCATION:-/opt/glite}
-
-AMGA_CONF=${AMGA_CONF:-${GLITE_LOCATION}/etc/amgad.config}
+AMGA_CONF=${AMGA_CONF:-/etc/amgad.config}
 
 AMGA_HOST=${AMGA_HOST:-`hostname -f`}
 
