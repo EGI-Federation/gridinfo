@@ -1,4 +1,4 @@
-Summary: BDII Nagios monitoring Probe
+Summary: Nagios Plugin - check_bdii_entries
 Name: nagios-plugins-bdii
 Version: 1.0.14
 Release: 1%{?dist}
