@@ -1,11 +1,11 @@
 Name:		glue-service-provider
-Version:	1.8.0
-Release:	1%{?dist}
+Version:	1.8.1
+Release:	2%{?dist}
 Summary:	The GLUE service information provider
 License:	ASL 2.0
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-service-provider/tags/R_1_0_8 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-service-provider/tags/R_1_8_1_2 %{name}-%{version}
 #  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
@@ -114,6 +114,10 @@ rm -rf %{buildroot}
 %doc /usr/share/doc/glite-info-provider-service/README-GLUE2
 
 %changelog
+* Thu Dec 08 2011 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.8.1-2
+- Fix the spec file
+* Thu Dec 08 2011 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.8.1-1
+- Update config for MyProxy, voms-admin and AMGA, see bugs #86398, #86524 and task #21920
 * Wed Nov 23 2011 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.8.0-1
 - New Config for Argus, see bug 86646
 * Mon Nov 14 2011 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.8.0-1
