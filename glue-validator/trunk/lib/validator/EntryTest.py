@@ -1,5 +1,3 @@
-#!/usr/bin/python
-
 import re
 import unittest
 
@@ -61,5 +59,3 @@ class EntryTest(unittest.TestCase):
                             message = "The field %s with value '%s' does not follow the type %s in %s" % (attribute, value, data_type, self.dn)
                             self.assertTrue(check(value), message)
 
-if __name__ == '__main__':
-    pass

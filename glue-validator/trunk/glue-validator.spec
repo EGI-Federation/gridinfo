@@ -19,7 +19,9 @@ Requires: openldap-clients
 Url: http://cern.ch/glue
 
 %description
-A validation framework for Grid information providers.
+A validation framework for Grid information providers. 
+This framework validates the information return against the GLUE information 
+model from the Open Grid Forum. 
 
 %prep
 %setup -q
@@ -30,17 +32,17 @@ A validation framework for Grid information providers.
 %install
 rm -rf %{buildroot}
 %{__python} setup.py install --skip-build --root $RPM_BUILD_ROOT 
-mkdir -p %{buildroot}/usr/share/doc/%{name}-%{version}
-install -m 0644 LICENSE %{buildroot}/usr/share/doc/%{name}-%{version}
-
+mkdir -p %{buildroot}/usr/share/man/man1
+install -m 0644 man/glue-validator.1 %{buildroot}/usr/share/man/man1
 %clean
 rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(-,root,root)
+%doc LICENSE
 %{python_sitelib}/*
 %{_bindir}/glue-validator
-%{_defaultdocdir}/%{name}-%{version}/LICENSE
+%{_mandir}/man1/glue-validator.1.gz
 
 %changelog
 * Wed Dec 14 2011 Laurence Field <laurence.field@cern.ch>  - 1.0.2-1

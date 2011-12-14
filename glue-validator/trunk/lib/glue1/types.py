@@ -1,4 +1,3 @@
-#!/usr/bin/python
 import re
 import sys
 import glue1.data
@@ -285,5 +284,3 @@ def is_SEStatus_t(value):
       return True
    else:
       return False
-if __name__ == '__main__':
-   pass
