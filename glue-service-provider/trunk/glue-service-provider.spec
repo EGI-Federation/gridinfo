@@ -14,7 +14,8 @@ Group: Development/Libraries
 URL: https://tomtools.cern.ch/confluence/display/IS/ResourceBDII
 
 %description
-The GLUE service information provider
+The GLUE service information provider. This enables Grid services to publish 
+information according to the GLUE information model.
 
 %prep
 %setup -q
