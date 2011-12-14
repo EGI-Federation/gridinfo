@@ -11,6 +11,6 @@ setup(name='glue-validator',
       license='Apache 2.0',
       url='http://cern.ch/glue',
       scripts = ['bin/glue-validator'],
-      packages=['glue2'],
+      packages=['glue2','glue1','validator'],
       package_dir = {'': 'lib'},
       )
