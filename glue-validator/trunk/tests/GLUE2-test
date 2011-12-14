@@ -1,6 +1,6 @@
 #!/bin/bash
 #set -x
-script=../bin/glue2-validator
+script=../bin/glue-validator
 output=$(mktemp)
 export PYTHONPATH=../lib
 
