@@ -17,3 +17,5 @@ SLAPD=/usr/sbin/slapd
 
 # Use the slapd.conf file for OpenLDAP 2.4
 SLAPD_CONF=/etc/bdii/bdii-top-slapd.conf
+
+BDII_DELETE_DELAY=43200
