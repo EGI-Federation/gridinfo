@@ -1,4 +1,4 @@
-Name:		glue-service-provider
+Name:		glite-info-provider-service
 Version:	1.8.1
 Release:	2%{?dist}
 Summary:	The GLUE service information provider
