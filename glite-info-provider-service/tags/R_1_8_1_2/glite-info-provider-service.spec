@@ -7,7 +7,7 @@ License:	ASL 2.0
 # following commands to generate the tarball:
 #   svn export http://svnweb.cern.ch/guest/gridinfo/glue-service-provider/tags/R_1_8_1_2 %{name}-%{version}
 #  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
-Source:		%{name}-%{version}.tar.gz
+Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 Group: Development/Libraries
