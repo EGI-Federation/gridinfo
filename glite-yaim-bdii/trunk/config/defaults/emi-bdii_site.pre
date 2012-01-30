@@ -18,3 +18,4 @@ SLAPD=/usr/sbin/slapd
 # Use the standaard slapd.conf file for the site level BDII
 SLAPD_CONF=/etc/bdii/bdii-slapd.conf
 
+BDII_DELETE_DELAY=0
