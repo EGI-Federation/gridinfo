@@ -1,0 +1,54 @@
+##############################################################################
+# Copyright (c) Members of the EGEE Collaboration. 2004.
+# See http://www.eu-egee.org/partners/ for details on the copyright
+# holders.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS
+# OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+#
+# NAME :        glite-bdii_site.pre
+#
+# DESCRIPTION : This is a configuration file containing predefined values for variables
+#               used by site BDII.
+#
+# AUTHORS :     yaim-contact@cern.ch
+#
+# NOTES :       
+#
+# YAIM MODULE:  glite-yaim-bdii
+#
+##############################################################################
+
+# This variable defines whether a site has used yaim. 
+# Sites can comment it out if they don't want to publish this information. 
+# If the variable exists, it will be published.
+
+SITE_OTHER_CONFIG=yaim
+
+# BDII configuration variables #
+BDII_BREATHE_TIME=120
+BDII_READ_TIMEOUT=300
+BDII_ARCHIVE_SIZE=0 
+
+# Don't use a ram disk for the site level BDII
+BDII_RAM_DISK=no
+
+# Use the standard OpenLDAP for the site level BDII
+SLAPD=/usr/sbin/slapd
+
+# Use the standaard slapd.conf file for the site level BDII
+SLAPD_CONF=/etc/bdii/bdii-slapd.conf
+
+BDII_DELETE_DELAY=0
+
