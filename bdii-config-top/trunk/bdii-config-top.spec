@@ -1,6 +1,6 @@
 Name:		bdii-config-top
 Version:	1.0.4
-Release:	2%{?dist}
+Release:	1%{?dist}
 Summary:	Top BDII configration files
 Group:		System/Monitoring
 License:	ASL 2.0
@@ -9,7 +9,7 @@ BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
 Requires:	bdii
-Requires:	openldap2.4-servers
+Requires:	openldap-servers >= 2.4 or openldap2.4-servers
 Requires:	glite-info-provider-ldap
 Requires:	glite-info-provider-service
 Requires:	glite-info-update-endpoints
