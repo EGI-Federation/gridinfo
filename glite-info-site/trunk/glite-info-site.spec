@@ -1,6 +1,6 @@
 Name:		glite-info-site
 Version:	0.4.0
-Release:	2%{?dist}
+Release:	1%{?dist}
 Summary:	Site component for the glite-info-static framework.
 Group:		System/Monitoring
 License:	ASL 2.0

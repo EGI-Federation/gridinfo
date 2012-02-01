@@ -4,7 +4,7 @@ Release:	1%{?dist}
 Summary:	Site component for the glite-info-static framework.
 Group:		System/Monitoring
 License:	ASL 2.0
-Source:		%{name}-%{version}.tar.gz
+Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
