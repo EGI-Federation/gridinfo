@@ -1,6 +1,6 @@
 Name:		glite-info-provider-ldap
 Version:	1.4.1
-Release:	2%{?dist}
+Release:	1%{?dist}
 Summary:	LDAP information provider
 Group:		System/Monitoring
 License:	ASL 2.0
