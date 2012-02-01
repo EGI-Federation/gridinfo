@@ -1,6 +1,6 @@
 Name:		glite-info-static
 Version:	0.2.0
-Release:	2%{?dist}
+Release:	1%{?dist}
 Summary:	Core component for the glite-info-static framework.
 Group:		System/Monitoring
 License:	ASL 2.0
