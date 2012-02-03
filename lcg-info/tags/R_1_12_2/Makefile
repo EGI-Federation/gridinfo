@@ -3,6 +3,7 @@ VERSION= $(shell grep Version: *.spec | sed 's/^[^:]*:[^0-9]*//' )
 RELEASE= $(shell grep Release: *.spec |cut -d"%" -f1 |sed 's/^[^:]*:[^0-9]*//')
 build=$(shell pwd)/build
 DATE=$(shell date "+%a, %d %b %Y %T %z")
+dist=$(shell rpm --eval '%dist' | sed 's/%dist/.el5/')
 
 default: 
 	@echo "Nothing to do"
@@ -13,7 +14,6 @@ install:
 	@mkdir -p $(prefix)/usr/share/man/man1
 	@install -m 0755 src/lcg-info   $(prefix)/usr/bin/lcg-info
 	@install -m 0644 src/lcg-info.1 $(prefix)/usr/share/man/man1/lcg-info.1
-
 
 dist:
 	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
@@ -35,10 +35,10 @@ prepare: dist
 	cp $(build)/$(NAME)-$(VERSION).tar.gz $(build)/SOURCES 
 
 srpm: prepare
-	@rpmbuild -bs --define='_topdir ${build}' $(NAME).spec
+	rpmbuild -bs --define="dist ${dist}" --define='_topdir ${build}' $(NAME).spec
 
 rpm: srpm
-	@rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE).src.rpm
+	rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE)${dist}.src.rpm
 
 clean:
 	rm -f *~ $(NAME)-$(VERSION).tar.gz
