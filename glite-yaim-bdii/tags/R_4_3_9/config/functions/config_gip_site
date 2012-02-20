@@ -1,0 +1,88 @@
+##############################################################################
+# Copyright (c) Members of the EGEE Collaboration. 2004.
+# See http://www.eu-egee.org/partners/ for details on the copyright
+# holders.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at #
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS
+# OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+#
+# NAME :        config_gip_site
+#
+# DESCRIPTION : This function configures the site entry.
+#
+# AUTHORS :     Laurence.Field@cern.ch
+# Updated :     steve.traylen@cern.ch 18th March 2008
+#
+# NOTES :
+#
+# YAIM MODULE:  glite-yaim-bdii
+#
+##############################################################################
+
+config_gip_site_check () {
+
+requires $1 SITE_DESC SITE_EMAIL SITE_NAME SITE_LOC SITE_LAT SITE_LONG SITE_WEB SITE_SECURITY_EMAIL SITE_SUPPORT_EMAIL SITE_NAME SITE_OTHER_GRID
+retcode=$?
+return ${retcode}
+
+}
+
+config_gip_site () {
+
+
+# Check if SITE_TIER or SITE_SUPPORT_SITE are set, they should not be.
+if [ "$SITE_SUPPORT_SITE" ] || [ "$SITE_TIER" ] 
+then
+   yaimlog ABORT "Neither SITE_SUPPORT_SITE or SITE_TIER should be set any longer in the yaim configuration."
+   yaimlog ABORT "Please see http://goc.grid.sinica.edu.tw/gocwiki/How_to_publish_my_site_information for details."
+   exit 1
+fi
+
+SITE_COUNTRY=$(echo ${SITE_LOC} | rev | cut -d"," -f1 | rev )
+
+outfile=/etc/glite-info-static/site/site.cfg
+
+sed -i "s/SITE_LON\s*=/SITE_LONG =/" $outfile
+sed -i "s/SITE_NAME\s*=.*/SITE_NAME = $SITE_NAME/" $outfile
+sed -i "s/SITE_DESC\s*=.*/SITE_DESC = $SITE_DESC/" $outfile
+sed -i "s#SITE_WEB\s*=.*#SITE_WEB = $SITE_WEB#" $outfile
+sed -i "s/SITE_LOC\s*=.*/SITE_LOC = $SITE_LOC/" $outfile
+sed -i "s/SITE_COUNTRY\s*=.*/SITE_COUNTRY = $SITE_COUNTRY/" $outfile
+sed -i "s/SITE_LAT\s*=.*/SITE_LAT = $SITE_LAT/" $outfile
+sed -i "s/SITE_LONG\s*=.*/SITE_LONG = $SITE_LONG/" $outfile
+sed -i "s/SITE_EMAIL\s*=.*/SITE_EMAIL = $SITE_EMAIL/" $outfile
+sed -i "s/SITE_SECURITY_EMAIL\s*=.*/SITE_SECURITY_EMAIL = $SITE_SECURITY_EMAIL/" $outfile
+sed -i "s/SITE_SUPPORT_EMAIL\s*=.*/SITE_SUPPORT_EMAIL = $SITE_SUPPORT_EMAIL/" $outfile
+
+# Now process all of the SITE_OTHER_ values.
+#e.g
+# Delemit multiple values with a "|"
+# SITE_OTHER_GRID="EGEE|WLCG"
+# SITE_OTHER_EGEE_ROC=UK/I
+
+sed -i "/OTHERINFO\s*=.*/d" $outfile
+
+for i in ${!SITE_OTHER_*} 
+do
+  SUFFIX=${i//SITE_OTHER_/}
+  OLDIFS=$IFS
+  IFS="|"
+  for j in ${!i} 
+  do
+    echo "OTHERINFO = $SUFFIX=$j" >> $outfile
+  done
+  IFS=$OLDIFS
+done
+
+return 0
+}
