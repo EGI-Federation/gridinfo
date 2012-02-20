@@ -1,5 +1,5 @@
 Name:		glite-yaim-bdii
-Version:	4.3.8
+Version:	4.3.9
 Release:	1%{?dist}
 Summary:	glite-yaim-bdii module configures the top level BDII and site BDI
 Group:		Development/Tools
