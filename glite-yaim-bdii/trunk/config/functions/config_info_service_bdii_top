@@ -30,7 +30,7 @@
 ##############################################################################
 
 config_info_service_bdii_top_check () {
-	requires $1 BDII_HOST INSTALL_ROOT
+	requires $1 SITE_NAME BDII_HOST INSTALL_ROOT
 }
 
 config_info_service_bdii_top_setenv () {
@@ -39,15 +39,19 @@ config_info_service_bdii_top_setenv () {
 
 config_info_service_bdii_top () {
 
-if [ -f ${INSTALL_ROOT}/glite/etc/glite-info-site-defaults.conf ]; then
-   sed -i /^BDII_HOST/d ${INSTALL_ROOT}/glite/etc/glite-info-site-defaults.conf
+site_defaults_file=/etc/bdii/gip/glite-info-site-defaults.conf
+
+if [ -f ${site_defaults_file} ]; then
+   sed -i /^BDII_HOST/d ${site_defaults_file}
+   sed -i /^SITE_NAME/d ${site_defaults_file}
+
 fi
 
-cat << EOF >> ${INSTALL_ROOT}/glite/etc/glite-info-site-defaults.conf
+cat << EOF >> ${site_defaults_file}
+SITE_NAME=${SITE_NAME:-$(hostname -d) }
 BDII_HOST=${BDII_HOST:-$(hostname -f)}
 EOF
 
-  
 return 0
 
 }
