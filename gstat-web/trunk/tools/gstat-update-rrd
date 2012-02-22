@@ -17,7 +17,7 @@
 # limitations under the License.
 ##############################################################################
 #
-# NAME :        gstat-update-rrd
+# NAME :        gstat-update-rrd 
 #
 # DESCRIPTION : This script updates the rrd from the snapshot database
 #
