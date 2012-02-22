@@ -31,7 +31,7 @@
 
 config_bdii_5.2_check () {
 
-  requires $1 BDII_BREATHE_TIME BDII_READ_TIMEOUT BDII_ARCHIVE_SIZE BDII_DELETE_DELAY
+  requires $1 BDII_BREATHE_TIME BDII_READ_TIMEOUT BDII_ARCHIVE_SIZE
   return $?
 
 }
@@ -44,6 +44,8 @@ if [ ! -f ${CONFIG_FILE} ]; then
   yaimlog ERROR "No bdii.conf file found"
   return 1
 fi
+
+BDII_DELETE_DELAY=${BDII_DELETE_DELAY:-0}
 
 mv ${CONFIG_FILE} ${CONFIG_FILE}.old
 cat ${CONFIG_FILE}.old | \
