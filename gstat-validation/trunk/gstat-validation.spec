@@ -1,6 +1,6 @@
 Summary: Gstat Valiation Scripts
 Name: gstat-validation
-Version: 2.0.51
+Version: 2.0.52
 Release: 1%{?dist}
 Source0: %{name}-%{version}.tar.gz
 License: EGEE
@@ -37,6 +37,8 @@ rm -rf $RPM_BUILD_ROOT
 /var/lib/gstat 
 
 %changelog
+* Thu Feb 23 2012 Laurence Field <laurence.field@cern.ch>  - 2.0.52-1
+- Fix for GGUS ticket #77027 
 * Fri Jul 8 2011 Laurence Field <laurence.field@cern.ch>  - 2.0.51-1
 - Implemented fix for GRIF
 * Thu Jun 30 2011 Laurence Field <laurence.field@cern.ch>  - 2.0.50-1
