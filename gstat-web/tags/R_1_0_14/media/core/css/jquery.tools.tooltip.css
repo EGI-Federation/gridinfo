@@ -1,0 +1,66 @@
+.tooltip {
+  display:none;
+  background:transparent url(img/tooltip_black_arrow.png);
+  font-size:12px;
+  height:90px;
+  width:180px;
+  padding:15px;
+  color:#fff;
+  line-height: 1.5em;
+} 
+
+.tooltip.bottom {
+  background:transparent url(img/tooltip_black_arrow_bottom.png);
+  padding-top:30px;
+  height:75px;
+  border: 0px;
+ }
+ 
+ .tooltip_thin {
+  display:none;
+  background:transparent url(img/tooltip_black_arrow_thin.png);
+  font-size:12px;
+  height:70px;
+  width:160px;
+  padding:18px 15px;
+  color:#fff;
+  line-height: 1.4em;
+  z-index:10;
+} 
+
+.tooltip_thin.bottom {
+  background:transparent url(img/tooltip_black_arrow_thin_bottom.png);
+  padding-top:30px;
+  height:65px;
+  border: 0px;
+  z-index:10;
+ }
+ 
+.tooltip_big {
+  display:none;
+  background:transparent url(img/tooltip_black_arrow_big.png);
+  font-size:12px;
+  height:155px;
+  width:300px;
+  padding:25px;
+  color:#fff;
+  line-height: 1.5em;
+} 
+
+.tooltip_big.bottom {
+  background:transparent url(img/tooltip_black_arrow_big_bottom.png);
+  padding-top:50px;
+  height:140px;
+  border: 0px;
+  line-height: 1.5em;
+ }
+ 
+.tooltip_small {
+  display:none;
+  background:transparent url(img/tooltip_black_small.png);
+  font-size:12px;
+  height:42px;
+  width:80px;
+  border: 0px;
+  color:#fff;
+} 
