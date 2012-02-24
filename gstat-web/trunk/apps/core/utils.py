@@ -75,6 +75,10 @@ def get_gluevoviews(service_list, vo_name=None):
         uniqueids = []
         for service in service_list:
             if service.type == 'CE': uniqueids.append(service.uniqueid)
+        # ===== ookey: get cluster uniqueid that subcluster/physicalcpus > 0
+        clusters = gluesubcluster.objects.filter(gluecluster_fk__in = uniqueids, physicalcpus__gt = 0)
+        uniqueids = [cluster.uniqueid for cluster in clusters]
+        #===================================
     
         ces = gluece.objects.filter(gluecluster_fk__in = uniqueids)
         uniqueids = [ce.uniqueid for ce in ces]
