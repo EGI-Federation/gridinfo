@@ -228,6 +228,19 @@ for voview in objects:
         #print "Could not get cluster mapping for %s" %(voview.glueceuniqueid)
         continue
 
+    #===== ookey: get cluster uniqueid that subcluster/physicalcpus > 0
+    try:
+        clusters = gluesubcluster.objects.filter(gluecluster_fk=cluster, physicalcpus__gt = 0)
+    except KeyError, e:
+        print "Could not get cluster from subcluster for %s" %(cluster)
+        continue
+    uniqueids = [clusterObj.uniqueid for clusterObj in clusters]
+    if uniqueids:
+        pass
+    else:
+        continue
+    #=============================================
+
     if ( not data.has_key(cluster) ):
         data[cluster] = {}
     if ( not data[cluster].has_key(vo) ):
