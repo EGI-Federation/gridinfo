@@ -1,5 +1,5 @@
 Name:		bdii-config-site
-Version:	1.0.5
+Version:	1.0.6
 Release:	2%{?dist}
 Summary:	Site BDII configration files
 Group:		System/Monitoring
@@ -7,9 +7,12 @@ License:	ASL 2.0
 Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
-
 Requires:	bdii
-Requires:       openldap-servers >= 2.4 or openldap2.4-servers
+%if 0%{?el5}
+Requires: openldap2.4-servers
+%else
+Requires: openldap-servers 
+%endif
 Requires:	glite-info-provider-ldap
 Requires:	glite-info-provider-service
 Requires:	glite-info-static
@@ -43,6 +46,8 @@ rm -rf %{buildroot}
 /var/lib/bdii/gip/provider/glite-info-provider-site-glue2
 
 %changelog
+* Wed Mar 14 2012 Laurence Field <laurence.field@cern.ch> - 1.0.6-1
+- Improved dependency definition
 * Tue Aug 22 2011 Laurence Field <laurence.field@cern.ch> - 1.0.5-1
 - Fixed #84241
 * Tue Apr 18 2011 Laurence Field <laurence.field@cern.ch> - 1.0.3-1
