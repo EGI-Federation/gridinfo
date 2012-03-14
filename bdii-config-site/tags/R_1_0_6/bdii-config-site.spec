@@ -1,6 +1,6 @@
 Name:		bdii-config-site
 Version:	1.0.6
-Release:	2%{?dist}
+Release:	1%{?dist}
 Summary:	Site BDII configration files
 Group:		System/Monitoring
 License:	ASL 2.0
