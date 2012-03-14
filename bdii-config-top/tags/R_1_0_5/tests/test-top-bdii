@@ -1,0 +1,83 @@
+#!/bin/sh
+
+echo "Ensuring that the BDII is stopped."
+/etc/init.d/bdii stop
+
+echo -n "Changing the configuration ... "
+sed -i "s#BDII_BREATHE_TIME=.*#BDII_BREATHE_TIME=10#"  /etc/bdii/bdii.conf
+sed -i "s#ERROR#DEBUG#"  /etc/bdii/bdii.conf
+echo "SITE_NAME=MySite" > /opt/glite/etc/glite-info-site-defaults.conf
+echo "OK"
+
+echo "Starting the BDII"
+/etc/init.d/bdii start
+
+command="ldapsearch -LLL -x -h $(hostname -f) -p 2170 -b "
+RETVAL=0
+
+echo "Waiting 400 seconds for the BDII to start."
+sleep 400
+
+echo -n "Checking that the BDII is running ... "
+${command} >/dev/null 2>/dev/null
+if [ $? -eq 32 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Checking resource BDII publication ... "
+bind="mds-vo-name=resource,o=grid"
+filter="(&(objectClass=GlueService)(GlueServiceType=bdii_top))"
+${command} ${bind} '${filter}' >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Checking resource BDII publication GLUE 2.0 ... "
+bind="glue2groupid=resource,o=glue"
+filter="(&(objectClass=Glue2Service)(Glue2ServiceType=bdii_top))"
+${command} ${bind} '${filter}' >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Checking site query for top-level BDII ... "
+bind="mds-vo-name=local,o=grid"
+filter='(objectClass=GlueSite)'
+${command} ${bind} "${filter}" | grep GlueSiteName >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo -n "Checking site query for top-level BDII for GLUE 2.0 ... "
+bind="o=glue"
+filter='(objectClass=GLUE2AdminDomain)'
+${command} ${bind} "${filter}" | grep GLUE2AdminDomain >/dev/null 2>/dev/null
+if [ $? -gt 0 ]; then
+    echo "FAIL"
+    RETVAL=1
+else
+    echo "OK"
+fi 
+
+echo "Stopping the BDII"
+#/etc/init.d/bdii stop
+
+if [ ${RETVAL} -eq 1 ]; then
+    echo "Test Failed"
+    exit 1
+else
+    echo "Test Passed"
+    exit 0
+fi
