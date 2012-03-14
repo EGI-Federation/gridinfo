@@ -8,7 +8,7 @@ Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 Requires:	bdii
-%if 0%{?el5}
+%if "%{?dist}" == ".el5"
 Requires: openldap2.4-servers
 %else
 Requires: openldap-servers 
