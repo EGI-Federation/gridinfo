@@ -47,4 +47,4 @@ clean:
 	rm -f *~ $(NAME)-$(VERSION).src.tgz
 	rm -rf $(build)
 
-.PHONY: dist srpm rpm sources clean test
+.PHONY: dist srpm rpm deb sources clean test
