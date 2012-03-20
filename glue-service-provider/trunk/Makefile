@@ -50,4 +50,4 @@ clean:
 	rm -f *~ $(NAME)-$(VERSION).tar.gz
 	rm -rf $(build)
 
-.PHONY: dist srpm rpm sources clean 
+.PHONY: dist srpm rpm deb sources clean
