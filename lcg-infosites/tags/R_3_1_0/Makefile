@@ -36,10 +36,10 @@ prepare: dist
 	cp $(build)/$(NAME)-$(VERSION).tar.gz $(build)/SOURCES 
 
 srpm: prepare
-        rpmbuild -bs --define="dist ${dist}" --define='_topdir ${build}' $(NAME).spec
+	rpmbuild -bs --define="dist ${dist}" --define='_topdir ${build}' $(NAME).spec
 
 rpm: srpm
-        rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE)${dist}.src.rpm
+	rpmbuild --rebuild  --define='_topdir ${build} ' $(build)/SRPMS/$(NAME)-$(VERSION)-$(RELEASE)${dist}.src.rpm
 
 clean:
 	rm -f *~ $(NAME)-$(VERSION).tar.gz
