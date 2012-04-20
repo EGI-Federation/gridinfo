@@ -11,9 +11,9 @@ default:
 install:
 	@echo installing ...
 	@mkdir -p $(prefix)/usr/bin
-	@mkdir -p $(prefix)/usr/share/man1
+	@mkdir -p $(prefix)/usr/share/man/man1
 	@install -m 0755 src/lcg-infosites   $(prefix)/usr/bin/lcg-infosites
-	@install -m 0644 man/lcg-infosites.1 $(prefix)/usr/share/man1/lcg-infosites.1
+	@install -m 0644 man/lcg-infosites.1 $(prefix)/usr/share/man/man1/lcg-infosites.1
 
 
 dist:
