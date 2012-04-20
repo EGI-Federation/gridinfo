@@ -7,7 +7,7 @@ License:			ASL 2.0
 URL:				http://svnweb.cern.ch/trac/gridinfo/wiki
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export https://svnweb.cern.ch/trac/gridinfo/browser/lcg-infosites/tags/R_3_1_0 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/lcg-infosites/tags/R_3_1_0 %{name}-%{version}
 #   tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source0:			%{name}-%{version}.tar.gz
 
@@ -18,7 +18,7 @@ Requires:			perl
 Requires:			perl(Net::LDAP)
 
 %description
-lcg-infosites is a simple command line tool in perl for \
+lcg-infosites is a simple command line tool in Perl for \
 the lcg information system
 
 %prep
@@ -28,7 +28,7 @@ the lcg information system
 
 %install
 rm -rf %{buildroot}
-%makeinstall
+make install prefix=%{buildroot}
 
 %clean
 rm -rf %{buildroot}
