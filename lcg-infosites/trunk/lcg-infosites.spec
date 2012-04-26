@@ -1,7 +1,7 @@
 Name:				lcg-infosites
 Version:			3.1.0
 Release:			2%{?dist}
-Summary:			Command line tool for the lcg information system
+Summary:			Command line tool for the WLCG information system
 Group:				Applications/Internet
 License:			ASL 2.0
 URL:				http://svnweb.cern.ch/trac/gridinfo/wiki
@@ -11,15 +11,12 @@ URL:				http://svnweb.cern.ch/trac/gridinfo/wiki
 #   tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source0:			%{name}-%{version}.tar.gz
 
-BuildRoot:			%{_tmppath}/%{name}-%{version}-build
+BuildRoot:			%{_tmppath}%{name}-%{version}-build
 BuildArch:			noarch
 
-Requires:			perl
-Requires:			perl(Net::LDAP)
-
 %description
-lcg-infosites is a simple command line tool in Perl for \
-the lcg information system
+lcg-infosites is a simple command line tool in Perl for 
+the WLCG information system
 
 %prep
 %setup -q
@@ -39,8 +36,8 @@ rm -rf %{buildroot}
 %{_mandir}/man1/lcg-infosites.*
 
 %changelog
-* Fri Apr 20 2012 Adrien Devresse <adevress at cern.ch> -  3.1.0-2%{?dist}
- - Improved the spec file epel compliance
+* Thu Apr 26 2012 Laurence Field <laurence.field@cern.ch> - 3.1.0
+ - Improved the spec file for EPEL compliance
+ - FHS compliant
 
-* Thu Mar 24 2011 Laurence Field <laurence.field@cern.ch> - 3.1.0
-- FHS compliant
+
