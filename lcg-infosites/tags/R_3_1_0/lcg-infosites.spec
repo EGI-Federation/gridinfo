@@ -11,7 +11,7 @@ URL:				http://svnweb.cern.ch/trac/gridinfo/wiki
 #   tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source0:			%{name}-%{version}.tar.gz
 
-BuildRoot:			%{_tmppath}%{name}-%{version}-build
+BuildRoot:			%{_tmppath}/%{name}-%{version}-build
 BuildArch:			noarch
 
 %description
