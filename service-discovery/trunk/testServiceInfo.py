@@ -1,3 +1,5 @@
+#!/usr/bin/python2.6
+
 import unittest
 import commands
 

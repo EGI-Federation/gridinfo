@@ -1,3 +1,5 @@
+#!/usr/bin/python2.6
+
 import ldap
 import sys
 import getopt
