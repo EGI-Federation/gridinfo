@@ -1,6 +1,6 @@
 Name:				lcg-infosites
 Version:			3.1.0
-Release:			2%{?dist}
+Release:			3%{?dist}
 Summary:			Command line tool for the WLCG information system
 Group:				Applications/Internet
 License:			ASL 2.0
@@ -11,7 +11,7 @@ URL:				http://svnweb.cern.ch/trac/gridinfo/wiki
 #   tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source0:			%{name}-%{version}.tar.gz
 
-BuildRoot:			%{_tmppath}/%{name}-%{version}-build
+BuildRoot:			%{_tmppath}/%{name}-%{version}-%{release}-root
 BuildArch:			noarch
 
 %description
