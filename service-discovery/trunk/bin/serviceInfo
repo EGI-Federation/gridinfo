@@ -1,0 +1,137 @@
+#!/usr/bin/env python
+
+import ldap
+import sys
+import getopt
+import os
+import json
+
+VERSION = '0.2'
+conf = {}
+
+def main(argv):
+	if 'LCG_GFAL_INFOSYS' in os.environ:
+		conf['bdii'] = os.environ['LCG_GFAL_INFOSYS']
+
+	try:
+		opts, args = getopt.getopt(argv, "b:t:v:l:cjhdV", ["bdii=", "type=","vo=","list=","csv","json","help","debug","version"])
+	except getopt.GetoptError:
+		sys.exit(usage())
+	
+	parse_options(opts)
+	validate_conf()
+	res = connection()
+	if 'attr' in conf:
+		list = list_attr(res)
+	else:
+		list = list_services(res)
+	print serialize_output(list)
+	sys.exit()
+
+def parse_options(opts):
+        for opt, arg in opts:
+                if opt in ("-h", "--help"):
+                        conf['help'] = True
+                elif opt in ("-V", "--version"):
+                        conf['version'] = True
+                elif opt in ("-d", "--debug"):
+                        conf['debug'] = True
+                elif opt in ("-c","--csv"):
+                        conf['csv'] = True
+                elif opt in ("-j","--json"):
+                        conf['json'] = True
+                elif opt in ("-b","--bdii"):
+                        conf['bdii'] = arg
+                elif opt in ("-l","--list"):
+                        conf['attr'] = arg
+                elif opt in ("-v","--vo"):
+                        conf['vo'] = arg
+                elif opt in ("-t","--type"):
+                        conf['type'] = arg
+
+def validate_conf():
+        if 'help' in conf:
+                print usage()
+		sys.exit()
+        if 'version' in conf:
+                print os.path.basename(sys.argv[0]) +' V'+VERSION
+        if 'debug' in conf:
+                print 'Verbose mode activated.'
+        if 'csv' in conf and 'json' in conf:
+                sys.exit('Error: choose between csv and json.')
+        elif 'csv' in conf:
+                if 'debug' in conf:
+                        print 'Output in csv formating'
+        elif 'json' in conf:
+                if 'debug' in conf:
+                        print 'Output in json formating'
+        if 'bdii' in conf:
+                if 'debug' in conf:
+                        print 'The following bdii will be used:',conf['bdii']
+        else:
+                sys.exit('Error: Please specify a bddi endpoint (-b option).')
+        if 'attr' in conf:
+                if 'debug' in conf:
+                        print 'Lists all the published values for the following attribute:',conf['attr']
+        if 'vo' in conf:
+                if 'debug' in conf:
+                        print 'Lists all services for the following VO:',conf['vo']
+        if 'type' in conf:
+                if 'debug' in conf:
+                        print 'Lists all services for the following type:',conf['type']
+
+def usage():
+	return '''Usage: service-info [options]
+
+    -b, --bdii	host:port	Specify a BDII endpoint (<hostname>:<port>). By default the environmental variable LCG_GFAL_INFOSYS will be used.
+    -t, --type	type		Lists all services of a specific type. By default all services are returned.
+    -v, --vo	VO		List all services for a specific VO
+    -l, --list	attrib		List all the published values for an attribute (ServiceType, VO)
+    -c, --csv			Provides the output in CSV formating
+    -j, --json			Provides the output in JSON formating
+    -h, --help			Prints this helpful message
+    -d, --debug			Verbose mode 
+    -V, --version		Prints this helpful message'''
+
+def connection():
+	try:
+		l = ldap.initialize('ldap://'+conf['bdii'])
+		res = l.result(l.search('o=glue',ldap.SCOPE_SUBTREE,'(objectClass=GLUE2Service)'))
+	except ldap.SERVER_DOWN:
+		sys.exit('Error: Can\'t contact the LDAP server. Please check your bdii.')
+	return res[1]
+
+def list_services(res):
+	list=[]
+	for r in res:
+		if 'type' in conf:
+			if r[1]['GLUE2ServiceType'][0] != conf['type']:
+				continue
+		list.append(r[0][r[0].find('=')+1:r[0].find(',')])
+	if len(list) == 0 and 'type' in conf:
+		sys.exit('Error: No result. The type you used is probably wrong.')
+	list.sort()
+	return list
+
+def list_attr(res):
+	if conf['attr'] == 'ServiceType':
+        	list=[]
+		for r in res:
+			if r[1]['GLUE2'+conf['attr']][0] not in list:
+				list.append(r[1]['GLUE2ServiceType'][0])
+		list.sort()
+		return list 
+	else:
+		sys.exit('Error: wrong attribute.')
+
+def serialize_output(list):
+        if 'csv' in conf:
+                output = ','.join(list)
+        elif 'json' in conf:
+                output = json.dumps(list)
+        else:
+                output = '\n'.join(list)
+        return output
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
