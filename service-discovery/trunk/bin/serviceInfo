@@ -6,7 +6,7 @@ import getopt
 import json
 import os
 
-VERSION = '0.3'
+VERSION = '0.35'
 conf = {}
 
 def main(argv):
@@ -21,10 +21,12 @@ def main(argv):
 	parse_options(opts)
 	validate_conf()
 	if 'attr' in conf:
-		list = list_attr(res)
+		list = list_attr()
+		print '\n'.join(list)
+		# USE serialize_output() ??????
 	else:
 		dic = list_services()
-	print serialize_output(dic)
+		print serialize_output(dic)
 	sys.exit()
 
 def parse_options(opts):
@@ -94,10 +96,13 @@ def usage():
     -d, --debug			Verbose mode 
     -V, --version		Prints this helpful message'''
 
-def request(filter):
+def request(filter=None):
 	try:
 		l = ldap.initialize('ldap://'+conf['bdii'])
-		result = l.result(l.search('o=glue',ldap.SCOPE_SUBTREE,filter))
+		if filter != None:
+			result = l.result(l.search('o=glue',ldap.SCOPE_SUBTREE,filter))
+		else:
+			result = l.result(l.search('o=glue',ldap.SCOPE_SUBTREE))
 	except ldap.SERVER_DOWN:
 		sys.exit('Error: Can\'t contact the LDAP server. Please check your bdii.')
 	return result[1]
@@ -128,20 +133,30 @@ def list_services():
 		sys.exit('Error: No result. The type you used is probably wrong.')
 	return dic 
 
-def list_attr(result):
+def list_attr():
 	if conf['attr'] == 'ServiceType':
-        	list=[]
-		for r in result:
-			if r[1]['GLUE2'+conf['attr']][0] not in list:
-				list.append(r[1]['GLUE2'+conf['attr']][0])
-		list.sort()
-		return list 
+        	oClass = 'Service'
+		key = 'ServiceType'
+	elif conf['attr'] == 'vo':
+		oClass = 'Policy'
+		key = 'PolicyRule'
 	else:
 		sys.exit('Error: wrong attribute.')
 
+	result = request('objectClass=GLUE2'+oClass)
+        list=[]
+        for r in result:
+		if r[1]['GLUE2'+key][0] not in list:
+			list.append(r[1]['GLUE2'+key][0])
+	list.sort()
+	return list
+
 def serialize_output(dic):
         if 'csv' in conf:
-                output = ','.join(dic)
+		list=[]
+		for i in dic:
+                        list.append(str(dic[i]['GLUE2EndpointURL'][0]))
+                output = ','.join(list)
         elif 'json' in conf:
                 output = json.dumps(dic)
         else:
