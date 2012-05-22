@@ -3,10 +3,10 @@
 import ldap
 import sys
 import getopt
-import os
 import json
+import os
 
-VERSION = '0.2'
+VERSION = '0.3'
 conf = {}
 
 def main(argv):
@@ -20,12 +20,11 @@ def main(argv):
 	
 	parse_options(opts)
 	validate_conf()
-	res = connection()
 	if 'attr' in conf:
 		list = list_attr(res)
 	else:
-		list = list_services(res)
-	print serialize_output(list)
+		dic = list_services()
+	print serialize_output(dic)
 	sys.exit()
 
 def parse_options(opts):
@@ -79,6 +78,8 @@ def validate_conf():
         if 'type' in conf:
                 if 'debug' in conf:
                         print 'Lists all services for the following type:',conf['type']
+	if 'debug' in conf:
+		print
 
 def usage():
 	return '''Usage: service-info [options]
@@ -93,43 +94,60 @@ def usage():
     -d, --debug			Verbose mode 
     -V, --version		Prints this helpful message'''
 
-def connection():
+def request(filter):
 	try:
 		l = ldap.initialize('ldap://'+conf['bdii'])
-		res = l.result(l.search('o=glue',ldap.SCOPE_SUBTREE,'(objectClass=GLUE2Service)'))
+		result = l.result(l.search('o=glue',ldap.SCOPE_SUBTREE,filter))
 	except ldap.SERVER_DOWN:
 		sys.exit('Error: Can\'t contact the LDAP server. Please check your bdii.')
-	return res[1]
+	return result[1]
 
-def list_services(res):
-	list=[]
-	for r in res:
+def list_services():
+	result = request('objectClass=GLUE2Endpoint')
+	dic={}
+	if 'type' in conf:
+		resultType = request('(&(objectClass=GLUE2Service)(GLUE2ServiceType='+conf['type']+'))')
+		listServices = []
+		for rT in resultType:
+			listServices.append(rT[1]['GLUE2ServiceID'][0])
+	if 'vo' in conf:
+		resultVO = request('(|(GLUE2PolicyRule=ALL)(GLUE2PolicyRule='+conf['vo']+'))')
+		listEndpoints = []
+		for rV in resultVO:
+			listEndpoints.append(rV[1]['GLUE2AccessPolicyEndpointForeignKey'][0])
+	for res in result:
+		serviceID = res[1]['GLUE2EndpointServiceForeignKey'][0]
 		if 'type' in conf:
-			if r[1]['GLUE2ServiceType'][0] != conf['type']:
+			if serviceID not in listServices:
 				continue
-		list.append(r[0][r[0].find('=')+1:r[0].find(',')])
-	if len(list) == 0 and 'type' in conf:
+		if 'vo' in conf:
+			if res[1]['GLUE2EndpointID'][0] not in listEndpoints:
+				continue
+		dic[serviceID] = {'GLUE2EndpointURL':res[1]['GLUE2EndpointURL']}
+	if len(dic) == 0 and 'type' in conf:
 		sys.exit('Error: No result. The type you used is probably wrong.')
-	list.sort()
-	return list
+	return dic 
 
-def list_attr(res):
+def list_attr(result):
 	if conf['attr'] == 'ServiceType':
         	list=[]
-		for r in res:
+		for r in result:
 			if r[1]['GLUE2'+conf['attr']][0] not in list:
-				list.append(r[1]['GLUE2ServiceType'][0])
+				list.append(r[1]['GLUE2'+conf['attr']][0])
 		list.sort()
 		return list 
 	else:
 		sys.exit('Error: wrong attribute.')
 
-def serialize_output(list):
+def serialize_output(dic):
         if 'csv' in conf:
-                output = ','.join(list)
+                output = ','.join(dic)
         elif 'json' in conf:
-                output = json.dumps(list)
+                output = json.dumps(dic)
         else:
+		list=[]
+		for i in dic:
+			list.append(str(dic[i]['GLUE2EndpointURL'][0]))
                 output = '\n'.join(list)
         return output
 
