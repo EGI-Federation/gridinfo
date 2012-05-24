@@ -10,6 +10,7 @@ VERSION = '0.35'
 conf = {}
 
 def main(argv):
+	""" Main function that launches the other functions """
 	if 'LCG_GFAL_INFOSYS' in os.environ:
 		conf['bdii'] = os.environ['LCG_GFAL_INFOSYS']
 
@@ -30,6 +31,7 @@ def main(argv):
 	sys.exit()
 
 def parse_options(opts):
+	""" Puts the options in a configuration dictionnary """
         for opt, arg in opts:
                 if opt in ("-h", "--help"):
                         conf['help'] = True
@@ -51,6 +53,7 @@ def parse_options(opts):
                         conf['type'] = arg
 
 def validate_conf():
+	""" Prints debug messages and checks for errors """
         if 'help' in conf:
                 print usage()
 		sys.exit()
@@ -84,6 +87,7 @@ def validate_conf():
 		print
 
 def usage():
+	""" Returns the usage message """
 	return '''Usage: service-info [options]
 
     -b, --bdii	host:port	Specify a BDII endpoint (<hostname>:<port>). By default the environmental variable LCG_GFAL_INFOSYS will be used.
@@ -93,10 +97,11 @@ def usage():
     -c, --csv			Provides the output in CSV formating
     -j, --json			Provides the output in JSON formating
     -h, --help			Prints this helpful message
-    -d, --debug			Verbose mode 
-    -V, --version		Prints this helpful message'''
+    -d, --debug			Verbose mode
+    -V, --version		Version'''
 
 def request(filter=None):
+	""" Returns the result of the ldap request with the filter given """	
 	try:
 		l = ldap.initialize('ldap://'+conf['bdii'])
 		if filter != None:
@@ -108,6 +113,7 @@ def request(filter=None):
 	return result[1]
 
 def list_services():
+	""" Returns a dictionnary of the filtered results from an ldap request """
 	result = request('objectClass=GLUE2Endpoint')
 	dic={}
 	if 'type' in conf:
@@ -116,7 +122,7 @@ def list_services():
 		for rT in resultType:
 			listServices.append(rT[1]['GLUE2ServiceID'][0])
 	if 'vo' in conf:
-		resultVO = request('(|(GLUE2PolicyRule=ALL)(GLUE2PolicyRule='+conf['vo']+'))')
+		resultVO = request('(&(objectClass=GLUE2AccessPolicy)(|(GLUE2PolicyRule=ALL)(GLUE2PolicyRule='+conf['vo']+')))')
 		listEndpoints = []
 		for rV in resultVO:
 			listEndpoints.append(rV[1]['GLUE2AccessPolicyEndpointForeignKey'][0])
@@ -134,6 +140,7 @@ def list_services():
 	return dic 
 
 def list_attr():
+	""" Returns a list of values for a given attribute """
 	if conf['attr'] == 'ServiceType':
         	oClass = 'Service'
 		key = 'ServiceType'
@@ -152,7 +159,8 @@ def list_attr():
 	return list
 
 def serialize_output(dic):
-        if 'csv' in conf:
+        """ Return the output with the wished format """
+	if 'csv' in conf:
 		list=[]
 		for i in dic:
                         list.append(str(dic[i]['GLUE2EndpointURL'][0]))
