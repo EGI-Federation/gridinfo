@@ -15,13 +15,13 @@ def main(argv):
 		conf['bdii'] = os.environ['LCG_GFAL_INFOSYS']
 
 	try:
-		opts, args = getopt.getopt(argv, "b:t:v:l:cjhdV", ["bdii=", "type=","vo=","list=","csv","json","help","debug","version"])
+		opts, args = getopt.getopt(argv, "b:t:i:c:s:d:l:jhvV", ["bdii=", "type=","interface=","capability=","state=","domain=","list=","json","help","verbose","version","csv","vo="])
 	except getopt.GetoptError:
 		sys.exit(usage())
 	
 	parse_options(opts)
 	validate_conf()
-	if 'attr' in conf:
+	if 'list' in conf:
 		list = list_attr()
 		print '\n'.join(list)
 		# USE serialize_output() ??????
@@ -37,69 +37,94 @@ def parse_options(opts):
                         conf['help'] = True
                 elif opt in ("-V", "--version"):
                         conf['version'] = True
-                elif opt in ("-d", "--debug"):
-                        conf['debug'] = True
-                elif opt in ("-c","--csv"):
+                elif opt in ("-v", "--verbose"):
+                        conf['verbose'] = True
+                elif opt == "--csv":
                         conf['csv'] = True
                 elif opt in ("-j","--json"):
                         conf['json'] = True
                 elif opt in ("-b","--bdii"):
                         conf['bdii'] = arg
                 elif opt in ("-l","--list"):
-                        conf['attr'] = arg
-                elif opt in ("-v","--vo"):
+                        conf['list'] = arg
+                elif opt == "--vo":
                         conf['vo'] = arg
                 elif opt in ("-t","--type"):
                         conf['type'] = arg
+                elif opt in ("-i","--interface"):
+                        conf['interface'] = arg
+                elif opt in ("-c","--capability"):
+                        conf['capability'] = arg
+                elif opt in ("-s","--state"):
+                        conf['state'] = arg
+                elif opt in ("-d","--domain"):
+                        conf['domain'] = arg
 
 def validate_conf():
-	""" Prints debug messages and checks for errors """
+	""" Prints verbose messages and checks for errors """
         if 'help' in conf:
                 print usage()
 		sys.exit()
         if 'version' in conf:
                 print os.path.basename(sys.argv[0]) +' V'+VERSION
 		sys.exit()
-        if 'debug' in conf:
+        if 'verbose' in conf:
                 print 'Verbose mode activated.'
         if 'csv' in conf and 'json' in conf:
                 sys.exit('Error: choose between csv and json.')
         elif 'csv' in conf:
-                if 'debug' in conf:
+                if 'verbose' in conf:
                         print 'Output in csv formating'
         elif 'json' in conf:
-                if 'debug' in conf:
+                if 'verbose' in conf:
                         print 'Output in json formating'
         if 'bdii' in conf:
-                if 'debug' in conf:
+                if 'verbose' in conf:
                         print 'The following bdii will be used:',conf['bdii']
         else:
                 sys.exit(usage())
-        if 'attr' in conf:
-                if 'debug' in conf:
-                        print 'Lists all the published values for the following attribute:',conf['attr']
+        if 'list' in conf:
+                if 'verbose' in conf:
+                        print 'Lists all the published values for the following attribute:',conf['list']
         if 'vo' in conf:
-                if 'debug' in conf:
+                if 'verbose' in conf:
                         print 'Lists all services for the following VO:',conf['vo']
         if 'type' in conf:
-                if 'debug' in conf:
+                if 'verbose' in conf:
                         print 'Lists all services for the following type:',conf['type']
-	if 'debug' in conf:
+	if 'interface' in conf:
+		if 'verbose' in conf:
+			print 'Lists all services for the following interface:',conf['interface']
+        if 'capability' in conf:
+                if 'verbose' in conf:
+                        print 'Lists all services for the following capability:',conf['capability']
+        if 'state' in conf:
+                if 'verbose' in conf:
+                        print 'Lists all services for the following state:',conf['state']
+        if 'domain' in conf:
+                if 'verbose' in conf:
+                        print 'Lists all services for the following domain:',conf['domain'] 
+	if 'verbose' in conf:
 		print
 
 def usage():
 	""" Returns the usage message """
 	return '''Usage: service-info [options]
 
-    -b, --bdii	host:port	Specify a BDII endpoint (<hostname>:<port>). By default the environmental variable LCG_GFAL_INFOSYS will be used.
-    -t, --type	type		Lists all services of a specific type. By default all services are returned.
-    -v, --vo	VO		List all services for a specific VO
-    -l, --list	attrib		List all the published values for an attribute (type, vo)
-    -c, --csv			Provides the output in CSV formating
-    -j, --json			Provides the output in JSON formating
-    -h, --help			Prints this helpful message
-    -d, --debug			Verbose mode
-    -V, --version		Version'''
+    -b, --bdii		host:port	Specify a BDII endpoint (<hostname>:<port>). By default the environmental variable LCG_GFAL_INFOSYS will be used.
+    -t, --type		type		Lists all services of a specific type
+    --vo		VO		Lists all services for a specific VO
+    -i, --interface	interface	Lists all services for a specific interface
+    -c, --capability	capability	Lists all services for a specific capability
+    -s, --state		state		Lists all services for a specific state
+    -d, --domain	domain		Lists all services for a specific domain
+    -a, --all			
+    -l, --list		attribute	List all the published values for an attribute (type, vo)
+    --csv				Provides the output in CSV formating
+    -j, --json				Provides the output in JSON formating
+    -h, --help				Prints this helpful message
+    -v, --verbose			Verbose mode
+    -V, --version			Version'''
 
 def request(filter=None):
 	""" Returns the result of the ldap request with the filter given """	
@@ -142,10 +167,10 @@ def list_services():
 
 def list_attr():
 	""" Returns a list of values for a given attribute """
-	if conf['attr'] == 'type':
+	if conf['list'] == 'type':
         	oClass = 'Service'
 		key = 'ServiceType'
-	elif conf['attr'] == 'vo':
+	elif conf['list'] == 'vo':
 		oClass = 'Policy'
 		key = 'PolicyRule'
 	else:
