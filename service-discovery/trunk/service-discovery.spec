@@ -36,7 +36,7 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 %{_bindir}/serviceInfo
 %{_mandir}/man1/serviceInfo.1*
-%doc copyright
+%doc LICENSE
 
 %changelog
 * Thu May 24 2012 Laurence Field <laurence.field@cern.ch> - 0.0.35-1
