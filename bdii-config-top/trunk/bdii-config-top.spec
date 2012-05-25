@@ -1,5 +1,5 @@
 Name:		bdii-config-top
-Version:	1.0.5
+Version:	1.0.6
 Release:	1%{?dist}
 Summary:	Top BDII configration files
 Group:		System/Monitoring
@@ -43,6 +43,8 @@ rm -rf %{buildroot}
 /var/lib/bdii/gip/plugin/glite-info-plugin-fcr
 
 %changelog
+* Mon May 25 2012 Laurence Field <laurence.field@cern.ch> - 1.0.6-1
+- Changed the location of top-urls.conf to address GGUS #73823
 * Wed Mar 14 2012 Laurence Field <laurence.field@cern.ch> - 1.0.5-1
 - Improved dependency definition
 * Tue Aug 22 2011 Laurence Field <laurence.field@cern.ch> - 1.0.4-1

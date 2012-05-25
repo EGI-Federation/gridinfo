@@ -16,7 +16,7 @@
 ##############################################################################
 
 GLITE_HOME=${GLITE_HOME:-/opt/glite}
-CONFIG=${GLITE_HOME}/etc/gip/top-urls.conf
+CONFIG=/var/cache/glite/top-urls.conf
 SCRIPT=${GLITE_HOME}/libexec/glite-info-provider-ldap
 
 # Check for the existence of the configuration file.
