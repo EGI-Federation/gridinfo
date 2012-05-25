@@ -6,7 +6,7 @@ import getopt
 import json
 import os
 
-VERSION = '0.35'
+VERSION = '0.4'
 conf = {}
 
 def main(argv):
@@ -118,8 +118,7 @@ def usage():
     -c, --capability	capability	Lists all services for a specific capability
     -s, --state		state		Lists all services for a specific state
     -d, --domain	domain		Lists all services for a specific domain
-    -a, --all			
-    -l, --list		attribute	List all the published values for an attribute (type, vo)
+    -l, --list		attribute	Lists all the published values for an attribute (type, vo)
     --csv				Provides the output in CSV formating
     -j, --json				Provides the output in JSON formating
     -h, --help				Prints this helpful message
@@ -140,28 +139,43 @@ def request(filter=None):
 
 def list_services():
 	""" Returns a dictionnary of the filtered results from an ldap request """
-	result = request('objectClass=GLUE2Endpoint')
-	dic={}
-	if 'type' in conf:
-		resultType = request('(&(objectClass=GLUE2Service)(GLUE2ServiceType='+conf['type']+'))')
-		listServices = []
-		for rT in resultType:
-			listServices.append(rT[1]['GLUE2ServiceID'][0])
+	filter = '(&(objectClass=GLUE2Endpoint)'
+	if 'interface' in conf:
+		filter += '(GLUE2EndpointInterfaceName='+conf['interface']+')'
+	if 'capability' in conf:
+		filter += '(GLUE2EndpointCapability='+conf['capability']+')'
+	if 'state' in conf:
+                filter += '(GLUE2EndpointHealthState='+conf['state']+')'
+        result = request(filter +')')
 	if 'vo' in conf:
+		listVO = []
 		resultVO = request('(&(objectClass=GLUE2AccessPolicy)(|(GLUE2PolicyRule=ALL)(GLUE2PolicyRule='+conf['vo']+')))')
-		listEndpoints = []
 		for rV in resultVO:
-			listEndpoints.append(rV[1]['GLUE2AccessPolicyEndpointForeignKey'][0])
+			listVO.append(rV[1]['GLUE2AccessPolicyEndpointForeignKey'][0])
+	filterServices = None
+	if 'type' in conf:
+		filterServices = '(&(objectClass=GLUE2Service)(GLUE2ServiceType='+conf['type']+')'
+	if 'domain' in conf:
+		if not filterServices:
+			filterServices = '(&(objectClass=GLUE2Service)'
+		filterServices += '(GLUE2ServiceAdminDomainForeignKey='+conf['domain']+')'
+	if filterServices:
+		listServices = []
+		resultServices = request(filterServices+')')
+		for rS in resultServices:
+			listServices.append(rS[1]['GLUE2ServiceID'][0])
+	dic = {}
 	for res in result:
 		serviceID = res[1]['GLUE2EndpointServiceForeignKey'][0]
-		if 'type' in conf:
-			if serviceID not in listServices:
-				continue
+		endpointID = res[1]['GLUE2EndpointID'][0]
 		if 'vo' in conf:
-			if res[1]['GLUE2EndpointID'][0] not in listEndpoints:
+			if endpointID not in listVO:
 				continue
+                if filterServices:
+                        if serviceID not in listServices:
+                                continue
 		dic[serviceID] = {'GLUE2EndpointURL':res[1]['GLUE2EndpointURL']}
-	if len(dic) == 0 and 'type' in conf:
+	if len(dic) == 0:
 		sys.exit('Error: No result. Verify search parameters.')
 	return dic 
 
@@ -173,14 +187,29 @@ def list_attr():
 	elif conf['list'] == 'vo':
 		oClass = 'Policy'
 		key = 'PolicyRule'
+	elif conf['list'] == 'interface':
+		oClass = 'Endpoint'
+		key = 'EndpointInterfaceName'
+        elif conf['list'] == 'capability':
+                oClass = 'Endpoint'
+                key = 'EndpointCapability'
+        elif conf['list'] == 'state':
+                oClass = 'Endpoint'
+                key = 'EndpointHealthState'
+        elif conf['list'] == 'domain':
+                oClass = 'Service'
+                key = 'ServiceAdminDomainForeignKey'
 	else:
 		sys.exit('Error: wrong attribute.')
-
 	result = request('objectClass=GLUE2'+oClass)
         list=[]
         for r in result:
-		if r[1]['GLUE2'+key][0] not in list:
-			list.append(r[1]['GLUE2'+key][0])
+		if 'GLUE2'+key in r[1]:
+			if r[1]['GLUE2'+key][0] not in list:
+				list.append(r[1]['GLUE2'+key][0])
+		else:
+			if 'None' not in list:
+				list.append('None')
 	list.sort()
 	return list
 
