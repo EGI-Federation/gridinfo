@@ -55,9 +55,37 @@ def get_dns():
             value = line.split(':')[2].lower().strip()
             if ( value == 'cms' or value[:5] == '/cms/' ):
                dn = dn.replace('o=grid', 'Mds-Vo-name=local,o=grid')
+               print dn
                if not dn in dns:
                   dns[dn] = []
                dns[dn].append(line)
+   
+   # Check for delayed delete entries
+   command = "ldapsearch -LLL -x -h localhost -p 2170 -b mds-vo-name=local,o=grid objectClass=GlueCEAccessControlBase 2>/dev/null"
+   pipe = os.popen(command)
+   output=pipe.read()
+   pipe.close()
+   output = output.replace('\n ', '')
+   output = output.replace('\n\n', '\n')
+
+   dns_db = {}
+   for line in output.split('\n'):
+      attribute = line.split(':')[0]
+      if ( attribute.lower() == 'dn' ):
+         dn = line
+      if ( attribute.lower() == 'glueceaccesscontrolbaserule' ):
+         type = line.split(':')[1].strip().lower()
+         if ( type == 'vo' or type == 'voms' ):
+            value = line.split(':')[2].lower().strip()
+            if ( value == 'cms' or value[:5] == '/cms/' ):
+               dn = dn.replace('o=grid', 'Mds-Vo-name=local,o=grid')
+               if not dn in dns_db:
+                  dns_db[dn] = []
+               dns_db[dn].append(line)
+
+   for dn in dns_db:
+      if not dn in dns:
+         dns[dn]=dns_db[dn]
 
    return dns
 
@@ -136,6 +164,21 @@ if __name__ == "__main__":
                input_fh.write('%s\n' %(value) )
                input_fh.write('-\n')
    input_fh.close()
+
+   delayed_delete_file = '/var/lib/bdii/delayed_delete.pkl'
+   if os.path.exists(delayed_delete_file):
+      file_handle = open(delayed_delete_file, 'rb')
+      delay_delete_dns = pickle.load(file_handle)
+      file_handle.close()
+
+      for dn in delay_delete_dns:
+         print dn
+         for site in sites:
+            for hostname in sites[site]:
+               print hostname
+               if dn.find(hostname):
+                  print dn
+
 
 
 
