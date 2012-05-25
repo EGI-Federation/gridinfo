@@ -1,7 +1,7 @@
 Name:		service-discovery
 Version:	0.0.35
 Release:	1%{?dist}
-Summary:	Service Disocvery Client
+Summary:	Service Discovery Client
 
 Group:		Applications/Internet
 License:	ASL 2.0
