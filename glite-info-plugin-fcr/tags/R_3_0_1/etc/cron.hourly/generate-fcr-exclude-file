@@ -1,0 +1,184 @@
+#!/usr/bin/python
+import os
+import sys
+import pickle
+import signal
+import urllib2
+from datetime import datetime
+try:
+   from xml.etree import ElementTree
+except ImportError:
+   from elementtree import ElementTree
+
+cache_dir='/var/lib/bdii/gip/cache/gip/top-urls.conf/'
+cache_file = "/var/cache/fcr/exclude.ldif"
+sam_url = 'http://grid-monitoring.cern.ch/myegi/sam-pi/status_of_service_in_profile?vo_name=cms&profile_name=CMS_BLACKLIST&output=xml'
+
+def handler(signum, frame):
+    if ( signum ==14 ):
+        raise IOError, "Get Black List Timed Out!"
+
+
+def get_critical():
+   try:
+      response = urllib2.urlopen(sam_url).read()
+   except Exception, e:
+      sys.stderr.write(str(e))
+      sys.exit(1)
+
+   critical = []
+   root = ElementTree.XML(response)
+   for profile in root.findall("Profile"):
+       for service in profile.getchildren():
+          hostname = service.attrib['hostname']
+          flavour = service.attrib['flavour']
+          status =  service.attrib['status']
+          if status == 'CRITICAL':
+             critical.append(hostname)
+
+   return critical
+
+def get_dns():
+   command = "cat %s/*.ldif" %(cache_dir)
+   output = os.popen(command).read()
+   output = output.replace('\n ', '')
+   output = output.replace('\n\n', '\n')
+   dns = {}
+
+   for line in output.split('\n'):
+      attribute = line.split(':')[0]
+      if ( attribute.lower() == 'dn' ):
+         dn = line
+      if ( attribute.lower() == 'glueceaccesscontrolbaserule' ):
+         type = line.split(':')[1].strip().lower()
+         if ( type == 'vo' or type == 'voms' ):
+            value = line.split(':')[2].lower().strip()
+            if ( value == 'cms' or value[:5] == '/cms/' ):
+               dn = dn.replace('o=grid', 'Mds-Vo-name=local,o=grid')
+               print dn
+               if not dn in dns:
+                  dns[dn] = []
+               dns[dn].append(line)
+   
+   # Check for delayed delete entries
+   command = "ldapsearch -LLL -x -h localhost -p 2170 -b mds-vo-name=local,o=grid objectClass=GlueCEAccessControlBase 2>/dev/null"
+   pipe = os.popen(command)
+   output=pipe.read()
+   pipe.close()
+   output = output.replace('\n ', '')
+   output = output.replace('\n\n', '\n')
+
+   dns_db = {}
+   for line in output.split('\n'):
+      attribute = line.split(':')[0]
+      if ( attribute.lower() == 'dn' ):
+         dn = line
+      if ( attribute.lower() == 'glueceaccesscontrolbaserule' ):
+         type = line.split(':')[1].strip().lower()
+         if ( type == 'vo' or type == 'voms' ):
+            value = line.split(':')[2].lower().strip()
+            if ( value == 'cms' or value[:5] == '/cms/' ):
+               dn = dn.replace('o=grid', 'Mds-Vo-name=local,o=grid')
+               if not dn in dns_db:
+                  dns_db[dn] = []
+               dns_db[dn].append(line)
+
+   for dn in dns_db:
+      if not dn in dns:
+         dns[dn]=dns_db[dn]
+
+   return dns
+
+def get_hostname(dn):
+   hostname = None
+   nodes = dn[3:].strip().split(',')
+   for node in nodes:
+      if node.split('=')[0].lower() == 'glueceuniqueid':
+         hostname = node.split('=')[1]
+         hostname = hostname.split(':')[0]
+   return hostname
+
+def get_sitename(dn):
+   sitename = None
+   nodes = dn.split(',')
+   for node in nodes:
+      if node.split('=')[0].lower() == 'mds-vo-name':
+         if not node.split('=')[1].lower() == 'local':
+            sitename = node.split('=')[1]
+   return sitename
+
+def get_header():
+   header = '''############################################################################
+#
+# FCR exclude LDIF file 
+# Created at %s 
+#
+############################################################################
+
+''' %(datetime.ctime(datetime.now()),)
+   return header
+
+def get_section():
+   section = '''############################################################################
+# VO cms
+############################################################################
+
+'''
+   return section
+
+if __name__ == "__main__":
+
+    # Create Timeout Alarm
+   signal.signal(signal.SIGALRM, handler)
+   signal.alarm(10)
+
+   critical_services = get_critical()
+
+   signal.alarm(0)          # Disable the alarm
+
+   dns = get_dns()
+
+   sites = {}
+   for dn in dns:
+      hostname = get_hostname(dn)
+      if hostname in critical_services:
+         sitename = get_sitename(dn)
+         if not sitename in sites:
+            sites[sitename] = {}
+         if not hostname in sites[sitename]:
+            sites[sitename][hostname] = []
+         sites[sitename][hostname].append(dn)
+
+
+   input_fh=open(cache_file, 'w')
+   input_fh.write(get_header())
+   input_fh.write(get_section())
+   for site in sites:
+      for hostname in sites[site]:
+         input_fh.write('\n# site:%s, node: %s\n' %(site,hostname,))
+         for dn in sites[site][hostname]:
+            input_fh.write('\n%s\n' %(dn) )
+            input_fh.write('changetype:modify\n')
+            for value in dns[dn]:
+               input_fh.write('delete: GlueCEAccessControlBaseRule\n')
+               input_fh.write('%s\n' %(value) )
+               input_fh.write('-\n')
+   input_fh.close()
+
+   delayed_delete_file = '/var/lib/bdii/delayed_delete.pkl'
+   if os.path.exists(delayed_delete_file):
+      file_handle = open(delayed_delete_file, 'rb')
+      delay_delete_dns = pickle.load(file_handle)
+      file_handle.close()
+
+      for dn in delay_delete_dns:
+         print dn
+         for site in sites:
+            for hostname in sites[site]:
+               print hostname
+               if dn.find(hostname):
+                  print dn
+
+
+
+
