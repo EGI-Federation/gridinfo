@@ -1,5 +1,5 @@
 Name:		glite-info-update-endpoints
-Version:	2.0.9
+Version:	2.0.10
 Release:	1%{?dist}
 Summary:	Updates LDAP endpoins for EGI and OSG
 Group:		System/Monitoring
@@ -40,6 +40,8 @@ rm -rf %{buildroot}
 /etc/cron.hourly/glite-info-update-endpoints
 /var/cache/glite/glite-info-update-endpoints
 %changelog
+* Mon May 25 2012 Laurence Field <laurence.field@cern.ch> - 2.0.10-1
+- Changed the location of top-urls.conf to address GGUS #73823
 * Mon Apr 19 2012 Laurence Field <laurence.field@cern.ch> - 2.0.9-1
 - Added random sleep to cronjob to address GGUS #81404 
 * Mon Mar 28 2011 Laurence Field <laurence.field@cern.ch> - 2.0.8-1
