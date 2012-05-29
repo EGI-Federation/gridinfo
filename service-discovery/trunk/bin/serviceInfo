@@ -6,20 +6,20 @@ import getopt
 import json
 import os
 
-VERSION = '0.4'
+VERSION = '0.45'
 conf = {}
 
 def main(argv):
 	""" Main function that launches the other functions """
 	if 'LCG_GFAL_INFOSYS' in os.environ:
-		conf['bdii'] = os.environ['LCG_GFAL_INFOSYS']
+		conf['host'] = os.environ['LCG_GFAL_INFOSYS']
 
 	try:
-		opts, args = getopt.getopt(argv, "b:t:i:c:s:d:l:jhvV", ["bdii=", "type=","interface=","capability=","state=","domain=","list=","json","help","verbose","version","csv","vo="])
+		opts, args = getopt.getopt(argv, "t:i:c:s:d:l:jhvV", ["type=","interface=","capability=","state=","domain=","list=","json","help","verbose","version","csv","vo=","host="])
 	except getopt.GetoptError:
 		sys.exit(usage())
 	
-	parse_options(opts)
+	parse_options(opts,args)
 	validate_conf()
 	if 'list' in conf:
 		list = list_attr()
@@ -30,7 +30,7 @@ def main(argv):
 		print serialize_output(dic)
 	sys.exit()
 
-def parse_options(opts):
+def parse_options(opts,args):
 	""" Puts the options in a configuration dictionnary """
         for opt, arg in opts:
                 if opt in ("-h", "--help"):
@@ -43,8 +43,8 @@ def parse_options(opts):
                         conf['csv'] = True
                 elif opt in ("-j","--json"):
                         conf['json'] = True
-                elif opt in ("-b","--bdii"):
-                        conf['bdii'] = arg
+                elif opt == "--host":
+                        conf['host'] = arg
                 elif opt in ("-l","--list"):
                         conf['list'] = arg
                 elif opt == "--vo":
@@ -59,9 +59,16 @@ def parse_options(opts):
                         conf['state'] = arg
                 elif opt in ("-d","--domain"):
                         conf['domain'] = arg
+	if len(args) > 0:
+		conf['args'] = args
+		if 'all' in args:
+			conf['args'] = ['url','type','vo','interface','capability','state','domain']
+	else:
+		conf['args'] = ['url']
 
 def validate_conf():
 	""" Prints verbose messages and checks for errors """
+	list_attributes = ['type','vo','interface','capability','state','domain']
         if 'help' in conf:
                 print usage()
 		sys.exit()
@@ -78,12 +85,14 @@ def validate_conf():
         elif 'json' in conf:
                 if 'verbose' in conf:
                         print 'Output in json formating'
-        if 'bdii' in conf:
+        if 'host' in conf:
                 if 'verbose' in conf:
-                        print 'The following bdii will be used:',conf['bdii']
+                        print 'The following host will be used:',conf['host']
         else:
                 sys.exit(usage())
         if 'list' in conf:
+		if conf['list'] not in list_attributes:
+			sys.exit('Error: wrong attribute.')
                 if 'verbose' in conf:
                         print 'Lists all the published values for the following attribute:',conf['list']
         if 'vo' in conf:
@@ -103,7 +112,13 @@ def validate_conf():
                         print 'Lists all services for the following state:',conf['state']
         if 'domain' in conf:
                 if 'verbose' in conf:
-                        print 'Lists all services for the following domain:',conf['domain'] 
+                        print 'Lists all services for the following domain:',conf['domain']
+	if 'args' in conf:
+		for arg in conf['args']:
+			if arg not in list_attributes+['url']:
+        	                sys.exit('Error: wrong attribute.')
+		if 'verbose' in conf:
+			print 'The following attributes will be displayed:',' '.join(conf['args'])
 	if 'verbose' in conf:
 		print
 
@@ -111,7 +126,7 @@ def usage():
 	""" Returns the usage message """
 	return '''Usage: service-info [options]
 
-    -b, --bdii		host:port	Specify a BDII endpoint (<hostname>:<port>). By default the environmental variable LCG_GFAL_INFOSYS will be used.
+    --host		host:port	Specify a host endpoint (<hostname>:<port>). By default the environmental variable LCG_GFAL_INFOSYS will be used.
     -t, --type		type		Lists all services of a specific type
     --vo		VO		Lists all services for a specific VO
     -i, --interface	interface	Lists all services for a specific interface
@@ -128,13 +143,13 @@ def usage():
 def request(filter=None):
 	""" Returns the result of the ldap request with the filter given """	
 	try:
-		l = ldap.initialize('ldap://'+conf['bdii'])
+		l = ldap.initialize('ldap://'+conf['host'])
 		if filter != None:
 			result = l.result(l.search('o=glue',ldap.SCOPE_SUBTREE,filter))
 		else:
 			result = l.result(l.search('o=glue',ldap.SCOPE_SUBTREE))
 	except ldap.SERVER_DOWN:
-		sys.exit('Error: Can\'t contact the LDAP server. Please check your bdii.')
+		sys.exit('Error: Can\'t contact the LDAP server. Please check your host.')
 	return result[1]
 
 def list_services():
@@ -168,13 +183,22 @@ def list_services():
 	for res in result:
 		serviceID = res[1]['GLUE2EndpointServiceForeignKey'][0]
 		endpointID = res[1]['GLUE2EndpointID'][0]
-		if 'vo' in conf:
-			if endpointID not in listVO:
+		if 'vo' in conf and endpointID not in listVO:
 				continue
-                if filterServices:
-                        if serviceID not in listServices:
+                if filterServices and serviceID not in listServices:
                                 continue
-		dic[serviceID] = {'GLUE2EndpointURL':res[1]['GLUE2EndpointURL']}
+		dic[serviceID] = {}
+		if 'url' in conf['args']:
+			dic[serviceID]['url'] = res[1]['GLUE2EndpointURL']
+		if 'interface' in conf['args']:
+			dic[serviceID]['interface'] = res[1]['GLUE2EndpointInterfaceName']
+		if 'capability' in conf['args']:
+			if 'GLUE2EndpointCapability' in res[1]:
+				dic[serviceID]['capability'] = res[1]['GLUE2EndpointCapability']
+			else:
+				dic[serviceID]['capability'] = [] 
+		if 'state' in conf['args']:
+			 dic[serviceID]['state'] = res[1]['GLUE2EndpointHealthState']
 	if len(dic) == 0:
 		sys.exit('Error: No result. Verify search parameters.')
 	return dic 
@@ -218,14 +242,22 @@ def serialize_output(dic):
 	if 'csv' in conf:
 		list=[]
 		for i in dic:
-                        list.append(str(dic[i]['GLUE2EndpointURL'][0]))
+                        list.append(str(dic[i]['url'][0]))
                 output = ','.join(list)
         elif 'json' in conf:
                 output = json.dumps(dic)
         else:
 		list=[]
 		for i in dic:
-			list.append(str(dic[i]['GLUE2EndpointURL'][0]))
+			if 'url' in conf['args']:
+				list.append('URL: '+str(dic[i]['url'][0]))
+			if 'interface' in conf['args']:
+                                list.append('Interface: '+str(dic[i]['interface'][0]))
+			if 'state' in conf['args']:
+				list.append('State: '+str(dic[i]['state'][0]))
+			if 'capability' in conf['args']:
+				list.append('Capability: '+','.join(dic[i]['capability']))
+			list.append('')
                 output = '\n'.join(list)
         return output
 
