@@ -6,7 +6,7 @@ import getopt
 import json
 import os
 
-VERSION = '0.45'
+VERSION = '0.5'
 conf = {}
 
 def main(argv):
@@ -59,12 +59,9 @@ def parse_options(opts,args):
                         conf['state'] = arg
                 elif opt in ("-d","--domain"):
                         conf['domain'] = arg
-	if len(args) > 0:
-		conf['args'] = args
-		if 'all' in args:
-			conf['args'] = ['url','type','vo','interface','capability','state','domain']
-	else:
-		conf['args'] = ['url']
+	conf['args'] = args
+	if 'all' in args:
+		conf['args'] = ['type','vo','interface','capability','state','domain']
 
 def validate_conf():
 	""" Prints verbose messages and checks for errors """
@@ -115,7 +112,7 @@ def validate_conf():
                         print 'Lists all services for the following domain:',conf['domain']
 	if 'args' in conf:
 		for arg in conf['args']:
-			if arg not in list_attributes+['url']:
+			if arg not in list_attributes:
         	                sys.exit('Error: wrong attribute.')
 		if 'verbose' in conf:
 			print 'The following attributes will be displayed:',' '.join(conf['args'])
@@ -187,9 +184,7 @@ def list_services():
 				continue
                 if filterServices and serviceID not in listServices:
                                 continue
-		dic[serviceID] = {}
-		if 'url' in conf['args']:
-			dic[serviceID]['url'] = res[1]['GLUE2EndpointURL']
+		dic[serviceID] = {'url':res[1]['GLUE2EndpointURL']}
 		if 'interface' in conf['args']:
 			dic[serviceID]['interface'] = res[1]['GLUE2EndpointInterfaceName']
 		if 'capability' in conf['args']:
@@ -199,6 +194,47 @@ def list_services():
 				dic[serviceID]['capability'] = [] 
 		if 'state' in conf['args']:
 			 dic[serviceID]['state'] = res[1]['GLUE2EndpointHealthState']
+		if 'vo' in conf['args']:
+			if 'vo' in conf:
+				dic[serviceID]['vo'] = [conf['vo']]
+			else:
+				if 'resultVO' not in locals():
+					resultVO = request('(objectClass=GLUE2AccessPolicy)')
+					dicVO = {}
+					for rV in resultVO:
+						if rV[1]['GLUE2AccessPolicyEndpointForeignKey'][0] not in dicVO:
+							dicVO[rV[1]['GLUE2AccessPolicyEndpointForeignKey'][0]] = rV[1]['GLUE2PolicyRule']
+				if endpointID in dicVO:
+					dic[serviceID]['vo'] = dicVO[endpointID]
+				else:
+					dic[serviceID]['vo'] = []
+		if 'type' in conf['args']:
+			if 'type' in conf:
+				dic[serviceID]['type'] = [conf['type']]
+			else:
+				if 'resultServices' not in locals():
+					resultServices = request('(objectClass=GLUE2Service)')
+					dicType = {}
+					for rS in resultServices:
+						dicType[rS[1]['GLUE2ServiceID'][0]] = rS[1]['GLUE2ServiceType']
+				if serviceID in dicType:
+					dic[serviceID]['type'] = dicType[serviceID]
+				else:
+					dic[serviceID]['type'] = []
+		if 'domain' in conf['args']:
+			if 'domain' in conf:
+				dic[serviceID]['domain'] = [conf['domain']]
+			else:
+				if 'resultServices' not in locals():
+					resultServices = request('(objectClass=GLUE2Service)')
+				if 'dicDomain' not in locals():
+					dicDomain = {}
+					for rS in resultServices:
+						dicDomain[rS[1]['GLUE2ServiceID'][0]] = rS[1]['GLUE2ServiceAdminDomainForeignKey']
+				if serviceID in dicDomain:
+					dic[serviceID]['domain'] = dicDomain[serviceID]
+				else:
+					dic[serviceID]['domain'] = []
 	if len(dic) == 0:
 		sys.exit('Error: No result. Verify search parameters.')
 	return dic 
@@ -249,14 +285,19 @@ def serialize_output(dic):
         else:
 		list=[]
 		for i in dic:
-			if 'url' in conf['args']:
-				list.append('URL: '+str(dic[i]['url'][0]))
+			list.append('URL: '+','.join(dic[i]['url']))
 			if 'interface' in conf['args']:
-                                list.append('Interface: '+str(dic[i]['interface'][0]))
+                                list.append('Interface: '+','.join(dic[i]['interface']))
 			if 'state' in conf['args']:
-				list.append('State: '+str(dic[i]['state'][0]))
+				list.append('State: '+','.join(dic[i]['state']))
 			if 'capability' in conf['args']:
 				list.append('Capability: '+','.join(dic[i]['capability']))
+			if 'vo' in conf['args']:
+				list.append('VO: '+','.join(dic[i]['vo']))
+			if 'type' in conf['args']:
+                                list.append('Type: '+','.join(dic[i]['type']))
+			if 'domain' in conf['args']:
+				list.append('Domain: '+','.join(dic[i]['domain']))
 			list.append('')
                 output = '\n'.join(list)
         return output
