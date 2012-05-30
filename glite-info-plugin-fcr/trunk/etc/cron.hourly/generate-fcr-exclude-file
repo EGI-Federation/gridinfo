@@ -165,20 +165,3 @@ if __name__ == "__main__":
                input_fh.write('-\n')
    input_fh.close()
 
-   delayed_delete_file = '/var/lib/bdii/delayed_delete.pkl'
-   if os.path.exists(delayed_delete_file):
-      file_handle = open(delayed_delete_file, 'rb')
-      delay_delete_dns = pickle.load(file_handle)
-      file_handle.close()
-
-      for dn in delay_delete_dns:
-         print dn
-         for site in sites:
-            for hostname in sites[site]:
-               print hostname
-               if dn.find(hostname):
-                  print dn
-
-
-
-
