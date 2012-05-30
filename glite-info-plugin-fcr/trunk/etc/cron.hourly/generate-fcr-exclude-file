@@ -55,7 +55,6 @@ def get_dns():
             value = line.split(':')[2].lower().strip()
             if ( value == 'cms' or value[:5] == '/cms/' ):
                dn = dn.replace('o=grid', 'Mds-Vo-name=local,o=grid')
-               print dn
                if not dn in dns:
                   dns[dn] = []
                dns[dn].append(line)
