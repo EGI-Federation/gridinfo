@@ -6,67 +6,102 @@ import getopt
 import json
 import os
 
-VERSION = '0.5'
+VERSION = '0.6'
 conf = {}
+
+# option: [(short_option,long_option),parameter?]
+options = {
+	'help': [("-h", "--help"),False],
+	'version': [("-V", "--version"),False],
+	'verbose': [("-v", "--verbose"),False],
+	'csv': [("-c","--csv"),False],
+	'json': [("-j","--json"),False],
+	'munge': [("-m","--munge"),False],
+	'host': [(None,"--host"),True],
+	'list': [("-l","--list"),True],
+	'vo': [(None,"--vo"),True],
+	'domain': [("-d","--domain"),True],
+	'service-capability': [(None,"--service-capability"),True],
+	'type': [("-t","--type"),True],
+	'capability': [(None,"--capability"),True],
+	'interface': [("-i","--interface"),True],
+        'interface-version': [(None,"--interface-version"),True],
+	'state': [("-s","--state"),True],
+	'quality': [("-q","--quality"),True],
+	}
+# attribute for the ldap request: [objectClass,key]
+attributes = {
+	'vo':['AccessPolicy','Rule'],
+	'domain':['Service','AdminDomainForeignKey'],
+	'service-capability':['Service','Capability'],
+	'type':['Service','Type'],
+	'capability':['Endpoint','Capability'],
+	'interface':['Endpoint','InterfaceName'],
+	'interface-version':['Endpoint','InterfaceVersion'],
+	'state':['Endpoint','HealthState'],
+	'quality':['Endpoint','QualityLevel'],
+	}
 
 def main(argv):
 	""" Main function that launches the other functions """
+
 	if 'LCG_GFAL_INFOSYS' in os.environ:
 		conf['host'] = os.environ['LCG_GFAL_INFOSYS']
-
-	try:
-		opts, args = getopt.getopt(argv, "t:i:c:s:d:l:jhvV", ["type=","interface=","capability=","state=","domain=","list=","json","help","verbose","version","csv","vo=","host="])
-	except getopt.GetoptError:
-		sys.exit(usage())
-	
-	parse_options(opts,args)
+	parse_options(argv)
 	validate_conf()
 	if 'list' in conf:
 		list = list_attr()
 		print '\n'.join(list)
-		# USE serialize_output() ??????
+		# USE serialize_output() ????????????????????????
 	else:
 		dic = list_services()
 		print serialize_output(dic)
 	sys.exit()
 
-def parse_options(opts,args):
-	""" Puts the options in a configuration dictionnary """
-        for opt, arg in opts:
-                if opt in ("-h", "--help"):
-                        conf['help'] = True
-                elif opt in ("-V", "--version"):
-                        conf['version'] = True
-                elif opt in ("-v", "--verbose"):
-                        conf['verbose'] = True
-                elif opt == "--csv":
-                        conf['csv'] = True
-                elif opt in ("-j","--json"):
-                        conf['json'] = True
-                elif opt == "--host":
-                        conf['host'] = arg
-                elif opt in ("-l","--list"):
-                        conf['list'] = arg
-                elif opt == "--vo":
-                        conf['vo'] = arg
-                elif opt in ("-t","--type"):
-                        conf['type'] = arg
-                elif opt in ("-i","--interface"):
-                        conf['interface'] = arg
-                elif opt in ("-c","--capability"):
-                        conf['capability'] = arg
-                elif opt in ("-s","--state"):
-                        conf['state'] = arg
-                elif opt in ("-d","--domain"):
-                        conf['domain'] = arg
+def parse_options(argv):
+	""" Parses the selected options and pouts them in a configuration dictionnary """
+
+        short_options = ''
+        long_options = []
+        tmp_list = []
+        for i in options:
+                if options[i][0][0]:
+                        short_options += options[i][0][0][1:]
+                        if options[i][1]:
+                                short_options += ':'
+                                long_options.append(options[i][0][1][2:]+'=')
+                        else:
+                                long_options.append(options[i][0][1][2:])
+                else:
+                        if options[i][1]:
+                                tmp_list.append(options[i][0][1][2:]+'=')
+                        else:
+                                tmp_list.append(options[i][0][1][2:])
+        long_options.extend(tmp_list)
+        try:
+                opts, args = getopt.getopt(argv, short_options, long_options)
+        except getopt.GetoptError:
+                sys.exit(usage())
+	
+	#options
+	for opt, arg in opts:
+		for i in options:
+			if opt in options[i][0]:
+				if options[i][1]:
+					conf[i] = arg
+				else:
+					conf[i] = True
+				continue
+	#arguments
 	conf['args'] = args
 	if 'all' in args:
-		conf['args'] = ['type','vo','interface','capability','state','domain']
+		conf['args'] = attributes.keys()
 
 def validate_conf():
 	""" Prints verbose messages and checks for errors """
-	list_attributes = ['type','vo','interface','capability','state','domain']
-        if 'help' in conf:
+        
+	#options
+	if 'help' in conf:
                 print usage()
 		sys.exit()
         if 'version' in conf:
@@ -74,46 +109,67 @@ def validate_conf():
 		sys.exit()
         if 'verbose' in conf:
                 print 'Verbose mode activated.'
-        if 'csv' in conf and 'json' in conf:
-                sys.exit('Error: choose between csv and json.')
+        if 'csv' in conf and 'json' in conf and 'munge' in conf:
+                sys.exit('Error: choose between csv, json and munge.')
+	elif 'csv' in conf and 'json' in conf:
+		sys.exit('Error: choose between csv and json.')
+	elif 'csv' in conf and 'munge' in conf:
+		sys.exit('Error: choose between csv and munge.')
+        elif 'munge' in conf and 'json' in conf:
+		sys.exit('Error: choose between json and munge.')
         elif 'csv' in conf:
                 if 'verbose' in conf:
                         print 'Output in csv formating'
         elif 'json' in conf:
                 if 'verbose' in conf:
                         print 'Output in json formating'
-        if 'host' in conf:
+        elif 'munge' in conf:
+		conf['args'] = ['type','service-capability','domain','capability','interface','interface-version','quality']
+		if 'verbose' in conf:
+                        print 'Output in munge formating'
+	if 'host' in conf:
                 if 'verbose' in conf:
                         print 'The following host will be used:',conf['host']
         else:
                 sys.exit(usage())
         if 'list' in conf:
-		if conf['list'] not in list_attributes:
-			sys.exit('Error: wrong attribute.')
+		if conf['list'] not in attributes.keys():
+			sys.exit('Error: wrong attribute')
                 if 'verbose' in conf:
-                        print 'Lists all the published values for the following attribute:',conf['list']
+                        print 'Lists all the possible values for the following attribute:',conf['list']
         if 'vo' in conf:
                 if 'verbose' in conf:
-                        print 'Lists all services for the following VO:',conf['vo']
-        if 'type' in conf:
-                if 'verbose' in conf:
-                        print 'Lists all services for the following type:',conf['type']
-	if 'interface' in conf:
-		if 'verbose' in conf:
-			print 'Lists all services for the following interface:',conf['interface']
-        if 'capability' in conf:
-                if 'verbose' in conf:
-                        print 'Lists all services for the following capability:',conf['capability']
-        if 'state' in conf:
-                if 'verbose' in conf:
-                        print 'Lists all services for the following state:',conf['state']
+                        print 'Filter services by the following VO:',conf['vo']
         if 'domain' in conf:
                 if 'verbose' in conf:
-                        print 'Lists all services for the following domain:',conf['domain']
+                        print 'Filter services by the following domain:',conf['domain']
+	if 'service-capability' in conf:
+                if 'verbose' in conf:
+                        print 'Filter services by the following service capability:',conf['service-capability']
+	if 'type' in conf:
+                if 'verbose' in conf:
+                        print 'Filter services by the following type:',conf['type']
+	if 'capability' in conf:
+                if 'verbose' in conf:
+                        print 'Filter services by the following endpoint capability:',conf['capability']
+	if 'interface' in conf:
+		if 'verbose' in conf:
+			print 'Filter services by the following interface:',conf['interface']
+	if 'interface-version' in conf:
+                if 'verbose' in conf:
+                        print 'Filter services by the following interface version:',conf['interface-version']
+        if 'state' in conf:
+                if 'verbose' in conf:
+                        print 'Filter services by the following state:',conf['state']
+	if 'quality' in conf:
+		if 'verbose' in conf:
+			print 'Filter services by the following quality:',conf['quality']
+	
+	#arguments
 	if 'args' in conf:
 		for arg in conf['args']:
-			if arg not in list_attributes:
-        	                sys.exit('Error: wrong attribute.')
+			if arg not in attributes.keys():
+        	                sys.exit('Error: wrong attribute')
 		if 'verbose' in conf:
 			print 'The following attributes will be displayed:',' '.join(conf['args'])
 	if 'verbose' in conf:
@@ -121,24 +177,31 @@ def validate_conf():
 
 def usage():
 	""" Returns the usage message """
-	return '''Usage: service-info [options]
+	
+	return '''Usage: service-info [options] [attributes]
 
-    --host		host:port	Specify a host endpoint (<hostname>:<port>). By default the environmental variable LCG_GFAL_INFOSYS will be used.
-    -t, --type		type		Lists all services of a specific type
-    --vo		VO		Lists all services for a specific VO
-    -i, --interface	interface	Lists all services for a specific interface
-    -c, --capability	capability	Lists all services for a specific capability
-    -s, --state		state		Lists all services for a specific state
-    -d, --domain	domain		Lists all services for a specific domain
-    -l, --list		attribute	Lists all the published values for an attribute (type, vo)
-    --csv				Provides the output in CSV formating
-    -j, --json				Provides the output in JSON formating
-    -h, --help				Prints this helpful message
-    -v, --verbose			Verbose mode
-    -V, --version			Version'''
+    List urls of services from the host. Additionnal displayed attributes must belong to this list: vo, domain, service-capability, type, capability, interface, interface-version, state, quality    or   all.
+
+    --host			host:port	Specify a host endpoint (<hostname>:<port>). By default the environmental variable LCG_GFAL_INFOSYS will be used.
+    -l, --list                  attribute       List all the possible values of the specified attribute
+    --vo			vo		Filter services by the specified vo
+    -d, --domain                domain          Filter services by the specified domain
+    --service-capability	capability      Filter services by the specified service capability
+    -t, --type                  type            Filter services by the specified type
+    --capability		capability      Filter services by the specified capability
+    -i, --interface		interface	Filter services by the specified interface
+    --interface-version         version		Filter services by the specified interface version
+    -s, --state			state		Filter services by the specified state
+    -q, --quality		quality		Filter services by the specified quality
+    -c, --csv					Provide the output in CSV formating
+    -j, --json					Provide the output in JSON formating
+    -v, --verbose				Enable verbose mode
+    -V, --version				Print the version
+    -h, --help                          	Print this helpful message'''
 
 def request(filter=None):
 	""" Returns the result of the ldap request with the filter given """	
+
 	try:
 		l = ldap.initialize('ldap://'+conf['host'])
 		if filter != None:
@@ -150,32 +213,43 @@ def request(filter=None):
 	return result[1]
 
 def list_services():
-	""" Returns a dictionnary of the filtered results from an ldap request """
-	filter = '(&(objectClass=GLUE2Endpoint)'
-	if 'interface' in conf:
-		filter += '(GLUE2EndpointInterfaceName='+conf['interface']+')'
-	if 'capability' in conf:
-		filter += '(GLUE2EndpointCapability='+conf['capability']+')'
-	if 'state' in conf:
-                filter += '(GLUE2EndpointHealthState='+conf['state']+')'
-        result = request(filter +')')
+	""" Returns a dictionary of the filtered results from an ldap request """
+
 	if 'vo' in conf:
 		listVO = []
-		resultVO = request('(&(objectClass=GLUE2AccessPolicy)(|(GLUE2PolicyRule=ALL)(GLUE2PolicyRule='+conf['vo']+')))')
+		resultVO = request('(&(objectClass=GLUE2Policy)(|(GLUE2PolicyRule=ALL)(GLUE2PolicyRule='+conf['vo']+')))')
 		for rV in resultVO:
 			listVO.append(rV[1]['GLUE2AccessPolicyEndpointForeignKey'][0])
 	filterServices = None
-	if 'type' in conf:
-		filterServices = '(&(objectClass=GLUE2Service)(GLUE2ServiceType='+conf['type']+')'
 	if 'domain' in conf:
 		if not filterServices:
 			filterServices = '(&(objectClass=GLUE2Service)'
 		filterServices += '(GLUE2ServiceAdminDomainForeignKey='+conf['domain']+')'
+	if 'service-capability' in conf:
+		if not filterServices:
+                        filterServices = '(&(objectClass=GLUE2Service)'
+		filterServices += '(GLUE2ServiceCapability='+conf['service-capability']+')'
+	if 'type' in conf:
+        	if not filterServices:
+                        filterServices = '(&(objectClass=GLUE2Service)'
+	        filterServices += '(GLUE2ServiceType='+conf['type']+')'
 	if filterServices:
 		listServices = []
 		resultServices = request(filterServices+')')
 		for rS in resultServices:
 			listServices.append(rS[1]['GLUE2ServiceID'][0])
+	filter = '(&(objectClass=GLUE2Endpoint)'
+        if 'capability' in conf:
+                filter += '(GLUE2EndpointCapability='+conf['capability']+')'
+        if 'interface' in conf:
+                filter += '(GLUE2EndpointInterfaceName='+conf['interface']+')'
+        if 'interface-version' in conf:
+                filter += '(GLUE2EndpointInterfaceVersion='+conf['interface-version']+')'
+        if 'state' in conf:
+                filter += '(GLUE2EndpointHealthState='+conf['state']+')'
+        if 'quality' in conf:
+                filter += '(GLUE2EndpointQualityLevel='+conf['quality']+')'
+        result = request(filter +')')
 	dic = {}
 	for res in result:
 		serviceID = res[1]['GLUE2EndpointServiceForeignKey'][0]
@@ -184,89 +258,100 @@ def list_services():
 				continue
                 if filterServices and serviceID not in listServices:
                                 continue
+		
 		dic[serviceID] = {'url':res[1]['GLUE2EndpointURL']}
+		if 'vo' in conf['args']:
+                        if 'vo' in conf:
+                                dic[serviceID]['vo'] = [conf['vo']]
+                        else:
+                                if 'resultVO' not in locals():
+                                        resultVO = request('(objectClass=GLUE2AccessPolicy)')
+                                        dicVO = {}
+                                        for rV in resultVO:
+                                                if rV[1]['GLUE2AccessPolicyEndpointForeignKey'][0] not in dicVO:
+                                                        dicVO[rV[1]['GLUE2AccessPolicyEndpointForeignKey'][0]] = rV[1]['GLUE2PolicyRule']
+                                if endpointID in dicVO:
+                                        dic[serviceID]['vo'] = dicVO[endpointID]
+                                else:
+                                        dic[serviceID]['vo'] = []
+		if 'domain' in conf['args']:
+                        if 'domain' in conf:
+                                dic[serviceID]['domain'] = [conf['domain']]
+                        else:
+                                if 'resultServices' not in locals():
+                                        resultServices = request('(objectClass=GLUE2Service)')
+                                if 'dicDomain' not in locals():
+                                        dicDomain = {}
+                                        for rS in resultServices:
+                                                dicDomain[rS[1]['GLUE2ServiceID'][0]] = rS[1]['GLUE2ServiceAdminDomainForeignKey']
+                                if serviceID in dicDomain:
+                                        dic[serviceID]['domain'] = dicDomain[serviceID]
+                                else:
+                                        dic[serviceID]['domain'] = []
+		if 'service-capability' in conf['args']:
+			if 'service-capability' in conf:
+				dic[serviceID]['service-capability'] = [conf['service-capability']]
+			else:
+                                if 'resultServices' not in locals():
+                                        resultServices = request('(objectClass=GLUE2Service)')
+                                if 'dicCapability' not in locals():
+					dicCapability = {}
+                                        for rS in resultServices:
+                                                dicCapability[rS[1]['GLUE2ServiceID'][0]] = rS[1]['GLUE2ServiceType']
+                                if serviceID in dicCapability:
+                                        dic[serviceID]['service-capability'] = dicCapability[serviceID]
+                                else:
+                                        dic[serviceID]['service-capability'] = []
+		if 'type' in conf['args']:
+                        if 'type' in conf:
+                                dic[serviceID]['type'] = [conf['type']]
+                        else:
+                                if 'resultServices' not in locals():
+                                        resultServices = request('(objectClass=GLUE2Service)')
+				if 'dicType' not in locals():
+                                        dicType = {}
+                                        for rS in resultServices:
+                                                dicType[rS[1]['GLUE2ServiceID'][0]] = rS[1]['GLUE2ServiceType']
+                                if serviceID in dicType:
+                                        dic[serviceID]['type'] = dicType[serviceID]
+                                else:
+                                        dic[serviceID]['type'] = []
+		if 'capability' in conf['args']:
+                        if 'GLUE2EndpointCapability' in res[1]:
+                                dic[serviceID]['capability'] = res[1]['GLUE2EndpointCapability']
+                        else:
+                                dic[serviceID]['capability'] = []
 		if 'interface' in conf['args']:
 			dic[serviceID]['interface'] = res[1]['GLUE2EndpointInterfaceName']
-		if 'capability' in conf['args']:
-			if 'GLUE2EndpointCapability' in res[1]:
-				dic[serviceID]['capability'] = res[1]['GLUE2EndpointCapability']
+		if 'interface-version' in conf['args']:
+			if 'GLUE2EndpointInterfaceVersion' in res[1]:
+				dic[serviceID]['interface-version'] = res[1]['GLUE2EndpointInterfaceVersion']
 			else:
-				dic[serviceID]['capability'] = [] 
+				dic[serviceID]['interface-version'] = []
 		if 'state' in conf['args']:
-			 dic[serviceID]['state'] = res[1]['GLUE2EndpointHealthState']
-		if 'vo' in conf['args']:
-			if 'vo' in conf:
-				dic[serviceID]['vo'] = [conf['vo']]
-			else:
-				if 'resultVO' not in locals():
-					resultVO = request('(objectClass=GLUE2AccessPolicy)')
-					dicVO = {}
-					for rV in resultVO:
-						if rV[1]['GLUE2AccessPolicyEndpointForeignKey'][0] not in dicVO:
-							dicVO[rV[1]['GLUE2AccessPolicyEndpointForeignKey'][0]] = rV[1]['GLUE2PolicyRule']
-				if endpointID in dicVO:
-					dic[serviceID]['vo'] = dicVO[endpointID]
-				else:
-					dic[serviceID]['vo'] = []
-		if 'type' in conf['args']:
-			if 'type' in conf:
-				dic[serviceID]['type'] = [conf['type']]
-			else:
-				if 'resultServices' not in locals():
-					resultServices = request('(objectClass=GLUE2Service)')
-					dicType = {}
-					for rS in resultServices:
-						dicType[rS[1]['GLUE2ServiceID'][0]] = rS[1]['GLUE2ServiceType']
-				if serviceID in dicType:
-					dic[serviceID]['type'] = dicType[serviceID]
-				else:
-					dic[serviceID]['type'] = []
-		if 'domain' in conf['args']:
-			if 'domain' in conf:
-				dic[serviceID]['domain'] = [conf['domain']]
-			else:
-				if 'resultServices' not in locals():
-					resultServices = request('(objectClass=GLUE2Service)')
-				if 'dicDomain' not in locals():
-					dicDomain = {}
-					for rS in resultServices:
-						dicDomain[rS[1]['GLUE2ServiceID'][0]] = rS[1]['GLUE2ServiceAdminDomainForeignKey']
-				if serviceID in dicDomain:
-					dic[serviceID]['domain'] = dicDomain[serviceID]
-				else:
-					dic[serviceID]['domain'] = []
+			dic[serviceID]['state'] = res[1]['GLUE2EndpointHealthState']
+		if 'quality' in conf['args']:
+			dic[serviceID]['quality'] = res[1]['GLUE2EndpointQualityLevel']
 	if len(dic) == 0:
 		sys.exit('Error: No result. Verify search parameters.')
 	return dic 
 
 def list_attr():
 	""" Returns a list of values for a given attribute """
-	if conf['list'] == 'type':
-        	oClass = 'Service'
-		key = 'ServiceType'
-	elif conf['list'] == 'vo':
-		oClass = 'Policy'
-		key = 'PolicyRule'
-	elif conf['list'] == 'interface':
-		oClass = 'Endpoint'
-		key = 'EndpointInterfaceName'
-        elif conf['list'] == 'capability':
-                oClass = 'Endpoint'
-                key = 'EndpointCapability'
-        elif conf['list'] == 'state':
-                oClass = 'Endpoint'
-                key = 'EndpointHealthState'
-        elif conf['list'] == 'domain':
-                oClass = 'Service'
-                key = 'ServiceAdminDomainForeignKey'
-	else:
+
+	try:
+		oClass = attributes[conf['list']][0]
+		key = attributes[conf['list']][1]
+	except KeyError:
 		sys.exit('Error: wrong attribute.')
 	result = request('objectClass=GLUE2'+oClass)
+	if oClass == 'AccessPolicy':
+		oClass = 'Policy'
         list=[]
         for r in result:
-		if 'GLUE2'+key in r[1]:
-			if r[1]['GLUE2'+key][0] not in list:
-				list.append(r[1]['GLUE2'+key][0])
+		if 'GLUE2'+oClass+key in r[1]:
+			if r[1]['GLUE2'+oClass+key][0] not in list:
+				list.append(r[1]['GLUE2'+oClass+key][0])
 		else:
 			if 'None' not in list:
 				list.append('None')
@@ -275,6 +360,7 @@ def list_attr():
 
 def serialize_output(dic):
         """ Return the output with the wished format """
+
 	if 'csv' in conf:
 		list=[]
 		for i in dic:
@@ -282,22 +368,27 @@ def serialize_output(dic):
                 output = ','.join(list)
         elif 'json' in conf:
                 output = json.dumps(dic)
+	elif 'munge' in conf:
+		list = []
+		for i in dic:
+			dicTmp = {
+				"Service_Type":dic[i]['type'],
+				"Service_Capability":dic[i]['service-capability'],
+				"Service_Admin_Domain":dic[i]['domain'],
+				"Service_Endpoint_URL":dic[i]['url'],
+				"Endpoint_Capability":dic[i]['capability'],
+				"Endpoint_Interface_Name":dic[i]['interface'],
+				"Endpoint_Interface_Version":dic[i]['interface-version'],
+				"Endpoint_Quality_Level":dic[i]['quality']
+				}
+			list.append(json.dumps(dicTmp))
+		output = '['+','.join(list)+']'
         else:
 		list=[]
 		for i in dic:
-			list.append('URL: '+','.join(dic[i]['url']))
-			if 'interface' in conf['args']:
-                                list.append('Interface: '+','.join(dic[i]['interface']))
-			if 'state' in conf['args']:
-				list.append('State: '+','.join(dic[i]['state']))
-			if 'capability' in conf['args']:
-				list.append('Capability: '+','.join(dic[i]['capability']))
-			if 'vo' in conf['args']:
-				list.append('VO: '+','.join(dic[i]['vo']))
-			if 'type' in conf['args']:
-                                list.append('Type: '+','.join(dic[i]['type']))
-			if 'domain' in conf['args']:
-				list.append('Domain: '+','.join(dic[i]['domain']))
+			list.append('url: '+','.join(dic[i]['url']))
+			for j in conf['args']:
+				list.append(j+': '+','.join(dic[i][j]))
 			list.append('')
                 output = '\n'.join(list)
         return output
