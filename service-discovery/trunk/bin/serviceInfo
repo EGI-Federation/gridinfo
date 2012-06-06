@@ -6,7 +6,7 @@ import getopt
 import json
 import os
 
-VERSION = '0.7'
+VERSION = '0.71'
 conf = {}
 
 # option: [(short_option,long_option),parameter?]
@@ -138,33 +138,10 @@ def validate_conf():
 			sys.exit('Error: wrong attribute')
                 if 'verbose' in conf:
                         print 'Lists all the possible values for the following attribute:',conf['list']
-        if 'vo' in conf:
-                if 'verbose' in conf:
-                        print 'Filter services by the following VO:',conf['vo']
-        if 'domain' in conf:
-                if 'verbose' in conf:
-                        print 'Filter services by the following domain:',conf['domain']
-	if 'service-capability' in conf:
-                if 'verbose' in conf:
-                        print 'Filter services by the following service capability:',conf['service-capability']
-	if 'type' in conf:
-                if 'verbose' in conf:
-                        print 'Filter services by the following type:',conf['type']
-	if 'capability' in conf:
-                if 'verbose' in conf:
-                        print 'Filter services by the following endpoint capability:',conf['capability']
-	if 'interface' in conf:
-		if 'verbose' in conf:
-			print 'Filter services by the following interface:',conf['interface']
-	if 'interface-version' in conf:
-                if 'verbose' in conf:
-                        print 'Filter services by the following interface version:',conf['interface-version']
-        if 'state' in conf:
-                if 'verbose' in conf:
-                        print 'Filter services by the following state:',conf['state']
-	if 'quality' in conf:
-		if 'verbose' in conf:
-			print 'Filter services by the following quality:',conf['quality']
+	for i in attributes.keys():
+		if i in conf:
+			if 'verbose' in conf:
+				print 'Filter services by the following '+i+':',conf[i]
 	
 	#arguments
 	if 'args' in conf:
@@ -172,7 +149,10 @@ def validate_conf():
 			if arg not in attributes.keys():
         	                sys.exit('Error: wrong attribute')
 		if 'verbose' in conf:
-			print 'The following attributes will be displayed:',' '.join(conf['args'])
+			if len(conf['args']) > 0:
+				print 'The following attributes will be displayed:',' '.join(conf['args'])
+			else:
+				print 'Only the url will be displayed.'
 	if 'verbose' in conf:
 		print
 
