@@ -6,7 +6,7 @@ import getopt
 import json
 import os
 
-VERSION = '0.6'
+VERSION = '0.7'
 conf = {}
 
 # option: [(short_option,long_option),parameter?]
@@ -29,18 +29,20 @@ options = {
 	'state': [("-s","--state"),True],
 	'quality': [("-q","--quality"),True],
 	}
-# attribute for the ldap request: [objectClass,key]
+# attribute for the ldap request: [pre_objectClass,objectClass,key,result_as_list]
 attributes = {
-	'vo':['AccessPolicy','Rule'],
-	'domain':['Service','AdminDomainForeignKey'],
-	'service-capability':['Service','Capability'],
-	'type':['Service','Type'],
-	'capability':['Endpoint','Capability'],
-	'interface':['Endpoint','InterfaceName'],
-	'interface-version':['Endpoint','InterfaceVersion'],
-	'state':['Endpoint','HealthState'],
-	'quality':['Endpoint','QualityLevel'],
+	'vo':['Access','Policy','Rule',True],
+	'domain':['','Service','AdminDomainForeignKey',False],
+	'service-capability':['','Service','Capability',True],
+	'type':['','Service','Type',False],
+	'capability':['','Endpoint','Capability',True],
+	'interface':['','Endpoint','InterfaceName',False],
+	'interface-version':['','Endpoint','InterfaceVersion',False],
+	'state':['','Endpoint','HealthState',False],
+	'quality':['','Endpoint','QualityLevel',False],
 	}
+# Keys that link objects to Endpoint object
+objectKey = {'Service':'ID','AccessPolicy':'EndpointForeignKey'}
 
 def main(argv):
 	""" Main function that launches the other functions """
@@ -52,7 +54,6 @@ def main(argv):
 	if 'list' in conf:
 		list = list_attr()
 		print '\n'.join(list)
-		# USE serialize_output() ????????????????????????
 	else:
 		dic = list_services()
 		print serialize_output(dic)
@@ -93,7 +94,7 @@ def parse_options(argv):
 					conf[i] = True
 				continue
 	#arguments
-	conf['args'] = args
+	conf['args'] = list(set(args)) # Delete multiple identical values
 	if 'all' in args:
 		conf['args'] = attributes.keys()
 
@@ -201,7 +202,6 @@ def usage():
 
 def request(filter=None):
 	""" Returns the result of the ldap request with the filter given """	
-
 	try:
 		l = ldap.initialize('ldap://'+conf['host'])
 		if filter != None:
@@ -214,144 +214,86 @@ def request(filter=None):
 
 def list_services():
 	""" Returns a dictionary of the filtered results from an ldap request """
-
-	if 'vo' in conf:
-		listVO = []
-		resultVO = request('(&(objectClass=GLUE2Policy)(|(GLUE2PolicyRule=ALL)(GLUE2PolicyRule='+conf['vo']+')))')
-		for rV in resultVO:
-			listVO.append(rV[1]['GLUE2AccessPolicyEndpointForeignKey'][0])
-	filterServices = None
-	if 'domain' in conf:
-		if not filterServices:
-			filterServices = '(&(objectClass=GLUE2Service)'
-		filterServices += '(GLUE2ServiceAdminDomainForeignKey='+conf['domain']+')'
-	if 'service-capability' in conf:
-		if not filterServices:
-                        filterServices = '(&(objectClass=GLUE2Service)'
-		filterServices += '(GLUE2ServiceCapability='+conf['service-capability']+')'
-	if 'type' in conf:
-        	if not filterServices:
-                        filterServices = '(&(objectClass=GLUE2Service)'
-	        filterServices += '(GLUE2ServiceType='+conf['type']+')'
-	if filterServices:
-		listServices = []
-		resultServices = request(filterServices+')')
-		for rS in resultServices:
-			listServices.append(rS[1]['GLUE2ServiceID'][0])
-	filter = '(&(objectClass=GLUE2Endpoint)'
-        if 'capability' in conf:
-                filter += '(GLUE2EndpointCapability='+conf['capability']+')'
-        if 'interface' in conf:
-                filter += '(GLUE2EndpointInterfaceName='+conf['interface']+')'
-        if 'interface-version' in conf:
-                filter += '(GLUE2EndpointInterfaceVersion='+conf['interface-version']+')'
-        if 'state' in conf:
-                filter += '(GLUE2EndpointHealthState='+conf['state']+')'
-        if 'quality' in conf:
-                filter += '(GLUE2EndpointQualityLevel='+conf['quality']+')'
-        result = request(filter +')')
-	dic = {}
-	for res in result:
-		serviceID = res[1]['GLUE2EndpointServiceForeignKey'][0]
-		endpointID = res[1]['GLUE2EndpointID'][0]
-		if 'vo' in conf and endpointID not in listVO:
-				continue
-                if filterServices and serviceID not in listServices:
-                                continue
-		
-		dic[serviceID] = {'url':res[1]['GLUE2EndpointURL']}
-		if 'vo' in conf['args']:
-                        if 'vo' in conf:
-                                dic[serviceID]['vo'] = [conf['vo']]
-                        else:
-                                if 'resultVO' not in locals():
-                                        resultVO = request('(objectClass=GLUE2AccessPolicy)')
-                                        dicVO = {}
-                                        for rV in resultVO:
-                                                if rV[1]['GLUE2AccessPolicyEndpointForeignKey'][0] not in dicVO:
-                                                        dicVO[rV[1]['GLUE2AccessPolicyEndpointForeignKey'][0]] = rV[1]['GLUE2PolicyRule']
-                                if endpointID in dicVO:
-                                        dic[serviceID]['vo'] = dicVO[endpointID]
-                                else:
-                                        dic[serviceID]['vo'] = []
-		if 'domain' in conf['args']:
-                        if 'domain' in conf:
-                                dic[serviceID]['domain'] = [conf['domain']]
-                        else:
-                                if 'resultServices' not in locals():
-                                        resultServices = request('(objectClass=GLUE2Service)')
-                                if 'dicDomain' not in locals():
-                                        dicDomain = {}
-                                        for rS in resultServices:
-                                                dicDomain[rS[1]['GLUE2ServiceID'][0]] = rS[1]['GLUE2ServiceAdminDomainForeignKey']
-                                if serviceID in dicDomain:
-                                        dic[serviceID]['domain'] = dicDomain[serviceID]
-                                else:
-                                        dic[serviceID]['domain'] = []
-		if 'service-capability' in conf['args']:
-			if 'service-capability' in conf:
-				dic[serviceID]['service-capability'] = [conf['service-capability']]
+	filter = {'Endpoint': ''}
+	result = {}
+	selection_list = {}
+	# Filters 
+	for i in attributes:
+		if i in conf:
+			if attributes[i][0]+attributes[i][1] not in filter:
+				filter[attributes[i][0]+attributes[i][1]] = ''
+			tmp_filter = '(GLUE2'+attributes[i][1]+attributes[i][2]+'='+conf[i]+')'
+			if attributes[i][2] == 'Rule':
+				tmp_filter = '(|(GLUE2PolicyRule=ALL)'+tmp_filter+')'
+			filter[attributes[i][0]+attributes[i][1]] += tmp_filter
+	for i in ['Service','AccessPolicy']:
+		if i in filter:
+			result[i] = request('(&(objectClass=GLUE2'+i+')'+filter[i]+')')
+			selection_list[i] = []
+			for r in result[i]:
+				selection_list[i].append(r[1]['GLUE2'+i+objectKey[i]][0])
+	
+	result['Endpoint'] = request('(&(objectClass=GLUE2Endpoint)'+filter['Endpoint']+')')
+	dic = {} # Final results
+	dic2 = {} # Tmp results
+	for res in result['Endpoint']:
+		iD = {'Service':res[1]['GLUE2EndpointServiceForeignKey'][0]
+			,'AccessPolicy':res[1]['GLUE2EndpointID'][0]}
+		# Executes the filtering by Service and AccessPolicy objects
+		stop = False
+		for i in ['Service','AccessPolicy']:
+	                if i in selection_list:
+				if iD[i] not in selection_list[i]:
+                                	stop = True
+					break
+		if stop:
+			continue
+		# Fill in the final results dictionnary
+		dic[iD['Service']] = {'url':res[1]['GLUE2EndpointURL'][0]}
+		for attr in conf['args']:
+			a1 = attributes[attr][0]+attributes[attr][1]
+			a2 = attributes[attr][1]+attributes[attr][2]
+			dic[iD['Service']][attr] = None
+			if attr in conf and not attributes[attr][3]:
+				dic[iD['Service']][attr] = conf[attr]
 			else:
-                                if 'resultServices' not in locals():
-                                        resultServices = request('(objectClass=GLUE2Service)')
-                                if 'dicCapability' not in locals():
-					dicCapability = {}
-                                        for rS in resultServices:
-                                                dicCapability[rS[1]['GLUE2ServiceID'][0]] = rS[1]['GLUE2ServiceType']
-                                if serviceID in dicCapability:
-                                        dic[serviceID]['service-capability'] = dicCapability[serviceID]
-                                else:
-                                        dic[serviceID]['service-capability'] = []
-		if 'type' in conf['args']:
-                        if 'type' in conf:
-                                dic[serviceID]['type'] = [conf['type']]
-                        else:
-                                if 'resultServices' not in locals():
-                                        resultServices = request('(objectClass=GLUE2Service)')
-				if 'dicType' not in locals():
-                                        dicType = {}
-                                        for rS in resultServices:
-                                                dicType[rS[1]['GLUE2ServiceID'][0]] = rS[1]['GLUE2ServiceType']
-                                if serviceID in dicType:
-                                        dic[serviceID]['type'] = dicType[serviceID]
-                                else:
-                                        dic[serviceID]['type'] = []
-		if 'capability' in conf['args']:
-                        if 'GLUE2EndpointCapability' in res[1]:
-                                dic[serviceID]['capability'] = res[1]['GLUE2EndpointCapability']
-                        else:
-                                dic[serviceID]['capability'] = []
-		if 'interface' in conf['args']:
-			dic[serviceID]['interface'] = res[1]['GLUE2EndpointInterfaceName']
-		if 'interface-version' in conf['args']:
-			if 'GLUE2EndpointInterfaceVersion' in res[1]:
-				dic[serviceID]['interface-version'] = res[1]['GLUE2EndpointInterfaceVersion']
-			else:
-				dic[serviceID]['interface-version'] = []
-		if 'state' in conf['args']:
-			dic[serviceID]['state'] = res[1]['GLUE2EndpointHealthState']
-		if 'quality' in conf['args']:
-			dic[serviceID]['quality'] = res[1]['GLUE2EndpointQualityLevel']
+				if a1 == 'Endpoint':
+					if 'GLUE2'+a2 in res[1]:
+						dic[iD['Service']][attr] = res[1]['GLUE2'+a2]
+						if not attributes[attr][3]:
+							dic[iD['Service']][attr] = dic[iD['Service']][attr][0]
+				else:
+					if a1 not in result:
+	                               		result[a1] = request('(objectClass=GLUE2'+a1+')')
+					if attr not in dic2:
+						dic2[attr] = {}
+						for r in result[a1]:
+							if 'GLUE2'+a2 in r[1]:
+								dic2[attr][r[1]['GLUE2'+a1+objectKey[a1]][0]] = r[1]['GLUE2'+a2]
+							else:
+								dic2[attr][r[1]['GLUE2'+a1+objectKey[a1]][0]] = None
+					if iD[a1] in dic2[attr]:
+						dic[iD['Service']][attr] = dic2[attr][iD[a1]]
+						if not attributes[attr][3] and dic[iD['Service']][attr]:
+							dic[iD['Service']][attr] = dic[iD['Service']][attr][0]
 	if len(dic) == 0:
 		sys.exit('Error: No result. Verify search parameters.')
-	return dic 
+	return dic
 
 def list_attr():
 	""" Returns a list of values for a given attribute """
 
 	try:
-		oClass = attributes[conf['list']][0]
-		key = attributes[conf['list']][1]
+		oClass = attributes[conf['list']][0]+attributes[conf['list']][1]
+		key = attributes[conf['list']][1]+attributes[conf['list']][2]
 	except KeyError:
 		sys.exit('Error: wrong attribute.')
 	result = request('objectClass=GLUE2'+oClass)
-	if oClass == 'AccessPolicy':
-		oClass = 'Policy'
         list=[]
         for r in result:
-		if 'GLUE2'+oClass+key in r[1]:
-			if r[1]['GLUE2'+oClass+key][0] not in list:
-				list.append(r[1]['GLUE2'+oClass+key][0])
+		if 'GLUE2'+key in r[1]:
+			if r[1]['GLUE2'+key][0] not in list:
+				list.append(r[1]['GLUE2'+key][0])
 		else:
 			if 'None' not in list:
 				list.append('None')
@@ -361,11 +303,21 @@ def list_attr():
 def serialize_output(dic):
         """ Return the output with the wished format """
 
+	#CSV not finished
 	if 'csv' in conf:
 		list=[]
 		for i in dic:
-                        list.append(str(dic[i]['url'][0]))
-                output = ','.join(list)
+			list2 = []
+			list2.append(dic[i]['url'])
+			for j in conf['args']:
+				if dic[i][j] == None:
+					list2.append('None')
+				elif attributes[j][3]:
+					list2.append('"'+','.join(dic[i][j])+'"')
+				else:
+					list2.append(dic[i][j])
+                        list.append(','.join(list2))
+                output = '\n'.join(list)
         elif 'json' in conf:
                 output = json.dumps(dic)
 	elif 'munge' in conf:
@@ -386,9 +338,14 @@ def serialize_output(dic):
         else:
 		list=[]
 		for i in dic:
-			list.append('url: '+','.join(dic[i]['url']))
+			list.append('url: '+dic[i]['url'])
 			for j in conf['args']:
-				list.append(j+': '+','.join(dic[i][j]))
+				if dic[i][j] == None:
+					list.append(j+': None')
+				elif attributes[j][3]:
+					list.append(j+': '+','.join(dic[i][j]))
+				else:
+					list.append(j+': '+dic[i][j])
 			list.append('')
                 output = '\n'.join(list)
         return output
