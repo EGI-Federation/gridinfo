@@ -1,5 +1,5 @@
 Name:		service-discovery
-Version:	0.0.35
+Version:	0.0.72
 Release:	1%{?dist}
 Summary:	Service Discovery Client
 
@@ -39,5 +39,5 @@ rm -rf %{buildroot}
 %doc LICENSE
 
 %changelog
-* Thu May 24 2012 Laurence Field <laurence.field@cern.ch> - 0.0.35-1
+* Thu Jun 07 2012 Laurence Field <laurence.field@cern.ch> - 0.0.72-1
 - Initial version
