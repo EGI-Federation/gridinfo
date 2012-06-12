@@ -6,44 +6,44 @@ import getopt
 import json
 import os
 
-VERSION = '0.81'
+VERSION = '0.85'
 conf = {}
 
-# option: [(short_option, long_option), parameter?]
+# option: [short_option, parameter?]
 options = {
-    'host': [(None, "--host"), True],
-    'list': [("-l", "--list"), True],
-    'csv': [("-c", "--csv"), False],
-    'json': [("-j", "--json"), False],
-    'emi': [("-e", "--emi"), False],
-    'verbose': [("-v", "--verbose"), False],
-    'version': [("-V", "--version"), False],
-    'help': [("-h", "--help"), False],
-    'EndpointCapability': [(None, "--cap"), True],
-    'ServiceAdminDomain': [("-d", "--domain"), True],
-    'ServiceID': [("-i", "--id"), True],
-    'EndpointImplementationName': [("-m", "--imp"), True],
-    'EndpointImplementationVersion': [(None, "--impv"), True],
-    'EndpointInterfaceName': [("-n", "--int"), True],
-    'EndpointInterfaceVersion': [(None, "--intv"), True],
-    'Endpointquality': [("-q", "--ql"), True],
-    'ServiceType': [("-t", "--type"), True],
-    'EndpointURL': [("-u", "--url"), True],
-    'PolicyRule': [(None, "--vo"), True],
+    'host': [None, True],
+    'list': ["l", True],
+    'csv': ["c", False],
+    'json': ["j", False],
+    'emi': ["e", False],
+    'verbose': ["v", False],
+    'version': ["V", False],
+    'help': ["h", False],
+    'cap': [None, True],
+    'domain': ["d", True],
+    'id': ["i", True],
+    'imp': ["m", True],
+    'impv': [None, True],
+    'int': ["n", True],
+    'intv': [None, True],
+    'ql': ["q", True],
+    'type': ["t", True],
+    'url': ["u", True],
+    'vo': [None, True],
     }
 # attribute for the ldap request: [pre_objectClass, objectClass, key, result_as_list]
 attributes = {
-    'EndpointCapability': ['', 'Endpoint', 'Capability', True],
-    'ServiceAdminDomain': ['', 'Service', 'AdminDomainForeignKey', False],
-    'ServiceId': ['', 'Service', 'ID', False],
-    'EndpointImplementationName': ['', 'Endpoint', 'ImplementationName', False],
-    'EndpointImplementationVersion': ['', 'Endpoint', 'ImplementationVersion', False],
-    'EndpointInterfaceName': ['', 'Endpoint', 'InterfaceName', False],
-    'EndpointInterfaceVersion': ['', 'Endpoint', 'InterfaceVersion', False],
-    'EndpointQualityLevel': ['', 'Endpoint', 'QualityLevel', False],
-    'ServiceType': ['', 'Service', 'Type', False],
-    'EndpointURL': ['', 'Endpoint', 'URL', False],
-    'PolicyRule': ['Access', 'Policy', 'Rule', True],
+    'cap': ['', 'Endpoint', 'Capability', True],
+    'domain': ['', 'Service', 'AdminDomainForeignKey', False],
+    'id': ['', 'Service', 'ID', False],
+    'imp': ['', 'Endpoint', 'ImplementationName', False],
+    'impv': ['', 'Endpoint', 'ImplementationVersion', False],
+    'int': ['', 'Endpoint', 'InterfaceName', False],
+    'intv': ['', 'Endpoint', 'InterfaceVersion', False],
+    'ql': ['', 'Endpoint', 'QualityLevel', False],
+    'type': ['', 'Service', 'Type', False],
+    'url': ['', 'Endpoint', 'URL', False],
+    'vo': ['Access', 'Policy', 'Rule', True],
     }
 # Keys that link objects to Endpoint object [objectKey, EndpointKey]
 objectKey = {'Service': ['ID', 'EndpointServiceForeignKey'], 'AccessPolicy': ['EndpointForeignKey', 'EndpointID']}
@@ -70,18 +70,17 @@ def parse_options(argv):
     long_options = []
     tmp_list = []
     for i in options:
-        if options[i][0][0]:
-            short_options += options[i][0][0][1:]
+        if options[i][0]:
+            short_options += options[i][0]
             if options[i][1]:
                 short_options += ':'
-                long_options.append(options[i][0][1][2:]+'=')
+                long_options.append(i+'=')
             else:
-                long_options.append(options[i][0][1][2:])
+                long_options.append(i)
+        elif options[i][1]:
+            tmp_list.append(i+'=')
         else:
-            if options[i][1]:
-                tmp_list.append(options[i][0][1][2:]+'=')
-            else:
-                tmp_list.append(options[i][0][1][2:])
+            tmp_list.append(i)
     long_options.extend(tmp_list)
     try:
         opts, args = getopt.getopt(argv, short_options, long_options)
@@ -92,8 +91,9 @@ def parse_options(argv):
             sys.exit(usage())
     #options
     for opt, arg in opts:
+        opt = opt[opt.rfind('-')+1:]
         for i in options:
-            if opt in options[i][0]:
+            if opt in (i, options[i][0]):
                 if options[i][1]:
                     conf[i] = arg
                 else:
@@ -101,7 +101,7 @@ def parse_options(argv):
                 continue
     #arguments
     conf['args'] = list(set(args)) # Delete multiple identical values
-    if 'all' in args:
+    if len(args)==0:
         conf['args'] = attributes.keys()
 
 def validate_conf():
@@ -129,7 +129,7 @@ def validate_conf():
         if 'verbose' in conf:
             print 'Output in json formating'
     elif 'emi' in conf:
-        conf['args'] = ['EndpointURL','ServiceType', 'ServiceAdminDomain', 'EndpointCapability', 'EndpointInterfaceName', 'EndpointInterfaceVersion', 'EndpointQualityLevel']
+        conf['args'] = ['url','type', 'domain', 'cap', 'int', 'intv', 'ql']
         if 'verbose' in conf:
             print 'Output in emi formating'
     if 'host' in conf:
@@ -156,7 +156,7 @@ def validate_conf():
             if len(conf['args']) > 0:
                 print 'The following attributes will be displayed:',' '.join(conf['args'])
             else:
-                print 'Only the url will be displayed.'
+                print 'All the attributes will be displayed.'
     if 'verbose' in conf:
         print 'Verbose mode enabled\n'
 
@@ -274,7 +274,7 @@ def list_services():
         if stop:
             continue
         # Fill in the final results dictionnary
-        dic[iD['Service']] = {'url': res[1]['GLUE2EndpointURL'][0]}
+        dic[iD['Service']] = {}
         for attr in conf['args']:
             a1 = attributes[attr][0]+attributes[attr][1]
             a2 = attributes[attr][1]+attributes[attr][2]
@@ -332,7 +332,6 @@ def serialize_output(dic):
         list = []
         for i in dic:
             list2 = []
-            list2.append(dic[i]['url'])
             for j in conf['args']:
                 if dic[i][j] == None:
                     list2.append('None')
@@ -348,20 +347,19 @@ def serialize_output(dic):
         list = []
         for i in dic:
             dicTmp = {
-                "Service_Type": dic[i]['ServiceType'],
-                "Service_Admin_Domain": dic[i]['ServiceAdminDomain'],
-                "Service_Endpoint_URL": dic[i]['EndpointURL'],
-                "Endpoint_Capability": dic[i]['EndpointCapability'],
-                "Endpoint_Interface_Name": dic[i]['EndpointInterfaceName'],
-                "Endpoint_Interface_Version": dic[i]['EndpointInterfaceVersion'],
-                "Endpoint_Quality_Level": dic[i]['EndpointQualityLevel']
+                "Service_Type": dic[i]['type'],
+                "Service_Admin_Domain": dic[i]['domain'],
+                "Service_Endpoint_URL": dic[i]['url'],
+                "Endpoint_Capability": dic[i]['cap'],
+                "Endpoint_Interface_Name": dic[i]['int'],
+                "Endpoint_Interface_Version": dic[i]['intv'],
+                "Endpoint_Quality_Level": dic[i]['ql']
                 }
             list.append(json.dumps(dicTmp))
         output = '['+','.join(list)+']'
     else:
         list = []
         for i in dic:
-            #list.append('url: '+dic[i]['url'])
             for j in conf['args']:
                 if dic[i][j] == None:
                     list.append(j+': None')
