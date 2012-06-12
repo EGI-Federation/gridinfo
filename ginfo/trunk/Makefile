@@ -13,8 +13,8 @@ install:
 	@mkdir -p $(prefix)/usr/bin/
 	@mkdir -p $(prefix)/usr/share/man/man1
 
-	@install -m 0755 bin/serviceInfo      $(prefix)/usr/bin/
-	@install -m 0644 man/serviceInfo.1        $(prefix)/usr/share/man/man1/
+	@install -m 0755 bin/ginfo      $(prefix)/usr/bin/
+	@install -m 0644 man/ginfo.1        $(prefix)/usr/share/man/man1/
 
 dist:
 	@mkdir -p  $(build)/$(NAME)-$(VERSION)/

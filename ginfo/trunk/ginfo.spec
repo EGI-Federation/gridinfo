@@ -1,14 +1,14 @@
-Name:		service-discovery
-Version:	0.0.72
+Name:		ginfo
+Version:	0.0.80
 Release:	1%{?dist}
 Summary:	Service Discovery Client
 
 Group:		Applications/Internet
 License:	ASL 2.0
-URL:		https://svnweb.cern.ch/trac/gridinfo/browser/service-discovery
+URL:		https://svnweb.cern.ch/trac/gridinfo/browser/ginfo
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/service-discovery/tags/R_0_0_35 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/ginfo/tags/R_0_0_80 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 
 Source:		%{name}-%{version}.tar.gz
@@ -35,10 +35,10 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-%{_bindir}/serviceInfo
-%{_mandir}/man1/serviceInfo.1*
+%{_bindir}/ginfo
+%{_mandir}/man1/ginfo.1*
 %doc LICENSE
 
 %changelog
-* Thu Jun 07 2012 Laurence Field <laurence.field@cern.ch> - 0.0.72-1
+* Tue Jun 12 2012 Laurence Field <laurence.field@cern.ch> - 0.0.80-1
 - Initial version
