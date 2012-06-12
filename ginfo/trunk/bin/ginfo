@@ -161,24 +161,36 @@ def validate_conf():
 def usage():
     """Returns the usage message""" 
     
-    return '''Usage: service-info [options] [attributes]
+    return '''Usage: ginfo [options] [attributes]
 
-    List urls of services from the host. Additionnal displayed attributes must 
-    belong to this list: vo, domain, type, capability, interface,
-    interface-version, quality or all.
+    List URLs of services along with other optional attributes.
 
-        --host      host        Specify a host endpoint. By default the
+        --host      host        Specify a host to query. By default the
                                 environmental variable LCG_GFAL_INFOSYS will be
                                 used.
     -l, --list      attribute   List all the possible values of the specified
-                                attribute
-    -c, --csv                   Provide the output in CSV formating
-    -j, --json                  Provide the output in JSON formating
+                                attribute.
+    -c, --csv                   Output in CSV format
+    -j, --json                  Output in JSON format
     -v, --verbose               Enable verbose mode
-    -V, --version               Print the version
-    -h, --help                  Print this helpful message
+    -V, --version               Prints the version of ginfo
+    -h, --help                  Prints this helpful message
 
-    Filter services with the specified attribute:
+    Available attributes are:
+
+       cap       EndpointCapability                                          
+       domain    ServiceAdminDomain                                          
+       id        ServiceID                                                   
+       imp       EndpointImplementationName                                  
+       impv      EndpointImplementationVersion                               
+       int       EndpointInterfaceName                                       
+       intv      EndpointInterfaceVersion                                    
+       ql        EndpointQualityLevel                                        
+       type      ServiceType                                                 
+       url       EndpointURL                                                 
+       vo        PolicyRule
+
+    Addition options to filter services by the specified attribute:
 
         --cap       EndpointCapability
     -d, --domain    ServiceAdminDomain
@@ -191,6 +203,7 @@ def usage():
     -t, --type      ServiceType
     -u, --url       EndpointURL
         --vo        PolicyRule'''
+
 
 def request(filter=None):
     """Returns the result of the ldap request with the filter given"""   
