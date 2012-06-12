@@ -15,10 +15,8 @@ Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
-Requires:	python-ldap
-%if "%{?dist}" == ".el5"
+Requires:      python-ldap
 Requires:      python-json
-%endif
 
 %description
 Service Discovery Client for obtaining GLUE 2.0 information on Grid services. 
