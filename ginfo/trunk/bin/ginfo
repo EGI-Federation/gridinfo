@@ -85,8 +85,11 @@ def parse_options(argv):
     long_options.extend(tmp_list)
     try:
         opts, args = getopt.getopt(argv, short_options, long_options)
-    except getopt.GetoptError:
-        sys.exit('usage()')
+    except getopt.error as e:
+        if e.opt in ("l", "list"):
+            sys.exit(list_usage())
+        else:
+            sys.exit(usage())
     #options
     for opt, arg in opts:
         for i in options:
