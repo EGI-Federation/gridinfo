@@ -6,7 +6,7 @@ import getopt
 import json
 import os
 
-VERSION = '0.8'
+VERSION = '0.81'
 conf = {}
 
 # option: [(short_option, long_option), parameter?]
@@ -86,8 +86,7 @@ def parse_options(argv):
     try:
         opts, args = getopt.getopt(argv, short_options, long_options)
     except getopt.GetoptError:
-        sys.exit(usage())
-    
+        sys.exit('usage()')
     #options
     for opt, arg in opts:
         for i in options:
@@ -127,7 +126,7 @@ def validate_conf():
         if 'verbose' in conf:
             print 'Output in json formating'
     elif 'emi' in conf:
-        conf['args'] = ['type', 'domain', 'capability', 'interface', 'interface-version', 'quality']
+        conf['args'] = ['EndpointURL','ServiceType', 'ServiceAdminDomain', 'EndpointCapability', 'EndpointInterfaceName', 'EndpointInterfaceVersion', 'EndpointQualityLevel']
         if 'verbose' in conf:
             print 'Output in emi formating'
     if 'host' in conf:
@@ -137,7 +136,7 @@ def validate_conf():
         sys.exit(usage())
     if 'list' in conf:
         if conf['list'] not in attributes.keys():
-            sys.exit('Error: wrong attribute')
+            sys.exit('Error: '+conf['list']+' wrong attribute.')
         if 'verbose' in conf:
             print 'Lists all the possible values for the following attribute:',conf['list']
     for i in attributes.keys():
@@ -149,7 +148,7 @@ def validate_conf():
     if 'args' in conf:
         for arg in conf['args']:
             if arg not in attributes.keys():
-                sys.exit('Error: wrong attribute')
+                sys.exit('Error: '+arg+' is a wrong attribute.')
         if 'verbose' in conf:
             if len(conf['args']) > 0:
                 print 'The following attributes will be displayed:',' '.join(conf['args'])
@@ -178,17 +177,17 @@ def usage():
 
     Available attributes are:
 
-       cap       EndpointCapability                                          
-       domain    ServiceAdminDomain                                          
-       id        ServiceID                                                   
-       imp       EndpointImplementationName                                  
-       impv      EndpointImplementationVersion                               
-       int       EndpointInterfaceName                                       
-       intv      EndpointInterfaceVersion                                    
-       ql        EndpointQualityLevel                                        
-       type      ServiceType                                                 
-       url       EndpointURL                                                 
-       vo        PolicyRule
+        cap       EndpointCapability
+        domain    ServiceAdminDomain
+        id        ServiceID
+        imp       EndpointImplementationName
+        impv      EndpointImplementationVersion
+        int       EndpointInterfaceName
+        intv      EndpointInterfaceVersion
+        ql        EndpointQualityLevel
+        type      ServiceType
+        url       EndpointURL
+        vo        PolicyRule
 
     Addition options to filter services by the specified attribute:
 
@@ -204,6 +203,22 @@ def usage():
     -u, --url       EndpointURL
         --vo        PolicyRule'''
 
+def list_usage():
+    """Returns the usage message for list option"""
+
+    return '''Available attributes are:
+
+        cap       EndpointCapability
+        domain    ServiceAdminDomain
+        id        ServiceID
+        imp       EndpointImplementationName
+        impv      EndpointImplementationVersion
+        int       EndpointInterfaceName
+        intv      EndpointInterfaceVersion
+        ql        EndpointQualityLevel
+        type      ServiceType
+        url       EndpointURL
+        vo        PolicyRule'''
 
 def request(filter=None):
     """Returns the result of the ldap request with the filter given"""   
@@ -332,7 +347,7 @@ def serialize_output(dic):
             dicTmp = {
                 "Service_Type": dic[i]['ServiceType'],
                 "Service_Admin_Domain": dic[i]['ServiceAdminDomain'],
-                "Service_Endpoint_URL": dic[i]['ServiceURL'],
+                "Service_Endpoint_URL": dic[i]['EndpointURL'],
                 "Endpoint_Capability": dic[i]['EndpointCapability'],
                 "Endpoint_Interface_Name": dic[i]['EndpointInterfaceName'],
                 "Endpoint_Interface_Version": dic[i]['EndpointInterfaceVersion'],
@@ -343,7 +358,7 @@ def serialize_output(dic):
     else:
         list = []
         for i in dic:
-            list.append('url: '+dic[i]['url'])
+            #list.append('url: '+dic[i]['url'])
             for j in conf['args']:
                 if dic[i][j] == None:
                     list.append(j+': None')
