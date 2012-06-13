@@ -6,7 +6,7 @@ import getopt
 import json
 import os
 
-VERSION = '0.85'
+VERSION = '0.9'
 conf = {}
 
 # option: [short_option, parameter?]
@@ -100,7 +100,7 @@ def parse_options(argv):
                     conf[i] = True
                 continue
     #arguments
-    conf['args'] = list(set(args)) # Delete multiple identical values
+    conf['args'] = args
     if len(args)==0:
         conf['args'] = attributes.keys()
 
@@ -139,7 +139,12 @@ def validate_conf():
         sys.exit(usage())
     if 'list' in conf:
         if conf['list'] not in attributes.keys():
-            sys.exit('Error: '+conf['list']+' wrong attribute.')
+            for i in attributes:
+                if attributes[i][1]+attributes[i][2] == conf['list']:
+                    conf['list'] = i
+                    break
+            if conf['list'] not in attributes.keys():
+                sys.exit('Error: '+conf['list']+' wrong attribute.')
         if 'verbose' in conf:
             print 'Lists all the possible values for the following attribute:',conf['list']
     for i in attributes.keys():
@@ -151,7 +156,15 @@ def validate_conf():
     if 'args' in conf:
         for arg in conf['args']:
             if arg not in attributes.keys():
-                sys.exit('Error: '+arg+' is a wrong attribute.')
+                cpt = len(conf['args'])
+                conf['args'].remove(arg)
+                for i in attributes:
+                    if attributes[i][1]+attributes[i][2] == arg:
+                        conf['args'].append(i)
+                        break
+                if len(conf['args']) < cpt:
+                    sys.exit('Error: '+arg+' is a wrong attribute.')
+        conf['args'] = list(set(conf['args'])) # Delete duplicated values
         if 'verbose' in conf:
             if len(conf['args']) > 0:
                 print 'The following attributes will be displayed:',' '.join(conf['args'])
@@ -181,7 +194,7 @@ def usage():
     Available attributes are:
 
         cap       EndpointCapability
-        domain    ServiceAdminDomain
+        domain    ServiceAdminDomainForeignKey
         id        ServiceID
         imp       EndpointImplementationName
         impv      EndpointImplementationVersion
@@ -195,7 +208,7 @@ def usage():
     Addition options to filter services by the specified attribute:
 
         --cap       EndpointCapability
-    -d, --domain    ServiceAdminDomain
+    -d, --domain    ServiceAdminDomainForeignKey
     -i, --id        ServiceID
     -m, --imp       EndpointImplementationName
         --impv      EndpointImplementationVersion
@@ -212,7 +225,7 @@ def list_usage():
     return '''Available attributes are:
 
         cap       EndpointCapability
-        domain    ServiceAdminDomain
+        domain    ServiceAdminDomainForeignKey
         id        ServiceID
         imp       EndpointImplementationName
         impv      EndpointImplementationVersion
@@ -307,12 +320,9 @@ def list_services():
 
 def list_attr():
     """Returns a list of values for a given attribute""" 
-
-    try:
-        oClass = attributes[conf['list']][0]+attributes[conf['list']][1]
-        key = attributes[conf['list']][1]+attributes[conf['list']][2]
-    except KeyError:
-        sys.exit('Error: wrong attribute.')
+    
+    oClass = attributes[conf['list']][0]+attributes[conf['list']][1]
+    key = attributes[conf['list']][1]+attributes[conf['list']][2]
     result = request('objectClass=GLUE2'+oClass)
     list = []
     for r in result:
