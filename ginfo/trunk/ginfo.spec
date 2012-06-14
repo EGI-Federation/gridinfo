@@ -1,5 +1,5 @@
 Name:		ginfo
-Version:	0.0.80
+Version:	0.0.9
 Release:	1%{?dist}
 Summary:	Service Discovery Client
 
@@ -40,5 +40,5 @@ rm -rf %{buildroot}
 %doc LICENSE
 
 %changelog
-* Tue Jun 12 2012 Laurence Field <laurence.field@cern.ch> - 0.0.80-1
+* Tue Jun 14 2012 Laurence Field <laurence.field@cern.ch> - 0.0.9-1
 - Initial version
