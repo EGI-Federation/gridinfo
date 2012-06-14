@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+'''Ginfo - Developped by Ivan Calvet for CERN - ivan.calvet@cern.ch'''
 
 import ldap
 import sys
@@ -6,11 +7,13 @@ import getopt
 import json
 import os
 
-VERSION = '0.9'
-conf = {}
+VERSION = '0.91'
 
-# option: [short_option, parameter?]
-options = {
+# configuration dictionnary that will be filled with the submitted options
+CONF = {}
+
+# long_option: [short_option, parameter_needed]
+OPTIONS = {
     'host': [None, True],
     'list': ["l", True],
     'csv': ["c", False],
@@ -31,8 +34,9 @@ options = {
     'url': ["u", True],
     'vo': [None, True],
     }
-# attribute for the ldap request: [pre_objectClass, objectClass, key, result_as_list]
-attributes = {
+
+# ldap request attribute: [prefix_object, object_class, key, output_list]
+ATTRIBUTES = {
     'cap': ['', 'Endpoint', 'Capability', True],
     'domain': ['', 'Service', 'AdminDomainForeignKey', False],
     'id': ['', 'Service', 'ID', False],
@@ -45,132 +49,135 @@ attributes = {
     'url': ['', 'Endpoint', 'URL', False],
     'vo': ['Access', 'Policy', 'Rule', True],
     }
-# Keys that link objects to Endpoint object [objectKey, EndpointKey]
-objectKey = {'Service': ['ID', 'EndpointServiceForeignKey'], 'AccessPolicy': ['EndpointForeignKey', 'EndpointID']}
+# keys that link ldap objects to Endpoint object [objectKey, EndpointKey]
+OBJECT_KEY = {'Service': ['ID', 'EndpointServiceForeignKey'], 'AccessPolicy': ['EndpointForeignKey', 'EndpointID']}
 
 def main(argv):
     """Main function that launches the other functions""" 
 
     if 'LCG_GFAL_INFOSYS' in os.environ:
-        conf['host'] = os.environ['LCG_GFAL_INFOSYS']
+        CONF['host'] = os.environ['LCG_GFAL_INFOSYS']
     parse_options(argv)
     validate_conf()
-    if 'list' in conf:
-        list = list_attr()
-        print '\n'.join(list)
+    if 'list' in CONF:
+        result = list_attr() # option --list
     else:
-        dic = list_services()
-        print serialize_output(dic)
+        result = list_services() # get all the informations about services
+    print serialize_output(result)
     sys.exit()
 
 def parse_options(argv):
-    """Parses the selected options and pouts them in a configuration dictionnary""" 
+    """Parse the selected options and put them in a config dictionnary""" 
 
+    # parse the options
     short_options = ''
     long_options = []
-    tmp_list = []
-    for i in options:
-        if options[i][0]:
-            short_options += options[i][0]
-            if options[i][1]:
+    long_options_bis = [] # options without any short option
+    for i in OPTIONS:
+        if OPTIONS[i][0]:
+            short_options += OPTIONS[i][0]
+            long_options.append(i)
+            if OPTIONS[i][1]:
                 short_options += ':'
-                long_options.append(i+'=')
-            else:
-                long_options.append(i)
-        elif options[i][1]:
-            tmp_list.append(i+'=')
+                long_options[-1] += '='
         else:
-            tmp_list.append(i)
-    long_options.extend(tmp_list)
+            long_options_bis.append(i)
+            if OPTIONS[i][1]:
+                long_options_bis[-1] += '='
+    long_options.extend(long_options_bis)
     try:
         opts, args = getopt.getopt(argv, short_options, long_options)
-    except getopt.error as e:
-        if e.opt in ("l", "list"):
+    except getopt.error as err:
+        if err.opt in ("l", "list"):
             sys.exit(list_usage())
         else:
             sys.exit(usage())
-    #options
+
+    # put the options in the config dictionnary
     for opt, arg in opts:
         opt = opt[opt.rfind('-')+1:]
-        for i in options:
-            if opt in (i, options[i][0]):
-                if options[i][1]:
-                    conf[i] = arg
+        for i in OPTIONS:
+            if opt in (i, OPTIONS[i][0]):
+                if OPTIONS[i][1]:
+                    CONF[i] = arg
                 else:
-                    conf[i] = True
-                continue
-    #arguments
-    conf['args'] = args
-    if len(args)==0:
-        conf['args'] = attributes.keys()
+                    CONF[i] = True
+                break 
+
+    # put the arguments in the config dictionnary
+    CONF['args'] = args
+    if len(args) == 0:
+        CONF['args'] = ATTRIBUTES.keys() # all by default
 
 def validate_conf():
     """Prints verbose messages and checks for errors""" 
         
-    #options
-    if 'help' in conf:
+    # options
+    if 'help' in CONF:
         print usage()
         sys.exit()
-    if 'version' in conf:
+    if 'version' in CONF:
         print os.path.basename(sys.argv[0]) +' V'+VERSION
         sys.exit()
-    if 'csv' in conf and 'json' in conf and 'emi' in conf:
+    if 'csv' in CONF and 'json' in CONF and 'emi' in CONF:
         sys.exit('Error: choose between csv, json and emi.')
-    elif 'csv' in conf and 'json' in conf:
+    elif 'csv' in CONF and 'json' in CONF:
         sys.exit('Error: choose between csv and json.')
-    elif 'csv' in conf and 'emi' in conf:
+    elif 'csv' in CONF and 'emi' in CONF:
         sys.exit('Error: choose between csv and emi.')
-    elif 'emi' in conf and 'json' in conf:
+    elif 'emi' in CONF and 'json' in CONF:
         sys.exit('Error: choose between json and emi.')
-    elif 'csv' in conf:
-        if 'verbose' in conf:
+    elif 'csv' in CONF:
+        if 'verbose' in CONF:
             print 'Output in csv formating'
-    elif 'json' in conf:
-        if 'verbose' in conf:
+    elif 'json' in CONF:
+        if 'verbose' in CONF:
             print 'Output in json formating'
-    elif 'emi' in conf:
-        conf['args'] = ['url','type', 'domain', 'cap', 'int', 'intv', 'ql']
-        if 'verbose' in conf:
+    elif 'emi' in CONF:
+        CONF['args'] = ['url', 'type', 'domain', 'cap', 'int', 'intv', 'ql']
+        if 'verbose' in CONF:
             print 'Output in emi formating'
-    if 'host' in conf:
-        if 'verbose' in conf:
-            print 'The following host will be used:',conf['host']
+    if 'host' in CONF:
+        if 'verbose' in CONF:
+            print 'The following host will be used:', CONF['host']
     else:
         sys.exit(usage())
-    if 'list' in conf:
-        if conf['list'] not in attributes.keys():
-            for i in attributes:
-                if attributes[i][1]+attributes[i][2] == conf['list']:
-                    conf['list'] = i
+    if 'list' in CONF:
+        if CONF['list'] not in ATTRIBUTES.keys():
+            for i in ATTRIBUTES:
+                if ATTRIBUTES[i][1]+ATTRIBUTES[i][2] == CONF['list']:
+                    CONF['list'] = i
                     break
-            if conf['list'] not in attributes.keys():
-                sys.exit('Error: '+conf['list']+' wrong attribute.')
-        if 'verbose' in conf:
-            print 'Lists all the possible values for the following attribute:',conf['list']
-    for i in attributes.keys():
-        if i in conf:
-            if 'verbose' in conf:
-                print 'Filter services by the following '+i+':',conf[i]
+            if CONF['list'] not in ATTRIBUTES.keys():
+                sys.exit('Error: '+CONF['list']+' wrong attribute.')
+        if 'verbose' in CONF:
+            print 'Lists all the possible values for the following attribute:', CONF['list']
+
+    # attributes
+    for i in ATTRIBUTES.keys():
+        if i in CONF:
+            if 'verbose' in CONF:
+                print 'Filter services by the following '+i+':', CONF[i]
     
-    #arguments
-    if 'args' in conf:
-        for arg in conf['args']:
-            if arg not in attributes.keys():
-                cpt = len(conf['args'])
-                conf['args'].remove(arg)
-                for i in attributes:
-                    if attributes[i][1]+attributes[i][2] == arg:
-                        conf['args'].append(i)
+    # arguments
+    if 'args' in CONF:
+        for arg in CONF['args']:
+            if arg not in ATTRIBUTES.keys():
+                cpt = len(CONF['args'])
+                CONF['args'].remove(arg)
+                for i in ATTRIBUTES:
+                    if ATTRIBUTES[i][1]+ATTRIBUTES[i][2] == arg:
+                        CONF['args'].append(i)
                         break
-                if len(conf['args']) < cpt:
+                if len(CONF['args']) < cpt:
                     sys.exit('Error: '+arg+' is a wrong attribute.')
-        conf['args'] = list(set(conf['args'])) # Delete duplicated values
-        if 'verbose' in conf:
-            if len(conf['args']) > 0:
-                print 'The following attributes will be displayed:',' '.join(conf['args'])
+        CONF['args'] = list(set(CONF['args'])) # delete duplicated values
+        if 'verbose' in CONF:
+            if len(CONF['args']) > 0:
+                print 'The following attributes will be displayed:', ' '.join(CONF['args'])
             else:
                 print 'All the attributes will be displayed.'
-    if 'verbose' in conf:
+    if 'verbose' in CONF:
         print 'Verbose mode enabled\n'
 
 def usage():
@@ -236,149 +243,154 @@ def list_usage():
         url       EndpointURL
         vo        PolicyRule'''
 
-def request(filter=None):
+def request(ldap_filter=None):
     """Returns the result of the ldap request with the filter given"""   
     try:
-        l = ldap.initialize('ldap://'+conf['host']+':2170')
-        if filter != None:
-            result = l.result(l.search('o=glue', ldap.SCOPE_SUBTREE, filter))
+        port = ''
+        if ':' not in CONF['host']:
+            port = ':2170'
+        con = ldap.initialize('ldap://'+CONF['host']+port)
+        if ldap_filter != None:
+            result = con.result(con.search('o=glue', ldap.SCOPE_SUBTREE, ldap_filter))
         else:
-            result = l.result(l.search('o=glue', ldap.SCOPE_SUBTREE))
+            result = con.result(con.search('o=glue', ldap.SCOPE_SUBTREE))
     except ldap.SERVER_DOWN:
         sys.exit('Error: Can\'t contact the LDAP server. Please check your host.')
     return result[1]
 
 def list_services():
     """Returns a dictionary of the filtered results from an ldap request""" 
-    filter = {'Endpoint': ''}
+    ldap_filter = {'Endpoint': ''}
     result = {}
     selection_list = {}
     # Filters 
-    for i in attributes:
-        if i in conf:
-            if attributes[i][0]+attributes[i][1] not in filter:
-                filter[attributes[i][0]+attributes[i][1]] = ''
-            tmp_filter = '(GLUE2'+attributes[i][1]+attributes[i][2]+'='+conf[i]+')'
-            if attributes[i][2] == 'Rule':
+    for i in ATTRIBUTES:
+        if i in CONF:
+            if ATTRIBUTES[i][0]+ATTRIBUTES[i][1] not in ldap_filter:
+                ldap_filter[ATTRIBUTES[i][0]+ATTRIBUTES[i][1]] = ''
+            tmp_filter = '(GLUE2'+ATTRIBUTES[i][1]+ATTRIBUTES[i][2]+'='+CONF[i]+')'
+            if ATTRIBUTES[i][2] == 'Rule':
                 tmp_filter = '(|(GLUE2PolicyRule=ALL)'+tmp_filter+')'
-            filter[attributes[i][0]+attributes[i][1]] += tmp_filter
+            ldap_filter[ATTRIBUTES[i][0]+ATTRIBUTES[i][1]] += tmp_filter
 
-    for i in objectKey.keys():
-        if i in filter:
-            result[i] = request('(&(objectClass=GLUE2'+i+')'+filter[i]+')')
+    for i in OBJECT_KEY.keys():
+        if i in ldap_filter:
+            result[i] = request('(&(objectClass=GLUE2'+i+')'+ldap_filter[i]+')')
             selection_list[i] = []
-            for r in result[i]:
-                selection_list[i].append(r[1]['GLUE2'+i+objectKey[i][0]][0])
+            for res in result[i]:
+                selection_list[i].append(res[1]['GLUE2'+i+OBJECT_KEY[i][0]][0])
     
-    result['Endpoint'] = request('(&(objectClass=GLUE2Endpoint)'+filter['Endpoint']+')')
+    result['Endpoint'] = request('(&(objectClass=GLUE2Endpoint)'+ldap_filter['Endpoint']+')')
     dic = {} # Final results
     dic2 = {} # Tmp results
     for res in result['Endpoint']:
-        iD = {}
-        for i in objectKey:
-            iD[i] = res[1]['GLUE2'+objectKey[i][1]][0]
+        ids = {}
+        for i in OBJECT_KEY:
+            ids[i] = res[1]['GLUE2'+OBJECT_KEY[i][1]][0]
         # Executes the filtering by Service and AccessPolicy objects
         stop = False
-        for i in objectKey.keys():
+        for i in OBJECT_KEY.keys():
             if i in selection_list:
-                if iD[i] not in selection_list[i]:
+                if ids[i] not in selection_list[i]:
                     stop = True
                     break
         if stop:
             continue
         # Fill in the final results dictionnary
-        dic[iD['Service']] = {}
-        for attr in conf['args']:
-            a1 = attributes[attr][0]+attributes[attr][1]
-            a2 = attributes[attr][1]+attributes[attr][2]
-            dic[iD['Service']][attr] = None
-            if attr in conf and not attributes[attr][3]:
-                dic[iD['Service']][attr] = conf[attr]
+        dic[ids['Service']] = {}
+        for attr in CONF['args']:
+            at1 = ATTRIBUTES[attr][0]+ATTRIBUTES[attr][1]
+            at2 = ATTRIBUTES[attr][1]+ATTRIBUTES[attr][2]
+            dic[ids['Service']][attr] = None
+            if attr in CONF and not ATTRIBUTES[attr][3]:
+                dic[ids['Service']][attr] = CONF[attr]
             else:
-                if a1 == 'Endpoint':
-                    if 'GLUE2'+a2 in res[1]:
-                        dic[iD['Service']][attr] = res[1]['GLUE2'+a2]
-                        if not attributes[attr][3]:
-                            dic[iD['Service']][attr] = dic[iD['Service']][attr][0]
+                if at1 == 'Endpoint':
+                    if 'GLUE2'+at2 in res[1]:
+                        dic[ids['Service']][attr] = res[1]['GLUE2'+at2]
+                        if not ATTRIBUTES[attr][3]:
+                            dic[ids['Service']][attr] = dic[ids['Service']][attr][0]
                 else:
-                    if a1 not in result:
-                        result[a1] = request('(objectClass=GLUE2'+a1+')')
+                    if at1 not in result:
+                        result[at1] = request('(objectClass=GLUE2'+at1+')')
                     if attr not in dic2:
                         dic2[attr] = {}
-                        for r in result[a1]:
-                            if 'GLUE2'+a2 in r[1]:
-                                dic2[attr][r[1]['GLUE2'+a1+objectKey[a1][0]][0]] = r[1]['GLUE2'+a2]
+                        for res in result[at1]:
+                            if 'GLUE2'+at2 in res[1]:
+                                dic2[attr][res[1]['GLUE2'+at1+OBJECT_KEY[at1][0]][0]] = res[1]['GLUE2'+at2]
                             else:
-                                dic2[attr][r[1]['GLUE2'+a1+objectKey[a1][0]][0]] = None
-                    if iD[a1] in dic2[attr]:
-                        dic[iD['Service']][attr] = dic2[attr][iD[a1]]
-                        if not attributes[attr][3] and dic[iD['Service']][attr]:
-                            dic[iD['Service']][attr] = dic[iD['Service']][attr][0]
-    if len(dic) == 0 and 'verbose' in conf:
+                                dic2[attr][res[1]['GLUE2'+at1+OBJECT_KEY[at1][0]][0]] = None
+                    if ids[at1] in dic2[attr]:
+                        dic[ids['Service']][attr] = dic2[attr][ids[at1]]
+                        if not ATTRIBUTES[attr][3] and dic[ids['Service']][attr]:
+                            dic[ids['Service']][attr] = dic[ids['Service']][attr][0]
+    if len(dic) == 0 and 'verbose' in CONF:
         sys.exit('Error: No result. Verify search parameters.')
     return dic
 
 def list_attr():
     """Returns a list of values for a given attribute""" 
     
-    oClass = attributes[conf['list']][0]+attributes[conf['list']][1]
-    key = attributes[conf['list']][1]+attributes[conf['list']][2]
-    result = request('objectClass=GLUE2'+oClass)
-    list = []
-    for r in result:
-        if 'GLUE2'+key in r[1]:
-            if r[1]['GLUE2'+key][0] not in list:
-                list.append(r[1]['GLUE2'+key][0])
+    object_class = ATTRIBUTES[CONF['list']][0]+ATTRIBUTES[CONF['list']][1]
+    key = ATTRIBUTES[CONF['list']][1]+ATTRIBUTES[CONF['list']][2]
+    result = request('objectClass=GLUE2'+object_class)
+    attr_list = []
+    for res in result:
+        if 'GLUE2'+key in res[1]:
+            if res[1]['GLUE2'+key][0] not in attr_list:
+                attr_list.append(res[1]['GLUE2'+key][0])
         else:
-            if 'None' not in list:
-                list.append('None')
-    list.sort()
-    return list
+            if 'None' not in attr_list:
+                attr_list.append('None')
+    attr_list.sort()
+    return attr_list
 
-def serialize_output(dic):
+def serialize_output(input):
     """Return the output with the wished format""" 
 
-    if 'csv' in conf:
-        list = []
-        for i in dic:
-            list2 = []
-            for j in conf['args']:
-                if dic[i][j] == None:
-                    list2.append('None')
-                elif attributes[j][3]:
-                    list2.append('"'+','.join(dic[i][j])+'"')
+    if 'list' in CONF:
+        output = '\n'.join(input)
+    elif 'csv' in CONF:
+        csv_list = []
+        for i in input:
+            tmp_list = []
+            for j in CONF['args']:
+                if input[i][j] == None:
+                    tmp_list.append('None')
+                elif ATTRIBUTES[j][3]:
+                    tmp_list.append('"'+','.join(input[i][j])+'"')
                 else:
-                    list2.append(dic[i][j])
-            list.append(','.join(list2))
-        output = '\n'.join(list)
-    elif 'json' in conf:
-        output = json.dumps(dic)
-    elif 'emi' in conf:
-        list = []
-        for i in dic:
-            dicTmp = {
-                "Service_Type": dic[i]['type'],
-                "Service_Admin_Domain": dic[i]['domain'],
-                "Service_Endpoint_URL": dic[i]['url'],
-                "Endpoint_Capability": dic[i]['cap'],
-                "Endpoint_Interface_Name": dic[i]['int'],
-                "Endpoint_Interface_Version": dic[i]['intv'],
-                "Endpoint_Quality_Level": dic[i]['ql']
+                    tmp_list.append(input[i][j])
+            csv_list.append(','.join(tmp_list))
+        output = '\n'.join(csv_list)
+    elif 'json' in CONF:
+        output = json.dumps(input)
+    elif 'emi' in CONF:
+        emi_list = []
+        for i in input:
+            dic_tmp = {
+                "Service_Type": input[i]['type'],
+                "Service_Admin_Domain": input[i]['domain'],
+                "Service_Endpoint_URL": input[i]['url'],
+                "Endpoint_Capability": input[i]['cap'],
+                "Endpoint_Interface_Name": input[i]['int'],
+                "Endpoint_Interface_Version": input[i]['intv'],
+                "Endpoint_Quality_Level": input[i]['ql']
                 }
-            list.append(json.dumps(dicTmp))
-        output = '['+','.join(list)+']'
+            emi_list.append(json.dumps(dic_tmp))
+        output = '['+', '.join(emi_list)+']'
     else:
-        list = []
-        for i in dic:
-            for j in conf['args']:
-                if dic[i][j] == None:
-                    list.append(j+': None')
-                elif attributes[j][3]:
-                    list.append(j+': '+','.join(dic[i][j]))
+        entry_list = []
+        for i in input:
+            for j in CONF['args']:
+                if input[i][j] == None:
+                    entry_list.append(j+': None')
+                elif ATTRIBUTES[j][3]:
+                    entry_list.append(j+': '+', '.join(input[i][j]))
                 else:
-                    list.append(j+': '+dic[i][j])
-            list.append('')
-        output = '\n'.join(list)
+                    entry_list.append(j+': '+input[i][j])
+            entry_list.append('')
+        output = '\n'.join(entry_list)
     return output
 
 if __name__ == "__main__":
