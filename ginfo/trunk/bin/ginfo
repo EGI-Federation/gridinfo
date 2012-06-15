@@ -1,13 +1,14 @@
 #!/usr/bin/env python
-'''Ginfo - Developped by Ivan Calvet for CERN - ivan.calvet@cern.ch'''
+"""Ginfo - Developped by Ivan Calvet for CERN - ivan.calvet@cern.ch"""
 
 import ldap
 import sys
 import getopt
 import json
 import os
+import re
 
-VERSION = '0.1.0'
+VERSION = '0.1.1'
 
 # configuration dictionnary that will be filled with the submitted options
 CONF = {}
@@ -16,6 +17,8 @@ CONF = {}
 OPTIONS = {
     'host': [None, True],
     'list': ["l", True],
+    'clean': [None, False],
+    'strict': ["s", False],
     'csv': ["c", False],
     'json': ["j", False],
     'emi': ["e", False],
@@ -63,6 +66,7 @@ def main(argv):
         result = list_attr() # option --list
     else:
         result = list_services() # get all the informations about services
+    result = clean(result)
     print serialize_output(result)
     sys.exit()
 
@@ -152,6 +156,14 @@ def validate_conf():
                 sys.exit('Error: '+CONF['list']+' wrong attribute.')
         if 'verbose' in CONF:
             print 'Lists all the possible values for the following attribute:', CONF['list']
+    if 'clean' in CONF and 'strict' in CONF:
+        sys.exit('Error: choose between clean and strict.')
+    elif 'clean' in CONF:
+        if 'verbose' in CONF:
+            print 'Results have been cleaned.'
+    elif 'strict' in CONF:
+        if 'verbose' in CONF:
+            print 'Results have been cleaned strictly.'
 
     # attributes
     for i in ATTRIBUTES.keys():
@@ -189,6 +201,9 @@ def usage():
                                 used.
     -l, --list      attribute   List all the possible values of the specified
                                 attribute.
+        --clean                 Clean results in replacing all invalid data.
+    -s, --strict                Clean strictly results in replacing all invalid
+                                data.
     -c, --csv                   Output in CSV format
     -j, --json                  Output in JSON format
     -v, --verbose               Enable verbose mode
@@ -256,20 +271,23 @@ def request(ldap_filter=None):
     return result[1]
 
 def list_services():
-    """Returns a dictionary of the filtered results from an ldap request""" 
+    """Returns a dictionary of filtered results from a ldap request""" 
     ldap_filter = {'Endpoint': ''}
     result = {}
     selection_list = {}
-    # Filters 
-    for i in ATTRIBUTES:
-        if i in CONF:
-            if ATTRIBUTES[i][0]+ATTRIBUTES[i][1] not in ldap_filter:
-                ldap_filter[ATTRIBUTES[i][0]+ATTRIBUTES[i][1]] = ''
-            tmp_filter = '(GLUE2'+ATTRIBUTES[i][1]+ATTRIBUTES[i][2]+'='+CONF[i]+')'
-            if ATTRIBUTES[i][2] == 'Rule':
-                tmp_filter = '(|(GLUE2PolicyRule=ALL)'+tmp_filter+')'
-            ldap_filter[ATTRIBUTES[i][0]+ATTRIBUTES[i][1]] += tmp_filter
 
+    # Generate the filters 
+    for i in ATTRIBUTES:
+        at1 = ATTRIBUTES[i][0]+ATTRIBUTES[i][1]
+        at2 = ATTRIBUTES[i][1]+ATTRIBUTES[i][2]
+        if i in CONF:
+            if at1 not in ldap_filter:
+                ldap_filter[at1] = ''
+            tmp_filter = '(GLUE2'+at2+'='+CONF[i]+')'
+            if at2 == 'PolicyRule':
+                tmp_filter = '(|(GLUE2PolicyRule=ALL)'+tmp_filter+')'
+            ldap_filter[at1] += tmp_filter
+    # Execute the filtered ldap requests and put results in a list
     for i in OBJECT_KEY.keys():
         if i in ldap_filter:
             result[i] = request('(&(objectClass=GLUE2'+i+')'+ldap_filter[i]+')')
@@ -277,6 +295,7 @@ def list_services():
             for res in result[i]:
                 selection_list[i].append(res[1]['GLUE2'+i+OBJECT_KEY[i][0]][0])
     
+    # Main loop using Endpoint object
     result['Endpoint'] = request('(&(objectClass=GLUE2Endpoint)'+ldap_filter['Endpoint']+')')
     dic = {} # Final results
     dic2 = {} # Tmp results
@@ -284,11 +303,10 @@ def list_services():
         ids = {}
         for i in OBJECT_KEY:
             ids[i] = res[1]['GLUE2'+OBJECT_KEY[i][1]][0]
-        # Executes the filtering by Service and AccessPolicy objects
+        # Executes the filtering by other objects
         stop = False
         for i in OBJECT_KEY.keys():
-            if i in selection_list:
-                if ids[i] not in selection_list[i]:
+            if i in selection_list and ids[i] not in selection_list[i]:
                     stop = True
                     break
         if stop:
@@ -298,7 +316,7 @@ def list_services():
         for attr in CONF['args']:
             at1 = ATTRIBUTES[attr][0]+ATTRIBUTES[attr][1]
             at2 = ATTRIBUTES[attr][1]+ATTRIBUTES[attr][2]
-            dic[ids['Service']][at2] = None
+            dic[ids['Service']][at2] = None 
             if attr in CONF and not ATTRIBUTES[attr][3]:
                 dic[ids['Service']][at2] = CONF[attr]
             else:
@@ -342,52 +360,271 @@ def list_attr():
     attr_list.sort()
     return attr_list
 
-def serialize_output(input):
+def clean(result):
+    """Clean all the results"""
+    values = {
+        'EndpointQualityLevel': [
+            'development',
+            'pre-production',
+            'production',
+            'testing'
+            ],
+        'EndpointCapability': [
+            'data.access.flatfiles',
+            'data.access.relational',
+            'data.access.xml',
+            'data.management.replica',
+            'data.management.storage',
+            'data.management.transfer',
+            'data.naming.resolver',
+            'data.naming.scheme',
+            'data.transfer',
+            'executionmanagement.candidatesetgenerator',
+            'executionmanagement.dynamicvmdeploy',
+            'executionmanagement.executionandplanning',
+            'executionmanagement.jobdescription',
+            'executionmanagement.jobexecution',
+            'executionmanagement.jobmanager',
+            'executionmanagement.reservation',
+            'information.discovery',
+            'information.logging',
+            'information.model',
+            'information.monitoring',
+            'information.provenance',
+            'security.accounting',
+            'security.attributeauthority',
+            'security.authentication',
+            'security.authorization',
+            'security.credentialstorage',
+            'security.delegation',
+            'security.identymapping'
+        ],
+        'EndpointInterfaceName': [
+           'MyProxy',
+           'SRM',
+           'VOBOX',
+           'bdii_site',
+           'bdii_top',
+           'dcap',
+           'emi.storm',
+           'gsidcap',
+           'gsiftp',
+           'http',
+           'https',
+           'lcg-file-catalog',
+           'lcg-local-file-catalog',
+           'org.glite.ChannelManagement',
+           'org.glite.Delegation',
+           'org.glite.FileTransfer',
+           'org.glite.RTEPublisher',
+           'org.glite.ce.ApplicationPublisher',
+           'org.glite.ce.CREAM',
+           'org.glite.ce.Monitor',
+           'org.glite.lb.Server',
+           'org.glite.voms',
+           'org.glite.voms-admin',
+           'org.glite.wms.WMProxy',
+           'org.globus.gram',
+           'org.nordugrid.gridftpjob',
+           'org.nordugrid.ldapglue1',
+           'org.nordugrid.ldapglue2',
+           'org.nordugrid.ldapng',
+           'xroot'
+        ],
+        'ServiceType': [
+            'org.dcache.storage',
+            'org.glite.wms.WMProxy',
+            'org.glite.lb.Server',
+            'org.glite.ce.ApplicationPublisher',
+            'org.glite.ce.CREAM',
+            'org.glite.ce.Monitor',
+            'org.glite.rgma.Consumer',
+            'org.glite.rgma.Registry',
+            'org.glite.rgma.Schema',
+            'org.glite.rgma.Browser',
+            'org.glite.rgma.PrimaryProducer',
+            'org.glite.rgma.SecondaryProducer',
+            'org.glite.rgma.OnDemandProducer',
+            'org.glite.RTEPublisher',
+            'org.glite.voms',
+            'org.glite.voms-admin',
+            'org.glite.AMGA',
+            'org.glite.ChannelManagement',
+            'org.glite.FileTransfer',
+            'org.glite.FileTransferStats',
+            'org.glite.ChannelAgent',
+            'org.glite.Delegation',
+            'org.glite.KeyStore',
+            'org.nordugrid.execution.arex',
+            'SRM',
+            'gsiftp',
+            'org.edg.gatekeeper',
+            'it.infn.GridICE',
+            'MyProxy',
+            'GUMS',
+            'gridmap-file',
+            'GridCat',
+            'edu.caltech.cacr.monalisa',
+            'OpenSSH',
+            'xroot',
+            'BDII',
+            'bdii_site',
+            'bdii_top',
+            'VOBOX',
+            'msg.broker.rest',
+            'msg.broker.stomp',
+            'msg.broker.stomp-ssl',
+            'msg.broker.openwire',
+            'msg.broker.openwire-ssl',
+            'org.lcg.Frontier',
+            'org.lcg.Squid',
+            'Nagios',
+            'National-NAGIOS',
+            'Project-NAGIOS',
+            'Regional-NAGIOS',
+            'data-location-interface',
+            'local-data-location-interface',
+            'lcg-file-catalog',
+            'lcg-local-file-catalog',
+            'pbs.torque.server',
+            'pbs.torque.maui',
+            'other'
+        ],
+    }
+    
+    if 'list' in CONF and 'vo' in CONF['list']:
+        invalid_list = []
+        for i in result:
+            # policyRule must begin with VO:
+            if not re.match('^VO:',i) and i != 'ALL' and i not in invalid_list:
+                invalid_list.append(i)
+        for i in invalid_list:
+            result.remove(i)
+        if invalid_list:
+            result.append('INVALID')
+    elif 'list' not in CONF:
+        for i in result:
+            # policyRule must begin with VO:
+            if 'PolicyRule' in result[i]:
+                if result[i]['PolicyRule'] != None:
+                    for k in range(len(result[i]['PolicyRule'])):
+                        if not re.match('^VO:',result[i]['PolicyRule'][k]) and result[i]['PolicyRule'][k] != 'ALL':
+                            result[i]['PolicyRule'][k] = 'INVALID'
+
+    if 'clean' in CONF or 'strict' in CONF:
+        if 'list' in CONF:
+            invalid_list = []
+            for i in result:
+                # all elements which contain spaces or are empty
+                if not i or i == 'None' or i.find(' ') >= 0:
+                    invalid_list.append(i)
+                # version should contain a number
+                if CONF['list'] in ['intv', 'impv']:
+                    if not re.match('^.*[0-9]+', i) and i not in invalid_list:
+                        invalid_list.append(i)
+                # quality level is restricted
+                if CONF['list'] == 'ql':
+                    if i not in values['EndpointQualityLevel'] and i not in invalid_list:
+                        invalid_list.append(i)
+                # url must be correctly formated
+                if CONF['list'] == 'url':
+                    if not re.match('(?:(?:([a-z0-9+.-]+)://)|(www\.))+(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(/[a-zA-Z0-9\&amp;%_\./-~-]*)?',i) and i not in invalid_list:
+                        invalid_list.append(i)
+                if 'strict' in CONF:
+                    # "j" is restricted
+                    for j in ['cap', 'type', 'int']:
+                        if CONF['list'] == j:
+                            if i not in values[ATTRIBUTES[j][1]+ATTRIBUTES[j][2]] and i not in invalid_list:
+                                invalid_list.append(i)
+            for i in invalid_list:
+                result.remove(i)
+            if invalid_list:
+                result.append('INVALID')            
+        else:
+            for i in result:
+                # all elements which contain spaces or are empty
+                for j in result[i]:
+                        if j in ['EndpointCapability', 'PolicyRule']:
+                            if result[i][j]:
+                                for k in range(len(result[i][j])):
+                                    if not result[i][j][k] or result[i][j][k].find(' ') >= 0:
+                                        result[i][j][k] = 'INVALID'
+                                continue
+                            else:
+                                result[i][j] = ['INVALID']
+                        elif not result[i][j] or result[i][j].find(' ') >= 0:
+                            result[i][j] = 'INVALID'
+                # version should contain a number
+                for j in ['EndpointInterfaceVersion', 'EndpointImplementationVersion']:
+                    if j in result[i]:
+                        if not re.match('^.*[0-9]+', result[i][j]):
+                            result[i][j] = 'INVALID'
+                # quality level is restricted
+                if 'EndpointQualityLevel' in result[i]:
+                    if result[i]['EndpointQualityLevel'] not in values['EndpointQualityLevel']:
+                        result[i]['EndpointQualityLevel'] = 'INVALID'
+                # url must be correctly formated
+                if 'EndpointURL' in result[i]:
+                   if not re.match('(?:(?:([a-z0-9+.-]+)://)|(www\.))+(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(/[a-zA-Z0-9\&amp;%_\./-~-]*)?',result[i]['EndpointURL']):
+                       result[i]['EndpointURL'] = 'INVALID'
+                if 'strict' in CONF:
+                    if 'EndpointCapability' in result[i]:
+                        for k in range(len(result[i]['EndpointCapability'])):
+                            if result[i]['EndpointCapability'][k] not in values['EndpointCapability'] and result[i]['EndpointCapability'][k]!='INVALID':
+                                result[i]['EndpointCapability'][k] = 'INVALID'
+                    for j in ['ServiceType', 'EndpointInterfaceName']:
+                        # "j" is restricted
+                        if j in result[i]:
+                            if result[i][j] not in values[j] and result[i][j]!='INVALID':
+                                result[i][j] = 'INVALID'
+    return result
+
+def serialize_output(result):
     """Return the output with the wished format""" 
 
     if 'list' in CONF:
-        output = '\n'.join(input)
+        output = '\n'.join(result)
     elif 'csv' in CONF:
         csv_list = []
-        for i in input:
+        for i in result:
             tmp_list = []
             for j in CONF['args']:
                 att = ATTRIBUTES[j][1]+ATTRIBUTES[j][2]
-                if input[i][att] == None:
+                if result[i][att] == None:
                     tmp_list.append('None')
                 elif ATTRIBUTES[j][3]:
-                    tmp_list.append('"'+','.join(input[i][att])+'"')
+                    tmp_list.append('"'+','.join(result[i][att])+'"')
                 else:
-                    tmp_list.append(input[i][att])
+                    tmp_list.append(result[i][att])
             csv_list.append(','.join(tmp_list))
         output = '\n'.join(csv_list)
     elif 'json' in CONF:
-        output = json.dumps(input)
+        output = json.dumps(result)
     elif 'emi' in CONF:
         emi_list = []
-        for i in input:
+        for i in result:
             dic_tmp = {
-                "Service_Type": input[i]['type'],
-                "Service_Admin_Domain": input[i]['domain'],
-                "Service_Endpoint_URL": input[i]['url'],
-                "Endpoint_Capability": input[i]['cap'],
-                "Endpoint_Interface_Name": input[i]['int'],
-                "Endpoint_Interface_Version": input[i]['intv'],
-                "Endpoint_Quality_Level": input[i]['ql']
+                "Service_Type": result[i]['type'],
+                "Service_Admin_Domain": result[i]['domain'],
+                "Service_Endpoint_URL": result[i]['url'],
+                "Endpoint_Capability": result[i]['cap'],
+                "Endpoint_Interface_Name": result[i]['int'],
+                "Endpoint_Interface_Version": result[i]['intv'],
+                "Endpoint_Quality_Level": result[i]['ql']
                 }
             emi_list.append(json.dumps(dic_tmp))
         output = '['+', '.join(emi_list)+']'
     else:
         entry_list = []
-        for i in input:
+        for i in result:
             for j in CONF['args']:
                 att = ATTRIBUTES[j][1]+ATTRIBUTES[j][2]
-                if input[i][att] == None:
+                if result[i][att] == None:
                     entry_list.append(att+': None')
                 elif ATTRIBUTES[j][3]:
-                    entry_list.append(att+': '+', '.join(input[i][att]))
+                    entry_list.append(att+': '+', '.join(result[i][att]))
                 else:
-                    entry_list.append(att+': '+input[i][att])
+                    entry_list.append(att+': '+result[i][att])
             entry_list.append('')
         output = '\n'.join(entry_list)
     return output
