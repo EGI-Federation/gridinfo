@@ -1,5 +1,5 @@
 Name:		ginfo
-Version:	0.0.9
+Version:	0.1.0
 Release:	1%{?dist}
 Summary:	Service Discovery Client
 
