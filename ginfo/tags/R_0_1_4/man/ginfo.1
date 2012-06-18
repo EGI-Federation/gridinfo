@@ -1,0 +1,28 @@
+.TH ginfo 1
+.SH NAME
+ginfo \- the service discovery tool
+.SH SYNOPSIS
+.B ginfo [options]
+.SH DESCRIPTION
+Returns a list of service's urls.
+.SH OPTIONS
+.IP "-b, --bdii  host:port"
+Specify a BDII endpoint (<hostname>:<port>). By default the environmental variable LCG_GFAL_INFOSYS will be used.
+.IP "-t, --type  type"
+Lists all services of a specific type. By default all services are returned.
+.IP "-v, --vo    VO"
+List all services for a specific VO
+.IP "-l, --list  attrib"
+List all the published values for an attribute (type, vo)
+.IP "-c, --csv"
+Provides the output in CSV formating
+.IP "-j, --json"
+Provides the output in JSON formating
+.IP "-h, --help"
+Prints this helpful message
+.IP "-d, --debug"
+Verbose mode
+.IP "-V, --version"
+Version
+.SH AUTHOR
+Ivan Calvet <Ivan.Calvet at cern dot ch>
