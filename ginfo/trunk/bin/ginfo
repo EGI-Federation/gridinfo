@@ -8,7 +8,7 @@ import json
 import os
 import re
 
-VERSION = '0.1.2'
+VERSION = '0.1.3'
 
 # configuration dictionnary that will be filled with the submitted options
 CONF = {}
@@ -330,11 +330,11 @@ def list_services():
                         result[at1] = request('(objectClass=GLUE2'+at1+')')
                     if attr not in dic2:
                         dic2[attr] = {}
-                        for res in result[at1]:
-                            if 'GLUE2'+at2 in res[1]:
-                                dic2[attr][res[1]['GLUE2'+at1+OBJECT_KEY[at1][0]][0]] = res[1]['GLUE2'+at2]
+                        for r in result[at1]:
+                            if 'GLUE2'+at2 in r[1]:
+                                dic2[attr][r[1]['GLUE2'+at1+OBJECT_KEY[at1][0]][0]] = r[1]['GLUE2'+at2]
                             else:
-                                dic2[attr][res[1]['GLUE2'+at1+OBJECT_KEY[at1][0]][0]] = None
+                                dic2[attr][r[1]['GLUE2'+at1+OBJECT_KEY[at1][0]][0]] = None
                     if ids[at1] in dic2[attr]:
                         dic[ids['Service']][attr] = dic2[attr][ids[at1]]
                         if not ATTRIBUTES[attr][3] and dic[ids['Service']][attr]:
