@@ -8,7 +8,7 @@ import json
 import os
 import re
 
-VERSION = '0.1.4'
+VERSION = '0.1.5'
 
 # configuration dictionnary that will be filled with the submitted options
 CONF = {}
@@ -210,7 +210,7 @@ def usage():
     -V, --version               Prints the version of ginfo
     -h, --help                  Prints this helpful message
 
-    Available attributes are:
+    Available attributes to display are:
 
         cap       EndpointCapability
         domain    ServiceAdminDomainForeignKey
@@ -299,7 +299,7 @@ def list_services():
     result['Endpoint'] = request('(&(objectClass=GLUE2Endpoint)'+ldap_filter['Endpoint']+')')
     dic = {} # Final results
     dic2 = {} # Tmp results
-    for res in result['Endpoint']:
+    for res in result['Endpoint']: # for each endpoint entry
         ids = {}
         for i in OBJECT_KEY:
             ids[i] = res[1]['GLUE2'+OBJECT_KEY[i][1]][0]
@@ -311,24 +311,24 @@ def list_services():
                     break
         if stop:
             continue
-        # Fill in the final results dictionnary
-        dic[ids['Service']] = {}
-        for attr in CONF['args']:
+        # Fill in the dictionnary of one entry (key = ServiceID)
+        dic[ids['Service']] = {} 
+        for attr in CONF['args']: # for all displayed attributes
             at1 = ATTRIBUTES[attr][0]+ATTRIBUTES[attr][1]
             at2 = ATTRIBUTES[attr][1]+ATTRIBUTES[attr][2]
-            dic[ids['Service']][attr] = None 
-            if attr in CONF and not ATTRIBUTES[attr][3]:
+            dic[ids['Service']][attr] = None # initialization
+            if attr in CONF and not ATTRIBUTES[attr][3]: # if the attribute is filtered and not a list
                 dic[ids['Service']][attr] = CONF[attr]
             else:
                 if at1 == 'Endpoint':
                     if 'GLUE2'+at2 in res[1]:
-                        dic[ids['Service']][attr] = res[1]['GLUE2'+at2]
-                        if not ATTRIBUTES[attr][3]:
+                        dic[ids['Service']][attr] = res[1]['GLUE2'+at2] # get the value
+                        if not ATTRIBUTES[attr][3]: # if attr not a list, take the first element
                             dic[ids['Service']][attr] = dic[ids['Service']][attr][0]
-                else:
+                else: # Service and AccessPolicy objects
                     if at1 not in result:
                         result[at1] = request('(objectClass=GLUE2'+at1+')')
-                    if attr not in dic2:
+                    if attr not in dic2: # temporary dictionnary to store results of other objects
                         dic2[attr] = {}
                         for r in result[at1]:
                             if 'GLUE2'+at2 in r[1]:
@@ -336,8 +336,8 @@ def list_services():
                             else:
                                 dic2[attr][r[1]['GLUE2'+at1+OBJECT_KEY[at1][0]][0]] = None
                     if ids[at1] in dic2[attr]:
-                        dic[ids['Service']][attr] = dic2[attr][ids[at1]]
-                        if not ATTRIBUTES[attr][3] and dic[ids['Service']][attr]:
+                        dic[ids['Service']][attr] = dic2[attr][ids[at1]] # get the value
+                        if not ATTRIBUTES[attr][3] and dic[ids['Service']][attr]: # if attr not a list, take the first element
                             dic[ids['Service']][attr] = dic[ids['Service']][attr][0]
     if len(dic) == 0 and 'verbose' in CONF:
         sys.exit('Error: No result. Verify search parameters.')
@@ -534,7 +534,7 @@ def clean(result):
                     # "j" is restricted
                     for j in ['cap', 'type', 'int']:
                         if CONF['list'] == j:
-                            if i not in values[ATTRIBUTES[j][1]+ATTRIBUTES[j][2]] and i not in invalid_list:
+                            if i not in values[j] and i not in invalid_list:
                                 invalid_list.append(i)
             for i in invalid_list:
                 result.remove(i)
@@ -579,12 +579,14 @@ def clean(result):
                                 result[i][j] = 'INVALID'
 
     #Renaming of attributes
-    result2 = {}
-    for i in result:
-        result2[i] = {}
-        for j in result[i]:
-            result2[i][ATTRIBUTES[j][1]+ATTRIBUTES[j][2]] = result[i][j]
-    return result2
+    if 'list' not in CONF:
+        result2 = {}
+        for i in result:
+            result2[i] = {}
+            for j in result[i]:
+                result2[i][ATTRIBUTES[j][1]+ATTRIBUTES[j][2]] = result[i][j]
+        result = result2
+    return result
 
 def serialize_output(result):
     """Return the output with the wished format""" 
