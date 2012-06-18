@@ -1,5 +1,5 @@
 Name:		ginfo
-Version:	0.1.3
+Version:	0.1.4
 Release:	1%{?dist}
 Summary:	Service Discovery Client
 
@@ -8,7 +8,7 @@ License:	ASL 2.0
 URL:		https://svnweb.cern.ch/trac/gridinfo/browser/ginfo
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/ginfo/tags/R_0_0_80 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/ginfo/tags/R_0_1_4 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 
 Source:		%{name}-%{version}.tar.gz
@@ -16,7 +16,9 @@ BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
 Requires:      python-ldap
+%if %{?fedora}%{!?fedora:0} >= 5 || %{?rhel}%{!?rhel:0} >= 5
 Requires:      python-json
+%endif
 
 %description
 Service Discovery Client for obtaining GLUE 2.0 information on Grid services. 
@@ -40,5 +42,5 @@ rm -rf %{buildroot}
 %doc LICENSE
 
 %changelog
-* Tue Jun 14 2012 Laurence Field <laurence.field@cern.ch> - 0.0.9-1
+* Tue Jun 18 2012 Laurence Field <laurence.field@cern.ch> - 0.1.4-1
 - Initial version
