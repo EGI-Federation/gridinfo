@@ -8,7 +8,7 @@ import json
 import os
 import re
 
-VERSION = '0.1.1'
+VERSION = '0.1.2'
 
 # configuration dictionnary that will be filled with the submitted options
 CONF = {}
@@ -316,15 +316,15 @@ def list_services():
         for attr in CONF['args']:
             at1 = ATTRIBUTES[attr][0]+ATTRIBUTES[attr][1]
             at2 = ATTRIBUTES[attr][1]+ATTRIBUTES[attr][2]
-            dic[ids['Service']][at2] = None 
+            dic[ids['Service']][attr] = None 
             if attr in CONF and not ATTRIBUTES[attr][3]:
-                dic[ids['Service']][at2] = CONF[attr]
+                dic[ids['Service']][attr] = CONF[attr]
             else:
                 if at1 == 'Endpoint':
                     if 'GLUE2'+at2 in res[1]:
-                        dic[ids['Service']][at2] = res[1]['GLUE2'+at2]
+                        dic[ids['Service']][attr] = res[1]['GLUE2'+at2]
                         if not ATTRIBUTES[attr][3]:
-                            dic[ids['Service']][at2] = dic[ids['Service']][at2][0]
+                            dic[ids['Service']][attr] = dic[ids['Service']][attr][0]
                 else:
                     if at1 not in result:
                         result[at1] = request('(objectClass=GLUE2'+at1+')')
@@ -336,9 +336,9 @@ def list_services():
                             else:
                                 dic2[attr][res[1]['GLUE2'+at1+OBJECT_KEY[at1][0]][0]] = None
                     if ids[at1] in dic2[attr]:
-                        dic[ids['Service']][at2] = dic2[attr][ids[at1]]
-                        if not ATTRIBUTES[attr][3] and dic[ids['Service']][at2]:
-                            dic[ids['Service']][at2] = dic[ids['Service']][at2][0]
+                        dic[ids['Service']][attr] = dic2[attr][ids[at1]]
+                        if not ATTRIBUTES[attr][3] and dic[ids['Service']][attr]:
+                            dic[ids['Service']][attr] = dic[ids['Service']][attr][0]
     if len(dic) == 0 and 'verbose' in CONF:
         sys.exit('Error: No result. Verify search parameters.')
     return dic
@@ -363,13 +363,13 @@ def list_attr():
 def clean(result):
     """Clean all the results"""
     values = {
-        'EndpointQualityLevel': [
+        'ql': [
             'development',
             'pre-production',
             'production',
             'testing'
             ],
-        'EndpointCapability': [
+        'cap': [
             'data.access.flatfiles',
             'data.access.relational',
             'data.access.xml',
@@ -399,7 +399,7 @@ def clean(result):
             'security.delegation',
             'security.identymapping'
         ],
-        'EndpointInterfaceName': [
+        'int': [
            'MyProxy',
            'SRM',
            'VOBOX',
@@ -431,7 +431,7 @@ def clean(result):
            'org.nordugrid.ldapng',
            'xroot'
         ],
-        'ServiceType': [
+        'type': [
             'org.dcache.storage',
             'org.glite.wms.WMProxy',
             'org.glite.lb.Server',
@@ -505,11 +505,11 @@ def clean(result):
     elif 'list' not in CONF:
         for i in result:
             # policyRule must begin with VO:
-            if 'PolicyRule' in result[i]:
-                if result[i]['PolicyRule'] != None:
-                    for k in range(len(result[i]['PolicyRule'])):
-                        if not re.match('^VO:',result[i]['PolicyRule'][k]) and result[i]['PolicyRule'][k] != 'ALL':
-                            result[i]['PolicyRule'][k] = 'INVALID'
+            if 'vo' in result[i]:
+                if result[i]['vo'] != None:
+                    for k in range(len(result[i]['vo'])):
+                        if not re.match('^VO:',result[i]['vo'][k]) and result[i]['vo'][k] != 'ALL':
+                            result[i]['vo'][k] = 'INVALID'
 
     if 'clean' in CONF or 'strict' in CONF:
         if 'list' in CONF:
@@ -524,7 +524,7 @@ def clean(result):
                         invalid_list.append(i)
                 # quality level is restricted
                 if CONF['list'] == 'ql':
-                    if i not in values['EndpointQualityLevel'] and i not in invalid_list:
+                    if i not in values['ql'] and i not in invalid_list:
                         invalid_list.append(i)
                 # url must be correctly formated
                 if CONF['list'] == 'url':
@@ -544,7 +544,7 @@ def clean(result):
             for i in result:
                 # all elements which contain spaces or are empty
                 for j in result[i]:
-                        if j in ['EndpointCapability', 'PolicyRule']:
+                        if j in ['cap', 'vo']:
                             if result[i][j]:
                                 for k in range(len(result[i][j])):
                                     if not result[i][j][k] or result[i][j][k].find(' ') >= 0:
@@ -555,29 +555,36 @@ def clean(result):
                         elif not result[i][j] or result[i][j].find(' ') >= 0:
                             result[i][j] = 'INVALID'
                 # version should contain a number
-                for j in ['EndpointInterfaceVersion', 'EndpointImplementationVersion']:
+                for j in ['intv', 'impv']:
                     if j in result[i]:
                         if not re.match('^.*[0-9]+', result[i][j]):
                             result[i][j] = 'INVALID'
                 # quality level is restricted
-                if 'EndpointQualityLevel' in result[i]:
-                    if result[i]['EndpointQualityLevel'] not in values['EndpointQualityLevel']:
-                        result[i]['EndpointQualityLevel'] = 'INVALID'
+                if 'ql' in result[i]:
+                    if result[i]['ql'] not in values['ql']:
+                        result[i]['ql'] = 'INVALID'
                 # url must be correctly formated
-                if 'EndpointURL' in result[i]:
-                   if not re.match('(?:(?:([a-z0-9+.-]+)://)|(www\.))+(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(/[a-zA-Z0-9\&amp;%_\./-~-]*)?',result[i]['EndpointURL']):
-                       result[i]['EndpointURL'] = 'INVALID'
+                if 'url' in result[i]:
+                   if not re.match('(?:(?:([a-z0-9+.-]+)://)|(www\.))+(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(/[a-zA-Z0-9\&amp;%_\./-~-]*)?',result[i]['url']):
+                       result[i]['url'] = 'INVALID'
                 if 'strict' in CONF:
-                    if 'EndpointCapability' in result[i]:
-                        for k in range(len(result[i]['EndpointCapability'])):
-                            if result[i]['EndpointCapability'][k] not in values['EndpointCapability'] and result[i]['EndpointCapability'][k]!='INVALID':
-                                result[i]['EndpointCapability'][k] = 'INVALID'
-                    for j in ['ServiceType', 'EndpointInterfaceName']:
+                    if 'cap' in result[i]:
+                        for k in range(len(result[i]['cap'])):
+                            if result[i]['cap'][k] not in values['cap'] and result[i]['cap'][k]!='INVALID':
+                                result[i]['cap'][k] = 'INVALID'
+                    for j in ['type', 'int']:
                         # "j" is restricted
                         if j in result[i]:
                             if result[i][j] not in values[j] and result[i][j]!='INVALID':
                                 result[i][j] = 'INVALID'
-    return result
+
+    #Renaming of attributes
+    result2 = {}
+    for i in result:
+        result2[i] = {}
+        for j in result[i]:
+            result2[i][ATTRIBUTES[j][1]+ATTRIBUTES[j][2]] = result[i][j]
+    return result2
 
 def serialize_output(result):
     """Return the output with the wished format""" 
@@ -604,13 +611,14 @@ def serialize_output(result):
         emi_list = []
         for i in result:
             dic_tmp = {
-                "Service_Type": result[i]['type'],
-                "Service_Admin_Domain": result[i]['domain'],
-                "Service_Endpoint_URL": result[i]['url'],
-                "Endpoint_Capability": result[i]['cap'],
-                "Endpoint_Interface_Name": result[i]['int'],
-                "Endpoint_Interface_Version": result[i]['intv'],
-                "Endpoint_Quality_Level": result[i]['ql']
+                "Service_Type": result[i]['ServiceType'],
+                "Service_Admin_Domain": result[i]['ServiceAdminDomainForeignKey'],
+                "Service_Endpoint_URL": result[i]['EndpointURL'],
+                "Endpoint_Capability": result[i]['EndpointCapability'],
+                "Endpoint_Interface_Name": result[i]['EndpointInterfaceName'],
+                "Endpoint_Interface_Version":
+                result[i]['EndpointInterfaceVersion'],
+                "Endpoint_Quality_Level": result[i]['EndpointQualityLevel']
                 }
             emi_list.append(json.dumps(dic_tmp))
         output = '['+', '.join(emi_list)+']'
