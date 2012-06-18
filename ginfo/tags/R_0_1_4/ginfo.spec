@@ -16,7 +16,7 @@ BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
 Requires:      python-ldap
-%if %{?fedora}%{!?fedora:0} >= 5 || %{?rhel}%{!?rhel:0} >= 5
+%if "%{?dist}" == ".el5"
 Requires:      python-json
 %endif
 
