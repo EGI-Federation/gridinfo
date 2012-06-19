@@ -1,28 +1,119 @@
-.TH ginfo 1
+.TH GINFO 1 "JUNE 2012" "Version 0.1" "Ginfo Manual"
 .SH NAME
 ginfo \- the service discovery tool
 .SH SYNOPSIS
-.B ginfo [options]
+ginfo [options] [attributes]
 .SH DESCRIPTION
-Returns a list of service's urls.
+List URLs of services along with other optional attributes.
 .SH OPTIONS
-.IP "-b, --bdii  host:port"
-Specify a BDII endpoint (<hostname>:<port>). By default the environmental variable LCG_GFAL_INFOSYS will be used.
-.IP "-t, --type  type"
-Lists all services of a specific type. By default all services are returned.
-.IP "-v, --vo    VO"
-List all services for a specific VO
-.IP "-l, --list  attrib"
-List all the published values for an attribute (type, vo)
-.IP "-c, --csv"
-Provides the output in CSV formating
-.IP "-j, --json"
-Provides the output in JSON formating
-.IP "-h, --help"
+.IP "    \fB--host\fP     \fIhost\fP"
+Specify a host to query. By default the environmental variable LCG_GFAL_INFOSYS
+will be used.
+.IP "\fB-l, --list\fP     \fIattribute\fP"
+List all the possible values of the specified attribute.
+.IP "    \fB--clean\fP"
+Clean results in replacing all invalid data.
+.IP "\fB-s, --strict\fP"
+Clean strictly results in replacing all invalid data.
+.IP "\fB-c, --csv\fP"
+Output in CSV formating
+.IP "\fB-j, --json\fP"
+Output in JSON formating
+.IP "\fB-v, --verbose\fP"
+Enable verbose mode
+.IP "\fB-V, --version\fP"
+Prints the version of ginfo
+.IP "\fB-h, --help\fP"
 Prints this helpful message
-.IP "-d, --debug"
-Verbose mode
-.IP "-V, --version"
-Version
+.PP
+Addition options to filter services by the specified attribute:
+.IP "    \fB--cap\fP      \fIEndpointCapability\fP"
+.IP "\fB-d, --domain\fP   \fIServiceAdminDomainForeignKey\fP"
+.IP "\fB-i, --id\fP       \fIServiceID\fP"
+.IP "\fB-m, --imp\fP      \fIEndpointImplementationName\fP"
+.IP "    \fB--impv\fP     \fIEndpointImplementationVersion\fP"
+.IP "\fB-n, --int\fP      \fIEndpointInterfaceName\fP"
+.IP "    \fB--intv\fP     \fIEndpointInterfaceVersion\fP"
+.IP "\fB-q, --ql\fP       \fIEndpointQualityLevel\fP"
+.IP "\fB-t, --type\fP     \fIServiceType\fP"
+.IP "\fB-u, --url\fP      \fIEndpointURL\fP"
+.IP "    \fB--vo\fP       \fIPolicyRule\fP"
+.PP
+Available attributes to display are:
+.IP "\fBcap      EndpointCapability\fP"
+.IP "\fBdomain   ServiceAdminDomainForeignKey\fP"
+.IP "\fBid       ServiceID\fP"
+.IP "\fBimp      EndpointImplementationName\fP"
+.IP "\fBimpv     EndpointImplementationVersion\fP"
+.IP "\fBint      EndpointInterfaceName\fP"
+.IP "\fBintv     EndpointInterfaceVersion\fP"
+.IP "\fBql       EndpointQualityLevel\fP"
+.IP "\fBtype     ServiceType\fP"
+.IP "\fBurl      EndpointURL\fP"
+.IP "\fBvo       PolicyRule\fP"
+
+.SH OUTPUT FORMAT
+.PP
+For each entry, without any output option and if you don't specify which
+attribute you want to display:
+.IP "ServiceAdminDomainForeignKey: XXX"
+.IP "EndpointImplementationVersion: XXX"
+.IP "EndpointImplementationName: XXX"
+.IP "EndpointInterfaceName: XXX"
+.IP "EndpointCapability: XXX"
+.IP "PolicyRule: XXX"
+.IP "EndpointURL: XXX"
+.IP "EndpointInterfaceVersion: XXX"
+.IP "EndpointQualityLevel: XXX"
+.IP "ServiceType: XXX"
+.IP "ServiceID: XXX"
+.br
+.PP
+With --json option:
+.IP "[... '(service id)': {"
+.IP "'EndpointImplementationVersion': XXX,"
+.IP "'ServiceAdminDomainForeignKey: XXX,"
+.IP "'EndpointQualityLevel': XXX,"
+.IP "'EndpointInterfaceVersion': XXX,"
+.IP "'EndpointImplementationName': XXX,"
+.IP "'PolicyRule': XXX,"
+.IP "'EndpointURL': XXX,"
+.IP "'EndpointCapability': XXX,"
+.IP "'ServiceID': XXX,"
+.IP "'EndpointInterfaceName': XXX,"
+.IP "'ServiceType': XXX,"
+.IP ", ...]"
+.br
+.PP
+With --csv option:
+.IP ServiceAdminDomainForeignKey,EndpointImplementationVersion,EndpointImplementationName,EndpointInterfaceName,EndpointCapability,PolicyRule,EndpointURL,EndpointInterfaceVersion,EndpointQualityLevel,EndpointInterfaceName,ServiceID
+
+.SH EXAMPLES
+.IP "1) List all information for all endpoint URLs"
+ginfo  --host lcg-bdii.cern.ch
+
+.IP "2) Use the host from the LCG_GFAL_INFOSYS environment variable and list all endpoint URLs"
+export LCG_GFAL_INFOSYS=lcg-bdii.cern.ch:2170
+.br
+ginfo url
+
+.IP "3) List published GLUE 2.0 interface types"
+ginfo  --list int
+
+.IP "4) List all published FTS endpoints"
+ginfo  --int org.glite.FileTransfer  url
+
+.IP "5) Show the version"
+ginfo  --int org.glite.FileTransfer  url intv
+
+.IP "6) Show all available information"
+ginfo  --int org.glite.FileTransfer
+
+.IP "7) export to CSV"
+ginfo  --int org.glite.FileTransfer  --csv url
+
+.IP "8) Help"
+ginfo  --help
+
 .SH AUTHOR
 Ivan Calvet <Ivan.Calvet at cern dot ch>
