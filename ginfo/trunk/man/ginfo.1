@@ -1,10 +1,10 @@
-.TH GINFO 1 "JUNE 2012" "Version 0.1" "Ginfo Manual"
+.TH ginfo 1 "JUNE 2012" "Version 0.1" "ginfo manual"
 .SH NAME
-ginfo \- the service discovery tool
+ginfo \- fetch service information
 .SH SYNOPSIS
 ginfo [options] [attributes]
 .SH DESCRIPTION
-List URLs of services along with other optional attributes.
+List service URLs and other attributes.
 .SH OPTIONS
 .IP "    \fB--host\fP     \fIhost\fP"
 Specify a host to query. By default the environmental variable LCG_GFAL_INFOSYS
@@ -12,9 +12,9 @@ will be used.
 .IP "\fB-l, --list\fP     \fIattribute\fP"
 List all the possible values of the specified attribute.
 .IP "    \fB--clean\fP"
-Clean results in replacing all invalid data.
+Clean results in replacing all invalid values with INVALID.
 .IP "\fB-s, --strict\fP"
-Clean strictly results in replacing all invalid data.
+Strictly enforces known values (Only recommended with up-to-date version).
 .IP "\fB-c, --csv\fP"
 Output in CSV formating
 .IP "\fB-j, --json\fP"
@@ -26,7 +26,7 @@ Prints the version of ginfo
 .IP "\fB-h, --help\fP"
 Prints this helpful message
 .PP
-Addition options to filter services by the specified attribute:
+Additional options to filter services by the specified attribute:
 .IP "    \fB--cap\fP      \fIEndpointCapability\fP"
 .IP "\fB-d, --domain\fP   \fIServiceAdminDomainForeignKey\fP"
 .IP "\fB-i, --id\fP       \fIServiceID\fP"
@@ -54,38 +54,36 @@ Available attributes to display are:
 
 .SH OUTPUT FORMAT
 .PP
-For each entry, without any output option and if you don't specify which
-attribute you want to display:
-.IP "ServiceAdminDomainForeignKey: XXX"
-.IP "EndpointImplementationVersion: XXX"
-.IP "EndpointImplementationName: XXX"
-.IP "EndpointInterfaceName: XXX"
-.IP "EndpointCapability: XXX"
-.IP "PolicyRule: XXX"
-.IP "EndpointURL: XXX"
-.IP "EndpointInterfaceVersion: XXX"
-.IP "EndpointQualityLevel: XXX"
-.IP "ServiceType: XXX"
-.IP "ServiceID: XXX"
+Standard output:
+.IP "EndpointImplementationVersion: value"
+.IP "EndpointImplementationName: value"
+.IP "EndpointInterfaceName: value"
+.IP "EndpointCapability: value"
+.IP "PolicyRule: value"
+.IP "EndpointURL: value"
+.IP "EndpointInterfaceVersion: value"
+.IP "EndpointQualityLevel: value"
+.IP "ServiceType: value"
+.IP "ServiceID: value"
 .br
 .PP
-With --json option:
-.IP "[... '(service id)': {"
-.IP "'EndpointImplementationVersion': XXX,"
-.IP "'ServiceAdminDomainForeignKey: XXX,"
-.IP "'EndpointQualityLevel': XXX,"
-.IP "'EndpointInterfaceVersion': XXX,"
-.IP "'EndpointImplementationName': XXX,"
-.IP "'PolicyRule': XXX,"
-.IP "'EndpointURL': XXX,"
-.IP "'EndpointCapability': XXX,"
-.IP "'ServiceID': XXX,"
-.IP "'EndpointInterfaceName': XXX,"
-.IP "'ServiceType': XXX,"
+JSON output:
+.IP "[... '(ServiceID)': {"
+.IP "'EndpointImplementationVersion': value,"
+.IP "'ServiceAdminDomainForeignKey: value,"
+.IP "'EndpointQualityLevel': value,"
+.IP "'EndpointInterfaceVersion': value,"
+.IP "'EndpointImplementationName': value,"
+.IP "'PolicyRule': value,"
+.IP "'EndpointURL': value,"
+.IP "'EndpointCapability': value,"
+.IP "'ServiceID': value,"
+.IP "'EndpointInterfaceName': value,"
+.IP "'ServiceType': value,"
 .IP ", ...]"
 .br
 .PP
-With --csv option:
+CSV output:
 .IP ServiceAdminDomainForeignKey,EndpointImplementationVersion,EndpointImplementationName,EndpointInterfaceName,EndpointCapability,PolicyRule,EndpointURL,EndpointInterfaceVersion,EndpointQualityLevel,EndpointInterfaceName,ServiceID
 
 .SH EXAMPLES
@@ -111,9 +109,6 @@ ginfo  --int org.glite.FileTransfer
 
 .IP "7) export to CSV"
 ginfo  --int org.glite.FileTransfer  --csv url
-
-.IP "8) Help"
-ginfo  --help
 
 .SH AUTHOR
 Ivan Calvet <Ivan.Calvet at cern dot ch>
