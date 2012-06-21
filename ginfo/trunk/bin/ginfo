@@ -8,7 +8,7 @@ import json
 import os
 import re
 
-VERSION = '0.1.5'
+VERSION = '0.1.6'
 
 # configuration dictionnary that will be filled with the submitted options
 CONF = {}
@@ -185,7 +185,7 @@ def validate_conf():
                     sys.exit('Error: '+arg+' is a wrong attribute.')
         CONF['args'] = list(set(CONF['args'])) # delete duplicated values
         if 'verbose' in CONF:
-            print 'The following attributes will be displayed:', ' '.join(CONF['args'])
+            print 'The following attribute(s) will be displayed:', ' '.join(CONF['args'])
     if 'verbose' in CONF:
         print 'Verbose mode enabled\n'
 
@@ -210,20 +210,6 @@ def usage():
     -V, --version               Prints the version of ginfo
     -h, --help                  Prints this helpful message
 
-    Available attributes to display are:
-
-        cap       EndpointCapability
-        domain    ServiceAdminDomainForeignKey
-        id        ServiceID
-        imp       EndpointImplementationName
-        impv      EndpointImplementationVersion
-        int       EndpointInterfaceName
-        intv      EndpointInterfaceVersion
-        ql        EndpointQualityLevel
-        type      ServiceType
-        url       EndpointURL
-        vo        PolicyRule
-
     Addition options to filter services by the specified attribute:
 
         --cap       EndpointCapability
@@ -236,7 +222,21 @@ def usage():
     -q, --ql        EndpointQualityLevel
     -t, --type      ServiceType
     -u, --url       EndpointURL
-        --vo        PolicyRule'''
+        --vo        PolicyRule
+
+    Available attributes to display are:
+
+        cap       EndpointCapability
+        domain    ServiceAdminDomainForeignKey
+        id        ServiceID
+        imp       EndpointImplementationName
+        impv      EndpointImplementationVersion
+        int       EndpointInterfaceName
+        intv      EndpointInterfaceVersion
+        ql        EndpointQualityLevel
+        type      ServiceType
+        url       EndpointURL
+        vo        PolicyRule'''
 
 def list_usage():
     """Returns the usage message for list option"""
@@ -307,8 +307,8 @@ def list_services():
         stop = False
         for i in OBJECT_KEY.keys():
             if i in selection_list and ids[i] not in selection_list[i]:
-                    stop = True
-                    break
+                stop = True
+                break
         if stop:
             continue
         # Fill in the dictionnary of one entry (key = ServiceID)
@@ -330,11 +330,11 @@ def list_services():
                         result[at1] = request('(objectClass=GLUE2'+at1+')')
                     if attr not in dic2: # temporary dictionnary to store results of other objects
                         dic2[attr] = {}
-                        for r in result[at1]:
-                            if 'GLUE2'+at2 in r[1]:
-                                dic2[attr][r[1]['GLUE2'+at1+OBJECT_KEY[at1][0]][0]] = r[1]['GLUE2'+at2]
+                        for res2 in result[at1]:
+                            if 'GLUE2'+at2 in res2[1]:
+                                dic2[attr][res2[1]['GLUE2'+at1+OBJECT_KEY[at1][0]][0]] = res2[1]['GLUE2'+at2]
                             else:
-                                dic2[attr][r[1]['GLUE2'+at1+OBJECT_KEY[at1][0]][0]] = None
+                                dic2[attr][res2[1]['GLUE2'+at1+OBJECT_KEY[at1][0]][0]] = None
                     if ids[at1] in dic2[attr]:
                         dic[ids['Service']][attr] = dic2[attr][ids[at1]] # get the value
                         if not ATTRIBUTES[attr][3] and dic[ids['Service']][attr]: # if attr not a list, take the first element
@@ -352,6 +352,10 @@ def list_attr():
     attr_list = []
     for res in result:
         if 'GLUE2'+key in res[1]:
+            if ATTRIBUTES[CONF['list']][3]:
+                for i in res[1]['GLUE2'+key]:
+                    if i not in attr_list:
+                        attr_list.append(i)
             if res[1]['GLUE2'+key][0] not in attr_list:
                 attr_list.append(res[1]['GLUE2'+key][0])
         else:
@@ -496,7 +500,7 @@ def clean(result):
         invalid_list = []
         for i in result:
             # policyRule must begin with VO:
-            if not re.match('^VO:',i) and i != 'ALL' and i not in invalid_list:
+            if not re.match('^VO:', i) and i != 'ALL' and i not in invalid_list:
                 invalid_list.append(i)
         for i in invalid_list:
             result.remove(i)
@@ -508,7 +512,7 @@ def clean(result):
             if 'vo' in result[i]:
                 if result[i]['vo'] != None:
                     for k in range(len(result[i]['vo'])):
-                        if not re.match('^VO:',result[i]['vo'][k]) and result[i]['vo'][k] != 'ALL':
+                        if not re.match('^VO:', result[i]['vo'][k]) and result[i]['vo'][k] != 'ALL':
                             result[i]['vo'][k] = 'INVALID'
 
     if 'clean' in CONF or 'strict' in CONF:
@@ -528,7 +532,7 @@ def clean(result):
                         invalid_list.append(i)
                 # url must be correctly formated
                 if CONF['list'] == 'url':
-                    if not re.match('(?:(?:([a-z0-9+.-]+)://)|(www\.))+(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(/[a-zA-Z0-9\&amp;%_\./-~-]*)?',i) and i not in invalid_list:
+                    if not re.match('(?:(?:([a-z0-9+.-]+)://)|(www\.))+(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(/[a-zA-Z0-9\&amp;%_\./-~-]*)?', i) and i not in invalid_list:
                         invalid_list.append(i)
                 if 'strict' in CONF:
                     # "j" is restricted
@@ -544,16 +548,16 @@ def clean(result):
             for i in result:
                 # all elements which contain spaces or are empty
                 for j in result[i]:
-                        if j in ['cap', 'vo']:
-                            if result[i][j]:
-                                for k in range(len(result[i][j])):
-                                    if not result[i][j][k] or result[i][j][k].find(' ') >= 0:
-                                        result[i][j][k] = 'INVALID'
-                                continue
-                            else:
-                                result[i][j] = ['INVALID']
-                        elif not result[i][j] or result[i][j].find(' ') >= 0:
-                            result[i][j] = 'INVALID'
+                    if ATTRIBUTES[j][3]:
+                        if result[i][j]:
+                            for k in range(len(result[i][j])):
+                                if not result[i][j][k] or result[i][j][k].find(' ') >= 0:
+                                    result[i][j][k] = 'INVALID'
+                            continue
+                        else:
+                            result[i][j] = ['INVALID']
+                    elif not result[i][j] or result[i][j].find(' ') >= 0:
+                        result[i][j] = 'INVALID'
                 # version should contain a number
                 for j in ['intv', 'impv']:
                     if j in result[i]:
@@ -565,17 +569,17 @@ def clean(result):
                         result[i]['ql'] = 'INVALID'
                 # url must be correctly formated
                 if 'url' in result[i]:
-                   if not re.match('(?:(?:([a-z0-9+.-]+)://)|(www\.))+(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(/[a-zA-Z0-9\&amp;%_\./-~-]*)?',result[i]['url']):
-                       result[i]['url'] = 'INVALID'
+                    if not re.match('(?:(?:([a-z0-9+.-]+)://)|(www\.))+(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(/[a-zA-Z0-9\&amp;%_\./-~-]*)?', result[i]['url']):
+                        result[i]['url'] = 'INVALID'
                 if 'strict' in CONF:
                     if 'cap' in result[i]:
                         for k in range(len(result[i]['cap'])):
-                            if result[i]['cap'][k] not in values['cap'] and result[i]['cap'][k]!='INVALID':
+                            if result[i]['cap'][k] not in values['cap'] and result[i]['cap'][k] != 'INVALID':
                                 result[i]['cap'][k] = 'INVALID'
                     for j in ['type', 'int']:
                         # "j" is restricted
                         if j in result[i]:
-                            if result[i][j] not in values[j] and result[i][j]!='INVALID':
+                            if result[i][j] not in values[j] and result[i][j] != 'INVALID':
                                 result[i][j] = 'INVALID'
 
     #Renaming of attributes
@@ -595,6 +599,10 @@ def serialize_output(result):
         output = '\n'.join(result)
     elif 'csv' in CONF:
         csv_list = []
+        titles = []
+        for j in CONF['args']:
+           titles.append(ATTRIBUTES[j][1]+ATTRIBUTES[j][2]) 
+        csv_list.append(','.join(titles))
         for i in result:
             tmp_list = []
             for j in CONF['args']:
