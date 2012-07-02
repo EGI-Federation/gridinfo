@@ -1,5 +1,0 @@
-#!/bin/sh
-
-if [ -f /var/cache/fcr/exclude.ldif ]; then 
-    cat /var/cache/fcr/exclude.ldif
-fi
