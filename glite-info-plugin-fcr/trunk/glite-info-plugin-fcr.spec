@@ -1,5 +1,5 @@
 Name: glite-info-plugin-fcr
-Version: 3.0.3
+Version: 3.0.4
 Release: 1%{?dist} 
 Summary: glite-info-plugin-fcr
 Group:          System Environment/Daemons
