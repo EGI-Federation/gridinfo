@@ -54,7 +54,6 @@ def get_dns():
          if ( type == 'vo' or type == 'voms' ):
             value = line.split(':')[2].lower().strip()
             if ( value == 'cms' or value[:5] == '/cms/' ):
-               dn = dn.replace('o=grid', 'Mds-Vo-name=local,o=grid')
                if not dn in dns:
                   dns[dn] = []
                dns[dn].append(line)
@@ -77,7 +76,6 @@ def get_dns():
          if ( type == 'vo' or type == 'voms' ):
             value = line.split(':')[2].lower().strip()
             if ( value == 'cms' or value[:5] == '/cms/' ):
-               dn = dn.replace('o=grid', 'Mds-Vo-name=local,o=grid')
                if not dn in dns_db:
                   dns_db[dn] = []
                dns_db[dn].append(line)
