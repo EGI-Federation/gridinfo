@@ -8,7 +8,7 @@ import json
 import os
 import re
 
-VERSION = '0.1.6'
+VERSION = '0.1.7'
 
 # configuration dictionnary that will be filled with the submitted options
 CONF = {}
@@ -102,16 +102,20 @@ def parse_options(argv):
         opt = opt[opt.rfind('-')+1:]
         for i in OPTIONS:
             if opt in (i, OPTIONS[i][0]):
-                if OPTIONS[i][1]:
-                    CONF[i] = arg
+                if i not in CONF:
+                    if OPTIONS[i][1]:
+                        CONF[i] = arg
+                    else:
+                        CONF[i] = True
+                    break 
                 else:
-                    CONF[i] = True
-                break 
+                    sys.exit('Error: use options not more than once.')
 
     # put the arguments in the config dictionnary
     CONF['args'] = args
     if len(args) == 0:
         CONF['args'] = ATTRIBUTES.keys() # all by default
+        CONF['args'].sort()
 
 def validate_conf():
     """Prints verbose messages and checks for errors""" 
@@ -123,22 +127,24 @@ def validate_conf():
     if 'version' in CONF:
         print os.path.basename(sys.argv[0]) +' V'+VERSION
         sys.exit()
-    if all(i in CONF for i in ['csv', 'json', 'emi']):
+    if 'verbose' in CONF:
+        print 'Verbose mode enabled'
+    if all(i in CONF for i in ['csv', 'json', 'emi']) and 'list' not in CONF:
         sys.exit('Error: choose between csv, json and emi.')
-    elif 'csv' in CONF and 'json' in CONF:
+    elif 'csv' in CONF and 'json' in CONF and 'list' not in CONF:
         sys.exit('Error: choose between csv and json.')
-    elif 'csv' in CONF and 'emi' in CONF:
+    elif 'csv' in CONF and 'emi' in CONF and 'list' not in CONF:
         sys.exit('Error: choose between csv and emi.')
-    elif 'emi' in CONF and 'json' in CONF:
+    elif 'emi' in CONF and 'json' in CONF and 'list' not in CONF:
         sys.exit('Error: choose between json and emi.')
-    elif 'csv' in CONF:
+    elif 'csv' in CONF and 'list' not in CONF:
         if 'verbose' in CONF:
             print 'Output in csv formating'
-    elif 'json' in CONF:
+    elif 'json' in CONF and 'list' not in CONF:
         if 'verbose' in CONF:
             print 'Output in json formating'
-    elif 'emi' in CONF:
-        CONF['args'] = ['cap', 'domain', 'id', 'imp', 'impv', 'int', 'intv', 'ql', 'type', 'url']
+    elif 'emi' in CONF and 'list' not in CONF:
+        CONF['args'] = ['id', 'url', 'cap', 'domain', 'int', 'intv', 'imp', 'impv', 'ql', 'type']
         if 'verbose' in CONF:
             print 'Output in emi formating'
     if 'host' in CONF:
@@ -155,7 +161,10 @@ def validate_conf():
             if CONF['list'] not in ATTRIBUTES.keys():
                 sys.exit('Error: '+CONF['list']+' wrong attribute.')
         if 'verbose' in CONF:
-            print 'Lists all the possible values for the following attribute:', CONF['list']
+            print 'List all the possible values for the following attribute:', ATTRIBUTES[CONF['list']][1]+ATTRIBUTES[CONF['list']][2]
+            for i in ['csv', 'json', 'emi'] + ATTRIBUTES.keys():
+                if i in CONF:
+                    print 'Option --'+i+' is not compatible with --list option.'
     if 'clean' in CONF and 'strict' in CONF:
         sys.exit('Error: choose between clean and strict.')
     elif 'clean' in CONF:
@@ -168,26 +177,33 @@ def validate_conf():
     # attributes
     for i in ATTRIBUTES.keys():
         if i in CONF:
-            if 'verbose' in CONF:
-                print 'Filter services by the following '+i+':', CONF[i]
+            if 'verbose' in CONF and 'list' not in CONF:
+                print 'Filter services by the following '+ATTRIBUTES[i][1]+ATTRIBUTES[i][2]+':', CONF[i]
     
     # arguments
-    if 'args' in CONF:
+    if 'args' in CONF and 'list' not in CONF:
+        display_list = []
+        arg_list = []
         for arg in CONF['args']:
             if arg not in ATTRIBUTES.keys():
-                cpt = len(CONF['args'])
-                CONF['args'].remove(arg)
+                wrong_arg = True
                 for i in ATTRIBUTES:
                     if ATTRIBUTES[i][1]+ATTRIBUTES[i][2] == arg:
-                        CONF['args'].append(i)
+                        if i not in arg_list:
+                            arg_list.append(i)
+                            display_list.append(arg)
+                        wrong_arg = False
                         break
-                if len(CONF['args']) < cpt:
+                if wrong_arg:
                     sys.exit('Error: '+arg+' is a wrong attribute.')
-        CONF['args'] = list(set(CONF['args'])) # delete duplicated values
+            elif arg not in arg_list:
+                arg_list.append(arg)
+                display_list.append(ATTRIBUTES[arg][1]+ATTRIBUTES[arg][2])
+        CONF['args'] = arg_list
         if 'verbose' in CONF:
-            print 'The following attribute(s) will be displayed:', ' '.join(CONF['args'])
+            print 'The following attribute(s) will be displayed:', ' '.join(display_list)
     if 'verbose' in CONF:
-        print 'Verbose mode enabled\n'
+        print ''
 
 def usage():
     """Returns the usage message""" 
@@ -317,7 +333,7 @@ def list_services():
             at1 = ATTRIBUTES[attr][0]+ATTRIBUTES[attr][1]
             at2 = ATTRIBUTES[attr][1]+ATTRIBUTES[attr][2]
             dic[ids['Service']][attr] = None # initialization
-            if attr in CONF and not ATTRIBUTES[attr][3]: # if the attribute is filtered and not a list
+            if attr in CONF and not ATTRIBUTES[attr][3] and CONF[attr].find('*') == -1: # if the attribute is filtered and not a list
                 dic[ids['Service']][attr] = CONF[attr]
             else:
                 if at1 == 'Endpoint':
@@ -519,7 +535,7 @@ def clean(result):
         if 'list' in CONF:
             invalid_list = []
             for i in result:
-                # all elements which contain spaces or are empty
+                # all elements which contain spaces or are empty are invalid.
                 if not i or i == 'None' or i.find(' ') >= 0:
                     invalid_list.append(i)
                 # version should contain a number
