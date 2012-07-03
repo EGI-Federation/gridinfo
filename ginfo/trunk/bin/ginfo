@@ -66,6 +66,8 @@ def main(argv):
         result = list_attr() # option --list
     else:
         result = list_services() # get all the informations about services
+    if 'verbose' in CONF:
+        print ''
     result = clean(result)
     print serialize_output(result)
     sys.exit()
@@ -202,8 +204,6 @@ def validate_conf():
         CONF['args'] = arg_list
         if 'verbose' in CONF:
             print 'The following attribute(s) will be displayed:', ' '.join(display_list)
-    if 'verbose' in CONF:
-        print ''
 
 def usage():
     """Returns the usage message""" 
@@ -315,6 +315,7 @@ def list_services():
     result['Endpoint'] = request('(&(objectClass=GLUE2Endpoint)'+ldap_filter['Endpoint']+')')
     dic = {} # Final results
     dic2 = {} # Tmp results
+    multiples = []
     for res in result['Endpoint']: # for each endpoint entry
         ids = {}
         for i in OBJECT_KEY:
@@ -328,7 +329,9 @@ def list_services():
         if stop:
             continue
         # Fill in the dictionnary of one entry (key = ServiceID)
-        dic[ids['Service']] = {} 
+        if ids['Service'] in dic and ids['Service'] not in multiples:
+            multiples.append(ids['Service'])
+        dic[ids['Service']] = {}
         for attr in CONF['args']: # for all displayed attributes
             at1 = ATTRIBUTES[attr][0]+ATTRIBUTES[attr][1]
             at2 = ATTRIBUTES[attr][1]+ATTRIBUTES[attr][2]
@@ -355,6 +358,8 @@ def list_services():
                         dic[ids['Service']][attr] = dic2[attr][ids[at1]] # get the value
                         if not ATTRIBUTES[attr][3] and dic[ids['Service']][attr]: # if attr not a list, take the first element
                             dic[ids['Service']][attr] = dic[ids['Service']][attr][0]
+    if multiples and 'verbose' in CONF:
+        print 'Warning: these service ids were found many times and only the last entry will be displayed:\n'+'\n'.join(multiples)
     if len(dic) == 0 and 'verbose' in CONF:
         sys.exit('Error: No result. Verify search parameters.')
     return dic
