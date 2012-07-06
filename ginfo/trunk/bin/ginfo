@@ -59,6 +59,8 @@ EMI_ATT = {
 'Endpoint_Capability': 'cap',
 'Service_Admin_Domain': 'domain',
 '_id': 'id',
+'Endpoint_Implementation_Name': 'imp',
+'Endpoint_Implementation_Version': 'impv',
 'Endpoint_Interface_Name': 'int',
 'Endpoint_Interface_Version': 'intv',
 'Endpoint_Quality_Level': 'ql',
