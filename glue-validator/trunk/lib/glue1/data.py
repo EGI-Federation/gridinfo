@@ -5,6 +5,7 @@ schema = {
         },
     'GlueTop' : {},
     'GlueCETop' : {},
+    'GlueSETop' : {},
     'GlueSATop' : {},
     'GlueGeneralTop' : {},
     'GlueClusterTop' : {},

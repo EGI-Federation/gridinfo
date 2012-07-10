@@ -279,7 +279,7 @@ def is_Boolean(value):
       return False
 
 def is_SEStatus_t(value):
-   types = ['Queuing' , 'Production', 'Closed', 'Draining']
+   types = ['queuing' , 'production', 'closed', 'draining']
    if value.lower() in types:
       return True
    else:
