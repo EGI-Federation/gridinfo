@@ -9,7 +9,7 @@ import os
 import re
 import urllib2
 
-VERSION = '0.1.9'
+VERSION = '0.2.0'
 
 # configuration dictionnary that will be filled with the submitted options
 CONF = {}
@@ -40,32 +40,20 @@ OPTIONS = {
     'vo': [None, True],
     }
 
-# ldap request attribute: [prefix_object, object_class, key, output_list]
+# ldap request attribute: [prefix_object, object_class, key, output_list, EMI_name]
 ATTRIBUTES = {
-    'cap': ['', 'Endpoint', 'Capability', True],
-    'domain': ['', 'Service', 'AdminDomainForeignKey', False],
-    'id': ['', 'Service', 'ID', False],
-    'imp': ['', 'Endpoint', 'ImplementationName', False],
-    'impv': ['', 'Endpoint', 'ImplementationVersion', False],
-    'int': ['', 'Endpoint', 'InterfaceName', False],
-    'intv': ['', 'Endpoint', 'InterfaceVersion', False],
-    'ql': ['', 'Endpoint', 'QualityLevel', False],
-    'type': ['', 'Service', 'Type', False],
-    'url': ['', 'Endpoint', 'URL', False],
-    'vo': ['Access', 'Policy', 'Rule', True],
+    'cap': ['', 'Endpoint', 'Capability', True, 'Endpoint_Capability'],
+    'domain': ['', 'Service', 'AdminDomainForeignKey', False, 'Service_Admin_Domain'],
+    'id': ['', 'Service', 'ID', False, '_id'],
+    'imp': ['', 'Endpoint', 'ImplementationName', False, 'Endpoint_Implementation_Name'],
+    'impv': ['', 'Endpoint', 'ImplementationVersion', False, 'Endpoint_Implementation_Version'],
+    'int': ['', 'Endpoint', 'InterfaceName', False, 'Endpoint_Interface_Name'],
+    'intv': ['', 'Endpoint', 'InterfaceVersion', False, 'Endpoint_Interface_Version'],
+    'ql': ['', 'Endpoint', 'QualityLevel', False, 'Endpoint_Quality_Level'],
+    'type': ['', 'Service', 'Type', False, 'Service_Type'],
+    'url': ['', 'Endpoint', 'URL', False, 'Service_Endpoint_URL'],
+    'vo': ['Access', 'Policy', 'Rule', True, None],
     }
-
-EMI_ATT = {
-'Endpoint_Capability': 'cap',
-'Service_Admin_Domain': 'domain',
-'Endpoint_Implementation_Name': 'imp',
-'Endpoint_Implementation_Version': 'impv',
-'Endpoint_Interface_Name': 'int',
-'Endpoint_Interface_Version': 'intv',
-'Endpoint_Quality_Level': 'ql',
-'Service_Type': 'type',
-'Service_Endpoint_URL': 'url',
-}
 
 # keys that link ldap objects to Endpoint object [objectKey, EndpointKey]
 OBJECT_KEY = {'Service': ['ID', 'EndpointServiceForeignKey'], 'AccessPolicy': ['EndpointForeignKey', 'EndpointID']}
@@ -307,7 +295,7 @@ def request(filter=None):
             if ':' not in CONF['host']:
                 port = ':2170'
             con = ldap.initialize('ldap://'+CONF['host']+port)
-            if not filter:
+            if filter:
                 result = con.result(con.search('o=glue', ldap.SCOPE_SUBTREE, filter))[1]
             else:
                 result = con.result(con.search('o=glue', ldap.SCOPE_SUBTREE))[1]
@@ -332,15 +320,14 @@ def list_services_registry():
     """Returns a dictionary of filtered results from an http request in the EMI registry"""
 
     filter = ''
-    list_emi=['id']
-    for i in EMI_ATT:
-        list_emi.append(EMI_ATT[i])
-        if EMI_ATT[i] in CONF:
-            if filter:
-                filter += '&'
-            filter += i + '=' + CONF[EMI_ATT[i]]
+    for i in ATTRIBUTES:
+        if ATTRIBUTES[i][4]:
+            if i in CONF:
+                if filter:
+                    filter += '&'
+                filter += ATTRIBUTES[i][4] + '=' + CONF[i]
     for j in CONF:
-        if j in ATTRIBUTES and j not in list_emi:
+        if j in ATTRIBUTES  and not ATTRIBUTES[j][4]:
             if 'verbose' in CONF:
                 sys.exit('Error: No result. Verify search parameters.')
             else:
@@ -349,14 +336,19 @@ def list_services_registry():
     dic = {}
     for res in list_results:
         _id = res['_id']['$oid']
+        # filter by id
         if 'id' in CONF and CONF['id'] != _id:
             continue
-        dic[_id] = {'id': _id}
-        for i in EMI_ATT:
-            value = None
-            if i in res:
-                value = res[i]
-            dic[_id][EMI_ATT[i]] = value
+        dic[_id] = {}
+        for i in ATTRIBUTES:
+            att = ATTRIBUTES[i][4]
+            if att:
+                value = None
+                if att == '_id':
+                    value = _id
+                elif att in res:
+                    value = res[att]
+                dic[_id][i] = value
         for j in CONF['args']:
             if j not in dic[_id]:
                 dic[_id][j] = None
@@ -448,21 +440,20 @@ def list_attr_registry():
 
     list_results = request()
     attr_list = []
-    k = None
-    for i in EMI_ATT:
-        if EMI_ATT[i] == CONF['list']:
-            k = i
-            break
-    if not k:
-        sys.exit("A CORRIGER: si cle n est pas ds la liste!")
+    att = ATTRIBUTES[CONF['list']][4]
+    if not att:
+        sys.exit("Error: "+CONF['list']+" canno't be found in the EMI registry.")
     for res in list_results:
-        if k in res and res[k]:
+        if att in res and res[att]:
             if ATTRIBUTES[CONF['list']][3]:
-                for j in res[k]:
+                for j in res[att]:
                     if j not in attr_list:
                         attr_list.append(j)
-            elif res[k] not in attr_list:
-                attr_list.append(res[k])
+            elif res[att] not in attr_list:
+                if att == '_id':
+                    attr_list.append(res[att]['$oid'])
+                else:
+                    attr_list.append(res[att])
         elif 'None' not in attr_list:
             attr_list.append('None')
     return attr_list
