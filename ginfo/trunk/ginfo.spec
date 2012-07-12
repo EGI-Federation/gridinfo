@@ -1,5 +1,5 @@
 Name:		ginfo
-Version:	0.1.5
+Version:	0.2.0
 Release:	1%{?dist}
 Summary:	Service Discovery Client
 
@@ -8,7 +8,7 @@ License:	ASL 2.0
 URL:		https://svnweb.cern.ch/trac/gridinfo/browser/ginfo
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/ginfo/tags/R_0_1_5 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/ginfo/tags/R_0_2_0 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 
 Source:		%{name}-%{version}.tar.gz
@@ -42,5 +42,5 @@ rm -rf %{buildroot}
 %doc LICENSE
 
 %changelog
-* Tue Jun 19 2012 Laurence Field <laurence.field@cern.ch> - 0.1.5-1
+* Fri Jul 06 2012 Laurence Field <laurence.field@cern.ch> - 0.2.0-1
 - Initial version
