@@ -9,6 +9,8 @@ List service URLs and other attributes.
 .IP "    \fB--host\fP     \fIhost\fP"
 Specify a host to query. By default the environmental variable LCG_GFAL_INFOSYS
 will be used.
+.IP "\fB-r, --registry\fP     \fIregistry\fP"
+Specify an EMI registry to query.
 .IP "\fB-l, --list\fP     \fIattribute\fP"
 List all the possible values of the specified attribute.
 .IP "    \fB--clean\fP"
@@ -84,14 +86,14 @@ JSON output:
 .br
 .PP
 CSV output:
-.IP ServiceAdminDomainForeignKey,EndpointImplementationVersion,EndpointImplementationName,EndpointInterfaceName,EndpointCapability,PolicyRule,EndpointURL,EndpointInterfaceVersion,EndpointQualityLevel,EndpointInterfaceName,ServiceID
+.IP ServiceAdminDomainForeignKey,EndpointImplementationVersion,EndpointImplementationName,EndpointInterfaceName,EndpointCapability,PolicyRule,EndpointURL,EndpointInterfaceVersion,EndpointQualityLevel,ServiceType,ServiceID
 
 .SH EXAMPLES
 .IP "1) List all information for all endpoint URLs"
-ginfo  --host bdii.host.invalid
+ginfo  --host bdii.example.com
 
 .IP "2) Use the host from the LCG_GFAL_INFOSYS environment variable and list all endpoint URLs"
-export LCG_GFAL_INFOSYS=bdii.host.invalid:2170
+export LCG_GFAL_INFOSYS=bdii.example.com:2170
 .br
 ginfo url
 
