@@ -1,6 +1,6 @@
 Name:		ginfo
 Version:	0.2.1
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	A verstile tool for discovering Grid services
 Group:		Applications/Internet
 License:	ASL 2.0
@@ -20,7 +20,7 @@ Requires:      python-json
 %endif
 
 %description
-A verstile tool for discovering Grid services
+A versatile tool for discovering Grid services by querying either LDAP-based Grid information services or the EMI Registry.
 
 %prep
 %setup -q
@@ -41,5 +41,5 @@ rm -rf %{buildroot}
 %doc LICENSE
 
 %changelog
-* Fri Jul 13 2012 Laurence Field <laurence.field@cern.ch> - 0.2.1-1
+* Fri Jul 13 2012 Laurence Field <laurence.field@cern.ch> - 0.2.1-2
 - Initial version
