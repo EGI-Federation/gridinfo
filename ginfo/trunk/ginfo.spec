@@ -1,7 +1,7 @@
 Name:		ginfo
 Version:	0.2.1
 Release:	2%{?dist}
-Summary:	A verstile tool for discovering Grid services
+Summary:	A versatile tool for discovering Grid services
 Group:		Applications/Internet
 License:	ASL 2.0
 URL:		https://svnweb.cern.ch/trac/gridinfo/browser/ginfo
@@ -20,7 +20,8 @@ Requires:      python-json
 %endif
 
 %description
-A versatile tool for discovering Grid services by querying either LDAP-based Grid information services or the EMI Registry.
+A versatile tool for discovering Grid services by querying either 
+LDAP-based Grid information services or the EMI Registry.
 
 %prep
 %setup -q
