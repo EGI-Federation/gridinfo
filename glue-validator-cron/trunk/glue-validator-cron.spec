@@ -27,9 +27,6 @@ A cron job to run the glue-validator command every hour and store the result in 
 rm -rf %{buildroot}
 make install prefix=%{buildroot}
 
-%post%
-/etc/cron.hourly/glue-validator-cron
-
 %clean
 rm -rf %{buildroot}
 
