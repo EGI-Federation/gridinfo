@@ -39,11 +39,16 @@ config_info_service_bdii_site_setenv () {
 
 config_info_service_bdii_site () {
 
-site_defaults_file=/etc/bdii/gip/glite-info-site-defaults.conf
+site_defaults_dir=/etc/bdii/gip
+site_defaults_file=${site_defaults_dir}/glite-info-site-defaults.conf
 
 if [ -f ${site_defaults_file} ]; then
    sed -i /^SITE_BDII_HOST/d ${site_defaults_file}
    sed -i /^SITE_NAME/d ${site_defaults_file}
+fi
+
+if [ ! -d ${site_defaults_dir} ]; then
+   mkdir ${site_defaults_dir}
 fi
 
 cat << EOF >> ${site_defaults_file}
