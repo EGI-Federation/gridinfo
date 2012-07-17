@@ -1,0 +1,5 @@
+#!/bin/sh
+
+glue-validator -h localhost -p 2170 -b mds-vo-name=resource,o=grid -t glue1 > /var/log/glue-validator/glue1-validator.log
+glue-validator -h localhost -p 2170 -b mds-vo-name=resource,o=grid -t glue2 > /var/log/glue-validator/glue2-validator.log
+
