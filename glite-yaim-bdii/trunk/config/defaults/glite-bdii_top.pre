@@ -1,21 +1,4 @@
 ##############################################################################
-# Copyright (c) Members of the EGEE Collaboration. 2004.
-# See http://www.eu-egee.org/partners/ for details on the copyright
-# holders.
-#
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#    http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS
-# OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
-##############################################################################
 #
 # NAME :        glite-bdii_top.pre
 #
@@ -30,17 +13,6 @@
 #
 ##############################################################################
 
-# Check the validity of this URL in the documentation
-BDII_HTTP_URL="http://lcg-bdii-conf.cern.ch/bdii-conf/bdii.conf"
-
-# The Freedom of Choice of Resources service allows a top-level BDII
-# to be instructed to remove VO-specific access control lines for
-# resources that do not meet the VO requirements
-BDII_FCR=http://lcg-fcr.cern.ch:8083/fcr-data/exclude.ldif
-
-# The timeout value to be used with dynamic plug-ins. 
-GIP_TIMEOUT=300
-
 # Use a ram disk for the top level BDII to imporve performance
 BDII_RAM_DISK=yes
 
@@ -50,4 +22,6 @@ SLAPD=/usr/sbin/slapd
 # Use the slapd.conf file for OpenLDAP 2.4
 SLAPD_CONF=/etc/bdii/bdii-top-slapd.conf
 
+# Caching BDII: Use this variable to configure in seconds the delayed delete option
+# Default is 24h. Set it to 0 if you want to disable the caching functionality.
 BDII_DELETE_DELAY=43200
