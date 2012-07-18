@@ -20,12 +20,15 @@
 import ldap
 import sys
 import getopt
-import json
+try:
+	import json
+except:
+	import simplejson as json
 import os
 import re
 import urllib2
 
-VERSION = '0.2.1'
+VERSION = '0.2.2'
 
 # configuration dictionnary that will be filled with the submitted options
 CONF = {}
@@ -74,6 +77,13 @@ ATTRIBUTES = {
 # keys that link ldap objects to Endpoint object [objectKey, EndpointKey]
 OBJECT_KEY = {'Service': ['ID', 'EndpointServiceForeignKey'], 'AccessPolicy': ['EndpointForeignKey', 'EndpointID']}
 
+if sys.version_info[:2] < (2,5):
+    def all(iterable):
+        for element in iterable:
+            if not element:
+                return False
+        return True
+
 def main(argv):
     """Main function that launches the other functions""" 
 
@@ -114,7 +124,7 @@ def parse_options(argv):
     long_options.extend(long_options_bis)
     try:
         opts, args = getopt.getopt(argv, short_options, long_options)
-    except getopt.error as err:
+    except getopt.error, err:
         if err.opt in ("l", "list"):
             sys.exit(list_usage())
         else:
