@@ -1,9 +1,0 @@
-
-# This is a GLUE2Service configuration file for Argus
-
-# The entries are commands which will be executed using backquotes in perl
-# They should write to stdout - the return code is not relevant
-
-# Override for the ServiceType, would otherwise be taken from the first Endpoint
-get_type = echo org.glite.Argus
-
