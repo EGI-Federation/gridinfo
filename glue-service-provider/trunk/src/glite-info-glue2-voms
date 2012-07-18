@@ -12,6 +12,7 @@
 #      http://glue20.web.cern.ch/glue20/
 #
 # Stephen Burke, v 1.0 July 2011
+# 18/07/12: Change the ServiceType to org.glite.voms, see bug #95869
 #
 # Arguments are:
 #    - a single configuration file for the voms endpoint(s), optionally
@@ -204,7 +205,10 @@ foreach (@endpoint_ldif) {
 }
 
 # Set the overall ServiceType to VOMS
-my $Type = "VOMS";
+#my $Type = "VOMS";
+
+# Changed to org.glite.voms per EMI agreement on enumerated types, see bug #95869
+my $Type = "org.glite.voms";
 
 # The Service provider wants the Type and Capabilities together
 $Type = $Type . $Capabilities;
