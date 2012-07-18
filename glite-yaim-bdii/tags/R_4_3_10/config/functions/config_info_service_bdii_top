@@ -1,0 +1,48 @@
+##############################################################################
+#
+# NAME :        config_info_service_bdii_top
+#
+# DESCRIPTION : This function configures the dynamic service publisher
+#               for top BDII node.
+#
+# AUTHORS :     Maria.Alandes.Pradillo@cern.ch
+#               
+# NOTES :       
+#
+# YAIM MODULE:  glite-yaim-bdii
+#
+##############################################################################
+
+config_info_service_bdii_top_check () {
+	requires $1 SITE_NAME BDII_HOST INSTALL_ROOT
+}
+
+config_info_service_bdii_top_setenv () {
+	yaimlog DEBUG "This function currently doesn't set any environment variables."
+}
+
+config_info_service_bdii_top () {
+
+site_defaults_dir=/etc/bdii/gip
+site_defaults_file=${site_defaults_dir}/glite-info-site-defaults.conf
+
+if [ -f ${site_defaults_file} ]; then
+   sed -i /^BDII_HOST/d ${site_defaults_file}
+   sed -i /^SITE_NAME/d ${site_defaults_file}
+
+fi
+
+if [ ! -d ${site_defaults_dir} ]; then
+   mkdir ${site_defaults_dir}
+fi
+
+cat << EOF >> ${site_defaults_file}
+SITE_NAME=${SITE_NAME:-$(hostname -d) }
+BDII_HOST=${BDII_HOST:-$(hostname -f)}
+EOF
+
+return 0
+
+}
+
+
