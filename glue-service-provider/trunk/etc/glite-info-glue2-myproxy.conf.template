@@ -64,7 +64,7 @@ get_owner = echo
 # actions. These are published by taking the rules from the config file
 # and putting them out as ACBRs with the special scheme MYPROXY.
 
-get_acbr = egrep '^(authorized_renewers|default_renewers|authorized_retrievers|efault_retrievers|authorized_key_retrievers|default_key_retrievers|trusted_retrevers|default_trusted_retrievers)' $MYPROXY_CONF | sed 's/^\(.*\)[ ][ ]*"\(.*\).*$/MYPROXY:\1=\2/'
+get_acbr = egrep '^(authorized_renewers|default_renewers|authorized_retrievers|default_retrievers|authorized_key_retrievers|default_key_retrievers|trusted_retrievers|default_trusted_retrievers)' $MYPROXY_CONF | sed 's/^\(.*\)[ ][ ]*"\(.*\)".*$/MYPROXY:\1=\2/'
 
 # New GLUE 2 attributes start here
 
