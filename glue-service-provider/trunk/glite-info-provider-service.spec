@@ -1,6 +1,6 @@
 Name:           glite-info-provider-service
 Version:        1.9.0
-Release:        1%{?dist}
+Release:        3%{?dist}
 Summary:        The GLUE service information provider
 License:        ASL 2.0
 # The source for this package was pulled from upstream's vcs.  Use the
