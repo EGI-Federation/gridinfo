@@ -1,0 +1,42 @@
+##############################################################################
+#
+# NAME :        glite-bdii_site.pre
+#
+# DESCRIPTION : This is a configuration file containing predefined values for variables
+#               used by site BDII.
+#
+# AUTHORS :     yaim-contact@cern.ch
+#
+# NOTES :       
+#
+# YAIM MODULE:  glite-yaim-bdii
+#
+##############################################################################
+
+# This variable defines whether a site has used yaim. 
+# Sites can comment it out if they don't want to publish this information. 
+# If the variable exists, it will be published.
+
+SITE_OTHER_CONFIG=yaim
+
+# BDII configuration variables #
+BDII_BREATHE_TIME=120
+BDII_READ_TIMEOUT=300
+BDII_ARCHIVE_SIZE=0 
+
+# Don't use a ram disk for the site level BDII
+BDII_RAM_DISK=no
+
+# Use the standard OpenLDAP for the site level BDII
+SLAPD=/usr/sbin/slapd
+
+# Use the standaard slapd.conf file for the site level BDII
+SLAPD_CONF=/etc/bdii/bdii-slapd.conf
+
+# Caching BDII: Use this variable to configure in seconds the delayed delete option
+# Default is to disable the caching functionality in the site BDII.
+BDII_DELETE_DELAY=0
+
+# IPv6 Support.
+BDII_IPV6_SUPPORT=no
+
