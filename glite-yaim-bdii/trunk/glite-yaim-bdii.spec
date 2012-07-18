@@ -35,7 +35,7 @@ rm -rf %{buildroot}
 %doc LICENSE
 
 %changelog
-* Wed 18 Jul 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 4.3.10-1
+* Wed Jul 18 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 4.3.10-1
 - BUG 95839: Added BDII_IPV6_SUPPORT
 - BUG 95123: Create /etc/bdii/gip if it doesn't exist
 - BUG 95043: Cleaning YAIM variables that are no longer used
