@@ -36,3 +36,7 @@ SLAPD_CONF=/etc/bdii/bdii-slapd.conf
 # Caching BDII: Use this variable to configure in seconds the delayed delete option
 # Default is to disable the caching functionality in the site BDII.
 BDII_DELETE_DELAY=0
+
+# IPv6 Support.
+BDII_IPV6_SUPPORT=no
+
