@@ -33,3 +33,11 @@ rm -rf %{buildroot}
 /opt/glite/yaim/examples/siteinfo/services/glite-*
 /opt/glite/yaim/etc/versions/%{name}
 %doc LICENSE
+
+%changelog
+* Wed 18 Jul 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 4.3.10-1
+- BUG 95839: Added BDII_IPV6_SUPPORT
+- BUG 95123: Create /etc/bdii/gip if it doesn't exist
+- BUG 95043: Cleaning YAIM variables that are no longer used
+- Removed EGEE license text and added missing headers
+- Removing functions from gLite that are no longer needed
