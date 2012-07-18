@@ -30,6 +30,9 @@ make install prefix=%{buildroot}
 %clean
 rm -rf %{buildroot}
 
+%post
+/etc/cron.hourly/glue-validator-cron
+
 %files
 %defattr(-,root,root,-)
 %dir /var/log/glue-validator/
