@@ -1,3 +1,17 @@
+##############################################################################
+#
+# NAME :        glite-bdii_site
+#
+# DESCRIPTION : This file contains the function list to configure a site BDII.
+#
+# AUTHORS :     Laurence.Field@cern.ch
+#
+# NOTES :
+#
+# YAIM MODULE:  glite-yaim-bdii
+#
+##############################################################################
+
 BDII_site_FUNCTIONS="
 config_gip_site
 config_gip_bdii_site
