@@ -10,16 +10,16 @@ default:
 
 install:
 	@echo installing ...
-	@mkdir -p $(prefix)/usr/libexec/$(NAME)/
-	@mkdir -p $(prefix)/etc/glue/service-provider/
-	@mkdir -p $(prefix)/usr/share/doc/glue-service-provider/templates
-	@install -m 0755 src/glite-info-service $(prefix)/usr/libexec/$(NAME)
-	@install -m 0755 src/glite-info-service-* $(prefix)/usr/libexec/$(NAME)
-	@install -m 0755 src/glite-info-glue2-* $(prefix)/usr/libexec/$(NAME)
-	@install -m 0644 etc/*.template $(prefix)/usr/share/doc/glue-service-provider/templates
-	@install -m 0644 etc/*.test.ldif* $(prefix)/usr/share/doc/glue-service-provider/templates
-	@install -m 0644 doc/README $(prefix)/usr/share/doc/glue-service-provider
-	@install -m 0644 doc/README-GLUE2 $(prefix)/usr/share/doc/glue-service-provider
+	@mkdir -p $(prefix)/usr/bin
+	@mkdir -p $(prefix)/etc/glite/info/service/
+	@mkdir -p $(prefix)/usr/share/doc/glite-info-provider-service
+	@install -m 0755 src/glite-info-service $(prefix)/usr/bin
+	@install -m 0755 src/glite-info-service-* $(prefix)/usr/bin
+	@install -m 0755 src/glite-info-glue2-* $(prefix)/usr/bin
+	@install -m 0644 etc/*.template $(prefix)/etc/glite/info/service/
+	@install -m 0644 etc/*.test.ldif* $(prefix)/etc/glite/info/service/
+	@install -m 0644 doc/README $(prefix)/usr/share/doc/glite-info-provider-service
+	@install -m 0644 doc/README-GLUE2 $(prefix)/usr/share/doc/glite-info-provider-service
 
 dist:
 	@mkdir -p  $(build)/$(NAME)-$(VERSION)/

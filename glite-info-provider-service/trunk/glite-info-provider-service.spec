@@ -7,7 +7,7 @@ License:        ASL 2.0
 # following commands to generate the tarball:
 #   svn export http://svnweb.cern.ch/guest/gridinfo/glite-info-provider-service/tags/R_1_9_0_1 %{name}-%{version}
 #  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
-Source:         %{name}-%{version}.src.tgz
+Source:         %{name}-%{version}.tar.gz
 BuildArch:      noarch
 BuildRoot:      %{_tmppath}/%{name}-%{version}-build
 Group: Development/Libraries
