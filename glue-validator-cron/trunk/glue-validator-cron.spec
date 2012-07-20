@@ -1,5 +1,5 @@
 Name: glue-validator-cron
-Version: 1.0.0
+Version: 1.0.1
 Release: 1%{?dist} 
 Summary: A cron job to run the glue-validator command every hour and store the result in a log file.
 # The source for this package was pulled from upstream's vcs.  Use the
@@ -37,5 +37,7 @@ rm -rf %{buildroot}
 
 
 %changelog
+* Fri Jul 20 2012 Maria Alandes <maria.alandes.pradillo@cern.ch>  - 1.0.1-1
+- Fixes after testing: remove post action from spec file and redirect sdterr and stdout to log file
 * Tue Jul 16 2012 Maria Alandes <maria.alandes.pradillo@cern.ch>  - 1.0.0-1
 - Initial Release
