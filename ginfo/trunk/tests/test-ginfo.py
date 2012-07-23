@@ -79,7 +79,7 @@ json_output = '{"service_1": {"EndpointImplementationVersion": "5.0.0", "Service
 
 csv_output = 'EndpointCapability,ServiceAdminDomainForeignKey,ServiceID,EndpointImplementationName,EndpointImplementationVersion,EndpointInterfaceName,EndpointInterfaceVersion,EndpointQualityLevel,ServiceType,EndpointURL,PolicyRule\n"capability_a,capability_b,capability_c",domain_a,service_1,implementation_name_a,5.0.0,interface_name_a,3.0.0,testing,service_type_a,ldap://host:2170/XXX,"ALL"'
 
-emi_output = '[{"Service_Type": "service_type_a", "Endpoint_Capability": ["capability_a", "capability_b", "capability_c"], "Endpoint_Interface_Name": "interface_name_a", "Endpoint_Implementation_Name": "implementation_name_a", "Service_Endpoint_URL": "ldap://host:2170/XXX", "Endpoint_Interface_Version": "3.0.0", "Service_Id": "service_1", "Endpoint_Implementation_Version": "5.0.0", "Service_Admin_Domain": "domain_a", "Endpoint_Quality_Level": "testing"}]'
+emi_output = ['[', '"Service_Type": "service_type_a"', '"Endpoint_Capability": ["capability_a"', '"capability_b"', '"capability_c"]', '"Endpoint_Interface_Name": "interface_name_a"', '"Endpoint_Implementation_Name": "implementation_name_a"', '"Service_Endpoint_URL": "ldap://host:2170/XXX"', '"Endpoint_Interface_Version": "3.0.0"', '"Service_Id": "service_1"', '"Endpoint_Implementation_Version": "5.0.0"', '"Service_Admin_Domain": "domain_a"', '"Endpoint_Quality_Level": "testing"', ']']
 
 list_results = {
 'cap': [None, 'EndpointCapability', {'capability_a': ['service_1', 'service_4'], 'capability_b': ['service_1', 'service_3'], 'capability_c': ['service_1'], 'capability_d': ['service_2', 'service_4'], 'capability_e': ['service_3']}, ['service_4,"capability_a,capability_d"', 'service_1,"capability_a,capability_b,capability_c"', 'service_3,"capability_b,capability_e"', 'service_2,"capability_d"']],
@@ -138,8 +138,22 @@ class TestGinfo(unittest.TestCase):
         if not error:
             error = 'Error'
         res = result[command].split('\n\n',1)
-        res.extend(res[1].split('\n'))
+        i = len(res)-1
+        res.extend(res[i].split('\n'))
+        res.remove(res[i])
+        error += " - command: '"+command+"'\n"+str(res)+"\n\n!=\n\n"+str(expected_items)
+        self.assertItemsEqual(res, expected_items, error)
+
+    def assert_items_equal2(self, command, expected_items, error=None):
+        if command not in result:
+            result[command] = commands.getstatusoutput(command)[1]
+        if not error:
+            error = 'Error'
+        res = result[command].split('{',1)
+        res.extend(res[1].split(', '))
         res.remove(res[1])
+        res.extend(res[-1].split('}'))
+        res.remove(res[-3])
         error += " - command: '"+command+"'\n"+str(res)+"\n\n!=\n\n"+str(expected_items)
         self.assertItemsEqual(res, expected_items, error)
 
@@ -164,12 +178,14 @@ class TestGinfo(unittest.TestCase):
                 ("-j", json_output),
                 ("--json", json_output),
                 ("-c", csv_output),
-                ("--csv", csv_output),
-                ("-e", emi_output),
+                ("--csv", csv_output)]
+        tests2 = [("-e", emi_output),
                 ("--emi", emi_output)]
         for i, j in tests:
             self.assert_equal("ginfo -i service_1 "+i, j)
- 
+        for i, j in tests2:
+            self.assert_items_equal2("ginfo -i service_1 "+i, j)
+
     def test4_list_attr(self):
         for i in ('-l','--list'):
             for j in list_results:
