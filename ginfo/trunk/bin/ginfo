@@ -27,8 +27,9 @@ except:
 import os
 import re
 import urllib2
+import signal
 
-VERSION = '0.2.2'
+VERSION = '0.2.3'
 
 # configuration dictionnary that will be filled with the submitted options
 CONF = {}
@@ -43,6 +44,7 @@ OPTIONS = {
     'csv': ["c", False],
     'json': ["j", False],
     'emi': ["e", False],
+    'timeout': [None, True],
     'verbose': ["v", False],
     'version': ["V", False],
     'help': ["h", False],
@@ -76,6 +78,8 @@ ATTRIBUTES = {
 
 # keys that link ldap objects to Endpoint object [objectKey, EndpointKey]
 OBJECT_KEY = {'Service': ['ID', 'EndpointServiceForeignKey'], 'AccessPolicy': ['EndpointForeignKey', 'EndpointID']}
+
+TIMEOUT = 15
 
 if sys.version_info[:2] < (2,5):
     def all(iterable):
@@ -216,6 +220,9 @@ def validate_conf():
     elif 'strict' in CONF:
         if 'verbose' in CONF:
             print 'Results have been cleaned strictly.'
+    if 'timeout' in CONF:
+        if 'verbose' in CONF:
+            print 'Ldap timeout as been set to '+CONF['timeout']+' second(s).'
 
     # attributes
     for i in ATTRIBUTES.keys():
@@ -264,6 +271,7 @@ def usage():
                                 data.
     -c, --csv                   Output in CSV format
     -j, --json                  Output in JSON format
+        --timeout               Change the ldap timeout (15 seconds by default).
     -v, --verbose               Enable verbose mode
     -V, --version               Prints the version of ginfo
     -h, --help                  Prints this helpful message
@@ -315,6 +323,11 @@ def list_usage():
 
 def request(filter=None):
     """Returns the result of the ldap request with the filter given"""
+    try:
+        t = int(CONF['timeout'])
+    except (ValueError, KeyError):
+        t = TIMEOUT
+    signal.alarm(t)
     if 'host' in CONF:
         try:
             port = ''

@@ -23,6 +23,7 @@ help_message = '''Usage: ginfo [options] [attributes]
                                 data.
     -c, --csv                   Output in CSV format
     -j, --json                  Output in JSON format
+        --timeout               Change the ldap timeout (15 seconds by default).
     -v, --verbose               Enable verbose mode
     -V, --version               Prints the version of ginfo
     -h, --help                  Prints this helpful message
@@ -71,7 +72,7 @@ list_message = '''Available attributes are:
 
 host_message = "The following host will be used: "+host
 
-version_message = "ginfo V0.2.2"
+version_message = "ginfo V0.2.3"
 
 normal_output = 'EndpointCapability: capability_a, capability_b, capability_c\nServiceAdminDomainForeignKey: domain_a\nServiceID: service_1\nEndpointImplementationName: implementation_name_a\nEndpointImplementationVersion: 5.0.0\nEndpointInterfaceName: interface_name_a\nEndpointInterfaceVersion: 3.0.0\nEndpointQualityLevel: testing\nServiceType: service_type_a\nEndpointURL: ldap://host:2170/XXX\nPolicyRule: ALL\n'
 
