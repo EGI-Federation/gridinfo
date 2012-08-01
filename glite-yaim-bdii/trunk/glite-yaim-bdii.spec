@@ -1,5 +1,5 @@
 Name:		glite-yaim-bdii
-Version:	4.3.10
+Version:	4.3.11
 Release:	1%{?dist}
 Summary:	glite-yaim-bdii module configures the top level BDII and site BDI
 Group:		Development/Tools
@@ -35,6 +35,8 @@ rm -rf %{buildroot}
 %doc LICENSE
 
 %changelog
+* Wed Aug 01 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 4.3.11-1
+- After integration testing decided to make BDII_IPV6_SUPPORT not mandatory. Default in init.d script is 'no' in any case.
 * Wed Jul 18 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 4.3.10-1
 - BUG 95839: Added BDII_IPV6_SUPPORT
 - BUG 95123: Create /etc/bdii/gip if it doesn't exist
