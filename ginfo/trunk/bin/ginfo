@@ -222,7 +222,7 @@ def validate_conf():
             print 'Results have been cleaned strictly.'
     if 'timeout' in CONF:
         if 'verbose' in CONF:
-            print 'Ldap timeout as been set to '+CONF['timeout']+' second(s).'
+            print 'Ldap timeout has been set to '+CONF['timeout']+' second(s).'
 
     # attributes
     for i in ATTRIBUTES.keys():
