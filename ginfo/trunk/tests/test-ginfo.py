@@ -250,7 +250,8 @@ class TestGinfo(unittest.TestCase):
                 ("--cap capability_b --vo ALL id", "ServiceID\nservice_1"),
                 ("--ql testing --type service_type_a vo", "PolicyRule\n\"ALL\""),
                 ("--impv 5.0.* id impv", "ServiceID,EndpointImplementationVersion\nservice_1,5.0.0\nservice_3,5.0.0\nservice_2,5.0.1"),
-                ("-v -i service_1 --clean --timeout 5 id", "Verbose mode enabled\nOutput in csv formating\nThe following host will be used: localhost:2170\nResults have been cleaned.\nLdap timeout has been set to 5 second(s).\nFilter services by the following ServiceID: service_1\nThe following attribute(s) will be displayed: ServiceID\n\nServiceID\nservice_1")]
+                ("-v -i service_1 --clean --timeout 5 id", "Verbose mode enabled\nOutput in csv formating\nThe following host will be used: localhost:2170\nResults have been cleaned.\nLdap timeout has been set to 5 second(s).\nFilter services by the following ServiceID: service_1\nThe following attribute(s) will be displayed: ServiceID\n\nServiceID\nservice_1"),
+                ("-v --strict --list domain", "Verbose mode enabled\nThe following host will be used: localhost:2170\nList all the possible values for the following attribute: ServiceAdminDomainForeignKey\nOption --csv is not compatible with --list option.\nResults have been cleaned strictly.\n\ndomain_a\ndomain_b\nINVALID")]
         for i, j in tests:
             self.assert_equal("ginfo -c "+i, j)
 
