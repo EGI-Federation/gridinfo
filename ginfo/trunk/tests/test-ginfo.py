@@ -158,6 +158,13 @@ class TestGinfo(unittest.TestCase):
         error += " - command: '"+command+"'\n"+str(res)+"\n\n!=\n\n"+str(expected_items)
         self.assertItemsEqual(res, expected_items, error)
 
+    def assert_time_equal(self, command, expected_time, error=None):
+        if command not in result:
+            result[command] = commands.getstatusoutput(command)[1]
+        if not error:
+            error = 'Error'
+        res = result[command].split('.',1)
+        self.assertEqual(res[0],expected_time)
 
     def test1_messages(self):
         tests = [("-h", help_message),
@@ -242,9 +249,14 @@ class TestGinfo(unittest.TestCase):
                 ("--vo ALL ServiceID", "ServiceID\nservice_1\nservice_2"),
                 ("--cap capability_b --vo ALL id", "ServiceID\nservice_1"),
                 ("--ql testing --type service_type_a vo", "PolicyRule\n\"ALL\""),
-                ("--impv 5.0.* id impv", "ServiceID,EndpointImplementationVersion\nservice_1,5.0.0\nservice_3,5.0.0\nservice_2,5.0.1")]
+                ("--impv 5.0.* id impv", "ServiceID,EndpointImplementationVersion\nservice_1,5.0.0\nservice_3,5.0.0\nservice_2,5.0.1"),
+                ("-v -i service_1 --clean --timeout 5 id", "Verbose mode enabled\nOutput in csv formating\nThe following host will be used: localhost:2170\nResults have been cleaned.\nLdap timeout has been set to 5 second(s).\nFilter services by the following ServiceID: service_1\nThe following attribute(s) will be displayed: ServiceID\n\nServiceID\nservice_1")]
         for i, j in tests:
             self.assert_equal("ginfo -c "+i, j)
+
+    def test9_timeout(self):
+        self.assert_time_equal("/usr/bin/time -p --format=\"%e\" ginfo --host bdii.scotgrid.ac.uk", "15")
+        self.assert_time_equal("/usr/bin/time -p --format=\"%e\" ginfo --host bdii.scotgrid.ac.uk --timeout 3", "3")
 
 
     def tearDown(self):
