@@ -14,6 +14,7 @@
 # Stephen Burke, v 1.0 February 2010
 #
 # 05/04/11: Remove objectClass: GLUE2Entity line as it doesn't seem to be needed
+# 28/08/12: Publish compliance with the EGI GLUE 2 profile
 #
 # Arguments are:
 #    -   the GLUE2DomainID (i.e. the site unique ID)
@@ -47,11 +48,14 @@ use strict;
 use POSIX qw(strftime);
 
 # Version number for this code
-my $gigs_version = "1.1";
+my $gigs_version = "1.2";
 
 # Hostname for debugging info
 my $host = `hostname -f`;
 chomp($host);
+
+# EGI profile version with which we comply - assume that the first version will be 1.0
+my $profileversion = "1.0";
 
 # This is where we put the object in the DIT
 my $bind_dn = "GLUE2GroupID=resource,o=glue";
@@ -186,6 +190,11 @@ print "GLUE2EntityName: $Name\n";
 print "GLUE2EntityOtherInfo: InfoProviderName=glite-info-glue2-service\n";
 print "GLUE2EntityOtherInfo: InfoProviderVersion=$gigs_version\n";
 print "GLUE2EntityOtherInfo: InfoProviderHost=$host\n";
+
+# Assert compliance with the EGI profile
+
+print "GLUE2EntityOtherInfo: ProfileName=EGI\n";
+print "GLUE2EntityOtherInfo: ProfileVersion=$profileversion\n";
 
 # Print any more OtherInfo
 

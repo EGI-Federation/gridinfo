@@ -1,11 +1,11 @@
 Name:           glite-info-provider-service
-Version:        1.9.0
-Release:        4%{?dist}
+Version:        1.10.0
+Release:        1%{?dist}
 Summary:        The GLUE service information provider
 License:        ASL 2.0
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/glite-info-provider-service/tags/R_1_9_0_1 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/glite-info-provider-service/tags/R_1_10_0_1 %{name}-%{version}
 #  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source:         %{name}-%{version}.src.tgz
 BuildArch:      noarch
@@ -114,6 +114,9 @@ rm -rf %{buildroot}
 %doc /usr/share/doc/glite-info-provider-service/README-GLUE2
 
 %changelog
+* Tue Aug 28 2012 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.10.0-1
+- GLUE 2 updates: Export site name, publish EGI profile compliance, publish HostDN
+- See bugs #96503, #96787
 * Wed Jul 18 2012 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.9.0-1
 - GLUE 2 updates: new README, change VOMS ServiceType, fix MyProxy bug
 - See bugs #80792, #95869, #95872
