@@ -1,0 +1,232 @@
+#!/usr/bin/perl -w
+
+#
+# glite-info-glue2-voms: a VOMS-specific GLUE 2 information provider.
+# This produces a single Service object for a VOMS server, with one
+# Endpoint per VO for each of voms and voms-admin (if configured).
+#
+# This script in turn calls the glite-info-glue2-service and
+# glite-info-glue2-endpoint scripts to generate the actual objects
+#
+# Ref: http://www.ogf.org/documents/GFD.147.pdf
+#      http://glue20.web.cern.ch/glue20/
+#
+# Stephen Burke, v 1.0 July 2011
+# 18/07/12: Change the ServiceType to org.glite.voms, see bug #95869
+#
+# Arguments are:
+#    - a single configuration file for the voms endpoint(s), optionally
+#      followed by a comma-separated configuration file for the
+#      voms-admin endpoint(s)
+#    - the GLUE2DomainID (i.e. the site unique ID)
+#    - the GLUE2ServiceID (optional)
+#
+# The Service ID is generated automatically if not supplied, and the
+# Endpoint IDs are always auto-generated.
+#
+# Copyright (c) Members of the EGEE Collaboration. 2010.
+# See http://www.eu-egee.org/partners/ for details on the copyright
+# holders.
+#
+#     Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+use strict;
+
+# Location of the VOMS config files
+my $vomsdir = "/etc/voms";
+my $vomsadmindir = "/etc/voms-admin";
+
+# Two arguments are mandatory
+
+if (! $ARGV[1]) {
+    print STDERR "Usage: glite-info-glue2-voms <voms-config-file>[,<voms-admin-config-file>] <site-ID> [<service-ID>]\n";
+    exit 1;
+}
+
+my $Config = $ARGV[0];
+
+# Files can be comma-separated - NB assumes no commas in the names ...
+my @ConfigFiles = split /,/, $Config;
+
+# The first one is the voms config ...
+my $vomsconf = shift @ConfigFiles;
+
+# ... and the second if any is for voms-admin (and any more are just ignored)
+my $vomsadminconf = shift @ConfigFiles;
+
+# Simple check on the files
+if (!(-r $vomsconf)) {
+    print STDERR "Error: Configuration file $vomsconf is not readable\n";
+    exit 2;
+}
+if ($vomsadminconf) {
+    if (!(-r $vomsadminconf)) {
+	print STDERR "Error: Configuration file $vomsadminconf is not readable\n";
+	exit 3;
+    }
+}
+
+# Mandatory Domain ID (site name)
+my $DID = $ARGV[1];
+
+# Optional Service ID
+my $SID = $ARGV[2];
+
+# No whitespace in IDs
+$DID =~ s/\s+//g;
+$SID =~ s/\s+//g if ($SID);
+
+if (!$DID) {
+# No default possible
+    print STDERR "Error: Site name (DomainID) not specified\n";
+    exit 4;
+}
+
+if (!$SID) {
+# We construct a default, made from the host name, type and
+# a checksum of the voms config file (the latter not really needed
+# since we can't have more than one VOMS server per node, but we may
+# as well be consistent).
+    my $host = `hostname -f`;
+    chomp($host);
+    my $check = `cksum $vomsconf | cut -d\" \" -f 1`;
+    chomp($check);
+# Note that this may cause trouble if hostname -f does not return an fqdn,
+# but I think that is normally required by other things anyway 
+    $SID = $host . "_VOMS_" . $check;
+}
+
+# We must construct the EndpointIDs here since the autogeneration
+# algorithm in glite-info-glue2-endpoint would give the
+# same ID for everything, but the algorithm is basically the same.
+# Again the checksums aren't really needed.
+
+my $vcheck = `cksum $vomsconf | cut -d\" \" -f 1`;
+chomp($vcheck);
+my $VEID = $SID . "_voms_" . $vcheck;
+
+my $VAEID = $SID . "_voms-admin_";
+if ($vomsadminconf) {
+    my $vacheck = `cksum $vomsadminconf | cut -d\" \" -f 1`;
+    chomp($vacheck);
+    $VAEID = $VAEID . $vacheck;
+}
+
+# Directory names in the VOMS config dir are the VO names
+my @volist = `find $vomsdir -type d -printf "%f\n"`;
+
+# All the endpoint LDIF gets collected here
+my @endpoint_ldif = ();
+
+# Complexity is basically the number of Endpoint types
+my $Complexity = 0;
+
+# Generate the voms endpoints
+
+foreach (@volist) {
+    chomp;
+# Check that there is a config file for the VO
+    if ( -e "$vomsdir/$_/voms.conf" ) {
+	$Complexity = 1;
+# Set a variable to transmit the VO name to the provider scripts
+	$ENV{"GLITE_INFO_SERVICE_VO"} = $_;
+# Run the Endpoint info provider, catching the LDIF in a list, with the VO
+# name appended to the EndpointID
+	push @endpoint_ldif, `glite-info-glue2-endpoint $vomsconf $SID ${VEID}_$_`;
+    }
+}
+
+# Now do the same for voms-admin if requested
+
+if ($vomsadminconf) {
+    foreach (@volist) {
+    chomp;
+# Check that there is a config file and voms-admin directory for the VO
+	if ( -e "$vomsdir/$_/voms.conf" && -d "$vomsadmindir/$_") {
+	    $Complexity = 2;
+	    $ENV{"GLITE_INFO_SERVICE_VO"} = $_;
+	    push @endpoint_ldif, `glite-info-glue2-endpoint $vomsadminconf $SID ${VAEID}_$_`;
+	}
+    }
+}
+
+# Some attributes need to be collected out of the Endpoints to be
+# summarised in the Service
+
+my $Attr;
+
+my $QL;
+my $QLnum;
+my $QLmax = 0;
+my $QualityLevel = "UNDEFINEDVALUE";
+
+my %QLmap = (
+        "development" => 1,
+        "testing" => 2,
+        "pre-production" => 3,
+        "production" => 4
+	     );
+
+my $Cap;
+my $Capabilities = "";
+
+foreach (@endpoint_ldif) {
+# Read through the LDIF and look for the relevant attributes
+    if ( m/^GLUE2EndpointQualityLevel:/ ) {
+        ($Attr, $QL) = split /:/, $_, 2;
+        $QL =~ s/\s+//g;
+# Convert the textual QL to a number
+	$QLnum = $QLmap{$QL};
+# The Service QualityLevel is the best QL of any Endpoint
+	if ( $QLnum > $QLmax ){
+	    $QLmax = $QLnum;
+	    $QualityLevel = $QL;
+	}
+    } elsif ( m/^GLUE2EndpointCapability:/ ) {
+	($Attr, $Cap) = split /:/, $_, 2;
+	$Cap =~ s/\s+//g;
+# The Service accumulates all the (distinct) Capabilities of its Endpoints
+	if ( !($Capabilities =~ m/,$Cap/) ) {
+# Make a comma-separated list (with a leading comma)
+	    $Capabilities = $Capabilities . "," . $Cap;
+	}
+    }
+}
+
+# Set the overall ServiceType to VOMS
+#my $Type = "VOMS";
+
+# Changed to org.glite.voms per EMI agreement on enumerated types, see bug #95869
+my $Type = "org.glite.voms";
+
+# The Service provider wants the Type and Capabilities together
+$Type = $Type . $Capabilities;
+
+# Concatenate the QualityLevel and Complexity
+my $EndpointInfo = $QualityLevel . "," . $Complexity;
+
+# Execute the Service provider, again catching the output
+my @service_ldif = `glite-info-glue2-service $DID $SID $Type $EndpointInfo`;
+
+# Finally just print the LDIF back to stdout
+
+foreach (@service_ldif) {
+    print;
+}
+
+foreach (@endpoint_ldif) {
+    print;
+}
+
+exit 0;

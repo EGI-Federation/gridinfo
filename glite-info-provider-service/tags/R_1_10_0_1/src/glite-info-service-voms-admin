@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# init function for the voms-admin service publisher, to export some variables
+
+# Host and port can be overridden by setting environment variables in the
+# wrapper script
+
+VOMS_ADMIN_HOST=${VOMS_ADMIN_HOST:-`hostname -f`}
+
+VOMS_ADMIN_PORT=${VOMS_ADMIN_PORT:-8443}
+
+VOMS_ADMIN_PID_FILE=${VOMS_ADMIN_PID_FILE:-/var/run/tomcat5.pid}
+
+# Write to stdout - will be imported by the info provider
+
+echo VOMS_ADMIN_PORT=$VOMS_ADMIN_PORT
+echo VOMS_ADMIN_HOST=$VOMS_ADMIN_HOST
+echo VOMS_ADMIN_PID_FILE=$VOMS_ADMIN_PID_FILE
