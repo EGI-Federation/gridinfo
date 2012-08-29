@@ -1,0 +1,120 @@
+.TH ginfo 1 "AUGUST 2012" "Version 0.2.4" "ginfo manual"
+.SH NAME
+ginfo \- fetch service information
+.SH SYNOPSIS
+ginfo [options] [attributes]
+.SH DESCRIPTION
+List service URLs and other attributes.
+.SH OPTIONS
+.IP "    \fB--host\fP     \fIhost\fP"
+Specify a host to query. By default the environmental variable LCG_GFAL_INFOSYS
+will be used.
+.IP "\fB-r, --registry\fP     \fIregistry\fP"
+Specify an EMI registry to query.
+.IP "\fB-l, --list\fP     \fIattribute\fP"
+List all the possible values of the specified attribute.
+.IP "    \fB--clean\fP"
+Clean results in replacing all invalid values with INVALID.
+.IP "\fB-s, --strict\fP"
+Strictly enforces known values (Only recommended with up-to-date version).
+.IP "\fB-c, --csv\fP"
+Output in CSV formating
+.IP "\fB-j, --json\fP"
+Output in JSON formating
+.IP "    \fB--timeout\fP"
+Change the ldap timeout (15 seconds by default).
+.IP "\fB-v, --verbose\fP"
+Enable verbose mode
+.IP "\fB-V, --version\fP"
+Prints the version of ginfo
+.IP "\fB-h, --help\fP"
+Prints this helpful message
+.PP
+Additional options to filter services by the specified attribute:
+.IP "    \fB--cap\fP      \fIEndpointCapability\fP"
+.IP "\fB-d, --domain\fP   \fIServiceAdminDomainForeignKey\fP"
+.IP "    \fB--endid\fP    \fIEndpointID\fP"
+.IP "\fB-i, --id\fP       \fIServiceID\fP"
+.IP "\fB-m, --imp\fP      \fIEndpointImplementationName\fP"
+.IP "    \fB--impv\fP     \fIEndpointImplementationVersion\fP"
+.IP "\fB-n, --int\fP      \fIEndpointInterfaceName\fP"
+.IP "    \fB--intv\fP     \fIEndpointInterfaceVersion\fP"
+.IP "\fB-q, --ql\fP       \fIEndpointQualityLevel\fP"
+.IP "\fB-t, --type\fP     \fIServiceType\fP"
+.IP "\fB-u, --url\fP      \fIEndpointURL\fP"
+.IP "    \fB--vo\fP       \fIPolicyRule\fP"
+.PP
+Available attributes to display are:
+.IP "\fBcap      EndpointCapability\fP"
+.IP "\fBdomain   ServiceAdminDomainForeignKey\fP"
+.IP "\fBendid       EndpointID\fP"
+.IP "\fBid       ServiceID\fP"
+.IP "\fBimp      EndpointImplementationName\fP"
+.IP "\fBimpv     EndpointImplementationVersion\fP"
+.IP "\fBint      EndpointInterfaceName\fP"
+.IP "\fBintv     EndpointInterfaceVersion\fP"
+.IP "\fBql       EndpointQualityLevel\fP"
+.IP "\fBtype     ServiceType\fP"
+.IP "\fBurl      EndpointURL\fP"
+.IP "\fBvo       PolicyRule\fP"
+
+.SH OUTPUT FORMAT
+.PP
+Standard output:
+.IP "EndpointImplementationVersion: value"
+.IP "EndpointImplementationName: value"
+.IP "EndpointInterfaceName: value"
+.IP "EndpointCapability: value"
+.IP "PolicyRule: value"
+.IP "EndpointURL: value"
+.IP "EndpointInterfaceVersion: value"
+.IP "EndpointQualityLevel: value"
+.IP "ServiceType: value"
+.IP "ServiceID: value"
+.br
+.PP
+JSON output:
+.IP "[... '(ServiceID)': {"
+.IP "'EndpointImplementationVersion': value,"
+.IP "'ServiceAdminDomainForeignKey: value,"
+.IP "'EndpointQualityLevel': value,"
+.IP "'EndpointInterfaceVersion': value,"
+.IP "'EndpointImplementationName': value,"
+.IP "'PolicyRule': value,"
+.IP "'EndpointURL': value,"
+.IP "'EndpointCapability': value,"
+.IP "'ServiceID': value,"
+.IP "'EndpointInterfaceName': value,"
+.IP "'ServiceType': value,"
+.IP ", ...]"
+.br
+.PP
+CSV output:
+.IP ServiceAdminDomainForeignKey,EndpointImplementationVersion,EndpointImplementationName,EndpointInterfaceName,EndpointCapability,PolicyRule,EndpointURL,EndpointInterfaceVersion,EndpointQualityLevel,ServiceType,ServiceID
+
+.SH EXAMPLES
+.IP "1) List all information for all endpoint URLs"
+ginfo  --host bdii.example.com
+
+.IP "2) Use the host from the LCG_GFAL_INFOSYS environment variable and list all endpoint URLs"
+export LCG_GFAL_INFOSYS=bdii.example.com:2170
+.br
+ginfo url
+
+.IP "3) List published GLUE 2.0 interface types"
+ginfo  --list int
+
+.IP "4) List all published FTS endpoints"
+ginfo  --int org.glite.FileTransfer  url
+
+.IP "5) Show the version"
+ginfo  --int org.glite.FileTransfer  url intv
+
+.IP "6) Show all available information"
+ginfo  --int org.glite.FileTransfer
+
+.IP "7) export to CSV"
+ginfo  --int org.glite.FileTransfer  --csv url
+
+.SH AUTHOR
+Ivan Calvet <Ivan.Calvet at cern dot ch>
