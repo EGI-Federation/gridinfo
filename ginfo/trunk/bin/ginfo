@@ -29,7 +29,7 @@ import re
 import urllib2
 import signal
 
-VERSION = '0.2.3'
+VERSION = '0.2.4'
 
 # configuration dictionnary that will be filled with the submitted options
 CONF = {}
@@ -50,12 +50,14 @@ OPTIONS = {
     'help': ["h", False],
     'cap': [None, True],
     'domain': ["d", True],
+    'endid': [None, True],
     'id': ["i", True],
     'imp': ["m", True],
     'impv': [None, True],
     'int': ["n", True],
     'intv': [None, True],
     'ql': ["q", True],
+    'tech': [None, True],
     'type': ["t", True],
     'url': ["u", True],
     'vo': [None, True],
@@ -63,14 +65,16 @@ OPTIONS = {
 
 # ldap request attribute: [prefix_object, object_class, key, output_list, EMI_name]
 ATTRIBUTES = {
-    'cap': ['', 'Endpoint', 'Capability', True, 'Endpoint_Capability'],
+    'cap': ['', 'Endpoint', 'Capability', True, 'Service_Endpoint_Capability'],
     'domain': ['', 'Service', 'AdminDomainForeignKey', False, 'Service_Admin_Domain'],
-    'id': ['', 'Service', 'ID', False, '_id'],
-    'imp': ['', 'Endpoint', 'ImplementationName', False, 'Endpoint_Implementation_Name'],
-    'impv': ['', 'Endpoint', 'ImplementationVersion', False, 'Endpoint_Implementation_Version'],
-    'int': ['', 'Endpoint', 'InterfaceName', False, 'Endpoint_Interface_Name'],
-    'intv': ['', 'Endpoint', 'InterfaceVersion', False, 'Endpoint_Interface_Version'],
-    'ql': ['', 'Endpoint', 'QualityLevel', False, 'Endpoint_Quality_Level'],
+    'endid': ['', 'Endpoint', 'ID', False, 'Service_Endpoint_ID'],
+    'id': ['', 'Service', 'ID', False, 'Service_ID'],
+    'imp': ['', 'Endpoint', 'ImplementationName', False, 'Service_Endpoint_Implementation_Name'],
+    'impv': ['', 'Endpoint', 'ImplementationVersion', False, 'Service_Endpoint_Implementation_Version'],
+    'int': ['', 'Endpoint', 'InterfaceName', False, 'Service_Endpoint_Interface_Name'],
+    'intv': ['', 'Endpoint', 'InterfaceVersion', False, 'Service_Endpoint_Interface_Version'],
+    'ql': ['', 'Endpoint', 'QualityLevel', False, 'Service_Endpoint_Quality_Level'],
+    'tech': ['', 'Endpoint', 'Technology', False, 'Service_Endpoint_Technology'],
     'type': ['', 'Service', 'Type', False, 'Service_Type'],
     'url': ['', 'Endpoint', 'URL', False, 'Service_Endpoint_URL'],
     'vo': ['Access', 'Policy', 'Rule', True, None],
@@ -181,7 +185,7 @@ def validate_conf():
         if 'verbose' in CONF:
             print 'Output in json formating'
     elif 'emi' in CONF and 'list' not in CONF:
-        CONF['args'] = ['id', 'url', 'cap', 'domain', 'int', 'intv', 'imp', 'impv', 'ql', 'type']
+        CONF['args'] = ['id', 'endid', 'url', 'cap', 'domain', 'int', 'intv', 'imp', 'impv', 'ql', 'tech', 'type']
         if 'verbose' in CONF:
             print 'Output in emi formating'
     if 'host' in CONF and 'registry' in CONF:
@@ -280,12 +284,14 @@ def usage():
 
         --cap       EndpointCapability
     -d, --domain    ServiceAdminDomainForeignKey
+        --endid     EndpointID
     -i, --id        ServiceID
     -m, --imp       EndpointImplementationName
         --impv      EndpointImplementationVersion
     -n, --int       EndpointInterfaceName
         --intv      EndpointInterfaceVersion
     -q, --ql        EndpointQualityLevel
+	--tech      EndpointTechnology
     -t, --type      ServiceType
     -u, --url       EndpointURL
         --vo        PolicyRule
@@ -294,12 +300,14 @@ def usage():
 
         cap       EndpointCapability
         domain    ServiceAdminDomainForeignKey
+        endid     EndpointID
         id        ServiceID
         imp       EndpointImplementationName
         impv      EndpointImplementationVersion
         int       EndpointInterfaceName
         intv      EndpointInterfaceVersion
         ql        EndpointQualityLevel
+        tech      EndpointTechnology
         type      ServiceType
         url       EndpointURL
         vo        PolicyRule'''
@@ -311,12 +319,14 @@ def list_usage():
 
         cap       EndpointCapability
         domain    ServiceAdminDomainForeignKey
+        endid     EndpointID
         id        ServiceID
         imp       EndpointImplementationName
         impv      EndpointImplementationVersion
         int       EndpointInterfaceName
         intv      EndpointInterfaceVersion
         ql        EndpointQualityLevel
+        tech      EndpointTechnology
         type      ServiceType
         url       EndpointURL
         vo        PolicyRule'''
@@ -774,18 +784,10 @@ def serialize_output(result):
     elif 'emi' in CONF:
         emi_list = []
         for i in result:
-            dic_tmp = {
-                "Endpoint_Capability": result[i]['EndpointCapability'],
-                "Service_Admin_Domain": result[i]['ServiceAdminDomainForeignKey'],
-                "Service_Id": result[i]['ServiceID'],
-                "Endpoint_Implementation_Name": result[i]['EndpointImplementationName'],
-                "Endpoint_Implementation_Version": result[i]['EndpointImplementationVersion'],
-                "Endpoint_Interface_Name": result[i]['EndpointInterfaceName'],
-                "Endpoint_Interface_Version": result[i]['EndpointInterfaceVersion'],
-                "Endpoint_Quality_Level": result[i]['EndpointQualityLevel'],
-                "Service_Type": result[i]['ServiceType'],
-                "Service_Endpoint_URL": result[i]['EndpointURL'],
-                }
+            dic_tmp = {}
+            for j in CONF['args']:
+                att = ATTRIBUTES[j][1]+ATTRIBUTES[j][2]
+		dic_tmp[ATTRIBUTES[j][4]] = result[i][att]
             emi_list.append(json.dumps(dic_tmp))
         output = '['+', '.join(emi_list)+']'
     else:
