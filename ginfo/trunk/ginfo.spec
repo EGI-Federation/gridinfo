@@ -1,5 +1,5 @@
 Name:		ginfo
-Version:	0.2.2
+Version:	0.2.3
 Release:	1%{?dist}
 Summary:	A versatile tool for discovering Grid services
 Group:		Applications/Internet
@@ -7,8 +7,8 @@ License:	ASL 2.0
 URL:		https://svnweb.cern.ch/trac/gridinfo/browser/ginfo
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/ginfo/tags/R_0_2_2 ginfo-0.2.2
-#  tar --gzip -czvf ginfo-0.2.2.tar.gz ginfo-0.2.2
+#   svn export http://svnweb.cern.ch/guest/gridinfo/ginfo/tags/R_0_2_3 ginfo-0.2.3
+#  tar --gzip -czvf ginfo-0.2.2.tar.gz ginfo-0.2.3
 
 Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
@@ -42,6 +42,8 @@ rm -rf %{buildroot}
 %doc LICENSE
 
 %changelog
+* Wed Aug 29 2012 Laurence Field <laurence.field@cern.ch> - 0.2.3-1
+- Improved the EMI output.
 * Thu Jul 19 2012 Laurence Field <laurence.field@cern.ch> - 0.2.2-1
 - Added a timeout for the queries. 
 * Fri Jul 13 2012 Laurence Field <laurence.field@cern.ch> - 0.2.1-2
