@@ -1,9 +1,10 @@
 Name:		glite-info-update-endpoints
-Version:	2.0.10
+Version:	2.0.11
 Release:	1%{?dist}
 Summary:	Updates LDAP endpoins for EGI and OSG
-Group:		System/Monitoring
+Group:		Development/Libraries
 License:	ASL 2.0
+URL:		https://tomtools.cern.ch/confluence/display/IS/Home 
 Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
@@ -22,8 +23,8 @@ rm -rf %{buildroot}
 make install prefix=%{buildroot}
 
 %post
-if [ ! -f /opt/glite/etc/gip/top-urls.conf ]; then
-    /etc/cron.hourly/glite-info-update-endpoints
+if [ ! -f /var/cache/glite/top-urls.conf ]; then
+   /usr/bin/glite-info-update-endpoints -c /etc/glite/glite-info-update-endpoints.conf > /var/log/glite/glite-info-update-endpoints.log 2>&1
 fi
 
 %clean
@@ -32,14 +33,19 @@ rm -rf %{buildroot}
 %files
 %defattr(-,root,root,-)
 %dir /etc/glite/
-%dir /opt/glite/etc/gip
 %dir /var/log/glite/
 %dir /var/cache/glite/
+%dir /usr/share/doc/glite-info-update-endpoints
 %config(noreplace) /etc/glite/glite-info-update-endpoints.conf
 /usr/bin/glite-info-update-endpoints
 /etc/cron.hourly/glite-info-update-endpoints
 /var/cache/glite/glite-info-update-endpoints
+%doc /usr/share/doc/glite-info-update-endpoints/README
+
 %changelog
+* Tue Sep 11 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.11-1
+- BUG #96484: Fixed post install actions
+- BUG #97395: Fixed rpmlint errors
 * Mon May 25 2012 Laurence Field <laurence.field@cern.ch> - 2.0.10-1
 - Changed the location of top-urls.conf to address GGUS #73823
 * Mon Apr 19 2012 Laurence Field <laurence.field@cern.ch> - 2.0.9-1

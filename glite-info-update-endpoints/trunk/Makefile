@@ -12,13 +12,14 @@ install:
 	@echo installing ...
 	@mkdir -p ${prefix}/etc/glite
 	@mkdir -p ${prefix}/etc/cron.hourly
-	@mkdir -p ${prefix}/opt/glite/etc/gip
 	@mkdir -p ${prefix}/usr/bin/
 	@mkdir -p ${prefix}/var/log/glite
 	@mkdir -p ${prefix}/var/cache/glite/glite-info-update-endpoints
+	@mkdir -p $(prefix)/usr/share/doc/glite-info-update-endpoints
 	@install -m 0644 etc/glite-info-update-endpoints.conf ${prefix}/etc/glite/
-	@install -m 0744 bin/glite-info-update-endpoints ${prefix}/usr/bin/
-	@install -m 0744 etc/cron.hourly/glite-info-update-endpoints ${prefix}/etc/cron.hourly/
+	@install -m 0755 bin/glite-info-update-endpoints ${prefix}/usr/bin/
+	@install -m 0755 etc/cron.hourly/glite-info-update-endpoints ${prefix}/etc/cron.hourly/
+	@install -m 0644 doc/README $(prefix)/usr/share/doc/glite-info-update-endpoints
 
 dist:
 	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
