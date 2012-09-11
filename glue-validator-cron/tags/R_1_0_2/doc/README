@@ -1,0 +1,12 @@
+
+The glue-validator-cron is a cron job that is executed every hour. 
+It checks whether the information published in the resource where 
+the cron job runs is compliance with GLUE 1 and GLUE 2 schemas.
+
+It runs the following commands:
+
+glue-validator -h localhost -p 2170 -b mds-vo-name=resource,o=grid -t glue1 &> /var/log/glue-validator/glue1-validator.log 
+glue-validator -h localhost -p 2170 -b mds-vo-name=resource,o=grid -t glue2 &> /var/log/glue-validator/glue2-validator.log 
+
+The log files are overwritten every time.
+
