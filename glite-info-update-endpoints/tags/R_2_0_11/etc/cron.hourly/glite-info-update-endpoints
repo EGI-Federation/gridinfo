@@ -1,0 +1,5 @@
+#!/bin/sh
+
+sleep $[ ( $RANDOM % 3300 )  + 1 ]s
+
+/usr/bin/glite-info-update-endpoints -c /etc/glite/glite-info-update-endpoints.conf > /var/log/glite/glite-info-update-endpoints.log 2>&1
