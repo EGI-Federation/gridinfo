@@ -1,7 +1,7 @@
 Name: glue-validator-cron
 Version: 1.0.1
 Release: 1%{?dist} 
-Summary: A cron job to run the glue-validator command every hour and store the result in a log file.
+Summary: Cron job running glue-validator every hour and storing the result in a log file.
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
 #  svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator-cron/tags/R_%{version}/%{name}-%{version}
@@ -15,7 +15,7 @@ Requires: glue-validator
 Url: http://cern.ch/glue
 
 %description
-A cron job to run the glue-validator command every hour and store the result in a log file. 
+Cron job running glue-validator every hour and storing the result in a log file. 
 
 %prep
 %setup -q
