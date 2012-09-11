@@ -245,6 +245,7 @@ def is_Capability_t(value):
       'information.model',
       'information.monitoring',
       'information.provenance',
+      'information.publication',
       'security.accounting',
       'security.attributeauthority',
       'security.authentication',
