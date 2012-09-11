@@ -12,7 +12,9 @@ install:
 	@echo installing ...
 	@mkdir -p ${prefix}/etc/cron.hourly
 	@mkdir -p ${prefix}/var/log/glue-validator
+	@mkdir -p $(prefix)/usr/share/doc/glue-validator-cron
 	@install -m 0755 etc/cron.hourly/glue-validator-cron ${prefix}/etc/cron.hourly/
+	@install -m 0644 doc/README $(prefix)/usr/share/doc/glue-validator-cron
 
 dist:
 	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
