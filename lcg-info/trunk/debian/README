@@ -1,0 +1,31 @@
+How to build a debian package for lcg-info:
+
+1. Create the following directory structure:
+
+debian/
+    |__ lcg-info/ 
+               |__ DEBIAN/
+                        |__ control
+               |__ usr/ 
+                     |__bin/
+                          |__ lcg_info
+                     | 
+                     |__ share/
+                             |
+                             |__doc/ 
+                                  |__ copyright
+                                  |
+                                  |__ changelog
+                             |
+                             |__ man/
+                                   |
+                                   |__ man1/
+                                          |__ lcg-info.1
+
+2. Run: dpkg-deb --build lcg-info
+3. Rename lcg-info.deb to the right version lcg-info_x.y.z-r.deb
+
+
+ 
+                                   
+                            
