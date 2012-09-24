@@ -1,0 +1,10 @@
+Package: lcg-info
+Version: 1.12.2
+Section: net
+Priority: optional
+Architecture: all
+Depends: libnet-ldap-perl
+Maintainer: Andrea Sciaba <andrea.sciaba@cern.ch>
+Source: lcg-info
+Description: Command line tool to query the WLCG Information System.
+
