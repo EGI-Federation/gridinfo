@@ -1,5 +1,5 @@
 Name:           glite-info-provider-service
-Version:        1.10.0
+Version:        1.11.0
 Release:        1%{?dist}
 Summary:        The GLUE service information provider
 License:        ASL 2.0
@@ -114,6 +114,9 @@ rm -rf %{buildroot}
 %doc /usr/share/doc/glite-info-provider-service/README-GLUE2
 
 %changelog
+* Sat Sep 29 2012 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.11.0-1
+- Update the site and top BDII configuration, bug #97396
+- Publish the OS name and version as OtherInfo items in the Endpoint, bug #97816
 * Tue Aug 28 2012 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.10.0-1
 - GLUE 2 updates: Export site name, publish EGI profile compliance, publish HostDN
 - See bugs #96503, #96787

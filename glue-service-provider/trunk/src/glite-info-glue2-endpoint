@@ -16,6 +16,7 @@
 # 14/07/11: Allow for Extension objects with duplicate Keys
 # 28/08/12: Publish compliance with the EGI GLUE 2 profile
 #           Add publication of HostDN as an OtherInfo item
+# 29/09/12: Add publication of OS name and version as OtherInfos
 #
 # In general this code is expected to be called from a wrapper script
 # which also generates the parent Service object
@@ -52,7 +53,7 @@ my $command;
 
 # Info provider version and hostname for debugging
 
-my $gige_version = "1.3";
+my $gige_version = "1.4";
 
 my $host = `hostname -f`;
 chomp($host);
@@ -380,6 +381,19 @@ print "GLUE2EntityOtherInfo: InfoProviderHost=$host\n";
 
 print "GLUE2EntityOtherInfo: ProfileName=EGI\n";
 print "GLUE2EntityOtherInfo: ProfileVersion=$profileversion\n";
+
+# Publish OS name and version if we can extract them
+
+my $OSName=`lsb_release -i | cut -f2`;
+chomp($OSName);
+if ($OSName) {
+    print "GLUE2EntityOtherInfo: OSName=$OSName\n";
+}
+my $OSVersion=`lsb_release -r | cut -f2`;
+chomp($OSVersion);
+if ($OSVersion) {
+    print "GLUE2EntityOtherInfo: OSVersion=$OSVersion\n";
+}
 
 # Version number for EMI if it exists
 
