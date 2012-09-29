@@ -1,0 +1,41 @@
+#!/bin/bash
+
+case $1 in
+    status)
+    if [ -r $VOBOX_PID_FILE ]; then
+	pid=`cat $VOBOX_PID_FILE`
+	if ps p $pid >/dev/null 2>&1; then
+	    echo "gsissh process is running" 
+	    exit 0
+	fi
+    fi
+
+    echo "gsissh process is not running"
+    exit 1
+    ;;
+
+    init)
+# init function for the VOBOX service publisher, to export some variables
+
+# The first two can be overridden by external definitions of the variables,
+# e.g. if the advertised host name should be an alias
+
+    VOBOX_HOST=${VOBOX_HOST:-`hostname -f`}
+    VOBOX_PORT=${VOBOX_PORT:-1975}
+
+    GLOBUS_LOCATION=${GLOBUS_LOCATION:-/opt/globus}
+    if [ -r ${GLOBUS_LOCATION}/libexec/globus-script-initializer ]; then
+	. ${GLOBUS_LOCATION}/libexec/globus-script-initializer
+    fi
+
+    VOBOX_PID_FILE=${localstatedir}/sshd.pid
+
+# Write to stdout - will be imported by the info provider
+
+    echo VOBOX_PID_FILE=$VOBOX_PID_FILE
+    echo VOBOX_PORT=$VOBOX_PORT
+    echo VOBOX_HOST=$VOBOX_HOST
+
+;;
+
+esac
