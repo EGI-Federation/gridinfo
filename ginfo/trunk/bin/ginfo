@@ -29,7 +29,7 @@ import re
 import urllib2
 import signal
 
-VERSION = '0.2.4'
+VERSION = '0.2.5'
 
 # configuration dictionnary that will be filled with the submitted options
 CONF = {}
@@ -185,7 +185,9 @@ def validate_conf():
         if 'verbose' in CONF:
             print 'Output in json formating'
     elif 'emi' in CONF and 'list' not in CONF:
-        CONF['args'] = ['id', 'endid', 'url', 'cap', 'domain', 'int', 'intv', 'imp', 'impv', 'ql', 'tech', 'type']
+        for k in ATTRIBUTES:
+            if not ATTRIBUTES[k][4] and k in CONF['args']:
+                CONF['args'].remove(k)
         if 'verbose' in CONF:
             print 'Output in emi formating'
     if 'host' in CONF and 'registry' in CONF:
@@ -456,6 +458,8 @@ def list_services():
             at1 = ATTRIBUTES[attr][0]+ATTRIBUTES[attr][1]
             at2 = ATTRIBUTES[attr][1]+ATTRIBUTES[attr][2]
             dic[ids['Service']][attr] = None # initialization
+            if ATTRIBUTES[attr][3]:
+                dic[ids['Service']][attr] = [] # initialization for lists
             if attr in CONF and not ATTRIBUTES[attr][3] and CONF[attr].find('*') == -1: # if the attribute is filtered and not a list
                 dic[ids['Service']][attr] = CONF[attr]
             else:
