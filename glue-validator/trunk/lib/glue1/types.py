@@ -58,7 +58,8 @@ def is_allowed_URL_Schema(value):
       'xroot',
       'dcap',
       'gsidcap',
-      'httpg'
+      'httpg',
+      'ldap'
       ]
    if value in types:
       return True
