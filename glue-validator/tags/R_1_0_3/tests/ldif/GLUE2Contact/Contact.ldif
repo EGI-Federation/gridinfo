@@ -1,6 +1,0 @@
-dn: GLUE2ContactId=mail.mysite.com,GLUE2DomainId=mysite.com,o=GLUE
-objectClass: GLUE2Contact
-GLUE2ContactId: mail.mysite.com
-GLUE2ContactDetail:  support@mysite.com
-GLUE2ContactType: email
-GLUE2ContactDomainForeignKey: mysite.com
