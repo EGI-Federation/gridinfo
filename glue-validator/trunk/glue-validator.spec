@@ -45,7 +45,8 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
-* Tue Sep 11 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.3-1
+* Fri Oct 12 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.3-1
+- BUG #98104: ldap added to is_allowed_URL_Schema
 - BUG #97155: information.publication is now added to Capability_t
 * Wed Dec 14 2011 Laurence Field <laurence.field@cern.ch>  - 1.0.2-1
 - New upstream version and packaging improvements
