@@ -14,6 +14,10 @@
 # 11/04/11: Change the StartTime format from local time to UTC for strict
 #           conformance with the schema
 # 14/07/11: Allow for Extension objects with duplicate Keys
+# 28/08/12: Publish compliance with the EGI GLUE 2 profile
+#           Add publication of HostDN as an OtherInfo item
+# 29/09/12: Add publication of OS name and version as OtherInfos
+# 22/10/12: Modify the trunc subroutine to change non-ASCII characters to ?
 #
 # In general this code is expected to be called from a wrapper script
 # which also generates the parent Service object
@@ -50,10 +54,13 @@ my $command;
 
 # Info provider version and hostname for debugging
 
-my $gige_version = "1.2";
+my $gige_version = "1.4";
 
 my $host = `hostname -f`;
 chomp($host);
+
+# EGI profile version with which we comply - assume that the first version will be 1.0
+my $profileversion = "1.0";
 
 # Location of a file containing the EMI version number
 
@@ -371,6 +378,24 @@ print "GLUE2EntityOtherInfo: InfoProviderName=glite-info-glue2-endpoint\n";
 print "GLUE2EntityOtherInfo: InfoProviderVersion=$gige_version\n";
 print "GLUE2EntityOtherInfo: InfoProviderHost=$host\n";
 
+# Assert compliance with the EGI profile
+
+print "GLUE2EntityOtherInfo: ProfileName=EGI\n";
+print "GLUE2EntityOtherInfo: ProfileVersion=$profileversion\n";
+
+# Publish OS name and version if we can extract them
+
+my $OSName=`lsb_release -i | cut -f2`;
+chomp($OSName);
+if ($OSName) {
+    print "GLUE2EntityOtherInfo: OSName=$OSName\n";
+}
+my $OSVersion=`lsb_release -r | cut -f2`;
+chomp($OSVersion);
+if ($OSVersion) {
+    print "GLUE2EntityOtherInfo: OSVersion=$OSVersion\n";
+}
+
 # Version number for EMI if it exists
 
 if (my $ev = new FileHandle $emiversion) {
@@ -584,15 +609,21 @@ if ($ST) {
 my $hostcert = "/etc/grid-security/hostcert.pem";
 
 my $Issuer = "";
+my $Subject = "";
 if ( -e $hostcert) {
-# This should give us the host cert issuer, if any
+# This should give us the host cert issuer and subject, if any
     $Issuer = `openssl x509 -issuer -noout -in $hostcert | sed 's/^[^/]*//'`;
+    $Subject = `openssl x509 -subject -noout -in $hostcert | sed 's/^[^/]*//'`;
 }
 
 # Output whatever it gave us, if anything
 trunc($Issuer);
 if ($Issuer) {
     print "GLUE2EndpointIssuerCA: $Issuer\n";
+}
+trunc($Subject);
+if ($Subject) {
+    print "GLUE2EntityOtherInfo: HostDN=$Subject\n";
 }
 
 # NB This is currently hardwired above
@@ -707,6 +738,11 @@ print "GLUE2EntityOtherInfo: InfoProviderName=glite-info-glue2-endpoint\n";
 print "GLUE2EntityOtherInfo: InfoProviderVersion=$gige_version\n";
 print "GLUE2EntityOtherInfo: InfoProviderHost=$host\n";
 
+# Assert compliance with the EGI profile
+
+print "GLUE2EntityOtherInfo: ProfileName=EGI\n";
+print "GLUE2EntityOtherInfo: ProfileVersion=$profileversion\n";
+
 # NB This is hardwired above
 print "GLUE2PolicyScheme: $PolicyScheme\n";
 
@@ -771,11 +807,16 @@ sub trunc {
 # Truncates string attributes to a "reasonable" length, somewhat arbitrarily
 # taken to be 240 chars. Excess text is replaced by the "well-known" error
 # indicator 4444. Also strip leading and trailing spaces, which are unlikely
-# to be useful in any attribute.
+# to be useful in any attribute. Also for now translate non-ASCII characters
+# to ? as the deployed schema doesn't allow them, see
+# https://savannah.cern.ch/bugs/?98046
 
     if ($_[0]) {
 	$_[0] =~ s/^\s+//;
 	$_[0] =~ s/\s+$//;
+
+# Zap any non-ASCII characters (replaced with a ?)
+	$_[0] =~ tr/\0-\x7f/?/c;
 
 	if (length($_[0]) > 240) {
 	    $_[0] = substr($_[0], 0, 239) . "...4444";

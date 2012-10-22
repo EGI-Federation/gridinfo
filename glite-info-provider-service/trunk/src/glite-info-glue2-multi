@@ -12,6 +12,9 @@
 #
 # Stephen Burke, v 1.0 November 2011
 #
+# 28/08/12: Restore the export of the site name in the GLITE_INFO_SERVICE_SITE_ID
+#           environment variable (was done for GLUE 1 but got lost for GLUE 2)
+#
 # Arguments are:
 #    - a comma-separated list of configuration files for the
 #      Endpoint information
@@ -157,6 +160,11 @@ if (!$DID) {
     print STDERR "Error: Site name (DomainID) not specified\n";
     exit 3;
 }
+
+# Export the DomainID as an environment variable so it can be used
+# in the scripts and config items
+
+$ENV{"GLITE_INFO_SERVICE_SITE_ID"} = $DID;
 
 # Similarly for the ServiceID an explicit argument takes precedence
 if (!$SID) {

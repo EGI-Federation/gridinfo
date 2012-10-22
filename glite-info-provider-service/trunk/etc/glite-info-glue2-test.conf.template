@@ -19,7 +19,7 @@ service_type = glue2.test.service
 
 # Glue 2 allows extra information to be attached to any object
 
-get_otherinfo = echo -e "Some extra information\n$GLITE_INFO_GLUE2_TEST\nSome more information"
+get_otherinfo = echo -e "Some extra information\n$GLITE_INFO_GLUE2_TEST\nSome more information\nThis contains a non-ASCII character: ausgeführt"
 
 # A command to return the service endpoint to stdout
 
