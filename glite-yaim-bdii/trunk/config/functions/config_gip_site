@@ -28,7 +28,7 @@ config_gip_site () {
 if [ "$SITE_SUPPORT_SITE" ] || [ "$SITE_TIER" ] 
 then
    yaimlog ABORT "Neither SITE_SUPPORT_SITE or SITE_TIER should be set any longer in the yaim configuration."
-   yaimlog ABORT "Please see http://goc.grid.sinica.edu.tw/gocwiki/How_to_publish_my_site_information for details."
+   yaimlog ABORT "https://wiki.egi.eu/wiki/MAN01#Configuring_a_site_BDII"
    exit 1
 fi
 
