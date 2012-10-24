@@ -12,11 +12,13 @@ test:
 
 install:
 	@echo installing ...
-	@mkdir -p $(prefix)/opt/glite/libexec/
-	@mkdir -p $(prefix)/opt/glite/var/tmp/gip/
-	@mkdir -p $(prefix)/opt/glite/var/tmp/log/
-	@mkdir -p $(prefix)/opt/glite/var/cache/gip/
-	@install -m 0755 src/glite-info-provider-ldap $(prefix)/opt/glite/libexec
+	@mkdir -p $(prefix)/usr/libexec/
+	@mkdir -p $(prefix)/var/lib/bdii/gip/tmp/gip/
+	@mkdir -p $(prefix)/var/lib/bdii/gip/tmp/gip/log/
+	@mkdir -p $(prefix)/var/lib/bdii/gip/cache/gip/
+	@mkdir -p $(prefix)/usr/share/doc/glite-info-provider-ldap
+	@install -m 0755 src/glite-info-provider-ldap $(prefix)/usr/libexec
+	@install -m 0644 doc/README $(prefix)/usr/share/doc/glite-info-provider-ldap/
 
 dist:
 	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
