@@ -1,0 +1,16 @@
+The Freedom of Choice for Resources mechanism (FCR) is used within a top level BDII 
+to enable the Virtual Organization (VO) to influence their usage of specific services. 
+The FCR portal generates a list of services available to a VO. The portal can be used 
+by the VO manager to either white list or black list sites. This information is then 
+downloaded by the top level BDII and it deletes the ACL for the VO on that specific 
+service from the database. This results in the service not being matched in a query 
+from that VO.
+
+The generate-fcr-exclude-file script is a cron job that runs every hour. It contacts
+the SAM server where the backlisted information is published. It then generates the
+/var/cache/fcr/exclude.ldif file containing the information of the blacklisted resources.
+This file is used by the glite-info-plugin-fcr called by the top level BDII to delete
+the ACL for the VO in the listed services.
+
+Note that this plugin is only used with the CMS VO. 
+

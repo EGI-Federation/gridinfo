@@ -13,8 +13,10 @@ install:
 	@mkdir -p $(prefix)/usr/libexec
 	@mkdir -p $(prefix)/etc/cron.hourly/
 	@mkdir -p $(prefix)/var/cache/fcr
+	@mkdir -p $(prefix)/usr/share/doc/glite-info-plugin-fcr
 	@install -m 0755 src/glite-info-plugin-fcr $(prefix)/usr/libexec/
 	@install -m 0755 etc/cron.hourly/generate-fcr-exclude-file $(prefix)/etc/cron.hourly/
+	@install -m 0644 doc/README $(prefix)/usr/share/doc/glite-info-plugin-fcr/	
 
 dist:
 	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
