@@ -1,0 +1,36 @@
+##############################################################################
+#
+# NAME :        config_gip_bdii_site
+#
+# DESCRIPTION : This function configures the site BDII.
+#
+# AUTHORS :     Laurence.Field@cern.ch
+#
+# NOTES :       
+#
+# YAIM MODULE:  glite-yaim-bdii
+#                 
+##############################################################################
+
+config_gip_bdii_site_check () {
+
+requires $1 SITE_BDII_HOST SITE_NAME BDII__URL BDII_REGIONS
+retcode=$?
+return ${retcode}
+
+}
+
+config_gip_bdii_site () {
+
+site_urls_file=/etc/bdii/gip/site-urls.conf
+
+if [ -f ${site_urls_file} ]; then
+   rm -f ${site_urls_file}
+fi
+
+for REGION in $BDII_REGIONS; do
+   echo "$REGION  `eval echo '$'BDII_${REGION}_URL`" >> ${site_urls_file}
+done	
+
+return 0
+}

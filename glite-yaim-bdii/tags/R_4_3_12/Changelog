@@ -1,0 +1,163 @@
+#################################################################
+################# TAG glite-yaim-bdii_R_4_0_4_7 #################
+#################################################################
+
+
+11/11/2008 ->
+
+by Laurence Field
+
+config/defaults/glite-bdii_site.pre
+- Fix for bug #38970
+
+config/functions/config_gip_site
+- Fix for bug #38666
+
+config/functions/config_info_service_bdii_top
+config/node-info.d/glite-bdii_site and 	glite-bdii_top
+- Fixed for bugs #41361, #40755, #40753
+
+#################################################################
+################# TAG glite-yaim-bdii_R_4_0_4_6 #################
+#################################################################
+
+
+28/08/2008 ->
+
+by Laurence Field
+
+config/functions/config_gip_bdii_top 
+- Update
+
+#################################################################
+################# TAG glite-yaim-bdii_R_4_0_4_5 #################
+#################################################################
+
+27/08/2008 ->
+
+by Laurence Field
+
+config/functions/config_gip_bdii_top 
+- Fixed bug with setting FCR value
+
+
+#################################################################
+################# TAG glite-yaim-bdii_R_4_0_4_4 #################
+#################################################################
+
+
+006/08/08 ->
+
+by Maria Alandes
+
+config/services/glite-bdii_site
+- Improve variables description and examples
+
+Makefile and spec file
+- Fix for bug #39683: YAIM version is now included in the BDII
+
+config/functions/config_gip_site
+- Fix for bug #38897: SITE_OTHER_GRID is part of 'requires'
+- Remove: SITE_BDII_HOST from 'requires'. It's not needed.
+
+config/functions/config_gip_bdii_site
+- Fix for bug #31895: I remove the check where CE and BDII are in he same host. site-urls.conf can have duplicated entries. 
+This is not a problem. However the user should define proper REGIONS.
+- Fix for bug #39769: BDII_REGIONS is now in 'requires'
+
+#################################################################
+################# TAG glite-yaim-bdii_R_4_0_4_3 #################
+#################################################################
+
+07/07/2008 ->
+
+by Laurence Field
+
+Makefile, glite-yaim-bdii.spec
+config/functions/config_gip_bdii_top
+config/defaults/glite-bdii_top.pre
+
+- Fix for bug #32655: FCR Hardcoded
+
+
+22/04/2008 ->
+
+by Laurence Field
+
+config/functions/config_gip_bdii_top:
+- Removed the dynamic egee plugin
+
+#################################################################
+################# TAG glite-yaim-bdii_R_4_0_4_2 #################
+#################################################################
+
+18/04/2008 ->
+
+by Maria Alandes
+
+config/functions/config_info_service_bdii_site and config_info_service_bdii_top and config_gip_bdii_site and config_gip_bdii_top: 
+- Update: Implementation of the new information provider in site and top level BDII configuration.
+
+config/node-info.d/glite-bdii_site and glite-bdii_top:
+- Update: node-info.d files include now the new functions
+
+
+#################################################################
+################# TAG glite-yaim-bdii_R_4_0_4_1 #################
+#################################################################
+
+
+16/04/2008 ->
+
+by Laurence Field
+
+config/functions/config_gip_bdii_top:
+- Added dynmaic egee provider
+- Removed new style service publisher
+- Updates from testing
+
+
+#################################################################
+################# TAG glite-yaim-bdii_R_4_0_3_2 #################
+#################################################################
+
+
+10/04/2008 ->
+
+by Steve Traylen
+
+Add services files to the Makefile and .spec file.
+
+
+#################################################################
+################# TAG glite-yaim-bdii_R_4_0_3_1 #################
+#################################################################
+
+09/04/2008 ->
+
+by Steve Traylen
+Create a services file for glite-BDII_site
+Add the GLUE_SITE_* stuff as outlined in 
+http://goc.grid.sinica.edu.tw/gocwiki/How_to_publish_my_site_information
+and
+https://savannah.cern.ch/bugs/?34708
+
+
+13/02/2008 ->
+
+by Maria Alandes
+
+config/functions/config_gip_bdii_site:
+- Fix for bug #32762: BDII__URL variables are now included in the requires. 
+
+
+#################################################################
+################# TAG glite-yaim-bdii_R_4_0_2_3 #################
+#################################################################
+
+
+08/02/2008 ->
+
+by Gegerly Debreczeni
+
+- SB infor provider implemented, old ldif file removed
