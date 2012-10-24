@@ -1,8 +1,8 @@
 Name:		glite-info-provider-ldap
-Version:	1.4.1
+Version:	1.4.2
 Release:	1%{?dist}
 Summary:	LDAP information provider
-Group:		System/Monitoring
+Group:		Development/Libraries
 License:	ASL 2.0
 URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
 #               wget -O %{name}-%{version}-443.tar.gz "http://svnweb.cern.ch/world/wsvn/gridinfo/bdii/tags/R_5_1_0?op=dl&rev=443"
@@ -12,7 +12,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 Requires:       openldap-servers
 
 %description
-An information provider that queries a number of LDAP sources and return the result. 
+Information provider to query LDAP sources and return the result. 
 
 %prep
 %setup -q
@@ -31,12 +31,16 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-/opt/glite/libexec/glite-info-provider-ldap
-%attr(-, ldap, ldap) /opt/glite/var/tmp/gip/
-%attr(-, ldap, ldap) /opt/glite/var/tmp/log/
-%attr(-, ldap, ldap) /opt/glite/var/cache/gip/
+/usr/libexec/glite-info-provider-ldap
+%attr(-, ldap, ldap) /var/lib/bdii/gip/tmp/gip/
+%attr(-, ldap, ldap) /var/lib/bdii/gip/tmp/gip/log/
+%attr(-, ldap, ldap) /var/lib/bdii/gip/cache/gip/
+%doc /usr/share/doc/glite-info-provider-ldap/README
 
 %changelog
+* Wed Oct 24 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.4.2-1
+- BUG #97395: Fixed rpmlint errors: Changed glite-info-provider-ldap path from /opt/glite to /usr
+- Added a README file
 * Mon Jun 06 2011 Laurence Field <laurence.field@cern.ch> - 1.4.1-1
 - Fix for bug #81637 (Missing dependency)
 * Tue Mar 22 2011 Laurence Field <laurence.field@cern.ch> - 1.4.0-1
