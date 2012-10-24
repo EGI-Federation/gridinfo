@@ -64,11 +64,15 @@ fi
 
 # Create an hourly cron job to run the ginfo command
 cat << EOF > ${BDII_EMIR_CRON_FILE}
-ginfo --host localhost --emi > ${BDII_EMIR_JSON_DIR}/bdii.json
+ginfo --host localhost --emi > ${BDII_EMIR_JSON_DIR}/service.json
 EOF
 
 # Call the ginfo command to create the first service entry
-ginfo --host localhost --emi > ${BDII_EMIR_JSON_DIR}/bdii.json
+ginfo --host localhost --emi > ${BDII_EMIR_JSON_DIR}/service.json
+if [ $? -ne 0 ]; then
+  yaimlog ERROR "ginfo command failed to create the json file !"
+  exit 1
+fi
 
 # Configure EMIR service publisher
 if [ -f ${BDII_EMIR_INI_FILE} ] ; then
@@ -91,8 +95,8 @@ period = ${BDII_EMIR_SERP_PERIOD}
 # Value is given in hours
 validity = ${BDII_EMIR_SERP_VALIDITY}
 
-[BDIIService]
-json_file_location = ${BDII_EMIR_JSON_DIR}/bdii.json
+[Service]
+json_file_location = ${BDII_EMIR_JSON_DIR}/service.json
 
 # Logging verbosity
 #
@@ -111,6 +115,11 @@ fi
 
 # Start EMIR service publisher
 service emir-serp start
+if [ $? -ne 0 ]; then
+  yaimlog ERROR "EMIR Service Publisher failed to start !"
+  exit 1
+fi
+
 
 else
   if [ "x${BDII_EMIR_ENABLE}" == "x" ] ; then
