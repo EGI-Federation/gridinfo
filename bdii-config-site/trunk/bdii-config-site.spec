@@ -1,5 +1,5 @@
 Name:		bdii-config-site
-Version:	1.0.6
+Version:	1.0.7
 Release:	1%{?dist}
 Summary:	Site BDII configration files
 Group:		System/Monitoring
@@ -46,6 +46,8 @@ rm -rf %{buildroot}
 /var/lib/bdii/gip/provider/glite-info-provider-site-glue2
 
 %changelog
+* Wed Oct 24 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.7-1
+- #BUG 98427: Fixed rpmlint errors: Changed /opt/glite/libexec to /usr/libexec
 * Wed Mar 14 2012 Laurence Field <laurence.field@cern.ch> - 1.0.6-1
 - Improved dependency definition
 * Tue Aug 22 2011 Laurence Field <laurence.field@cern.ch> - 1.0.5-1
