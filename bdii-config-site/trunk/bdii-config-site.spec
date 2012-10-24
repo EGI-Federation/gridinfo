@@ -2,8 +2,9 @@ Name:		bdii-config-site
 Version:	1.0.7
 Release:	1%{?dist}
 Summary:	Site BDII configration files
-Group:		System/Monitoring
+Group:		Development/Libraries
 License:	ASL 2.0
+URL:            https://tomtools.cern.ch/confluence/display/IS/Home 
 Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
@@ -19,7 +20,7 @@ Requires:	glite-info-static
 Requires:	glite-info-site
 
 %description
-Configration files for the Site BDII.
+Configuration files for the Site BDII.
 
 %prep
 %setup -q
@@ -39,7 +40,7 @@ rm -rf %{buildroot}
 
 /var/lib/bdii/gip/provider/glite-info-provider-service-bdii-site
 /var/lib/bdii/gip/provider/glite-info-provider-site
-/etc/bdii/gip/site-urls.conf
+%config(noreplace) /etc/bdii/gip/site-urls.conf
 /var/lib/bdii/gip/provider/glite-info-provider-service-bdii-site-glue2
 /var/lib/bdii/gip/provider/glite-info-provider-site-entry
 /var/lib/bdii/gip/provider/glite-info-provider-site-entry-glue2
