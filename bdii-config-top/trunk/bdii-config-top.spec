@@ -4,6 +4,7 @@ Release:	1%{?dist}
 Summary:	Top BDII configration files
 Group:		Development/Libraries
 License:	ASL 2.0
+URL:            https://tomtools.cern.ch/confluence/display/IS/Home 
 Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
