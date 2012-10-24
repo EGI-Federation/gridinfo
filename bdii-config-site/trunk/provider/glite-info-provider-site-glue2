@@ -17,9 +17,8 @@
 # limitations under the License.
 ##############################################################################
 
-GLITE_HOME=${GLITE_HOME:-/opt/glite}
 CONFIG=/etc/bdii/gip/site-urls.conf
-SCRIPT=${GLITE_HOME}/libexec/glite-info-provider-ldap
+SCRIPT=/usr/libexec/glite-info-provider-ldap
 DEFAULTS=/etc/bdii/gip/glite-info-site-defaults.conf
 
 # Check for the existence of the configuration file.
