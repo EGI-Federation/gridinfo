@@ -1,5 +1,5 @@
 Name: glite-info-plugin-fcr
-Version: 3.0.4
+Version: 3.0.5
 Release: 1%{?dist} 
 Summary: glite-info-plugin-fcr
 Group:          System Environment/Daemons
@@ -23,8 +23,12 @@ make install prefix=%{buildroot}
 
 %files
 %dir /var/cache/fcr
-/opt/glite/libexec/glite-info-plugin-fcr
+/usr/libexec/glite-info-plugin-fcr
 /etc/cron.hourly/generate-fcr-exclude-file
 
 %clean
 rm -rf %{buildroot}
+
+%changelog
+* Wed Oct 24 2012 Maria Alandes <Maria.Alandes.Pradillo@cern.ch> - 3.0.5-1
+- Fixed rpmlint errors: Changed glite-info-plugin-fcr path from /opt/glite to /usr
