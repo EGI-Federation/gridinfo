@@ -1,8 +1,8 @@
 Name:		bdii-config-top
-Version:	1.0.6
+Version:	1.0.7
 Release:	1%{?dist}
 Summary:	Top BDII configration files
-Group:		System/Monitoring
+Group:		Development/Libraries
 License:	ASL 2.0
 Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
@@ -18,7 +18,7 @@ Requires:	glite-info-provider-service
 Requires:	glite-info-update-endpoints
 
 %description
-Configration files for the Top BDII.
+Configration files for the Top BDII
 
 %prep
 %setup -q
@@ -43,6 +43,8 @@ rm -rf %{buildroot}
 /var/lib/bdii/gip/plugin/glite-info-plugin-fcr
 
 %changelog
+* Wed Oct 24 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.7-1
+- BUG #97395: Fix rpmlint errors: refer to /usr/libexec instead of /opt/glite/libexec
 * Mon May 25 2012 Laurence Field <laurence.field@cern.ch> - 1.0.6-1
 - Changed the location of top-urls.conf to address GGUS #73823
 * Wed Mar 14 2012 Laurence Field <laurence.field@cern.ch> - 1.0.5-1
