@@ -20,10 +20,9 @@ install:
 	@echo "$(NAME) $(VERSION)-$(RELEASE)" > $(prefix)/yaim/etc/versions/$(NAME)
 
 	@install -m 0644 config/functions/config_* $(prefix)/yaim/functions
-	@install -m 0644 config/node-info.d/glite-* $(prefix)/yaim/node-info.d
 	@install -m 0644 config/node-info.d/emi-* $(prefix)/yaim/node-info.d
 	@install -m 0644 config/defaults/*.pre $(prefix)/yaim/defaults
-	@install -m 0644 config/services/glite* $(prefix)/yaim/examples/siteinfo/services/.
+	@install -m 0644 config/services/emi* $(prefix)/yaim/examples/siteinfo/services/.
 
 dist:
 	@mkdir -p  $(build)/$(NAME)-$(VERSION)/

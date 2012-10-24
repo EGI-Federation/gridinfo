@@ -1,5 +1,5 @@
 Name:		glite-yaim-bdii
-Version:	4.3.11
+Version:	4.3.12
 Release:	1%{?dist}
 Summary:	glite-yaim-bdii module configures the top level BDII and site BDI
 Group:		Development/Tools
@@ -28,13 +28,15 @@ rm -rf %{buildroot}
 %defattr(-,root,root,-)
 /opt/glite/yaim/functions/config_*
 /opt/glite/yaim/defaults/*.pre
-%config /opt/glite/yaim/node-info.d/glite-*
 %config /opt/glite/yaim/node-info.d/emi-*
-/opt/glite/yaim/examples/siteinfo/services/glite-*
+/opt/glite/yaim/examples/siteinfo/services/emi-*
 /opt/glite/yaim/etc/versions/%{name}
 %doc LICENSE
 
 %changelog
+* Wed Oct 24 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 4.3.12-1 
+- BUG #98187: EMIR integration
+- BUG #98369: cleaning
 * Wed Aug 01 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 4.3.11-1
 - After integration testing decided to make BDII_IPV6_SUPPORT not mandatory. Default in init.d script is 'no' in any case.
 * Wed Jul 18 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 4.3.10-1
