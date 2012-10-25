@@ -1,0 +1,37 @@
+dn: GLUE2PolicyID=Policy_1,GLUE2EndpointID=service_1_endpoint_1,GLUE2ServiceID=service_1,GLUE2GroupID=resource,o=glue
+objectClass: GLUE2Entity
+objectClass: GLUE2Policy
+objectClass: GLUE2AccessPolicy
+GLUE2PolicyID: Policy_1
+GLUE2PolicyRule: ALL
+GLUE2PolicyScheme: XXX
+GLUE2AccessPolicyEndpointForeignKey: service_1_endpoint_1
+
+dn: GLUE2PolicyID=Policy_2,GLUE2EndpointID=service_2_endpoint_2,GLUE2ServiceID=service_2,GLUE2GroupID=resource,o=glue
+objectClass: GLUE2Entity
+objectClass: GLUE2Policy
+objectClass: GLUE2AccessPolicy
+GLUE2PolicyID: Policy_2
+GLUE2PolicyRule: ALL
+GLUE2PolicyRule: VO:cms
+GLUE2PolicyScheme: XXX
+GLUE2AccessPolicyEndpointForeignKey: service_2_endpoint_2
+
+dn: GLUE2PolicyID=Policy_3,GLUE2EndpointID=service_3_endpoint_3,GLUE2ServiceID=service_3,GLUE2GroupID=resource,o=glue
+objectClass: GLUE2Entity
+objectClass: GLUE2Policy
+objectClass: GLUE2AccessPolicy
+GLUE2PolicyID: Policy_3
+GLUE2PolicyRule: VO:atlas
+GLUE2PolicyScheme: XXX
+GLUE2AccessPolicyEndpointForeignKey: service_3_endpoint_3
+
+dn: GLUE2PolicyID=Policy_4,GLUE2EndpointID=service_4_endpoint_4,GLUE2ServiceID=service_4,GLUE2GroupID=resource,o=glue
+objectClass: GLUE2Entity
+objectClass: GLUE2Policy
+objectClass: GLUE2AccessPolicy
+GLUE2PolicyID: Policy_4
+GLUE2PolicyRule: vo:atlas
+GLUE2PolicyScheme: XXX
+GLUE2AccessPolicyEndpointForeignKey: service_4_endpoint_4
+
