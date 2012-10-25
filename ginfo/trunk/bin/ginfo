@@ -29,7 +29,7 @@ import re
 import urllib2
 import signal
 
-VERSION = '0.2.5'
+VERSION = '0.2.6'
 
 # configuration dictionnary that will be filled with the submitted options
 CONF = {}
@@ -38,6 +38,7 @@ CONF = {}
 OPTIONS = {
     'host': [None, True],
     'registry': ["r", True],
+    'bind': ["b", True],
     'list': ["l", True],
     'clean': [None, False],
     'strict': ["s", False],
@@ -205,6 +206,13 @@ def validate_conf():
                 print 'The following host will be used:', CONF['host']
         else:
             sys.exit(usage())
+    if 'bind' in CONF:
+        if 'verbose' in CONF:
+            print 'The following binding will be used:', CONF['bind']
+    else:
+        CONF['bind'] = 'o=glue'
+        if 'verbose' in CONF:
+            print 'The default binding will be used:', CONF['bind']
     if 'list' in CONF:
         if CONF['list'] not in ATTRIBUTES.keys():
             for i in ATTRIBUTES:
@@ -270,6 +278,7 @@ def usage():
                                 environmental variable LCG_GFAL_INFOSYS will be
                                 used.
     -r, --registry  registry    Specify an EMI registry to query.
+    -b, --bind      binding     Specify the binding (o=glue by default).
     -l, --list      attribute   List all the possible values of the specified
                                 attribute.
         --clean                 Clean results in replacing all invalid data.
@@ -347,9 +356,9 @@ def request(filter=None):
                 port = ':2170'
             con = ldap.initialize('ldap://'+CONF['host']+port)
             if filter:
-                result = con.result(con.search('o=glue', ldap.SCOPE_SUBTREE, filter))[1]
+                result = con.result(con.search(CONF['bind'], ldap.SCOPE_SUBTREE, filter))[1]
             else:
-                result = con.result(con.search('o=glue', ldap.SCOPE_SUBTREE))[1]
+                result = con.result(con.search(CONF['bind'], ldap.SCOPE_SUBTREE))[1]
         except ldap.SERVER_DOWN:
             sys.exit('Error: Can\'t contact the LDAP server. Please check your host.')
     elif 'registry' in CONF:
