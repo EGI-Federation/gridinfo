@@ -1,0 +1,5 @@
+lcg-info (1.12.2-1) UNRELEASED; urgency=low
+
+  * My first Debian package. v 1.12.2-1
+
+ -- Maria Alandes Pradillo <maria.alandes.pradillo@cern.ch>  Fri, 02 Nov 2012 14:41:37 +0000

@@ -1,0 +1,13 @@
+Source: lcg-info
+Section: utils
+Priority: optional
+Maintainer: Andrea Sciaba <andrea.sciaba@cern.ch>
+Standards-Version: 1.12.2
+Build-Depends: debhelper (>= 8)
+Homepage: https://edms.cern.ch/file/722398/1.4/gLite-3-UserGuide.pdf
+
+Package: lcg-info
+Architecture: all
+Depends: libnet-ldap-perl
+Description: Information System client
+ Command line tool to query the WLCG Information System.
