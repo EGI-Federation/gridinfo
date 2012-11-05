@@ -10,22 +10,27 @@ default:
 
 install:
 	@echo installing ...
-	@mkdir -p $(prefix)/usr/bin
+	@mkdir -p $(prefix)/usr/bin/
 	@mkdir -p $(prefix)/usr/share/man/man1
 	@install -m 0755 src/lcg-infosites   $(prefix)/usr/bin/lcg-infosites
 	@install -m 0644 man/lcg-infosites.1 $(prefix)/usr/share/man/man1/lcg-infosites.1
 
-
 dist:
 	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
-	rsync -HaS --exclude ".svn" --exclude "$(build)" * $(build)/$(NAME)-$(VERSION)/
+	rsync -HaS --exclude ".svn" --exclude "$(build)" --exclude "debian" * $(build)/$(NAME)-$(VERSION)/
 	cd $(build); tar --gzip -cf $(NAME)-$(VERSION).tar.gz $(NAME)-$(VERSION)/; cd -
+
+dist-deb:
+	@mkdir -p  $(build)/$(NAME)-$(VERSION)/
+	rsync -HaS --exclude ".svn" --exclude "build" * $(build)/$(NAME)-$(VERSION)/
+	cd $(build); tar --gzip -cf $(NAME)_$(VERSION).orig.tar.gz $(NAME)-$(VERSION)/; cd -
 
 sources: dist
 	cp $(build)/$(NAME)-$(VERSION).tar.gz .
 
-deb: dist
-	cd $(build)/$(NAME)-$(VERSION); dpkg-buildpackage -us -uc; cd -
+deb: dist-deb
+	cd $(build)/$(NAME)-$(VERSION); debuild -us -uc; cd -
+	mkdir $(build)/deb ; cp $(build)/*.deb $(build)/*.dsc $(build)/*.debian.tar.gz $(build)/*.orig.tar.gz $(build)/deb
 
 prepare: dist
 	@mkdir -p  $(build)/RPMS/noarch
@@ -45,4 +50,4 @@ clean:
 	rm -f *~ $(NAME)-$(VERSION).tar.gz
 	rm -rf $(build)
 
-.PHONY: dist srpm rpm sources clean 
+.PHONY: dist dist-deb srpm rpm deb sources clean 
