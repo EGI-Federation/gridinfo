@@ -1,0 +1,12 @@
+Source: lcg-infosites
+Section: utils
+Priority: optional
+Maintainer: Maarten Litmaath <Maarten.Litmaath@cern.ch>
+Standards-Version: 3.1.0
+Build-Depends: debhelper (>= 8)
+Homepage: https://edms.cern.ch/file/722398/1.4/gLite-3-UserGuide.pdf
+
+Package: lcg-infosites
+Architecture: all
+Description: Information System client
+ Command line tool to query the WLCG Information System
