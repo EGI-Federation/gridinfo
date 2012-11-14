@@ -1,5 +1,5 @@
 Name:		glite-yaim-bdii
-Version:	4.3.12
+Version:	4.3.13
 Release:	1%{?dist}
 Summary:	glite-yaim-bdii module configures the top level BDII and site BDI
 Group:		Development/Tools
@@ -34,6 +34,8 @@ rm -rf %{buildroot}
 %doc LICENSE
 
 %changelog
+* Wed Nov 14 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 4.3.13-1
+- Change EMIR integration approach to use the built-in feature provided by EMIR publisher to use the resource BDII
 * Wed Oct 24 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 4.3.12-1 
 - BUG #98187: EMIR integration
 - BUG #98369: cleaning
