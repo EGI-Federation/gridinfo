@@ -13,6 +13,7 @@ Requires:     glite-info-provider-service
 Requires:     glue-validator
 Requires:     glue-validator-cron
 Requires:     emi-version
+Requires:     glite-yaim-bdii
 
 %description
 %{summary}
