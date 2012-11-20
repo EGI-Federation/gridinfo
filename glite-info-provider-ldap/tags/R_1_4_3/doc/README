@@ -1,0 +1,22 @@
+glite-info-provider-ldap enables information to be obtained by querying other BDIIs or LDAP servers. 
+The script requires as input a configuration file containing a list of LDAP URLs of the form 
+ldap://host.domain:2170/mds-vo-name=something,o=grid.
+
+/opt/glite/libexec/glite-info-provider-ldap -c <config file> <options>
+
+Options:
+
+-c The configuration file listing all the LDAP URLs.
+
+-m The mds-vo-name which should be used.
+
+-h Displays this helpful message.
+
+-d This option will change the search filter to only
+retrieve the dynamic information. (currently not supported)
+
+-t The timeout of the ldapsearch in seconds.
+
+-v The validity of the cache files in seconds.
+
+-s Maximum file size in megabytes for a single source.
