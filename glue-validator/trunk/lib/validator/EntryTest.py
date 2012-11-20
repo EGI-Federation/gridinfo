@@ -36,7 +36,8 @@ class EntryTest(unittest.TestCase):
                     if self.schema[obj][attribute][2]:
                         message = "The mandatory attribute %s is not present in %s" % (attribute, self.dn)
                         self.assertTrue(attribute in self.entry, message)
-        
+
+      
     def test_single_valued(self):
         """Verifying single-valued attributes only have one value."""
         for obj in self.objects:
@@ -58,4 +59,14 @@ class EntryTest(unittest.TestCase):
                             check = getattr(self.types, 'is_' + data_type)
                             message = "The field %s with value '%s' does not follow the type %s in %s" % (attribute, value, data_type, self.dn)
                             self.assertTrue(check(value), message)
+
+    def test_empty_attributes(self):
+        """Verifying that attributes are not empty."""
+        for obj in self.objects:
+            if obj in self.schema:
+                for attribute in self.entry:
+                    if attribute in self.schema[obj]:
+	                    for value in self.entry[attribute]:
+                    	    	message = "The attribute %s in %s is empty" % (attribute, self.dn)
+                    	    	self.assertTrue(value != "", message)
 
