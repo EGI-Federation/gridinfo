@@ -9,7 +9,8 @@ schema = {
         'GLUE2EntityValidity' : ('UInt64', True, False),
         },
     'GLUE2Group' : {
-        'GLUE2GroupID' : ('URI', True, True),
+        'GLUE2GroupID' : ('URI', True, False),
+        'GLUE2GroupName' : ('URI', True, False),
         },
     'GLUE2Extension' : {
         'GLUE2ExtensionLocalID' : ('LocalID_t', True, True),
