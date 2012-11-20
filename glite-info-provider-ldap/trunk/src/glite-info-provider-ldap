@@ -246,22 +246,37 @@ foreach(@urls){
 	$region  = $1;
 
 	if ($options{g}){
+
 	    my $site = $4;
-	    $site =~s/,o=grid.*$//;
-	    $site =~s/^.*=//;
-	    if ( $site eq 'resource'){
-		$bind = 'GLUE2GroupID=resource,o=glue';
-	    }else{
-		$bind = "GLUE2DomainId=$site,o=glue";
-	    }
+            # If LDAP URL is already in GLUE 2.0, use the LDAP URL without any translation 
+            if ( index($site,'o=glue') != -1 ){
+                $bind = $4;
+            }else{		
+	        $site =~s/,o=grid.*$//;
+	        $site =~s/^.*=//;
+	        if ( $site eq 'resource'){
+		    $bind = 'GLUE2GroupID=resource,o=glue';
+	        }else{
+		    $bind = "GLUE2DomainId=$site,o=glue";
+	        }
+            }
 	    $filter = ''
 	}else{
 	    $bind = $4;
 	}
-	
-	$command = "ldapsearch -x -LLL -h $2 -p $3 -b $bind "
-	    . $filter
-	    . "> $tmp_dir/$region.ldif 2>$tmp_dir/$region.err";
+        # If this is a top BDII and GLUE 2.0 is queried, apply patch for ARC 
+	if ($options{g}='grid'){
+            $command = "ldapsearch -x -LLL -h $2 -p $3 -b $bind -s base "
+                . $filter
+                . "> $tmp_dir/$region.ldif 2>$tmp_dir/$region.err"
+                . " ; ldapsearch -x -LLL -h $2 -p $3 -b GLUE2GroupID=services,$bind "
+                . $filter
+                . ">> $tmp_dir/$region.ldif 2>>$tmp_dir/$region.err";
+        }else{	
+  	    $command = "ldapsearch -x -LLL -h $2 -p $3 -b $bind "
+	        . $filter
+	        . "> $tmp_dir/$region.ldif 2>$tmp_dir/$region.err";
+        }
     } else {
 	chomp;
 	print LOGFILE "ignoring badly formatted line: '$_'\n";
