@@ -3,11 +3,11 @@
 %endif
 Summary: A validation framework for Grid information providers
 Name: glue-validator
-Version: 1.0.3
+Version: 1.0.4
 Release: 1%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_1_0_3 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_1_0_4 %{name}-%{version}
 #  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source0: %{name}-%{version}.tar.gz
 License: ASL 2.0
@@ -45,6 +45,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+* Tue Nov 20 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.4-1
+- BUG #98683: New test to check attributes are not empty  
+- BUG #98948: GLUE2Group class has been updated with GLUE2GroupName
 * Fri Oct 12 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.3-1
 - BUG #98104: ldap added to is_allowed_URL_Schema
 - BUG #97155: information.publication is now added to Capability_t
