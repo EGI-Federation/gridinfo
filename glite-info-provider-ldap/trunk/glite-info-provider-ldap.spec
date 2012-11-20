@@ -1,5 +1,5 @@
 Name:		glite-info-provider-ldap
-Version:	1.4.2
+Version:	1.4.3
 Release:	1%{?dist}
 Summary:	LDAP information provider
 Group:		Development/Libraries
@@ -38,18 +38,28 @@ rm -rf %{buildroot}
 %doc /usr/share/doc/glite-info-provider-ldap/README
 
 %changelog
+* Tue Nov 20 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.4.3-1
+- BUG #98848: Accept GLUE 2.0 LDAP URLs
+- BUG #95681: ARC tree in BDII
+
 * Wed Oct 24 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.4.2-1
 - BUG #97395: Fixed rpmlint errors: Changed glite-info-provider-ldap path from /opt/glite to /usr
 - Added a README file
+
 * Mon Jun 06 2011 Laurence Field <laurence.field@cern.ch> - 1.4.1-1
 - Fix for bug #81637 (Missing dependency)
+
 * Tue Mar 22 2011 Laurence Field <laurence.field@cern.ch> - 1.4.0-1
 - Change the location of the var directory
+
 * Fri Mar 4 2011 Laurence Field <laurence.field@cern.ch> - 1.3.5-1
 - Implemented IS-220
+
 * Fri Feb 18 2011 Laurence Field <laurence.field@cern.ch> - 1.3.4-1
 - Implemented IS-207
+
 * Mon Feb 14 2011 Laurence Field <laurence.field@cern.ch> - 1.3.3-1
 - Fixed bug 78067
+
 * Thu Apr 1 2010 Laurence Field <laurence.field@cern.ch> - 1.3.0-1
 - New version that can also obtain Glue 2.0 information
