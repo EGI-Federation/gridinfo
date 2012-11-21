@@ -96,7 +96,7 @@ def get_osg_urls():
     try:
         response = urllib2.urlopen(osg_goc_url).read()
     except:
-        return 
+        return ""
 
     root = ElementTree.XML(response) 
 
@@ -131,7 +131,7 @@ def get_egi_urls(status):
     try:
         response = urllib2.urlopen(egi_goc_url).read()
     except: 
-        return 
+        return ""
 
     root = ElementTree.XML(response) 
     egi_urls = {}
@@ -212,7 +212,7 @@ if __name__ == "__main__":
             pickle.dump(egi_urls, file_handle)
             file_handle.close()
         else:
-            log.warn("Using cache file for EGI URLs.")
+            log.warn("EGI GOCDB could not be contacted or returned no information about EGI sites. Using cache file for EGI URLs.")
             file_handle = open(pickle_file, 'rb')
             egi_urls = pickle.load(file_handle)
             file_handle.close()
@@ -226,7 +226,7 @@ if __name__ == "__main__":
             pickle.dump(osg_urls, file_handle)
             file_handle.close()
         else:
-            log.warn("Using cache file for OSG URLs.")
+            log.warn("OSG GOCDB could not be contacted or returned no information about OSG sites. Using cache file for OSG URLs.")
             file_handle = open(pickle_file, 'rb')
             osg_urls = pickle.load(file_handle)
             file_handle.close()
