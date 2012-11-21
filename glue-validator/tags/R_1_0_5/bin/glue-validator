@@ -1,0 +1,47 @@
+#!/usr/bin/env python
+
+import logging
+import unittest
+import os
+import sys
+import validator.utils
+import validator.EntryTest
+
+if __name__ == "__main__":
+    config = validator.utils.parse_options()
+    log = logging.getLogger(sys.argv[0])
+    hdlr = logging.StreamHandler(sys.stderr)
+    formatter = logging.Formatter('[%(levelname)s]: %(message)s')
+    hdlr.setFormatter(formatter)
+    log.addHandler(hdlr)
+    log.setLevel(config['debug'])
+
+    if config.has_key('file'):
+        if os.path.exists(config['file']):
+            source = "file://%s" % (config['file'])
+        else:
+            sys.stderr.write("Error: File %s does not exist\n" %(config['file'],))
+            sys.exit(1)
+
+    if config.has_key('host'):
+      source = "ldap://%s:%s/%s" % (config['host'], config['port'], config['bind'])
+
+    ldif = validator.utils.fast_read_ldif(source)
+    dns_dict = validator.utils.get_dns(ldif)
+    if len(dns_dict) == 0:
+        sys.stderr.write("Error: No LDAP entries returned from %s\n" %(source,))
+        sys.exit(1)
+    suite = unittest.TestSuite()
+    for dn in dns_dict:
+      entry = ldif[dns_dict[dn][0]:dns_dict[dn][1]]
+      entry = validator.utils.convert_entry(entry)
+      module = sys.modules['validator.EntryTest']
+      inst = getattr(module, 'EntryTest')
+      test_names = unittest.TestLoader().getTestCaseNames(validator.EntryTest.EntryTest)
+      for test_name in test_names:
+          suite.addTest(inst(test_name, entry, config['test']))
+    unittest.TextTestRunner(verbosity=2).run(suite)
+
+            
+
+ #             inst.validate(entry, log)
