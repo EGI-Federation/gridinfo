@@ -265,7 +265,7 @@ foreach(@urls){
 	    $bind = $4;
 	}
         # If this is a top BDII and GLUE 2.0 is queried, apply patch for ARC 
-	if ($options{g}='grid'){
+	if ($name eq 'grid'){
             $command = "ldapsearch -x -LLL -h $2 -p $3 -b $bind -s base "
                 . $filter
                 . "> $tmp_dir/$region.ldif 2>$tmp_dir/$region.err"
