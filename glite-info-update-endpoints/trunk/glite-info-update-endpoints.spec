@@ -1,5 +1,5 @@
 Name:		glite-info-update-endpoints
-Version:	2.0.11
+Version:	2.0.12
 Release:	1%{?dist}
 Summary:	Updates LDAP endpoins for EGI and OSG
 Group:		Development/Libraries
@@ -43,14 +43,21 @@ rm -rf %{buildroot}
 %doc /usr/share/doc/glite-info-update-endpoints/README
 
 %changelog
+* Wed Nov 21 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.12-1
+- BUG #98983: Improve error handling in glite-info-update-endpoints 
+
 * Tue Sep 11 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.11-1
 - BUG #96484: Fixed post install actions
 - BUG #97395: Fixed rpmlint errors
+
 * Mon May 25 2012 Laurence Field <laurence.field@cern.ch> - 2.0.10-1
 - Changed the location of top-urls.conf to address GGUS #73823
+
 * Mon Apr 19 2012 Laurence Field <laurence.field@cern.ch> - 2.0.9-1
 - Added random sleep to cronjob to address GGUS #81404 
+
 * Mon Mar 28 2011 Laurence Field <laurence.field@cern.ch> - 2.0.8-1
 - Addressed IS-228
+
 * Fri Aug 20 2010 Laurence Field <laurence.field@cern.ch> - 2.0.3-1
 - Refactored version that queries the GOCs directly
