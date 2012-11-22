@@ -13,7 +13,7 @@ Requires:     glite-yaim-bdii
 Requires:     glite-yaim-core
 Requires:     bdii-config-top
 Requires:     glite-info-plugin-fcr
-Requires:     gliteinfo-update-endpoints
+Requires:     glite-info-update-endpoints
 
 %description
 %{summary}
