@@ -1,5 +1,5 @@
 Name:		glite-info-provider-ldap
-Version:	1.4.3
+Version:	1.4.4
 Release:	1%{?dist}
 Summary:	LDAP information provider
 Group:		Development/Libraries
@@ -38,6 +38,9 @@ rm -rf %{buildroot}
 %doc /usr/share/doc/glite-info-provider-ldap/README
 
 %changelog
+* Tue Dec 04 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.4.4-1
+- Fix after testing: Use 'resource' instead of 'services' since new alias is not valid in previous BDII versions.
+
 * Tue Nov 20 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.4.3-1
 - BUG #98848: Accept GLUE 2.0 LDAP URLs
 - BUG #95681: ARC tree in BDII
