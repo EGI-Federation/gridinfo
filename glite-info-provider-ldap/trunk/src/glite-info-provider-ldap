@@ -269,7 +269,7 @@ foreach(@urls){
             $command = "ldapsearch -x -LLL -h $2 -p $3 -b $bind -s base "
                 . $filter
                 . "> $tmp_dir/$region.ldif 2>$tmp_dir/$region.err"
-                . " ; ldapsearch -x -LLL -h $2 -p $3 -b GLUE2GroupID=services,$bind "
+                . " ; ldapsearch -x -LLL -h $2 -p $3 -b GLUE2GroupID=resource,$bind "
                 . $filter
                 . ">> $tmp_dir/$region.ldif 2>>$tmp_dir/$region.err";
         }else{	
