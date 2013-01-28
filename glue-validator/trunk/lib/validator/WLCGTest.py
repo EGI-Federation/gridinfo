@@ -20,7 +20,7 @@ class WLCGTest(unittest.TestCase):
         self.types = __import__('%s.types' %(test_class,)).types
 
     def test_GlueCEPolicyMaxCPUTime_default (self):
-        message = "Entry %s contains default value of 999999999 for GlueCEPolicyMaxCPUTime" % (self.dn)
+        message = "ERROR: Entry %s contains default value of 999999999 for GlueCEPolicyMaxCPUTime" % (self.dn)
         if 'GlueCEPolicyMaxCPUTime' in self.entry:
         	self.assertEqual(self.entry['GlueCEPolicyMaxCPUTime'],999999999, message)
 
