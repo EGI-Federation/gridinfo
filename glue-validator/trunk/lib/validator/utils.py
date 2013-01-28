@@ -63,7 +63,7 @@ def parse_options():
         usage()
         sys.exit(1)
     if config.has_key('testsuite'):
-        if not config['testsuite'] in ['general', 'wlcg']:
+        if not config['testsuite'] in ['general', 'wlcg', 'egi-profile']:
             sys.stderr.write("Error: Invalid testsuite class %s.\n" %(config['testsuite'],))
             usage()
             sys.exit(1)
@@ -74,7 +74,7 @@ def usage():
     sys.stderr.write('Usage: %s -t <test class> [OPTIONS] \n' % (sys.argv[0]))
     sys.stderr.write('''
  -t --test        The test class [glue1|glue2|egi-glue2].
- -s --testsuite   The testsuite  [general (default)|wlcg].
+ -s --testsuite   The testsuite  [general (default)|wlcg|egi-profile].
 
 Server Mode: Obtains LDIF from an OpenLDAP server.
  -h --host      Hostname of the LDAP server.
@@ -90,6 +90,8 @@ Options:
 Examples:
 
   glue-validator -t glue1 -s wlcg -h localhost -p 2170 -b o=glue
+  glue-validator -t glue2 -s general -h localhost -p 2170 -b o=glue
+  glue-validator -t egi-glue2 -s egi-profile -h localhost -p 2170 -b o=glue
 
 ''')
    
