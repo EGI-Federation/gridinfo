@@ -12,8 +12,8 @@ def parse_options():
     config['output'] = None
    
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "h:p:b:f:d:o:t:",
-          ["host", "port", "bind", "file", "debug", "test"])
+        opts, args = getopt.getopt(sys.argv[1:], "h:p:b:f:d:o:t:s:",
+          ["host", "port", "bind", "file", "debug", "test", "testsuite"])
     except getopt.GetoptError:
         sys.stderr.write("Error: Invalid option specified.\n")
         usage()
@@ -31,6 +31,8 @@ def parse_options():
             config['file'] = a
         if o in ("-t", "--test"):
             config['test'] = a
+        if o in ("-s", "--testsuite"):
+            config['testsuite'] = a
    
     config['debug'] = int(config['debug'])
    
@@ -52,22 +54,27 @@ def parse_options():
         sys.exit(1)
 
     if config.has_key('test'):
-        if not config['test'] in ['glue2', 'glue1']:
-            sys.stderr.write("Error: Invalid test class %s.\n" %(config['profile'],))
+        if not config['test'] in ['glue2', 'glue1', 'egi-profile']:
+            sys.stderr.write("Error: Invalid test class %s.\n" %(config['test'],))
             usage()
             sys.exit(1)
     else:
         sys.stderr.write("Error: Must specify a test class.\n")
         usage()
         sys.exit(1)
-
+    if config.has_key('testsuite'):
+        if not config['testsuite'] in ['general', 'wlcg']:
+            sys.stderr.write("Error: Invalid testsuite class %s.\n" %(config['testsuite'],))
+            usage()
+            sys.exit(1)
     return config
 
 # Funtion to print out the usage
 def usage():
     sys.stderr.write('Usage: %s -t <test class> [OPTIONS] \n' % (sys.argv[0]))
     sys.stderr.write('''
- -t --test   The test class [glue1|glue2].
+ -t --test        The test class [glue1|glue2|egi-profile].
+ -s --testsuite   The testsuite  [general (default)|wlcg].
 
 Server Mode: Obtains LDIF from an OpenLDAP server.
  -h --host      Hostname of the LDAP server.
@@ -79,6 +86,11 @@ File Mode: Obtains LDIF directly from a file.
 
 Options:
  -d --debug     Debug level 0-3, default 0
+
+Examples:
+
+  glue-validator -t glue1 -s wlcg -h localhost -p 2170 -b o=glue
+
 ''')
    
 def get_config(file_name):
