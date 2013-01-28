@@ -3,8 +3,8 @@
 %endif
 Summary: A validation framework for Grid information providers
 Name: glue-validator
-Version: 1.0.5
-Release: 1%{?dist}
+Version: 2.0.0
+Release: 0%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
 #   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_1_0_5 %{name}-%{version}
@@ -45,6 +45,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+* Mon Jan 28 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.0-0
+- Changes to include validation against EGI profile for GLUE 2.0 and WLCG specific tests
+
 * Wed Nov 21 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.5-1
 - BUG #98982: voms added to is_allowed_URL_Schema in GLUE 1 and 2
 

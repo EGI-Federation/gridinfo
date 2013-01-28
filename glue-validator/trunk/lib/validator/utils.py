@@ -54,7 +54,7 @@ def parse_options():
         sys.exit(1)
 
     if config.has_key('test'):
-        if not config['test'] in ['glue2', 'glue1', 'egi-profile']:
+        if not config['test'] in ['glue2', 'glue1', 'egi-glue2']:
             sys.stderr.write("Error: Invalid test class %s.\n" %(config['test'],))
             usage()
             sys.exit(1)
@@ -73,7 +73,7 @@ def parse_options():
 def usage():
     sys.stderr.write('Usage: %s -t <test class> [OPTIONS] \n' % (sys.argv[0]))
     sys.stderr.write('''
- -t --test        The test class [glue1|glue2|egi-profile].
+ -t --test        The test class [glue1|glue2|egi-glue2].
  -s --testsuite   The testsuite  [general (default)|wlcg].
 
 Server Mode: Obtains LDIF from an OpenLDAP server.
