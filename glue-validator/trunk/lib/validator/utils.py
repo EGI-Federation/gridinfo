@@ -62,11 +62,15 @@ def parse_options():
         sys.stderr.write("Error: Must specify a test class.\n")
         usage()
         sys.exit(1)
+
     if config.has_key('testsuite'):
         if not config['testsuite'] in ['general', 'wlcg', 'egi-profile']:
             sys.stderr.write("Error: Invalid testsuite class %s.\n" %(config['testsuite'],))
             usage()
             sys.exit(1)
+    else:
+        config['testsuite']='general'
+
     return config
 
 # Funtion to print out the usage
@@ -90,7 +94,7 @@ Options:
 Examples:
 
   glue-validator -t glue1 -s wlcg -h localhost -p 2170 -b o=glue
-  glue-validator -t glue2 -s general -h localhost -p 2170 -b o=glue
+  glue-validator -t glue2 -h localhost -p 2170 -b o=glue
   glue-validator -t egi-glue2 -s egi-profile -h localhost -p 2170 -b o=glue
 
 ''')
