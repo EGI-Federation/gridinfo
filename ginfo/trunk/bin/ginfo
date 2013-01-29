@@ -29,7 +29,7 @@ import re
 import urllib2
 import signal
 
-VERSION = '0.2.6'
+VERSION = '0.2.7'
 
 # configuration dictionnary that will be filled with the submitted options
 CONF = {}
@@ -395,6 +395,8 @@ def list_services_registry():
     list_results = request(filter)
     dic = {}
     for res in list_results:
+        if '_id' not in res:
+            continue
         _id = res['_id']['$oid']
         # filter by id
         if 'id' in CONF and CONF['id'] != _id:
