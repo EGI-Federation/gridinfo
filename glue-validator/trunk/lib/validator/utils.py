@@ -5,6 +5,7 @@ import signal
 import string
 import re
 import datetime
+from collections import defaultdict
 
 def parse_options():
     config = {}
@@ -12,8 +13,8 @@ def parse_options():
     config['output'] = None
    
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "h:p:b:f:d:o:t:s:",
-          ["host", "port", "bind", "file", "debug", "test", "testsuite"])
+        opts, args = getopt.getopt(sys.argv[1:], "h:p:b:f:d:o:t:s:n",
+          ["host", "port", "bind", "file", "debug", "test", "testsuite", "nagios"])
     except getopt.GetoptError:
         sys.stderr.write("Error: Invalid option specified.\n")
         usage()
@@ -33,6 +34,8 @@ def parse_options():
             config['test'] = a
         if o in ("-s", "--testsuite"):
             config['testsuite'] = a
+        if o in ("-n", "--nagios"):
+            config['nagios'] = True
    
     config['debug'] = int(config['debug'])
    
@@ -71,14 +74,29 @@ def parse_options():
     else:
         config['testsuite']='general'
 
+    # Sanity Checks
+    if config['test'] == 'glue1' and ( config['bind'].find('o=glue') != -1 ): 
+            sys.stderr.write("Error: Use a glue 1 binding containing o=grid.\n")
+            usage()
+            sys.exit(1)
+    if config['test'] == 'glue2' and ( config['bind'].find('o=grid') != -1 ):
+            sys.stderr.write("Error: Use a glue 2 binding containing o=glue.\n")
+            usage()
+            sys.exit(1)
+    if config['test'] in ['glue1', 'glue2'] and (config['testsuite'] == 'egi-profile'):
+            sys.stderr.write("Error: egi-profile testsuite must be executed against the egi-glue2 schema.\n")
+            usage()
+            sys.exit(1)
+
     return config
 
 # Funtion to print out the usage
 def usage():
     sys.stderr.write('Usage: %s -t <test class> [OPTIONS] \n' % (sys.argv[0]))
     sys.stderr.write('''
- -t --test        The test class [glue1|glue2|egi-glue2].
- -s --testsuite   The testsuite  [general (default)|wlcg|egi-profile].
+ -t --test        The glue schema version to be tested [glue1|glue2|egi-glue2].
+
+OPTIONS:
 
 Server Mode: Obtains LDIF from an OpenLDAP server.
  -h --host      Hostname of the LDAP server.
@@ -88,14 +106,21 @@ Server Mode: Obtains LDIF from an OpenLDAP server.
 File Mode: Obtains LDIF directly from a file.
  -f --file      An LDIF file
 
-Options:
+Tesuite type: Selects the set of tests to be executed against the LDIF.
+ -s --testsuite   The testsuite  [general (default)|wlcg|egi-profile].
+
+Nagios output: Indicates whether the command should produce Nagios output.
+               This is only available for the egi-profile testsuite.
+ -n --nagios
+
+Other Options:
  -d --debug     Debug level 0-3, default 0
 
 Examples:
 
-  glue-validator -t glue1 -s wlcg -h localhost -p 2170 -b o=glue
+  glue-validator -t glue1 -h localhost -p 2170 -b o=grid -s wlcg
   glue-validator -t glue2 -h localhost -p 2170 -b o=glue
-  glue-validator -t egi-glue2 -s egi-profile -h localhost -p 2170 -b o=glue
+  glue-validator -t egi-glue2 -h localhost -p 2170 -b o=glue -s egi-profile -n
 
 ''')
    
@@ -201,4 +226,54 @@ def convert_entry(entry_string):
                 entry[attribute] = [value]
                 
     return entry
+
+def nagios_output():
+
+   if os.path.exists('/var/lib/grid-monitoring/glue-validator/glue-validator'):
+      results=open("/var/lib/grid-monitoring/glue-validator/glue-validator","r")
+   else:
+      sys.stderr.write("Error: File /var/lib/grid-monitoring/glue-validator/glue-validator does not exist\n")
+      sys.exit(1)
+
+   count = defaultdict(int)
+   messages = defaultdict(list)
+   for line in results:
+      matched=re.search(r'(INFO|WARNING|ERROR)',line)
+      if matched is not None:
+         match_string=matched.group()
+         count[match_string] += 1
+         messages[match_string].append(line.strip("AssertionError:"))
+
+   results.close()
+
+   errors = count['ERROR']
+   warnings = count['WARNING']
+   info = count['INFO']
+   if (errors > 0):
+     state = 'CRITICAL'
+   elif (warnings > 0):
+     state = 'WARNING'
+   else:
+     state = 'OK'
+
+   print "%s - errors %i, warnings %i, info %i | errors=%i;warnings=%i;info=%i" % \
+         (state, errors, warnings, info, errors, warnings, info)
+
+   maxlines=100
+   for i in ['ERROR','WARNING','INFO']:   
+      for line in messages[i]:
+         print line
+         maxlines =- 1
+         if maxlines == 0:
+            break
+      maxlines =-1
+      if maxlines == 0:
+        break
+
+   if (errors > 0):
+     sys.exit(2)
+   elif (warnings > 0):
+     sys.exit(1)
+   else:
+     sys.exit(0)
 
