@@ -4,7 +4,7 @@
 Summary: A validation framework for Grid information providers
 Name: glue-validator
 Version: 2.0.0
-Release: 0%{?dist}
+Release: 1%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
 #   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_1_0_5 %{name}-%{version}
@@ -34,6 +34,7 @@ rm -rf %{buildroot}
 %{__python} setup.py install --skip-build --root $RPM_BUILD_ROOT 
 mkdir -p %{buildroot}/usr/share/man/man1
 install -m 0644 man/glue-validator.1 %{buildroot}/usr/share/man/man1
+mkdir -p /var/lib/grid-monitoring/glue-validator
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -45,6 +46,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+* Tue Feb 05 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.0-1
+- New option to produce nagios output 
+
 * Mon Jan 28 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.0-0
 - Changes to include validation against EGI profile for GLUE 2.0 and WLCG specific tests
 

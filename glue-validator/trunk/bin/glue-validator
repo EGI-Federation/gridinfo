@@ -9,7 +9,9 @@ import validator.EntryTest
 import validator.WLCGTest
 import validator.EGIProfileTest
 
+
 if __name__ == "__main__":
+    
     config = validator.utils.parse_options()
     log = logging.getLogger(sys.argv[0])
     hdlr = logging.StreamHandler(sys.stderr)
@@ -54,8 +56,16 @@ if __name__ == "__main__":
               glue_version = 'egi-glue2'
       for test_name in test_names:
           suite.addTest(inst(test_name, entry, glue_version))
-    unittest.TextTestRunner(verbosity=2).run(suite)
 
-            
+    if config.has_key('nagios'):
+      if os.path.exists('/var/lib/grid-monitoring/glue-validator'):
+         results=open("/var/lib/grid-monitoring/glue-validator/glue-validator","w")
+      else: 
+         sys.stderr.write("Error: Path /var/lib/grid-monitoring/glue-validator does not exist\n")
+         sys.exit(1)
+      unittest.TextTestRunner(stream=results,verbosity=2).run(suite)
+      results.close()
+      validator.utils.nagios_output()
+    else:
+      unittest.TextTestRunner(verbosity=2).run(suite)
 
- #             inst.validate(entry, log)
