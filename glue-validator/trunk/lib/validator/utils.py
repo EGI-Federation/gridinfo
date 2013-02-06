@@ -11,6 +11,7 @@ def parse_options():
     config = {}
     config['debug'] = 0
     config['output'] = None
+    config['testsuite'] = 'general'
    
     try:
         opts, args = getopt.getopt(sys.argv[1:], "h:p:b:f:d:o:t:s:n",
@@ -44,8 +45,6 @@ def parse_options():
         usage()
         sys.exit(1)
    
-    config['debug'] = (4 - int(config['debug'])) * 10
-
     if ((config.has_key('port') or config.has_key('bind')) and config.has_key('file')):
         sys.stderr.write("Error: Can not specify both file and (port/bind) output options.\n")
         usage()
@@ -227,7 +226,7 @@ def convert_entry(entry_string):
                 
     return entry
 
-def nagios_output():
+def nagios_output(debug_level):
 
    if os.path.exists('/var/lib/grid-monitoring/glue-validator/glue-validator'):
       results=open("/var/lib/grid-monitoring/glue-validator/glue-validator","r")
@@ -259,16 +258,17 @@ def nagios_output():
    print "%s - errors %i, warnings %i, info %i | errors=%i;warnings=%i;info=%i" % \
          (state, errors, warnings, info, errors, warnings, info)
 
-   maxlines=100
-   for i in ['ERROR','WARNING','INFO']:   
-      for line in messages[i]:
-         print line
-         maxlines =- 1
+   if debug_level == 3:
+      maxlines=100
+      for i in ['ERROR','WARNING','INFO']:   
+         for line in messages[i]:
+            print line
+            maxlines =- 1
+            if maxlines == 0:
+               break
+         maxlines =-1
          if maxlines == 0:
-            break
-      maxlines =-1
-      if maxlines == 0:
-        break
+           break
 
    if (errors > 0):
      sys.exit(2)
