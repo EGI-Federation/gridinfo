@@ -555,7 +555,7 @@ def is_EntityOtherInfo_t(value):
       'ProfileName',
       'ProfileVersion'
       ] 
-   if value in types:
+   if value.rsplit('=')[0] in types:
       return True
    else:
       return False
