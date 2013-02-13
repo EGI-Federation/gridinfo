@@ -3,7 +3,7 @@
 %endif
 Summary: A validation framework for Grid information providers
 Name: glue-validator
-Version: 2.0.2
+Version: 2.0.3
 Release: 0%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
@@ -49,6 +49,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+* Wed Feb 13 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.3-0
+- Modified EntryTest to check Undesirable attributes
+- Added specific attribute tests in EGIProfileTest
+- Added types in egi-glue2 types
+
 * Wed Feb 06 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.2-0
 - Adapt EntryTest to be used also for EGI profile and leave specific attribute tests in EGIProfileTest
 - Tuning of egi-glue2/data.py and egi-glue2/types.py
