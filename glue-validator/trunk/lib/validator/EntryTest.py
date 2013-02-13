@@ -45,6 +45,9 @@ class EntryTest(unittest.TestCase):
                         elif self.schema[obj][attribute][2] == 'Recommended':
                             message = "INFO: The recommended attribute %s is not present in %s" % (attribute, self.dn)
                             self.assertTrue(attribute in self.entry, message)
+                        elif self.schema[obj][attribute][2] == 'Undesirable':
+                            message = "WARNING: The undesirable attribute %s is present in %s" % (attribute, self.dn)
+                            self.assertTrue(attribute not in self.entry, message)
 
     def test_single_valued(self):
         """Verifying single-valued attributes only have one value."""

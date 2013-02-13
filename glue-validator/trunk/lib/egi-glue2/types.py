@@ -553,11 +553,60 @@ def is_EntityOtherInfo_t(value):
       'InfoProviderName',
       'InfoProviderVersion',
       'ProfileName',
-      'ProfileVersion'
+      'ProfileVersion',
+      'BLOG',
+      'CONFIG',
+      'EGI_NGI',
+      'GRID',
+      'ICON',
+      'OLDNAME',
+      'WLCG_NAME',
+      'WLCG_NAMEICON',
+      'WLCG_PARENT',
+      'WLCG_TIER' 
       ] 
    if value.rsplit('=')[0] in types:
       return True
    else:
       return False
+
+def is_Tier_t(value):
+   types = [
+      '0',
+      '1',
+      '2',
+      '3'
+      ]
+   if value in types:
+      return True
+   else:
+      return False
+
+def is_Grid_t(value):
+   types = [
+      'EGEE',
+      'EGI',
+      'WLCG',
+      'NGDF',
+      'GRIDPP',
+      'NORTGHRID',
+      'SOUTHGRID'
+      ]
+   if value in types:
+      return True
+   else:
+      return False
+
+def is_Config_t(value):
+   types = [
+      'yaim',
+      'puppet',
+      'quattor'
+      ]
+   if value in types:
+      return True
+   else:
+      return False
+
 
    
