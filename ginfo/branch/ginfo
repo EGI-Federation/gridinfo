@@ -1,0 +1,673 @@
+#!/usr/bin/env python
+##############################################################################
+# Copyright (c) CERN, 2012.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at #
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS
+# OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+
+"""Ginfo - Developped by Ivan Calvet for CERN - ivan.calvet@cern.ch"""
+
+import ldap
+import sys
+import getopt
+try:
+	import json
+except:
+	import simplejson as json
+import os
+import re
+import urllib2
+import signal
+
+VERSION = '0.3.0'
+TIMEOUT = 30
+
+# configuration dictionnary that will be filled with the submitted options
+CONF = {'object': None, 'flag': {}, 'filter': {}, 'attribute': []}
+
+# long_flag: [short_flag, parameter_needed]
+FLAGS = {
+    'host': [None, True],
+    'bind': ["b", True],
+    'list': ["l", True],
+    'clean': [None, False],
+    'strict': ["s", False],
+    'csv': ["c", False],
+    'json': ["j", False],
+    'timeout': ["t", True],
+    'verbose': ["v", False],
+    'version': ["V", False],
+    'help': ["h", False],
+    }
+
+# {'object': ['attribute', ...], ...}
+ELTS = {
+'AdminDomain':
+    ['ID', 'Name', 'Description', 'LocationID'],
+'Location':
+    ['ID', 'Place', 'Country', 'Latitude', 'Longitude'],
+'Service': 
+    ['ID', 'Capability', 'Type', 'QualityLevel', 'StatusInfo', 'AdminDomainID'],
+'Endpoint': 
+    ['ID', 'URL', 'Capability', 'InterfaceName', 'InterfaceVersion', 'Implementor', 'ImplementationVersion', 'QualityLevel', 'HealthState', 'ServingState', 'ServiceID'],
+'ComputingShare':
+    ['ID', 'MaxCPUTime', 'MaxWallTime', 'ServingState', 'DefaultStorageService', 'ExecutionEnvironment.ID', 'RunningJobs', 'WaitingJobs'],
+'MappingPolicy':
+    ['ID', 'Scheme', 'Rule', 'ComptuingShareID'],
+# !!!!!! :S !!!!!!
+'GlueCESEBindGroupCEUniqueID':
+    ['GlueSEUniqueID'],
+'ExecutionEnvironment':
+    ['ID', 'OSName', 'OSVersion', 'ConnectivityOut', 'MainMemorySize', 'VirtualMemorySize'],
+'ComputingManager':
+    ['ID', 'ProductName', 'ProductVersion', 'ServiceID'],
+'ToComputingService':
+    ['ID', 'ComputingService.ID', 'StorageService.ID'],
+}
+
+# Define the function 'all' if Python is under 2.5
+if sys.version_info[:2] < (2,5):
+    def all(iterable):
+        for element in iterable:
+            if not element:
+                return False
+        return True
+
+def main(argv):
+    """Main function that launches the other functions""" 
+
+    parse_options(argv)
+    validate_conf()
+    print 'CONFIGURATION: '
+    print CONF
+    print ''
+    if 'list' in CONF['flag']:
+        result = list_attributes() # option --list
+    else:
+        result = list_object() # get all the informations about the specified object
+    if 'verbose' in CONF['flag']:
+        print ''
+    # result = clean(result)
+    print serialize_output(result)
+    sys.exit()
+
+def parse_options(argv):
+    """Parse the selected options and put them in a config dictionnary""" 
+
+    # build the good sequence to parse the flags with getopt
+    short_flags = ''
+    long_flags = [[], []] # Long flags with a short flag, or without
+    for i in FLAGS:
+        j = 1
+        if FLAGS[i][0]:
+            j = 0
+            short_flags += FLAGS[i][0]
+            if FLAGS[i][1]:
+                short_flags += ':'
+        long_flags[j].append(i)
+        if FLAGS[i][1]:
+            long_flags[j][-1] += '='
+    long_flags = long_flags[0] + long_flags[1]
+    # identify flags and put them in the config dictionnary
+    try:
+        flags, args = getopt.getopt(argv, short_flags, long_flags)
+    except getopt.error, err:
+        if err.opt in ("l", "list"):
+            sys.exit(list_usage())
+        else:
+            sys.exit(usage())
+    for flag, arg in flags:
+        flag = flag[flag.rfind('-')+1:]
+        for i in FLAGS:
+            if flag in (i, FLAGS[i][0]):
+                if i not in CONF['flag']:
+                    if FLAGS[i][1]:
+                        CONF['flag'][i] = arg
+                    else:
+                        CONF['flag'][i] = True
+                    break 
+                else:
+                    sys.exit("Error: Don't use a flag more than once.")
+    
+    for arg in args:
+        # identify filters and put them in the config dictionnary
+        if '=' in arg:
+            filter = arg[:arg.find('=')]
+            CONF['filter'][filter] = arg[arg.find('=')+1:]
+        # identify the object and put it in the config dictionnary
+        elif arg in ELTS.keys() and CONF['object'] is None:
+            CONF['object'] = arg
+        # all other elements are attributes and are put in the config dictionnary
+        else:
+            CONF['attribute'].append(arg)
+
+def validate_conf():
+    """Prints verbose messages and checks for errors""" 
+        
+    # options
+    if 'help' in CONF['flag']:
+        print usage()
+        sys.exit()
+    if 'version' in CONF['flag']:
+        print os.path.basename(sys.argv[0]) +' V'+VERSION
+        sys.exit()
+    if 'verbose' in CONF['flag']:
+        print 'Verbose mode enabled'
+    if 'csv' in CONF['flag'] and 'json' in CONF['flag'] and 'list' not in CONF['flag']:
+        sys.exit('Error: choose between csv and json.')
+    elif 'csv' in CONF['flag'] and 'list' not in CONF['flag']:
+        if 'verbose' in CONF['flag']:
+            print 'Output in csv formating'
+    elif 'json' in CONF['flag'] and 'list' not in CONF['flag']:
+        if 'verbose' in CONF['flag']:
+            print 'Output in json formating'
+    if 'host' in CONF['flag']:
+        if 'verbose' in CONF['flag']:
+            print 'The following host will be used:', CONF['flag']['host']
+    else:
+        if 'LCG_GFAL_INFOSYS' in os.environ:
+            CONF['flag']['host'] = os.environ['LCG_GFAL_INFOSYS']
+            if 'verbose' in CONF['flag']:
+                print 'The following host will be used:', CONF['flag']['host']
+        else:
+            sys.exit(usage())
+    if 'bind' in CONF['flag']:
+        if 'verbose' in CONF['flag']:
+            print 'The following binding will be used:', CONF['flag']['bind']
+    else:
+        CONF['flag']['bind'] = 'o=glue'
+        if 'verbose' in CONF['flag']:
+            print 'The default binding will be used:', CONF['flag']['bind']
+    """
+    if 'list' in CONF['flag']:
+        if CONF['flag']['list'] not in ATTRIBUTES.keys():
+            for i in ATTRIBUTES:
+                if ATTRIBUTES[i][1]+ATTRIBUTES[i][2] == CONF['flag']['list']:
+                    CONF['flag']['list'] = i
+                    break
+            if CONF['flag']['list'] not in ATTRIBUTES.keys():
+                sys.exit('Error: '+CONF['flag']['list']+' wrong attribute.')
+        if 'verbose' in CONF['flag']:
+            print 'List all the possible values for the following attribute:', ATTRIBUTES[CONF['flag']['list']][1]+ATTRIBUTES[CONF['flag']['list']][2]
+            for i in ['csv', 'json', 'emi'] + ATTRIBUTES.keys():
+                if i in CONF['flag']:
+                    print 'Option --'+i+' is not compatible with --list option.'
+    """
+    if 'clean' in CONF['flag'] and 'strict' in CONF['flag']:
+        sys.exit('Error: choose between clean and strict.')
+    elif 'clean' in CONF['flag']:
+        if 'verbose' in CONF['flag']:
+            print 'Results have been cleaned.'
+    elif 'strict' in CONF['flag']:
+        if 'verbose' in CONF['flag']:
+            print 'Results have been cleaned strictly.'
+    if 'timeout' in CONF['flag']:
+        if 'verbose' in CONF['flag']:
+            print 'Ldap timeout has been set to '+CONF['flag']['timeout']+' second(s).'
+    """
+    # attributes
+    for i in ATTRIBUTES.keys():
+        if i in CONF['flag']:
+            if 'verbose' in CONF['flag'] and 'list' not in CONF['flag']:
+                print 'Filter services by the following '+ATTRIBUTES[i][1]+ATTRIBUTES[i][2]+':', CONF['flag'][i]
+    
+    # arguments
+    if 'args' in CONF['flag'] and 'list' not in CONF['flag']:
+        display_list = []
+        arg_list = []
+        for arg in CONF['args']:
+            if arg not in ATTRIBUTES.keys():
+                wrong_arg = True
+                for i in ATTRIBUTES:
+                    if ATTRIBUTES[i][1]+ATTRIBUTES[i][2] == arg:
+                        if i not in arg_list:
+                            arg_list.append(i)
+                            display_list.append(arg)
+                        wrong_arg = False
+                        break
+                if wrong_arg:
+                    sys.exit('Error: '+arg+' is a wrong attribute.')
+            elif arg not in arg_list:
+                arg_list.append(arg)
+                display_list.append(ATTRIBUTES[arg][1]+ATTRIBUTES[arg][2])
+        CONF['args'] = arg_list
+        if 'verbose' in CONF:
+            print 'The following attribute(s) will be displayed:', ' '.join(display_list)
+    """
+
+    # Object
+    if not CONF['object']:
+        sys.exit('Error: Please specify an object.')
+    else:
+        if 'verbose' in CONF['flag']:
+            print 'The specified object is '+CONF['object']
+
+    # Filters
+    if CONF['filter']:
+        for filter in CONF['filter']:
+            if filter not in ELTS[CONF['object']]:
+                sys.exit('Error: '+filter+' is not a valid filter.')
+        
+        #if 'verbose' in CONF['flag'] and 'list' not in CONF['flag']:
+        #        print 'Filter services by the following '+CONF['filter'][id]+':', CONF['flag'][i]
+
+    # Attributes
+    if CONF['attribute']:
+        for att in CONF['attribute']:
+            if att not in ELTS[CONF['object']]:
+                sys.exit('Error: '+att+' is not a valid attribute.')
+    else:
+        CONF['attribute'] = ELTS[CONF['object']]
+
+def usage():
+    """Returns the usage message""" 
+    
+    return '''Usage: ginfo [options] [attributes]
+
+    List URLs of services along with other optional attributes.
+
+        --host      host        Specify a host to query. By default the
+                                environmental variable LCG_GFAL_INFOSYS will be
+                                used.
+    -b, --bind      binding     Specify the binding (o=glue by default).
+    -l, --list      attribute   List all the possible values of the specified
+                                attribute.
+        --clean                 Clean results in replacing all invalid data.
+    -s, --strict                Clean strictly results in replacing all invalid
+                                data.
+    -c, --csv                   Output in CSV format
+    -j, --json                  Output in JSON format
+    -t, --timeout               Change the ldap timeout (15 seconds by default).
+    -v, --verbose               Enable verbose mode
+    -V, --version               Prints the version of ginfo
+    -h, --help                  Prints this helpful message
+
+    Addition options to filter services by the specified attribute:
+
+        --cap       EndpointCapability
+    -d, --domain    ServiceAdminDomainForeignKey
+        --endid     EndpointID
+    -i, --id        ServiceID
+    -m, --imp       EndpointImplementationName
+        --impv      EndpointImplementationVersion
+    -n, --int       EndpointInterfaceName
+        --intv      EndpointInterfaceVersion
+    -q, --ql        EndpointQualityLevel
+	--tech      EndpointTechnology
+    -t, --type      ServiceType
+    -u, --url       EndpointURL
+        --vo        PolicyRule
+
+    Available attributes to display are:
+
+        cap       EndpointCapability
+        domain    ServiceAdminDomainForeignKey
+        endid     EndpointID
+        id        ServiceID
+        imp       EndpointImplementationName
+        impv      EndpointImplementationVersion
+        int       EndpointInterfaceName
+        intv      EndpointInterfaceVersion
+        ql        EndpointQualityLevel
+        tech      EndpointTechnology
+        type      ServiceType
+        url       EndpointURL
+        vo        PolicyRule'''
+
+def list_usage():
+    """Returns the usage message for list option"""
+
+    return '''Available attributes are:
+
+        cap       EndpointCapability
+        domain    ServiceAdminDomainForeignKey
+        endid     EndpointID
+        id        ServiceID
+        imp       EndpointImplementationName
+        impv      EndpointImplementationVersion
+        int       EndpointInterfaceName
+        intv      EndpointInterfaceVersion
+        ql        EndpointQualityLevel
+        tech      EndpointTechnology
+        type      ServiceType
+        url       EndpointURL
+        vo        PolicyRule'''
+
+def request(filter=None):
+    """Returns the result of the ldap request with the filter given"""
+
+    try:
+        t = int(CONF['flag']['timeout'])
+    except (ValueError, KeyError):
+        t = TIMEOUT
+    signal.alarm(t)
+    if 'host' in CONF['flag']:
+        try:
+            port = ''
+            if ':' not in CONF['flag']['host']:
+                port = ':2170'
+            con = ldap.initialize('ldap://'+CONF['flag']['host']+port)
+            if filter:
+                result = con.result(con.search(CONF['flag']['bind'], ldap.SCOPE_SUBTREE, filter))[1]
+            else:
+                result = con.result(con.search(CONF['flag']['bind'], ldap.SCOPE_SUBTREE))[1]
+        except ldap.SERVER_DOWN:
+            sys.exit('Error: Can\'t contact the LDAP server. Please check your host.')
+    return result
+
+def list_object():
+    """Returns a dictionary of filtered results from a ldap request""" 
+
+    # Construct the filter
+    filter = ''
+    for f in CONF['filter']:
+        filter += '(GLUE2'+CONF['object'] + f + '=' + CONF['filter'][f] + ')'
+    
+    # Main loop using Endpoint object
+    result = request('(&(objectClass=GLUE2' + CONF['object'] + ')' + filter + ')')
+    dic = {} # Final results
+    for res in result:
+        id = res[1]['GLUE2'+CONF['object']+'ID'][0]
+        dic[id] = {}
+        for att in CONF['attribute']:
+            id2 = CONF['object'] + att
+            if 'GLUE2' + id2 in res[1]:
+                dic[id][id2] = res[1]['GLUE2' + id2]
+            else:
+                dic[id][id2] = None
+    return dic
+
+def list_attributes():
+    """Returns a list of values for a given attribute""" 
+    
+    id = 'GLUE2' + CONF['object'] + CONF['flag']['list']
+    result = request('objectClass=GLUE2' + CONF['object'])
+    attr_list = []
+    for res in result:
+        if id in res[1]:
+            for att in res[1][id]:
+                if att not in attr_list:
+                    attr_list.append(att)
+        else:
+            if 'None' not in attr_list:
+                attr_list.append('None')
+    attr_list.sort()
+    return attr_list
+
+def clean(result):
+    """Clean all the results"""
+    values = {
+        'ql': [
+            'development',
+            'pre-production',
+            'production',
+            'testing'
+            ],
+        'cap': [
+            'data.access.flatfiles',
+            'data.access.relational',
+            'data.access.xml',
+            'data.management.replica',
+            'data.management.storage',
+            'data.management.transfer',
+            'data.naming.resolver',
+            'data.naming.scheme',
+            'data.transfer',
+            'executionmanagement.candidatesetgenerator',
+            'executionmanagement.dynamicvmdeploy',
+            'executionmanagement.executionandplanning',
+            'executionmanagement.jobdescription',
+            'executionmanagement.jobexecution',
+            'executionmanagement.jobmanager',
+            'executionmanagement.reservation',
+            'information.discovery',
+            'information.logging',
+            'information.model',
+            'information.monitoring',
+            'information.provenance',
+            'security.accounting',
+            'security.attributeauthority',
+            'security.authentication',
+            'security.authorization',
+            'security.credentialstorage',
+            'security.delegation',
+            'security.identymapping'
+        ],
+        'int': [
+           'MyProxy',
+           'SRM',
+           'VOBOX',
+           'bdii_site',
+           'bdii_top',
+           'dcap',
+           'emi.storm',
+           'gsidcap',
+           'gsiftp',
+           'http',
+           'https',
+           'lcg-file-catalog',
+           'lcg-local-file-catalog',
+           'org.glite.ChannelManagement',
+           'org.glite.Delegation',
+           'org.glite.FileTransfer',
+           'org.glite.RTEPublisher',
+           'org.glite.ce.ApplicationPublisher',
+           'org.glite.ce.CREAM',
+           'org.glite.ce.Monitor',
+           'org.glite.lb.Server',
+           'org.glite.voms',
+           'org.glite.voms-admin',
+           'org.glite.wms.WMProxy',
+           'org.globus.gram',
+           'org.nordugrid.gridftpjob',
+           'org.nordugrid.ldapglue1',
+           'org.nordugrid.ldapglue2',
+           'org.nordugrid.ldapng',
+           'xroot'
+        ],
+        'type': [
+            'org.dcache.storage',
+            'org.glite.wms.WMProxy',
+            'org.glite.lb.Server',
+            'org.glite.ce.ApplicationPublisher',
+            'org.glite.ce.CREAM',
+            'org.glite.ce.Monitor',
+            'org.glite.rgma.Consumer',
+            'org.glite.rgma.Registry',
+            'org.glite.rgma.Schema',
+            'org.glite.rgma.Browser',
+            'org.glite.rgma.PrimaryProducer',
+            'org.glite.rgma.SecondaryProducer',
+            'org.glite.rgma.OnDemandProducer',
+            'org.glite.RTEPublisher',
+            'org.glite.voms',
+            'org.glite.voms-admin',
+            'org.glite.AMGA',
+            'org.glite.ChannelManagement',
+            'org.glite.FileTransfer',
+            'org.glite.FileTransferStats',
+            'org.glite.ChannelAgent',
+            'org.glite.Delegation',
+            'org.glite.KeyStore',
+            'org.nordugrid.execution.arex',
+            'SRM',
+            'gsiftp',
+            'org.edg.gatekeeper',
+            'it.infn.GridICE',
+            'MyProxy',
+            'GUMS',
+            'gridmap-file',
+            'GridCat',
+            'edu.caltech.cacr.monalisa',
+            'OpenSSH',
+            'xroot',
+            'BDII',
+            'bdii_site',
+            'bdii_top',
+            'VOBOX',
+            'msg.broker.rest',
+            'msg.broker.stomp',
+            'msg.broker.stomp-ssl',
+            'msg.broker.openwire',
+            'msg.broker.openwire-ssl',
+            'org.lcg.Frontier',
+            'org.lcg.Squid',
+            'Nagios',
+            'National-NAGIOS',
+            'Project-NAGIOS',
+            'Regional-NAGIOS',
+            'data-location-interface',
+            'local-data-location-interface',
+            'lcg-file-catalog',
+            'lcg-local-file-catalog',
+            'pbs.torque.server',
+            'pbs.torque.maui',
+            'other'
+        ],
+    }
+    
+    if 'list' in CONF and 'vo' in CONF['list']:
+        invalid_list = []
+        for i in result:
+            # policyRule must begin with VO:
+            if not re.match('^VO:', i) and i != 'ALL' and i not in invalid_list:
+                invalid_list.append(i)
+        for i in invalid_list:
+            result.remove(i)
+        if invalid_list:
+            result.append('INVALID')
+    elif 'list' not in CONF:
+        for i in result:
+            # policyRule must begin with VO:
+            if 'vo' in result[i]:
+                if result[i]['vo'] != None:
+                    for k in range(len(result[i]['vo'])):
+                        if not re.match('^VO:', result[i]['vo'][k]) and result[i]['vo'][k] != 'ALL':
+                            result[i]['vo'][k] = 'INVALID'
+
+    if 'clean' in CONF or 'strict' in CONF:
+        if 'list' in CONF:
+            invalid_list = []
+            for i in result:
+                # all elements which contain spaces or are empty are invalid.
+                if not i or i == 'None' or i.find(' ') >= 0:
+                    invalid_list.append(i)
+                # version should contain a number
+                if CONF['list'] in ['intv', 'impv']:
+                    if not re.match('^.*[0-9]+', i) and i not in invalid_list:
+                        invalid_list.append(i)
+                # quality level is restricted
+                if CONF['list'] == 'ql':
+                    if i not in values['ql'] and i not in invalid_list:
+                        invalid_list.append(i)
+                # url must be correctly formated
+                if CONF['list'] == 'url':
+                    if not re.match('(?:(?:([a-z0-9+.-]+)://)|(www\.))+(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(/[a-zA-Z0-9\&amp;%_\./-~-]*)?', i) and i not in invalid_list:
+                        invalid_list.append(i)
+                if 'strict' in CONF:
+                    # "j" is restricted
+                    for j in ['cap', 'type', 'int']:
+                        if CONF['list'] == j:
+                            if i not in values[j] and i not in invalid_list:
+                                invalid_list.append(i)
+            for i in invalid_list:
+                result.remove(i)
+            if invalid_list:
+                result.append('INVALID')            
+        else:
+            for i in result:
+                # all elements which contain spaces or are empty
+                for j in result[i]:
+                    if ATTRIBUTES[j][3]:
+                        if result[i][j]:
+                            for k in range(len(result[i][j])):
+                                if not result[i][j][k] or result[i][j][k].find(' ') >= 0:
+                                    result[i][j][k] = 'INVALID'
+                            continue
+                        else:
+                            result[i][j] = ['INVALID']
+                    elif not result[i][j] or result[i][j].find(' ') >= 0:
+                        result[i][j] = 'INVALID'
+                # version should contain a number
+                for j in ['intv', 'impv']:
+                    if j in result[i]:
+                        if not re.match('^.*[0-9]+', result[i][j]):
+                            result[i][j] = 'INVALID'
+                # quality level is restricted
+                if 'ql' in result[i]:
+                    if result[i]['ql'] not in values['ql']:
+                        result[i]['ql'] = 'INVALID'
+                # url must be correctly formated
+                if 'url' in result[i]:
+                    if not re.match('(?:(?:([a-z0-9+.-]+)://)|(www\.))+(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(/[a-zA-Z0-9\&amp;%_\./-~-]*)?', result[i]['url']):
+                        result[i]['url'] = 'INVALID'
+                if 'strict' in CONF:
+                    if 'cap' in result[i]:
+                        for k in range(len(result[i]['cap'])):
+                            if result[i]['cap'][k] not in values['cap'] and result[i]['cap'][k] != 'INVALID':
+                                result[i]['cap'][k] = 'INVALID'
+                    for j in ['type', 'int']:
+                        # "j" is restricted
+                        if j in result[i]:
+                            if result[i][j] not in values[j] and result[i][j] != 'INVALID':
+                                result[i][j] = 'INVALID'
+
+    #Renaming of attributes
+    if 'list' not in CONF:
+        result2 = {}
+        for i in result:
+            result2[i] = {}
+            for j in result[i]:
+                result2[i][ATTRIBUTES[j][1]+ATTRIBUTES[j][2]] = result[i][j]
+        result = result2
+    return result
+
+def serialize_output(result):
+    """Return the output with the wished format""" 
+
+    if 'list' in CONF['flag']:
+        output = '\n'.join(result)
+    elif 'csv' in CONF['flag']:
+        csv_list = []
+        titles = []
+        for j in CONF['args']:
+           titles.append(ATTRIBUTES[j][1]+ATTRIBUTES[j][2]) 
+        csv_list.append(','.join(titles))
+        for i in result:
+            tmp_list = []
+            for j in CONF['args']:
+                att = ATTRIBUTES[j][1]+ATTRIBUTES[j][2]
+                if result[i][att] == None:
+                    tmp_list.append('None')
+                elif ATTRIBUTES[j][3]:
+                    tmp_list.append('"'+','.join(result[i][att])+'"')
+                else:
+                    tmp_list.append(result[i][att])
+            csv_list.append(','.join(tmp_list))
+        output = '\n'.join(csv_list)
+    elif 'json' in CONF['flag']:
+        output = json.dumps(result)
+    else:
+        entry_list = []
+        for id in result:
+            for att in result[id]:
+                if not result[id][att]:
+                    entry_list.append(att+': None')
+                else:
+                    entry_list.append(att+': '+', '.join(result[id][att]))
+            entry_list.append('')
+        output = '\n'.join(entry_list)
+    return output
+
+if __name__ == "__main__":
+    main(sys.argv[1:])
