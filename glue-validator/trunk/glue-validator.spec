@@ -3,7 +3,7 @@
 %endif
 Summary: A validation framework for Grid information providers
 Name: glue-validator
-Version: 2.0.3
+Version: 2.0.4
 Release: 0%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
@@ -49,6 +49,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+* Mon Feb 25 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.4-0
+- Added specific attribute tests: ComputingShare and ComputingManager (ongoing)
+- BUG #100467: Fixed typo in Capability_t and added values reported at the EMT
+- BUG #100608: Added values reported at the EMT for ServiceType_t and InterfaceName_t 
+
 * Wed Feb 13 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.3-0
 - Modified EntryTest to check Undesirable attributes
 - Added specific attribute tests in EGIProfileTest

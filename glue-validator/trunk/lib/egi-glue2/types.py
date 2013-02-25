@@ -133,7 +133,18 @@ def is_QualityLevel_t(value):
       return False
 
 def is_InterfaceName_t(value):
-   interfaces = [ 'ogf.bes', 'ogf.srm' ]
+   interfaces = [
+      'ogf.bes',
+      'ogf.srm',
+      'org.ogf.glue.emies.activitycreation',
+      'org.ogf.glue.emies.activitymanagement',
+      'org.ogf.glue.emies.resourceinfo',
+      'org.ogf.glue.emies.activityinfo',
+      'org.ogf.glue.emies.delegation',
+      'org.glite.Argus.PDP',
+      'org.glite.Argus.PAP',
+      'org.glite.Argus.PEP'
+      ]
    if value in interfaces:
        return True
    else:
@@ -162,6 +173,7 @@ def is_PolicyScheme_t(value):
 def is_ServiceType_t(value):
    types = [
       'org.dcache.storage',
+      'org.glite.Argus',
       'org.glite.wms.WMProxy',
       'org.glite.lb.Server',
       'org.glite.ce.ApplicationPublisher',
@@ -217,6 +229,7 @@ def is_ServiceType_t(value):
       'lcg-local-file-catalog',
       'pbs.torque.server',
       'pbs.torque.maui',
+      'eu.unicore.USE',
       'other'
       ]
    if value in types:
@@ -229,12 +242,17 @@ def is_Capability_t(value):
       'data.access.flatfiles',
       'data.access.relational',
       'data.access.xml',
+      'data.access.sessiondir',
+      'data.access.stageindir',
+      'data.access.stageoutdir',
       'data.management.replica',
       'data.management.storage',
       'data.management.transfer',
       'data.naming.resolver',
       'data.naming.scheme',
       'data.transfer',
+      'data.transfer.cepull',
+      'data.transfer.cepush',
       'executionmanagement.candidatesetgenerator',
       'executionmanagement.dynamicvmdeploy',
       'executionmanagement.executionandplanning',
@@ -242,19 +260,24 @@ def is_Capability_t(value):
       'executionmanagement.jobexecution',
       'executionmanagement.jobmanager',
       'executionmanagement.reservation',
+      'executionmanagement.jobcreation',
+      'executionmanagement.jobmanagement',
       'information.discovery',
+      'information.discovery.job',
       'information.logging',
       'information.model',
       'information.monitoring',
       'information.provenance',
       'information.publication',
+      'information.lookup.job',
+      'information.query',
       'security.accounting',
       'security.attributeauthority',
       'security.authentication',
       'security.authorization',
       'security.credentialstorage',
       'security.delegation',
-      'security.identymapping'
+      'security.identitymapping'
       ]   
    if value in types:
       return True
