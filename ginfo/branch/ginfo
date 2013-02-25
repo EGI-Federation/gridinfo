@@ -640,33 +640,33 @@ def serialize_output(result):
     elif 'csv' in CONF['flag']:
         csv_list = []
         titles = []
-        for j in CONF['args']:
-           titles.append(ATTRIBUTES[j][1]+ATTRIBUTES[j][2]) 
+        for att in CONF['attribute']:
+           titles.append(CONF['object']+att) 
         csv_list.append(','.join(titles))
-        for i in result:
+        for id in result:
             tmp_list = []
-            for j in CONF['args']:
-                att = ATTRIBUTES[j][1]+ATTRIBUTES[j][2]
-                if result[i][att] == None:
+            for att in CONF['attribute']:
+                att = CONF['object']+att
+                if result[id][att] == None:
                     tmp_list.append('None')
-                elif ATTRIBUTES[j][3]:
-                    tmp_list.append('"'+','.join(result[i][att])+'"')
+                elif len(result[id][att]) > 1:
+                    tmp_list.append('"'+','.join(result[id][att])+'"')
                 else:
-                    tmp_list.append(result[i][att])
+                    tmp_list.append(result[id][att][0])
             csv_list.append(','.join(tmp_list))
         output = '\n'.join(csv_list)
     elif 'json' in CONF['flag']:
         output = json.dumps(result)
     else:
-        entry_list = []
+        output_list = []
         for id in result:
             for att in result[id]:
                 if not result[id][att]:
-                    entry_list.append(att+': None')
+                    output_list.append(att+': None')
                 else:
-                    entry_list.append(att+': '+', '.join(result[id][att]))
-            entry_list.append('')
-        output = '\n'.join(entry_list)
+                    output_list.append(att+': '+', '.join(result[id][att]))
+            output_list.append('')
+        output = '\n'.join(output_list)
     return output
 
 if __name__ == "__main__":
