@@ -37,7 +37,7 @@ class EGIProfileTest(unittest.TestCase):
     def test_GLUE2EntityValidity_OK (self):
         if 'GLUE2EntityCreationTime' not in self.entry:
             status = False
-            message = "ERROR: %s should not publish GLUE2EntityValidity since GLUE2EntityCreationTime is not published" %\
+            message = "WARNING: %s should not publish GLUE2EntityValidity since GLUE2EntityCreationTime is not published" %\
                        (self.dn)
         else:
             creationtime = datetime.datetime.strptime( self.entry['GLUE2EntityCreationTime'][0], "%Y-%m-%dT%H:%M:%SZ" ) 
@@ -52,7 +52,8 @@ class EGIProfileTest(unittest.TestCase):
         self.assertTrue(status, message)
 
     def test_GLUE2EntityOtherInfo_OK (self):
-        message = ""
+        message = "%s contains the following issues in the GLUE2EntityOtherInfo attribute" % (self.dn)
+        sharedict={}
         status = True
         for pair in self.value:
             index = pair.find("=")
@@ -61,29 +62,72 @@ class EGIProfileTest(unittest.TestCase):
                 val = pair[index + 1:]
                 if att == 'ProfileName':
                     if val != 'EGI':
-                        message = "WARNING: %s contains an unknown value for the Profile Name" % (self.dn)
-                        Status = False
-                        break
-                elif att == 'BLOG':
-                    if not self.types.is_URL(val):
-                        message = "INFO: %s should specify a correct URL for BLOG" % (self.dn)
-                        Status = False
-                        break
-                elif att == 'WLCG_TIER':
-                    if not self.types.is_Tier_t(val):
-                        message = "INFO: %s defines a wrong value for WLCG Tier" % (self.dn)
-                        Status = False
-                        break
+                        message = message + "\n WARNING: unknown value %s for the Profile Name" % (val)
+                        status = False
                 elif att == 'GRID':
                     if not self.types.is_Grid_t(val):
-                        message = "INFO: %s defines a wrong Grid Infrastructure" % (self.dn)
-                        Status = False
-                        break
+                        message = message + "\n INFO: wrong Grid Infrastructure %s" % (val)
+                        status = False
                 elif att == 'CONFIG':
                     if not self.types.is_Config_t(val):
-                        message = "INFO: %s defines an unknown configuration tool" % (self.dn)
-                        Status = False
-                        break
+                        message = message + "\n INFO: unknown configuration tool %s" % (val)
+                        status = False
+                elif att == 'EGI_NGI':
+                    if not self.types.is_EGIngi_t(val):
+                        message = message + "\n INFO: unknown EGI NGI %s" % (val)
+                        status = False
+                elif att == 'BLOG':
+                    if not self.types.is_URL(val):
+                        message = message + "\n INFO: incorrect URL type %s for BLOG" % (val)
+                        status = False
+                elif att == 'ICON':
+                    if not self.types.is_URL(val):
+                        message = message + "\n INFO: incorrect URL type %s for ICON" % (val)
+                        status = False
+                elif att == 'WLCG_TIER':
+                    if not self.types.is_Tier_t(val):
+                        message = message + "\n INFO: wrong value %s for WLCG Tier" % (val)
+                        status = False
+                elif att == 'WLCG_NAME' or att == 'WLCG_PARENT':
+                    if not self.types.is_WLCGname_t(val):
+                        message = message + "\n INFO: unknown WLCG name %s for %s attribute" % (val,att)
+                        status = False
+                elif att == 'WLCG_NAMEICON':
+                    if not self.types.is_URL(val):
+                        message = message + "\n INFO: incorrect URL type %s for WLCG_NAMEICON" % (val)
+                        status = False
+                elif att == 'Share':
+                    index2 = val.find(":")
+                    if (index2 > -1):
+                        voname = val[:index2]
+                        percentage = val[index2 +1:]
+                        if not self.types.is_VO_t(voname):
+                            message = message + "\n INFO: unknown VO name %s for Share attribute" % (voname)
+                            status = False
+                        elif voname not in sharedict:
+                            if (int(percentage) < 0) or (int(percentage) > 100):
+                                message = message + "\n ERROR: wrong percentage %s for %s Share" % (percentage,voname) 
+                                status = False
+                            sharedict[voname] = int(percentage)
+                        else:  
+                            message = message + "\n ERROR: VO name %s appears more than once in Share attribute" % (voname)
+                            status = False
+                    else:
+                        message = message + "\n ERROR: wrong Share format %s" % (val)
+                        status = False
+                elif att.startswith('CPUScalingReference'):
+                    if not self.types.is_Benchmarkabbr_t(att.split('CPUScalingReference')[1]):
+                        message = message + "\n INFO: incorrect benchmark name %s" % (att.split('CPUScalingReference')[1])
+                        status = False
+            else:
+                message = message + "\n ERROR: wrong format specified or %s" % (pair)
+                status = False
+        totalshare=0 
+        for i in sharedict:
+            totalshare = totalshare + sharedict[i]
+        if ( totalshare > 100 ):
+            message = message + "\n ERROR: The sum of all published shares exceeds 100 !" 
+            status = False 
         self.assertTrue(status, message)
     
 #------------------------------------- GLUE2Location --------------------------------------------
@@ -333,7 +377,7 @@ class EGIProfileTest(unittest.TestCase):
     def test_GLUE2ComputingShareGuaranteedMainMemory_MinRange (self):
         if 'GLUE2ComputingShareMaxMainMemory' in self.entry:
             message = "WARNING: %s publishes GuaranteedMainMemory %s greater than MaxMainMemory %s!" % \
-                       (self.dn, self.value[0]), self.entry['GLUE2ComputingShareMaxMainMemory'][0])
+                       (self.dn, self.value[0], self.entry['GLUE2ComputingShareMaxMainMemory'][0])
             self.assertTrue( int(self.value[0]) <= int(self.entry['GLUE2ComputingShareMaxMainMemory'][0]), message )
 
     def test_GLUE2ComputingShareGuaranteedMainMemory_MaxRange (self):
@@ -343,7 +387,7 @@ class EGIProfileTest(unittest.TestCase):
     def test_GLUE2ComputingShareMaxVirtualMemory_MinRange (self):
         if 'GLUE2ComputingShareMaxMainMemory' in self.entry:
             message = "WARNING: %s publishes MaxVirtualMemory %s lower than MaxMainMemory %s!" % \
-                       (self.dn, self.value[0]), self.entry['GLUE2ComputingShareMaxMainMemory'][0])
+                       (self.dn, self.value[0], self.entry['GLUE2ComputingShareMaxMainMemory'][0])
             self.assertTrue( int(self.value[0]) >= int(self.entry['GLUE2ComputingShareMaxMainMemory'][0]), message )
 
     def test_GLUE2ComputingShareMaxVirtualMemory_MaxRange (self):
@@ -353,7 +397,7 @@ class EGIProfileTest(unittest.TestCase):
     def test_GLUE2ComputingShareGuaranteedVirtualMemory_MinRange (self):
         if 'GLUE2ComputingShareMaxVirtualMemory' in self.entry:
             message = "WARNING: %s publishes GuaranteedVirtualMemory %s greater than MaxVirtualMemory %s!" % \
-                       (self.dn, self.value[0]), self.entry['GLUE2ComputingShareMaxVirtualMemory'][0])
+                       (self.dn, self.value[0], self.entry['GLUE2ComputingShareMaxVirtualMemory'][0])
             self.assertTrue( int(self.value[0]) <= int(self.entry['GLUE2ComputingShareMaxVirtualMemory'][0]), message )
 
     def test_GLUE2ComputingShareGuaranteedVirtualMemory_MaxRange (self):
@@ -397,8 +441,8 @@ class EGIProfileTest(unittest.TestCase):
     def test_GLUE2ComputingManagerTotalPhysicalCPUs_OK (self):
         if 'GLUE2ComputingManagerTotalLogicalCPUs' in self.entry:
             message = "%s publishes TotalPhysicalCPUs %s greater than TotalLogicalCPUs %s" % \
-                      (self.dn, self.value[0], self.entry['GLUE2ComputingManagerTotalLogicalCPUs''][0])
-            self.assertTrue( int(self.value[0]) <= int(self.entry['GLUE2ComputingManagerTotalLogicalCPUs''][0]) , message) 
+                      (self.dn, self.value[0], self.entry['GLUE2ComputingManagerTotalLogicalCPUs'][0])
+            self.assertTrue( int(self.value[0]) <= int(self.entry['GLUE2ComputingManagerTotalLogicalCPUs'][0]) , message) 
 
     def test_GLUE2ComputingManagerTotalPhysicalCPUs_MinRange (self):
         message = "INFO: %s publishes TotalPhysicalCPUs %s lower than 10" % (self.dn, self.value[0])
@@ -411,8 +455,8 @@ class EGIProfileTest(unittest.TestCase):
     def test_GLUE2ComputingManagerTotalSlots_OK (self):
         if 'GLUE2ComputingManagerTotalLogicalCPUs' in self.entry:
             message = "%s publishes TotalSlots %s greater than twice TotalLogicalCPUs %s" % \
-                      (self.dn, self.value[0], self.entry['GLUE2ComputingManagerTotalLogicalCPUs''][0])
-            self.assertTrue( int(self.value[0]) <= int(self.entry['GLUE2ComputingManagerTotalLogicalCPUs''][0])*2 , message)
+                      (self.dn, self.value[0], self.entry['GLUE2ComputingManagerTotalLogicalCPUs'][0])
+            self.assertTrue( int(self.value[0]) <= int(self.entry['GLUE2ComputingManagerTotalLogicalCPUs'][0])*2 , message)
 
     def test_GLUE2ComputingManagerTotalSlots_MinRange (self):
         message = "INFO: %s publishes TotalSlots %s lower than 10" % (self.dn, self.value[0])
@@ -434,20 +478,38 @@ class EGIProfileTest(unittest.TestCase):
                        (self.dn, self.value[0],self.entry['GLUE2ComputingManagerTotalSlots'][0])
             self.assertTrue( int(self.value[0]) < int(self.entry['GLUE2ComputingManagerTotalSlots']), message )
 
-   def test_GLUE2ComputingManagerWorkingAreaTotal_OK (self):
+    def test_GLUE2ComputingManagerWorkingAreaTotal_OK (self):
         message = "INFO: %s publishes WorkingAreaTotal %s GB greater than 1 million GB!" % (self.dn, self.value[0])
         self.assertTrue( int(self.value[0]) < 1000000, message )
 
-    
+    def test_GLUE2ComputingManagerWorkingAreaFree_OK (self):
+        message = "INFO: %s publishes WorkingAreaFree %s GB greater than 1 million GB!" % (self.dn, self.value[0])
+        self.assertTrue( int(self.value[0]) < 1000000, message )
 
-        
+    def test_GLUE2ComputingManagerWorkingAreaMultiSlotTotal_OK (self):
+        message = "INFO: %s publishes WorkingAreaMultiSlotTotal %s GB greater than 1 million GB!" % (self.dn, self.value[0])
+        self.assertTrue( int(self.value[0]) < 1000000, message )
 
+    def test_GLUE2ComputingManagerWorkingAreaMultiSlotFree_OK (self):
+        message = "INFO: %s publishes WorkingAreaMultiSlotFree %s GB greater than 1 million GB!" % (self.dn, self.value[0])
+        self.assertTrue( int(self.value[0]) < 1000000, message )
 
+    def test_GLUE2ComputingManagerCacheTotal_OK (self):
+        message = "INFO: %s publishes CacheTotal %s GB greater than 1 million GB!" % (self.dn, self.value[0])
+        self.assertTrue( int(self.value[0]) < 1000000, message )
 
+    def test_GLUE2ComputingManagerCacheFree_OK (self):
+        message = "INFO: %s publishes CacheFree %s GB greater than 1 million GB!" % (self.dn, self.value[0])
+        self.assertTrue( int(self.value[0]) < 1000000, message )
 
+#------------------------------------- GLUE2ExecutionEnvironment ---------------------------------------
 
+    def test_GLUE2ExecutionEnvironmentTotalInstances_MinRange (self):
+        message = "INFO: %s publishes TotalInstances %s less than 10 !" % (self.dn, self.value[0])
+        self.assertTrue( int(self.value[0]) > 10, message )
 
-
-
+    def test_GLUE2ExecutionEnvironmentTotalInstances_MaxRange (self):
+        message = "INFO: %s publishes TotalInstances %s greater than 1 million !" % (self.dn, self.value[0])
+        self.assertTrue( int(self.value[0]) < 1000000, message )
 
 
