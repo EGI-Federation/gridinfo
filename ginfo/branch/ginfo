@@ -50,29 +50,63 @@ FLAGS = {
     'help': ["h", False],
     }
 
-# {'object': ['attribute', ...], ...}
+# {'object': {'attribute': 'attribute name's for the bdii', ...}, ...}
 ELTS = {
 'AdminDomain':
-    ['ID', 'Name', 'Description', 'LocationID'],
+    {'ID': 'DomainID',
+     'Description': 'DomainDescription'},
 'Location':
-    ['ID', 'Place', 'Country', 'Latitude', 'Longitude'],
-'Service': 
-    ['ID', 'Capability', 'Type', 'QualityLevel', 'StatusInfo', 'AdminDomainID'],
-'Endpoint': 
-    ['ID', 'URL', 'Capability', 'InterfaceName', 'InterfaceVersion', 'Implementor', 'ImplementationVersion', 'QualityLevel', 'HealthState', 'ServingState', 'ServiceID'],
+    {'ID': 'LocationID',
+     'Country': 'LocationCountry',
+     'Latitude': 'LocationLatitude',
+     'Longitude': 'LocationLongitude'},
+'Service':
+    {'ID': 'ServiceID',
+     'Capability': 'ServiceCapability',
+     'Type': 'ServiceType',
+     'QualityLevel': 'ServiceQualityLevel',
+     'StatusInfo': 'ServiceStatusInfo',
+     'AdminDomainID': 'ServiceAdminDomainForeignKey'},
+'Endpoint':
+    {'ID': 'EndpointID',
+     'URL': 'EndpointURL',
+     'Capability': 'EndpointCapability',
+     'InterfaceName': 'EndpointInterfaceName',
+     'InterfaceVersion': 'EndpointInterfaceVersion',
+     'Implementor': 'EndpointImplementor',
+     'ImplementationVersion': 'EndpointImplementationVersion',
+     'QualityLevel': 'EndpointQualityLevel',
+     'HealthState': 'EndpointHealthState',
+     'ServingState': 'EndpointServingState',
+     'ServiceForeignKey': 'EndpointServiceForeignKey'},
 'ComputingShare':
-    ['ID', 'MaxCPUTime', 'MaxWallTime', 'ServingState', 'DefaultStorageService', 'ExecutionEnvironment.ID', 'RunningJobs', 'WaitingJobs'],
+    {'ID': 'ShareID',
+     'MaxCPUTime': 'ComputingShareMaxCPUTime',
+     'MaxWallTime': 'ComputingShareMaxWallTime',
+     'ServingState': 'ComputingShareServingState',
+     'ExecutionEnvironmentForeignKey': 'ComputingShareExecutionEnvironmentForeignKey',
+     'RunningJobs': 'ComputingShareRunningJobs',
+     'WaitingJobs': 'ComputingShareWaitingJobs'},
 'MappingPolicy':
-    ['ID', 'Scheme', 'Rule', 'ComptuingShareID'],
-# !!!!!! :S !!!!!!
+    {'ID': 'PolicyID',
+     'Scheme': 'PolicyScheme',
+     'Rule': 'PolicyRule',
+     'ComputingShareID': 'MappingPolicyShareForeignKey'},
 'GlueCESEBindGroupCEUniqueID':
-    ['GlueSEUniqueID'],
+    {},
 'ExecutionEnvironment':
-    ['ID', 'OSName', 'OSVersion', 'ConnectivityOut', 'MainMemorySize', 'VirtualMemorySize'],
+    {'ID': 'ResourceID',
+     'OSName': 'ExecutionEnvironmentOSName',
+     'ConnectivityOut': 'ExecutionEnvironmentConnectivityOut',
+     'MainMemorySize': 'ExecutionEnvironmentMainMemorySize',
+     'VirtualMemorySize': 'ExecutionEnvironmentVirtualMemorySize'},
 'ComputingManager':
-    ['ID', 'ProductName', 'ProductVersion', 'ServiceID'],
+    {'ID': 'ManagerID',
+     'ProductName': 'ManagerProductName',
+     'ProductVersion': 'ManagerProductVersion',
+     'ServiceID': 'ComputingManagerComputingServiceForeignKey'},
 'ToComputingService':
-    ['ID', 'ComputingService.ID', 'StorageService.ID'],
+    {},
 }
 
 # Define the function 'all' if Python is under 2.5
@@ -267,7 +301,7 @@ def validate_conf():
             if att not in ELTS[CONF['object']]:
                 sys.exit('Error: '+att+' is not a valid attribute.')
     else:
-        CONF['attribute'] = ELTS[CONF['object']]
+        CONF['attribute'] = ELTS[CONF['object']].keys()
 
 def usage():
     """Returns the usage message""" 
@@ -377,20 +411,20 @@ def list_object():
     result = request('(&(objectClass=GLUE2' + CONF['object'] + ')' + filter + ')')
     dic = {} # Final results
     for res in result:
-        id = res[1]['GLUE2'+CONF['object']+'ID'][0]
+        id = res[1]['GLUE2' + ELTS[CONF['object']]['ID']][0]
         dic[id] = {}
         for att in CONF['attribute']:
-            id2 = CONF['object'] + att
-            if 'GLUE2' + id2 in res[1]:
-                dic[id][id2] = res[1]['GLUE2' + id2]
+            id2 = 'GLUE2' + ELTS[CONF['object']][att]
+            if id2 in res[1]:
+                dic[id][att] = res[1][id2]
             else:
-                dic[id][id2] = None
+                dic[id][att] = None
     return dic
 
 def list_attributes():
     """Returns a list of values for a given attribute""" 
     
-    id = 'GLUE2' + CONF['object'] + CONF['flag']['list']
+    id = 'GLUE2' + ELTS['object'][CONF['flag']['list']]
     result = request('objectClass=GLUE2' + CONF['object'])
     attr_list = []
     for res in result:
@@ -641,12 +675,11 @@ def serialize_output(result):
         csv_list = []
         titles = []
         for att in CONF['attribute']:
-           titles.append(CONF['object']+att) 
+           titles.append(att) 
         csv_list.append(','.join(titles))
         for id in result:
             tmp_list = []
             for att in CONF['attribute']:
-                att = CONF['object']+att
                 if result[id][att] == None:
                     tmp_list.append('None')
                 elif len(result[id][att]) > 1:
