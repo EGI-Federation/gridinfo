@@ -29,7 +29,7 @@ import re
 import urllib2
 import signal
 
-VERSION = '0.3.0'
+VERSION = '0.3.3'
 TIMEOUT = 30
 
 # configuration dictionnary that will be filled with the submitted options
@@ -109,22 +109,11 @@ ELTS = {
     {},
 }
 
-# Define the function 'all' if Python is under 2.5
-if sys.version_info[:2] < (2,5):
-    def all(iterable):
-        for element in iterable:
-            if not element:
-                return False
-        return True
-
 def main(argv):
     """Main function that launches the other functions""" 
 
     parse_options(argv)
     validate_conf()
-    print 'CONFIGURATION: '
-    print CONF
-    print ''
     if 'list' in CONF['flag']:
         result = list_attributes() # option --list
     else:
@@ -156,10 +145,7 @@ def parse_options(argv):
     try:
         flags, args = getopt.getopt(argv, short_flags, long_flags)
     except getopt.error, err:
-        if err.opt in ("l", "list"):
-            sys.exit(list_usage())
-        else:
-            sys.exit(usage())
+        sys.exit(usage())
     for flag, arg in flags:
         flag = flag[flag.rfind('-')+1:]
         for i in FLAGS:
@@ -222,20 +208,11 @@ def validate_conf():
         CONF['flag']['bind'] = 'o=glue'
         if 'verbose' in CONF['flag']:
             print 'The default binding will be used:', CONF['flag']['bind']
-    """
     if 'list' in CONF['flag']:
-        if CONF['flag']['list'] not in ATTRIBUTES.keys():
-            for i in ATTRIBUTES:
-                if ATTRIBUTES[i][1]+ATTRIBUTES[i][2] == CONF['flag']['list']:
-                    CONF['flag']['list'] = i
-                    break
-            if CONF['flag']['list'] not in ATTRIBUTES.keys():
-                sys.exit('Error: '+CONF['flag']['list']+' wrong attribute.')
+        if CONF['flag']['list'] not in ELTS[CONF['object']].keys():
+            sys.exit('Error: '+CONF['flag']['list']+' is a wrong attribute.')
         if 'verbose' in CONF['flag']:
-            print 'List all the possible values for the following attribute:', ATTRIBUTES[CONF['flag']['list']][1]+ATTRIBUTES[CONF['flag']['list']][2]
-            for i in ['csv', 'json', 'emi'] + ATTRIBUTES.keys():
-                if i in CONF['flag']:
-                    print 'Option --'+i+' is not compatible with --list option.'
+            print 'List all the possible values for the following attribute:', CONF['flag']['list']
     """
     if 'clean' in CONF['flag'] and 'strict' in CONF['flag']:
         sys.exit('Error: choose between clean and strict.')
@@ -245,55 +222,26 @@ def validate_conf():
     elif 'strict' in CONF['flag']:
         if 'verbose' in CONF['flag']:
             print 'Results have been cleaned strictly.'
+    """
     if 'timeout' in CONF['flag']:
         if 'verbose' in CONF['flag']:
             print 'Ldap timeout has been set to '+CONF['flag']['timeout']+' second(s).'
-    """
-    # attributes
-    for i in ATTRIBUTES.keys():
-        if i in CONF['flag']:
-            if 'verbose' in CONF['flag'] and 'list' not in CONF['flag']:
-                print 'Filter services by the following '+ATTRIBUTES[i][1]+ATTRIBUTES[i][2]+':', CONF['flag'][i]
-    
-    # arguments
-    if 'args' in CONF['flag'] and 'list' not in CONF['flag']:
-        display_list = []
-        arg_list = []
-        for arg in CONF['args']:
-            if arg not in ATTRIBUTES.keys():
-                wrong_arg = True
-                for i in ATTRIBUTES:
-                    if ATTRIBUTES[i][1]+ATTRIBUTES[i][2] == arg:
-                        if i not in arg_list:
-                            arg_list.append(i)
-                            display_list.append(arg)
-                        wrong_arg = False
-                        break
-                if wrong_arg:
-                    sys.exit('Error: '+arg+' is a wrong attribute.')
-            elif arg not in arg_list:
-                arg_list.append(arg)
-                display_list.append(ATTRIBUTES[arg][1]+ATTRIBUTES[arg][2])
-        CONF['args'] = arg_list
-        if 'verbose' in CONF:
-            print 'The following attribute(s) will be displayed:', ' '.join(display_list)
-    """
 
     # Object
     if not CONF['object']:
         sys.exit('Error: Please specify an object.')
     else:
         if 'verbose' in CONF['flag']:
-            print 'The specified object is '+CONF['object']
+            print 'The specified object is '+CONF['object']+'.'
 
     # Filters
     if CONF['filter']:
         for filter in CONF['filter']:
             if filter not in ELTS[CONF['object']]:
                 sys.exit('Error: '+filter+' is not a valid filter.')
-        
-        #if 'verbose' in CONF['flag'] and 'list' not in CONF['flag']:
-        #        print 'Filter services by the following '+CONF['filter'][id]+':', CONF['flag'][i]
+        if 'verbose' in CONF['flag']:
+            for filt in CONF['filter']:
+                print 'Filter results by the following '+filt+':', CONF['filter'][filt]
 
     # Attributes
     if CONF['attribute']:
@@ -302,13 +250,15 @@ def validate_conf():
                 sys.exit('Error: '+att+' is not a valid attribute.')
     else:
         CONF['attribute'] = ELTS[CONF['object']].keys()
+    if 'verbose' in CONF['flag']:
+        print 'The following attribute(s) will be displayed:', ', '.join(CONF['attribute'])
 
 def usage():
     """Returns the usage message""" 
     
-    return '''Usage: ginfo [options] [attributes]
+    return '''Usage: ginfo [options] Object [attribute_to_filter='value of the attribute'] [attribute_to_display]
 
-    List URLs of services along with other optional attributes.
+    List attributes corresponding to an object. All attributes of an object are displayed by default.
 
         --host      host        Specify a host to query. By default the
                                 environmental variable LCG_GFAL_INFOSYS will be
@@ -316,9 +266,6 @@ def usage():
     -b, --bind      binding     Specify the binding (o=glue by default).
     -l, --list      attribute   List all the possible values of the specified
                                 attribute.
-        --clean                 Clean results in replacing all invalid data.
-    -s, --strict                Clean strictly results in replacing all invalid
-                                data.
     -c, --csv                   Output in CSV format
     -j, --json                  Output in JSON format
     -t, --timeout               Change the ldap timeout (15 seconds by default).
@@ -326,56 +273,28 @@ def usage():
     -V, --version               Prints the version of ginfo
     -h, --help                  Prints this helpful message
 
-    Addition options to filter services by the specified attribute:
+    Available objects are:
+        AdminDomain, ComputingManager, ComputingShare, Endpoint, ExecutionEnvironment, Location, MappingPolicy, Service.
 
-        --cap       EndpointCapability
-    -d, --domain    ServiceAdminDomainForeignKey
-        --endid     EndpointID
-    -i, --id        ServiceID
-    -m, --imp       EndpointImplementationName
-        --impv      EndpointImplementationVersion
-    -n, --int       EndpointInterfaceName
-        --intv      EndpointInterfaceVersion
-    -q, --ql        EndpointQualityLevel
-	--tech      EndpointTechnology
-    -t, --type      ServiceType
-    -u, --url       EndpointURL
-        --vo        PolicyRule
-
-    Available attributes to display are:
-
-        cap       EndpointCapability
-        domain    ServiceAdminDomainForeignKey
-        endid     EndpointID
-        id        ServiceID
-        imp       EndpointImplementationName
-        impv      EndpointImplementationVersion
-        int       EndpointInterfaceName
-        intv      EndpointInterfaceVersion
-        ql        EndpointQualityLevel
-        tech      EndpointTechnology
-        type      ServiceType
-        url       EndpointURL
-        vo        PolicyRule'''
-
-def list_usage():
-    """Returns the usage message for list option"""
-
-    return '''Available attributes are:
-
-        cap       EndpointCapability
-        domain    ServiceAdminDomainForeignKey
-        endid     EndpointID
-        id        ServiceID
-        imp       EndpointImplementationName
-        impv      EndpointImplementationVersion
-        int       EndpointInterfaceName
-        intv      EndpointInterfaceVersion
-        ql        EndpointQualityLevel
-        tech      EndpointTechnology
-        type      ServiceType
-        url       EndpointURL
-        vo        PolicyRule'''
+    Available attributes to display for each object are:
+        AdminDomain:
+            ID, Description
+        ComputingManager:
+            ID, ProductName, ProductVersion, ServiceID
+        ComputingShare:
+            ID, MaxCPUTime, MaxWallTime, ServingState, ExecutionEnvironmentForeignKey,
+ RunningJobs, WaitingJobs
+        Endpoint:
+            ID, URL, Capability, InterfaceName, InterfaceVersion, Implementor, ImplementationVersion, QualityLevel, HealthState, ServingState, ServiceForeignKey
+        ExecutionEnvironment:
+            ID, OSName, ConnectivityOut, MainMemorySize, VirtualMemorySize
+        Location:
+            ID, Country, Latitude, Longitude
+        MappingPolicy:
+            ID, Scheme, Rule, ComputingShareID
+        Service:
+            ID, Capability, Type, QualityLevel, StatusInfo, AdminDomainID
+'''
 
 def request(filter=None):
     """Returns the result of the ldap request with the filter given"""
@@ -424,7 +343,7 @@ def list_object():
 def list_attributes():
     """Returns a list of values for a given attribute""" 
     
-    id = 'GLUE2' + ELTS['object'][CONF['flag']['list']]
+    id = 'GLUE2' + ELTS[CONF['object']][CONF['flag']['list']]
     result = request('objectClass=GLUE2' + CONF['object'])
     attr_list = []
     for res in result:
@@ -438,8 +357,9 @@ def list_attributes():
     attr_list.sort()
     return attr_list
 
+"""
 def clean(result):
-    """Clean all the results"""
+    ""Clean all the results""
     values = {
         'ql': [
             'development',
@@ -665,6 +585,7 @@ def clean(result):
                 result2[i][ATTRIBUTES[j][1]+ATTRIBUTES[j][2]] = result[i][j]
         result = result2
     return result
+"""
 
 def serialize_output(result):
     """Return the output with the wished format""" 
