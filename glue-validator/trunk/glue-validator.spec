@@ -3,7 +3,7 @@
 %endif
 Summary: A validation framework for Grid information providers
 Name: glue-validator
-Version: 2.0.5
+Version: 2.0.6
 Release: 0%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
@@ -49,6 +49,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+* Wed Feb 27 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.6-0
+- Added types for Middleware names
+- Fixed typo in data.py
+- Added specific attribute tests: ExecutionEnvironment, ApplicationEnvironment, Storage, Endpoint
+
 * Tue Feb 26 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.5-0
 - Added types for WLCG names, VO names and EGI NGIs.
 - Added specific attribute tests: OtherInfo, ComputingManager and ExecutionEnvironment (ongoing)

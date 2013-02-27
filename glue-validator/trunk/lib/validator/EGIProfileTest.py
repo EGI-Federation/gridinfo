@@ -24,10 +24,10 @@ class EGIProfileTest(unittest.TestCase):
         now = datetime.datetime.utcnow()
         year = datetime.timedelta(days=365)
         if creationtime > now:
-            message = "ERROR: %s has a creation time in the future!" % (self.dn)
+            message = "ERROR: %s has a creation time %s in the future!" % (self.dn, self.value[0])
             status = False
         elif creationtime < (now - year):
-            message = "WARNING: %s has a creation time of more than one year ago" % (self.dn) 
+            message = "WARNING: %s has a creation time %s of more than one year ago" % (self.dn, self.value[0]) 
             status = False
         else: 
             message = ""
@@ -62,39 +62,68 @@ class EGIProfileTest(unittest.TestCase):
                 val = pair[index + 1:]
                 if att == 'ProfileName':
                     if val != 'EGI':
-                        message = message + "\n WARNING: unknown value %s for the Profile Name" % (val)
+                        message = message + \
+                        "\n WARNING: %s publishes unknown value %s for the Profile Name in the GLUE2EntityOtherInfo attribute" % (self.dn,val)
+                        status = False
+                if att == 'ProfileVersion':
+                    if not self.types.is_String(val):
+                        message = message + \
+                        "\n WARNING: %s publishes incorrect profile version %s in the GLUE2EntityOtherInfo attribute" % (self.dn,val)
                         status = False
                 elif att == 'GRID':
                     if not self.types.is_Grid_t(val):
-                        message = message + "\n INFO: wrong Grid Infrastructure %s" % (val)
+                        message = message + \
+                        "\n INFO: %s publishes wrong Grid Infrastructure %s in the GLUE2EntityOtherInfo attribute" % (self.dn,val)
                         status = False
                 elif att == 'CONFIG':
                     if not self.types.is_Config_t(val):
-                        message = message + "\n INFO: unknown configuration tool %s" % (val)
+                        message = message + \
+                        "\n INFO: %s publishes unknown configuration tool %s in the GLUE2EntityOtherInfo attribute" % (self.dn,val)
                         status = False
                 elif att == 'EGI_NGI':
                     if not self.types.is_EGIngi_t(val):
-                        message = message + "\n INFO: unknown EGI NGI %s" % (val)
+                        message = message + \
+                        "\n INFO: %s publishes unknown EGI NGI %s in the GLUE2EntityOtherInfo attribute" % (self.dn,val)
                         status = False
                 elif att == 'BLOG':
                     if not self.types.is_URL(val):
-                        message = message + "\n INFO: incorrect URL type %s for BLOG" % (val)
+                        message = message + \
+                        "\n INFO: %s publishes incorrect URL type %s for BLOG in the GLUE2EntityOtherInfo attribute" % (self.dn,val)
                         status = False
                 elif att == 'ICON':
                     if not self.types.is_URL(val):
-                        message = message + "\n INFO: incorrect URL type %s for ICON" % (val)
+                        message = message + \
+                                  "\n INFO: %s publishes incorrect URL type %s for ICON in the GLUE2EntityOtherInfo attribute" % (self.dn,val)
                         status = False
                 elif att == 'WLCG_TIER':
                     if not self.types.is_Tier_t(val):
-                        message = message + "\n INFO: wrong value %s for WLCG Tier" % (val)
+                        message = message + \
+                        "\n INFO: %s publishes wrong value %s for WLCG Tier in the GLUE2EntityOtherInfo attribute" % (self.dn,val)
                         status = False
                 elif att == 'WLCG_NAME' or att == 'WLCG_PARENT':
                     if not self.types.is_WLCGname_t(val):
-                        message = message + "\n INFO: unknown WLCG name %s for %s attribute" % (val,att)
+                        message = message + \
+                        "\n INFO: %s publishes unknown WLCG name %s for %s attribute in the GLUE2EntityOtherInfo attribute" % (self.dn,val,att)
                         status = False
                 elif att == 'WLCG_NAMEICON':
                     if not self.types.is_URL(val):
-                        message = message + "\n INFO: incorrect URL type %s for WLCG_NAMEICON" % (val)
+                        message = message + \
+                        "\n INFO: %s publishes incorrect URL type %s for WLCG_NAMEICON in the GLUE2EntityOtherInfo attribute" % (self.dn,val)
+                        status = False
+                elif att == 'MiddlewareName':
+                    if not self.types.is_Middleware_t(val):
+                        message = message + \
+                        "\n INFO: %s publishes incorrect Middleware name %s in the GLUE2EntityOtherInfo attribute" % (self.dn,val)
+                        status = False
+                elif att == 'MiddlewareVersion':
+                    if not self.types.is_String(val):
+                        message = message + \
+                        "\n INFO: %s publishes incorrect Middleware version %s in the GLUE2EntityOtherInfo attribute" % (self.dn,val)
+                        status = False
+                elif att == 'HostDN':
+                    if not self.types.DN_t(val):
+                        message = message + \
+                        "\n INFO: %s publishes incorrect Host DN %s in the GLUE2EntityOtherInfo attribute" % (self.dn,val)
                         status = False
                 elif att == 'Share':
                     index2 = val.find(":")
@@ -102,31 +131,36 @@ class EGIProfileTest(unittest.TestCase):
                         voname = val[:index2]
                         percentage = val[index2 +1:]
                         if not self.types.is_VO_t(voname):
-                            message = message + "\n INFO: unknown VO name %s for Share attribute" % (voname)
+                            message = message + \
+                            "\n INFO: %s publishes unknown VO name %s for Share in the GLUE2EntityOtherInfo attribute" % (self.dn,voname)
                             status = False
                         elif voname not in sharedict:
                             if (int(percentage) < 0) or (int(percentage) > 100):
-                                message = message + "\n ERROR: wrong percentage %s for %s Share" % (percentage,voname) 
+                                message = message + \
+                                "\n ERROR: %s publishes wrong percentage %s for %s Share in the GLUE2EntityOtherInfo attribute" % (self.dn,percentage,voname) 
                                 status = False
                             sharedict[voname] = int(percentage)
                         else:  
-                            message = message + "\n ERROR: VO name %s appears more than once in Share attribute" % (voname)
+                            message = message + \
+                            "\n ERROR: %s publishes VO name %s appears more than once in Share in the GLUE2EntityOtherInfo attribute" % (self.dn,voname)
                             status = False
                     else:
-                        message = message + "\n ERROR: wrong Share format %s" % (val)
+                        message = message + "\n ERROR: %s publishes wrong Share format %s" % (self.dn,val)
                         status = False
                 elif att.startswith('CPUScalingReference'):
                     if not self.types.is_Benchmarkabbr_t(att.split('CPUScalingReference')[1]):
-                        message = message + "\n INFO: incorrect benchmark name %s" % (att.split('CPUScalingReference')[1])
+                        message = message + \
+                        "\n INFO: %s publishes incorrect benchmark name %s in the GLUE2EntityOtherInfo attribute" % (self.dn,att.split('CPUScalingReference')[1])
                         status = False
             else:
-                message = message + "\n ERROR: wrong format specified or %s" % (pair)
+                message = message + "\n ERROR: %s publishes wrong format specified or %s in the GLUE2EntityOtherInfo attribute" % (self.dn,pair)
                 status = False
         totalshare=0 
         for i in sharedict:
             totalshare = totalshare + sharedict[i]
         if ( totalshare > 100 ):
-            message = message + "\n ERROR: The sum of all published shares exceeds 100 !" 
+            message = message + \
+                      "\n ERROR: %s publishes shares whose sum exceeds 100 in the GLUE2EntityOtherInfo attribute !" % (self.dn)
             status = False 
         self.assertTrue(status, message)
     
@@ -143,7 +177,7 @@ class EGIProfileTest(unittest.TestCase):
 #------------------------------------- GLUE2Service -----------------------------------------------
 
     def test_GLUE2ServiceQualityLevel_OK (self):
-        message = "INFO: %s should publish a 'production' quality level instead of %s" % (self.dn, self.value[0])
+        message = "INFO: %s should publish a 'production' QualityLevel instead of %s" % (self.dn, self.value[0])
         self.assertTrue( self.value[0] == 'production', message )
 
 #------------------------------------- GLUE2ComputingService ---------------------------------------
@@ -182,6 +216,100 @@ class EGIProfileTest(unittest.TestCase):
         self.assertTrue( int(self.value[0]) < 1000000, message )
 
 #------------------------------------- GLUE2ComputingEndpoint ---------------------------------------
+
+    def test_GLUE2ComputingEndpointQualityLevel_OK (self):
+        message = "INFO: %s should publish a 'production' QualityLevel instead of %s" % (self.dn, self.value[0])
+        self.assertTrue( self.value[0] == 'production', message )
+
+    def test_GLUE2EndpointHealthState_OK (self):
+        message = "INFO: %s should publish a 'OK' HealthState instead of %s" % (self.dn, self.value[0])
+        self.assertTrue( self.value[0] == 'ok', message )
+
+    def test_GLUE2ComputingEndpointServingState_OK (self):
+        message = "INFO: %s should publish a 'production' ServingState instead of %s" % (self.dn, self.value[0])
+        self.assertTrue( self.value[0] == 'production', message )
+
+    def test_GLUE2EndpointStartTime_OK (self):
+        creationtime = datetime.datetime.strptime( self.value[0], "%Y-%m-%dT%H:%M:%SZ" )
+        now = datetime.datetime.utcnow()
+        twoyears = datetime.timedelta(days=730)
+        if creationtime > now:
+            message = "ERROR: %s has a Start time %s in the future!" % (self.dn, self.value[0])
+            status = False
+        elif creationtime < (now - twoyears):
+            message = "WARNING: %s has a Start time %s of more than two years ago" % (self.dn, self.value[0])
+            status = False
+        else:
+            message = ""
+            status = True
+        self.assertTrue(status, message)
+
+    def test_GLUE2EndpointIssuerCA_OK (self):
+        message = "INFO: %s publishes unknown IssuerCA" % self.dn
+        self.assertTrue( self.value[0] == 'unknown', message )
+
+    def test_GLUE2EndpointTrustedCA_OK (self):
+        message = "INFO: %s publishes unknown TrustedCA" % self.dn
+        self.assertTrue( self.value[0] == 'unknown', message )
+
+    def test_GLUE2EndpointDowntimeAnnounce_OK (self):
+        creationtime = datetime.datetime.strptime( self.value[0], "%Y-%m-%dT%H:%M:%SZ" )
+        now = datetime.datetime.utcnow()
+        year = datetime.timedelta(days=365)
+        if creationtime > now:
+            message = "ERROR: %s has a Downtime announce %s in the future!" % (self.dn, self.value[0])
+            status = False
+        elif creationtime < (now - year):
+            message = "WARNING: %s has a Downtime announce %s of more than one year ago" % (self.dn, self.value[0])
+            status = False
+        else:
+            message = ""
+            status = True
+        self.assertTrue(status, message)
+
+    def test_GLUE2EndpointDowntimeAnnounce_checkStart (self):
+       if 'GLUE2EndpointDowntimeStart' not in self.entry:
+           message = "WARNING: %s publishes a Downtime announce with no Downtime start published" % (self.dn)
+           status = False
+           self.assertTrue(status, message)
+
+    def test_GLUE2EndpointDowntimeStart_OK (self):
+        status = True
+        message = ""
+        starttime = datetime.datetime.strptime( self.value[0], "%Y-%m-%dT%H:%M:%SZ" )
+        now = datetime.datetime.utcnow()
+        year = datetime.timedelta(days=365)
+        if 'GLUE2EndpointDowntimeEnd' in self.entry:
+            endtime = datetime.datetime.strptime( self.entry['GLUE2EndpointDowntimeEnd'][0], "%Y-%m-%dT%H:%M:%SZ" )
+            if starttime > endtime:
+                message = "ERROR: %s publishes Downtime start time %s later than Downtime end time %s" % \
+                           ( self.dn, self.value[0], self.entry['GLUE2EndpointDowntimeEnd'][0])
+                status = False
+        elif starttime > (now + year):
+            message = "WARNING: %s publishes a Downtime start time %s in more than one year !" % (self.dn, self.value[0])
+            status = False
+        elif starttime < (now - year):
+            message = "WARNING: %s publishes a Downtime start time %s of more than one year ago !" % (self.dn, self.value[0])
+            status = False
+        self.assertTrue(status, message)
+
+    def test_GLUE2EndpointDowntimeEnd_OK (self):
+        status = True
+        message = ""
+        endtime = datetime.datetime.strptime( self.value[0], "%Y-%m-%dT%H:%M:%SZ" )
+        now = datetime.datetime.utcnow()
+        year = datetime.timedelta(days=365)
+        week = datetime.timedelta(days=7)
+        if 'GLUE2EndpointDowntimeStart' not in self.entry:
+            message = "ERROR: %s publishes Downtime end time with no Downtime start time %s" % (self.dn)
+            status = False
+        elif endtime > (now + year):
+            message = "WARNING: %s publishes a Downtime end time %s in more than one year !" % (self.dn, self.value[0])
+            status = False
+        elif endtime < (now - week):
+            message = "WARNING: %s publishes a Downtime end time %s of more than one week ago !" % (self.dn, self.value[0])
+            status = False
+        self.assertTrue(status, message)
 
     def test_GLUE2ComputingEndpointTotalJobs_OK (self):
         total = 0
@@ -511,5 +639,219 @@ class EGIProfileTest(unittest.TestCase):
     def test_GLUE2ExecutionEnvironmentTotalInstances_MaxRange (self):
         message = "INFO: %s publishes TotalInstances %s greater than 1 million !" % (self.dn, self.value[0])
         self.assertTrue( int(self.value[0]) < 1000000, message )
+
+    def test_GLUE2ExecutionEnvironmentUsedInstances_OK (self):
+        if 'GLUE2ExecutionEnvironmentTotalInstances' in self.entry:
+            message = "INFO: %s publishes UsedInstances %s greater than TotalInstances %s !" % \
+                       (self.dn, self.value[0], self.entry['GLUE2ExecutionEnvironmentTotalInstances'][0])
+            self.assertTrue( int(self.value[0]) < int(self.entry['GLUE2ExecutionEnvironmentTotalInstances'][0]), message )
+
+    def test_GLUE2ExecutionEnvironmentUnavailableInstances_OK (self):
+        if 'GLUE2ExecutionEnvironmentTotalInstances' in self.entry:
+            message = "INFO: %s publishes UnavailableInstances %s greater than TotalInstances %s !" % \
+                       (self.dn, self.value[0], self.entry['GLUE2ExecutionEnvironmentTotalInstances'][0])
+            self.assertTrue( int(self.value[0]) < int(self.entry['GLUE2ExecutionEnvironmentTotalInstances'][0]), message )
+
+    def test_GLUE2ExecutionEnvironmentPhysicalCPUs_MaxRange (self):
+        message = "INFO: %s publishes PhysicalCPUs %s greater than 10 !" % (self.dn, self.value[0])
+        self.assertTrue( int(self.value[0]) <= 10, message )
+
+    def test_GLUE2ExecutionEnvironmentLogicalCPUs_MaxRange (self):
+        message = "INFO: %s publishes LogicalCPUs %s greater than 1000 !" % (self.dn, self.value[0])
+        self.assertTrue( int(self.value[0]) < 1000, message )
+
+    def test_GLUE2ExecutionEnvironmentCPUClockSpeed_MaxRange (self):
+        message = "INFO: %s publishes CPUClockSpeed %s greater than 10000 !" % (self.dn, self.value[0])
+        self.assertTrue( int(self.value[0]) <= 10000, message )
+
+    def test_GLUE2ExecutionEnvironmentCPUClockSpeed_MinRange (self):
+        message = "INFO: %s publishes CPUClockSpeed %s less than 100 !" % (self.dn, self.value[0])
+        self.assertTrue( int(self.value[0]) >= 100, message )
+
+    def test_GLUE2ExecutionEnvironmentCPUTimeScalingFactor_MaxRange (self):
+        message = "WARNING: %s publishes CPUTimeScalingFactor %s greater than 1 !" % (self.dn, self.value[0])
+        self.assertTrue( int(self.value[0]) <= 1, message )
+
+    def test_GLUE2ExecutionEnvironmentCPUTimeScalingFactor_MinRange (self):
+        message = "INFO: %s publishes CPUTimeScalingFactor %s less than 0.1 !" % (self.dn, self.value[0])
+        self.assertTrue( float(self.value[0]) > 0.1, message )
+
+    def test_GLUE2ExecutionEnvironmentWallTimeScalingFactor_MaxRange (self):
+        message = "INFO: %s publishes WallTimeScalingFactor %s greater than 1 !" % (self.dn, self.value[0])
+        self.assertTrue( int(self.value[0]) <= 1, message )
+
+    def test_GLUE2ExecutionEnvironmentWallTimeScalingFactor_MinRange (self):
+        message = "INFO: %s publishes WallTimeScalingFactor %s less than 0.1 !" % (self.dn, self.value[0])
+        self.assertTrue( float(self.value[0]) > 0.1, message )
+
+    def test_GLUE2ExecutionEnvironmentMainMemorySize_MaxRange (self):
+        message = "INFO: %s publishes MainMemorySize %s MB greater than 1 million MB!" % (self.dn, self.value[0])
+        self.assertTrue( int(self.value[0]) < 1000000, message )
+
+    def test_GLUE2ExecutionEnvironmentMainMemorySize_MinRange (self):
+        message = "INFO: %s publishes MainMemorySize %s MB less than 100 MB!" % (self.dn, self.value[0])
+        self.assertTrue( int(self.value[0]) >= 100, message )
+
+    def test_GLUE2ExecutionEnvironmentVirtualMemorySize_MaxRange (self):
+        message = "INFO: %s publishes VirtualMemorySize %s MB greater than 1 million MB!" % (self.dn, self.value[0])
+        self.assertTrue( int(self.value[0]) < 1000000, message )
+
+    def test_GLUE2ExecutionEnvironmentVirtualMemorySize_MinRange (self):
+        message = "INFO: %s publishes VirtualMemorySize %s MB less than 100 MB!" % (self.dn, self.value[0])
+        self.assertTrue( int(self.value[0]) >= 100, message )
+
+#------------------------------------- GLUE2ApplicationEnvironment ---------------------------------------
+
+    def test_GLUE2ApplicationEnvironmentRemovalDate_OK (self):
+        removaldate = datetime.datetime.strptime( self.value[0], "%Y-%m-%dT%H:%M:%SZ" )
+        now = datetime.datetime.utcnow()
+        message = "INFO: % publishes a removal date %s in the past !" % (self.dn, self.value[0])
+        self.asserTrue ( removaldate < now , message )
+
+    def test_GLUE2ApplicationEnvironmentMaxSlots_OK (self):
+        message = "INFO: %s publishes zero MaxSlots" % (self.dn)
+        self.assertTrue ( int(self.value[0]) != 0, message )
+
+    def test_GLUE2ApplicationEnvironmentMaxJobs_OK (self):
+        message = "INFO: %s publishes zero MaxJobs" % (self.dn)
+        self.assertTrue ( int(self.value[0]) != 0, message )
+ 
+    def test_GLUE2ApplicationEnvironmentMaxUserSeats_OK (self):
+        message = "INFO: %s publishes zero MaxUserSeats" % (self.dn)
+        self.assertTrue ( int(self.value[0]) != 0, message )
+
+    def test_GLUE2ApplicationEnvironmentFreeSlots_OK (self):
+        if 'GLUE2ApplicationEnvironmentMaxSlots' in self.entry:
+            message = "INFO: %s publishes FreeSlots %s greater than MaxSlots %s" % \
+                       (self.dn, self.value[0], self.entry['GLUE2ApplicationEnvironmentMaxSlots'][0])
+            self.assertTrue ( int(self.value[0]) <= int(self.entry['GLUE2ApplicationEnvironmentMaxSlots'][0]), message )
+
+    def test_GLUE2ApplicationEnvironmentFreeJobs_OK (self):
+        if 'GLUE2ApplicationEnvironmentMaxJobs' in self.entry:
+            message = "INFO: %s publishes FreeJobs %s greater than MaxJobs %s" % \
+                       (self.dn, self.value[0], self.entry['GLUE2ApplicationEnvironmentMaxJobs'][0])
+            self.assertTrue ( int(self.value[0]) <= int(self.entry['GLUE2ApplicationEnvironmentMaxJobs'][0]), message )
+
+    def test_GLUE2ApplicationEnvironmentFreeUserSeats_OK (self):
+        if 'GLUE2ApplicationEnvironmentMaxUserSeats' in self.entry:
+            message = "INFO: %s publishes FreeUserSeats %s greater than MaxUserSeats %s" % \
+                       (self.dn, self.value[0], self.entry['GLUE2ApplicationEnvironmentMaxUserSeats'][0])
+            self.assertTrue ( int(self.value[0]) <= int(self.entry['GLUE2ApplicationEnvironmentMaxUserSeats'][0]), message )
+
+#------------------------------------- GLUE2StorageServiceCapacity ---------------------------------------
+
+    def test_GLUE2StorageServiceCapacityTotalSize_OK (self):
+        total = 0
+        for cap in ['GLUE2StorageServiceCapacityFreeSize',
+                    'GLUE2StorageServiceCapacityUsedSize',
+                    'GLUE2StorageServiceCapacityReservedSize']:
+            if cap in self.entry:
+                total = total + int(self.entry[cap][0])
+        message = "ERROR: %s is publishing a wrong number of total size for storage capacity %s, that does not sum up \
+                   FreeSize, UsedSize and ReservedSize" % (self.dn, self.value[0])
+        self.assertTrue( total == int(self.value[0]), message )
+
+    def test_GLUE2StorageServiceCapacityTotalSize_MinRange (self):
+        if 'GLUE2StorageServiceCapacityType' in self.entry:
+            if self.entry['GLUE2StorageServiceCapacityType'][0] == 'online' or \
+               self.entry['GLUE2StorageServiceCapacityType'][0] == 'nearline':
+                   message = "INFO: %s publishes TotalSize storage capacity %s less than 1000" % \
+                              (self.dn, self.value[0])
+                   self.assertTrue ( self.value[0] >= 1000 , message ) 
+
+    def test_GLUE2StorageServiceCapacityTotalSize_MaxRange (self):
+        if 'GLUE2StorageServiceCapacityType' in self.entry:
+            if self.entry['GLUE2StorageServiceCapacityType'][0] == 'online' or \
+               self.entry['GLUE2StorageServiceCapacityType'][0] == 'nearline':
+                   message = "INFO: %s publishes TotalSize storage capacity %s greater than 1 million" % \
+                              (self.dn, self.value[0])
+                   self.assertTrue ( self.value[0] <= 1000000 , message )
+
+    def test_GLUE2StorageServiceCapacityFreeSize_OK (self):
+        if 'GLUE2StorageServiceCapacityTotalSize' in self.entry:
+            message = "ERROR: %s publishes FreeSize %s greater than TotalSize %s" % \
+                       (self.dn, self.value[0], self.entry['GLUE2StorageServiceCapacityTotalSize'][0])
+            self.assertTrue ( int(self.value[0]) <= int(self.entry['GLUE2StorageServiceCapacityTotalSize'][0]), message )
+
+    def test_GLUE2StorageServiceCapacityUsedSize_OK (self):
+        if 'GLUE2StorageServiceCapacityUsedSize' in self.entry:
+            message = "ERROR: %s publishes UsedSize %s greater than TotalSize %s" % \
+                       (self.dn, self.value[0], self.entry['GLUE2StorageServiceCapacityUsedSize'][0])
+            self.assertTrue ( int(self.value[0]) <= int(self.entry['GLUE2StorageServiceCapacityUsedSize'][0]), message )
+
+    def test_GLUE2StorageServiceCapacityReservedSize_OK (self):
+        if 'GLUE2StorageServiceCapacityReservedSize' in self.entry:
+            message = "ERROR: %s publishes ReservedSize %s greater than TotalSize %s" % \
+                       (self.dn, self.value[0], self.entry['GLUE2StorageServiceCapacityReservedSize'][0])
+            self.assertTrue ( int(self.value[0]) <= int(self.entry['GLUE2StorageServiceCapacityReservedSize'][0]), message )
+
+#------------------------------------- GLUE2StorageShare ---------------------------------------
+
+    def test_GLUE2StorageShareServingState_OK (self):
+        message = "INFO: %s should publish a 'production' ServingState instead of %s" % (self.dn, self.value[0])
+        self.assertTrue( self.value[0] == 'production', message )
+
+    def test_GLUE2StorageShareAccessLatency_OK (self):
+        message = "INFO: %s publishes offline for AccessLatency" % (self.dn)
+        self.assertTrue ( self.value[0] != 'offline', message )
+
+    def test_GLUE2StorageShareRetentionPolicy_OK (self):
+        message = "INFO: %s publishes RetentionPolicy %s" % (self.dn, self.value[0])
+        self.assertTrue ( self.value[0] == 'custodial' or self.value[0] == 'replica', message )
+
+    def test_GLUE2StorageShareExpirationMode_OK (self):
+        message = "INFO: %s publishes ExpirationMode %s" % (self.dn, self.value[0])
+        self.assertTrue ( self.value[0] == 'neverexpire', message )
+
+    def test_GLUE2StorageShareDefaultLifeTime_OK (self):
+        message = "INFO: %s publishes DefaultLifeTime %s less than 100000 seconds" % (self.dn, self.value[0])
+        self.assertTrue ( int(self.value[0]) >= 100000 , message )
+
+    def test_GLUE2StorageShareMaximumLifeTime_OK (self):
+        message = "INFO: %s publishes MaximumLifeTime %s less than 100000 seconds" % (self.dn, self.value[0])
+        self.assertTrue ( int(self.value[0]) >= 100000 , message )
+
+#------------------------------------- GLUE2StorageShareCapacity ---------------------------------------
+
+    def test_GLUE2StorageShareCapacityTotalSize_OK (self):
+        total = 0
+        for share in ['GLUE2StorageShareCapacityFreeSize', 'GLUE2StorageShareCapacityUsedSize']:
+            if share in self.entry:
+                total = total + int(self.entry[share][0])
+        message = "ERROR: %s is publishing a wrong number of total size for storage share capacity %s, \
+                   greater than the sum of FreeSize and UsedSize" % (self.dn, self.value[0])
+        self.assertTrue( total <= int(self.value[0]), message )
+
+    def test_GLUE2StorageShareCapacityTotalSize_MinRange (self):
+        message = "INFO: %s publishes TotalSize share capacity %s less than 1000" % \
+                   (self.dn, self.value[0])
+        self.assertTrue ( self.value[0] >= 1000, message )
+
+    def test_GLUE2StorageShareCapacityTotalSize_MaxRange (self):
+        message = "INFO: %s publishes TotalSize share capacity %s greater than 1 million" % \
+                   (self.dn, self.value[0])
+        self.assertTrue ( self.value[0] <= 1000000, message )
+
+    def test_GLUE2StorageShareCapacityFreeSize_OK (self):
+        if 'GLUE2StorageShareCapacityTotalSize' in self.entry:
+            message = "ERROR: %s publishes FreeSize %s greater than TotalSize %s" % \
+                       (self.dn, self.value[0], self.entry['GLUE2StorageShareCapacityTotalSize'][0])
+            self.assertTrue ( int(self.value[0]) <= int(self.entry['GLUE2StorageShareCapacityTotalSize'][0]), message )
+
+    def test_GLUE2StorageShareCapacityUsedSize_OK (self):
+        if 'GLUE2StorageShareCapacityUsedSize' in self.entry:
+            message = "ERROR: %s publishes UsedSize %s greater than TotalSize %s" % \
+                       (self.dn, self.value[0], self.entry['GLUE2StorageShareCapacityUsedSize'][0])
+            self.assertTrue ( int(self.value[0]) <= int(self.entry['GLUE2StorageShareCapacityUsedSize'][0]), message )
+
+#------------------------------------- GLUE2ToComputingService ---------------------------------------
+
+    def test_GLUE2ToComputingServiceBandwidth_MinRange (self):
+        message = "INFO: %s publishes a bandwith %s less than 100" % (self.dn, self.value[0])
+        self.assertTrue ( int(self.value[0]) >= 100 , message )
+
+    def test_GLUE2ToComputingServiceBandwidth_MaxRange (self):
+        message = "INFO: %s publishes a bandwith %s greater than 100000" % (self.dn, self.value[0])
+        self.assertTrue ( int(self.value[0]) <= 100000 , message )
 
 

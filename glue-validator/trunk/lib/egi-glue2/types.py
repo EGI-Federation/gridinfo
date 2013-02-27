@@ -595,12 +595,27 @@ def is_EntityOtherInfo_t(value):
       'WLCG_NAMEICON',
       'WLCG_PARENT',
       'WLCG_TIER' 
+      'MiddlewareName',
+      'MiddlewareVersion',
+      'HostDN',
+      'Share',
+      'CPUScalingReferenceSI00'
       ] 
    if value.rsplit('=')[0] in types:
       return True
    else:
       return False
 
+def is_Middleware_t(value):
+   types = [
+      'EMI',
+      'UMD'
+      ]
+   if value in types:
+      return True
+   else:
+      return False
+  
 def is_Tier_t(value):
    types = [
       '0',
