@@ -262,7 +262,7 @@ def nagios_output(debug_level):
       maxlines=100
       for i in ['ERROR','WARNING','INFO']:   
          for line in messages[i]:
-            print line
+            sys.stdout.write (line)
             maxlines =- 1
             if maxlines == 0:
                break
