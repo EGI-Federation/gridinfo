@@ -51,6 +51,7 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 * Thu Feb 28 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.7-0
 - Added missing error message type
+- Added missing Endpoint_t, Capability_t and ServiceType_t requested by ARC
 
 * Wed Feb 27 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.6-0
 - Added types for Middleware names
