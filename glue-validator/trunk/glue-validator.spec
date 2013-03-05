@@ -3,7 +3,7 @@
 %endif
 Summary: A validation framework for Grid information providers
 Name: glue-validator
-Version: 2.0.7
+Version: 2.0.8
 Release: 0%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
@@ -35,9 +35,6 @@ rm -rf %{buildroot}
 mkdir -p %{buildroot}/usr/share/man/man1
 install -m 0644 man/glue-validator.1 %{buildroot}/usr/share/man/man1
 
-%post
-mkdir -p /var/lib/grid-monitoring/glue-validator
-
 %clean
 rm -rf $RPM_BUILD_ROOT
 
@@ -49,6 +46,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+* Tue Mar 05 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.8-0
+- BUG #100733: Applied changes requested by Nagios team to be Nagios compliant
+
 * Thu Feb 28 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.7-0
 - Added missing error message type
 - Added missing Endpoint_t, Capability_t and ServiceType_t requested by ARC

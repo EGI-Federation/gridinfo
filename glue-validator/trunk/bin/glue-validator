@@ -4,6 +4,7 @@ import logging
 import unittest
 import os
 import sys
+import tempfile
 import validator.utils
 import validator.EntryTest
 import validator.WLCGTest
@@ -27,10 +28,10 @@ if __name__ == "__main__":
             sys.stderr.write("Error: File %s does not exist\n" %(config['file'],))
             sys.exit(1)
 
-    if config.has_key('host'):
-      source = "ldap://%s:%s/%s" % (config['host'], config['port'], config['bind'])
+    if config.has_key('hostname'):
+      source = "ldap://%s:%s/%s" % (config['hostname'], config['port'], config['bind'])
 
-    ldif = validator.utils.fast_read_ldif(source)
+    ldif = validator.utils.fast_read_ldif(source,config['timeout'])
     dns_dict = validator.utils.get_dns(ldif)
     if len(dns_dict) == 0:
         sys.stderr.write("Error: No LDAP entries returned from %s\n" %(source,))
@@ -43,14 +44,14 @@ if __name__ == "__main__":
       	      module = sys.modules['validator.EntryTest']
 	      inst = getattr(module, 'EntryTest')
 	      test_names = unittest.TestLoader().getTestCaseNames(validator.EntryTest.EntryTest)
-              glue_version = config['test']
+              glue_version = config['glue-version']
               for test_name in test_names:
                   suite.addTest(inst(test_name, entry, glue_version))               
       elif (config['testsuite'] == 'wlcg'):
               module = sys.modules['validator.WLCGTest']
               inst = getattr(module, 'WLCGTest')
               test_names = unittest.TestLoader().getTestCaseNames(validator.WLCGTest.WLCGTest)
-              glue_version = config['test']
+              glue_version = config['glue-version']
               for test_name in test_names:
                   suite.addTest(inst(test_name, entry, glue_version))               
       elif (config['testsuite'] == 'egi-profile'):
@@ -69,18 +70,13 @@ if __name__ == "__main__":
                       suite.addTest(inst(test_name,entry,entry[attribute],glue_version)) 
 
     if config.has_key('nagios'):
-      if os.path.exists('/var/lib/grid-monitoring/glue-validator'):
-         results=open("/var/lib/grid-monitoring/glue-validator/glue-validator","w")
-      else: 
-         sys.stderr.write("Error: Path /var/lib/grid-monitoring/glue-validator does not exist\n")
-         sys.exit(1)
+      results=tempfile.NamedTemporaryFile()
       unittest.TextTestRunner(stream=results,verbosity=2).run(suite)
-      results.close()
-      if config.has_key('debug'):
-         debug_level=int(config['debug'])
+      if config.has_key('verbosity'):
+         debug_level=int(config['verbosity'])
       else:
          debug_level=0
-      validator.utils.nagios_output(debug_level)
+      validator.utils.nagios_output(debug_level,results.name)
     else:
       unittest.TextTestRunner(verbosity=2).run(suite)
 

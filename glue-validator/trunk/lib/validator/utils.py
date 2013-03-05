@@ -5,7 +5,6 @@ import signal
 import string
 import re
 import datetime
-from collections import defaultdict
 
 def parse_options():
     config = {}
@@ -14,76 +13,91 @@ def parse_options():
     config['testsuite'] = 'general'
    
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "h:p:b:f:d:o:t:s:n",
-          ["host", "port", "bind", "file", "debug", "test", "testsuite", "nagios"])
+        opts, args = getopt.getopt(sys.argv[1:], "H:p:b:f:v:g:s:t:nVh",
+          ["hostname=", "port=", "bind=", "file=", "verbosity=", "glue-version=", 
+           "testsuite=", "timeout=", "nagios", "version", "help"])
     except getopt.GetoptError:
         sys.stderr.write("Error: Invalid option specified.\n")
         usage()
         sys.exit(2)
     for o, a in opts:
-        if o in ("-h", "--host"):
-            config['host'] = a
+        if o in ("-H", "--hostname"):
+            config['hostname'] = a
         if o in ("-p", "--port"):
             config['port'] = a
         if o in ("-b", "--bind"):
             config['bind'] = a
-        if o in ("-d", "--debug"):
-            config['debug'] = a
+        if o in ("-v", "--verbosity"):
+            config['verbosity'] = a
         if o in ("-f", "--file"):
             config['file'] = a
-        if o in ("-t", "--test"):
-            config['test'] = a
+        if o in ("-g", "--glue-version"):
+            config['glue-version'] = a
         if o in ("-s", "--testsuite"):
             config['testsuite'] = a
         if o in ("-n", "--nagios"):
             config['nagios'] = True
+        if o in ("-t", "--timeout"):
+            config['timeout'] = a
+        if o in ("-V", "--version"):
+            sys.stdout.write("glue-validator version 2")
+            sys.exit()
+        if o in ("-h", "--help"):
+            usage()
+            sys.exit()
    
-    config['debug'] = int(config['debug'])
-   
-    if (config['debug'] > 3):
-        sys.stderr.write("Error: Invalid logging level.\n")
-        usage()
-        sys.exit(1)
+    if config.has_key('verbosity'):
+        config['verbosity'] = int(config['verbosity'])
+        if (config['verbosity'] > 3):
+            sys.stderr.write("Error: Invalid logging level.\n")
+            usage()
+            sys.exit(1)
    
     if ((config.has_key('port') or config.has_key('bind')) and config.has_key('file')):
         sys.stderr.write("Error: Can not specify both file and (port/bind) output options.\n")
         usage()
         sys.exit(1)
    
-    if (not (config.has_key('host') or  config.has_key('file'))):
-        sys.stderr.write("Error: Must specify file or host\n")
+    if (not (config.has_key('hostname') or  config.has_key('file'))):
+        sys.stderr.write("Error: Must specify file or hostname\n")
         usage()
         sys.exit(1)
 
-    if config.has_key('test'):
-        if not config['test'] in ['glue2', 'glue1', 'egi-glue2']:
-            sys.stderr.write("Error: Invalid test class %s.\n" %(config['test'],))
+    if config.has_key('glue-version'):
+        if not config['glue-version'] in ['glue2', 'glue1', 'egi-glue2']:
+            sys.stderr.write("Error: Invalid schema version %s.\n" %(config['glue-version'],))
             usage()
             sys.exit(1)
     else:
-        sys.stderr.write("Error: Must specify a test class.\n")
+        sys.stderr.write("Error: Must specify a schema version.\n")
         usage()
         sys.exit(1)
 
     if config.has_key('testsuite'):
         if not config['testsuite'] in ['general', 'wlcg', 'egi-profile']:
-            sys.stderr.write("Error: Invalid testsuite class %s.\n" %(config['testsuite'],))
+            sys.stderr.write("Error: Invalid testsuite type %s.\n" %(config['testsuite'],))
             usage()
             sys.exit(1)
     else:
         config['testsuite']='general'
 
+    if not config.has_key('timeout'):
+        config['timeout']=10
+    else:
+        config['timeout']=int(config['timeout'])
+
+
     # Sanity Checks
-    if config['test'] == 'glue1' and ( config['bind'].find('o=glue') != -1 ): 
+    if config['glue-version'] == 'glue1' and ( config['bind'].find('o=glue') != -1 ): 
             sys.stderr.write("Error: Use a glue 1 binding containing o=grid.\n")
             usage()
             sys.exit(1)
-    if config['test'] == 'glue2' and ( config['bind'].find('o=grid') != -1 ):
+    if config['glue-version'] == 'glue2' and ( config['bind'].find('o=grid') != -1 ):
             sys.stderr.write("Error: Use a glue 2 binding containing o=glue.\n")
             usage()
             sys.exit(1)
-    if config['test'] in ['glue1', 'glue2'] and (config['testsuite'] == 'egi-profile'):
-            sys.stderr.write("Error: egi-profile testsuite must be executed against the egi-glue2 schema.\n")
+    if config['glue-version'] in ['glue1', 'glue2'] and (config['testsuite'] == 'egi-profile'):
+            sys.stderr.write("Error: egi-profile testsuite must be executed against the egi-glue2 schema version.\n")
             usage()
             sys.exit(1)
 
@@ -91,16 +105,16 @@ def parse_options():
 
 # Funtion to print out the usage
 def usage():
-    sys.stderr.write('Usage: %s -t <test class> [OPTIONS] \n' % (sys.argv[0]))
+    sys.stderr.write('Usage: %s -g <glue schema version> [OPTIONS] \n' % (sys.argv[0]))
     sys.stderr.write('''
- -t --test        The glue schema version to be tested [glue1|glue2|egi-glue2].
+ -g --glue-version        The glue schema version to be tested [glue1|glue2|egi-glue2].
 
 OPTIONS:
 
 Server Mode: Obtains LDIF from an OpenLDAP server.
- -h --host      Hostname of the LDAP server.
- -p --port      Port for the LDAP server.
- -b --bind      The bind point for the LDAP server. 
+ -H --hostname      Hostname of the LDAP server.
+ -p --port          Port for the LDAP server.
+ -b --bind          The bind point for the LDAP server. 
 
 File Mode: Obtains LDIF directly from a file.
  -f --file      An LDIF file
@@ -113,13 +127,16 @@ Nagios output: Indicates whether the command should produce Nagios output.
  -n --nagios
 
 Other Options:
- -d --debug     Debug level 0-3, default 0
+ -t --timeout   glue-validator runtime timeout, default 10s 
+ -v --verbose   verbosity level 0-3, default 0
+ -V --version   prints glue-validator version
+ -h --help      prints glue-validator usage
 
 Examples:
 
-  glue-validator -t glue1 -h localhost -p 2170 -b o=grid -s wlcg
-  glue-validator -t glue2 -h localhost -p 2170 -b o=glue
-  glue-validator -t egi-glue2 -h localhost -p 2170 -b o=glue -s egi-profile -n
+  glue-validator -g glue1 -H localhost -p 2170 -b o=grid -s wlcg
+  glue-validator -g glue2 -H localhost -p 2170 -b o=glue
+  glue-validator -g egi-glue2 -H localhost -p 2170 -b o=glue -s egi-profile -n
 
 ''')
    
@@ -142,7 +159,7 @@ def handler(signum, frame):
         os.killpg(process_group, signal.SIGTERM)
         sys.exit(1)
 
-def fast_read_ldif(source):
+def fast_read_ldif(source,timeout):
     # Get pipe file descriptors
     read_fd, write_fd = os.pipe()
 
@@ -171,7 +188,7 @@ def fast_read_ldif(source):
                 
         # Setup signal handler
         signal.signal(signal.SIGALRM, handler)
-        signal.alarm(90)
+        signal.alarm(timeout)
 
         # Open pipe to LDIF
         if (source[:7] == 'ldap://'):
@@ -226,22 +243,18 @@ def convert_entry(entry_string):
                 
     return entry
 
-def nagios_output(debug_level):
+def nagios_output(debug_level,file):
 
-   if os.path.exists('/var/lib/grid-monitoring/glue-validator/glue-validator'):
-      results=open("/var/lib/grid-monitoring/glue-validator/glue-validator","r")
-   else:
-      sys.stderr.write("Error: File /var/lib/grid-monitoring/glue-validator/glue-validator does not exist\n")
-      sys.exit(1)
-
-   count = defaultdict(int)
-   messages = defaultdict(list)
+   results = open(file,'r')
+   count = {'INFO':0,'WARNING':0,'ERROR':0}
+   messages = {'INFO':[],'WARNING':[],'ERROR':[]}
    for line in results:
-      matched=re.search(r'(INFO|WARNING|ERROR)',line)
-      if matched is not None:
-         match_string=matched.group()
-         count[match_string] += 1
-         messages[match_string].append(line.strip("AssertionError:"))
+      if line.find("AssertionError:") > -1:
+         matched=re.search(r'(INFO|WARNING|ERROR)',line)
+         if matched is not None:
+            match_string=matched.group()
+            count[match_string] += 1
+            messages[match_string].append(line.strip("AssertionError:"))
 
    results.close()
 
