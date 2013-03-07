@@ -34,7 +34,10 @@ class EntryTest(unittest.TestCase):
         for obj in self.objects:
             if obj in self.schema:
                 for attribute in self.schema[obj]:
-                    if self.test_class != 'egi-glue2':
+                    if attribute == 'GLUE2GroupID':
+                        message = "WARNING: The mandatory attribute %s is not present in %s" % (attribute, self.dn)
+                        self.assertTrue(attribute in self.entry or 'GLUE2GroupName' in self.entry, message)
+                    elif self.test_class != 'egi-glue2':
                         if self.schema[obj][attribute][2]:
                             message = "The mandatory attribute %s is not present in %s" % (attribute, self.dn)
                             self.assertTrue(attribute in self.entry, message)

@@ -50,7 +50,9 @@ class EGIProfileTest(unittest.TestCase):
                 now = datetime.datetime.utcnow()
                 validity = datetime.timedelta(seconds=int(self.value[0]))
                 if ( creationtime + validity ) < now:
-                    message = "ERROR: %s validity '%s'has expired !" % (self.dn, self.value[0])
+                    message = ("ERROR: %s created in '%s' is no longer valid according to " 
+                              "the published validity '%s' seconds!") % \
+                              (self.dn, self.entry['GLUE2EntityCreationTime'][0], self.value[0])
                     status = False
                 else:
                     message = ""
@@ -266,11 +268,11 @@ class EGIProfileTest(unittest.TestCase):
 
     def test_GLUE2EndpointIssuerCA_OK (self):
         message = "INFO: %s publishes 'unknown' for the IssuerCA" % self.dn
-        self.assertTrue( self.value[0] == 'unknown', message )
+        self.assertTrue( self.value[0] != 'unknown', message )
 
     def test_GLUE2EndpointTrustedCA_OK (self):
         message = "INFO: %s publishes 'unknown' for the TrustedCA" % self.dn
-        self.assertTrue( self.value[0] == 'unknown', message )
+        self.assertTrue( self.value[0] != 'unknown', message )
 
     def test_GLUE2EndpointDowntimeAnnounce_OK (self):
         try:

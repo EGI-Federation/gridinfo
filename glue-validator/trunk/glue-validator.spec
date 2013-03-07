@@ -47,7 +47,9 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 * Thu Mar 07 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.9-0
-- Improved error messages after feedback from beta testing
+- Improved error messages and fixed bugs in existing tests after feedback from beta testing
+- Fixed problem with output redirection to file for the testsuite output
+- Added exclude-known-issues flag 
 
 * Tue Mar 05 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.8-0
 - BUG #100733: Applied changes requested by Nagios team to be Nagios compliant
