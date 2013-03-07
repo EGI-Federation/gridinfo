@@ -3,7 +3,7 @@
 %endif
 Summary: A validation framework for Grid information providers
 Name: glue-validator
-Version: 2.0.8
+Version: 2.0.9
 Release: 0%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
@@ -46,6 +46,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+* Thu Mar 07 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.9-0
+- Improved error messages after feedback from beta testing
+
 * Tue Mar 05 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.8-0
 - BUG #100733: Applied changes requested by Nagios team to be Nagios compliant
 
