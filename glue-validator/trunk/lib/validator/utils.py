@@ -13,9 +13,9 @@ def parse_options():
     config['testsuite'] = 'general'
    
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "H:p:b:f:v:g:s:t:nVh",
+        opts, args = getopt.getopt(sys.argv[1:], "H:p:b:f:v:g:s:t:knVh",
           ["hostname=", "port=", "bind=", "file=", "verbosity=", "glue-version=", 
-           "testsuite=", "timeout=", "nagios", "version", "help"])
+           "testsuite=", "timeout=", "exclude-known-issues", "nagios", "version", "help"])
     except getopt.GetoptError:
         sys.stderr.write("Error: Invalid option specified.\n")
         usage()
@@ -42,6 +42,8 @@ def parse_options():
         if o in ("-V", "--version"):
             sys.stdout.write("glue-validator version 2")
             sys.exit()
+        if o in ("-k", "--exclude-known-issues"):
+            config['exclude-known-issues'] = True
         if o in ("-h", "--help"):
             usage()
             sys.exit()
@@ -245,19 +247,24 @@ def convert_entry(entry_string):
 
 def nagios_output(debug_level,file):
 
-   results = open(file,'r')
-   count = {'INFO':0,'WARNING':0,'ERROR':0}
-   messages = {'INFO':[],'WARNING':[],'ERROR':[]}
-   for line in results:
-      if line.find("AssertionError:") > -1:
-         matched=re.search(r'(INFO|WARNING|ERROR)',line)
-         if matched is not None:
-            match_string=matched.group()
-            count[match_string] += 1
-            messages[match_string].append(line.strip("AssertionError:"))
-
-   results.close()
-
+   try:
+       results = open(file,'r')
+       count = {'INFO':0,'WARNING':0,'ERROR':0}
+       messages = {'INFO':[],'WARNING':[],'ERROR':[]}
+       for line in results:
+          if line.find("AssertionError:") > -1:
+             matched=re.search(r'(INFO|WARNING|ERROR)',line)
+             if matched is not None:
+                match_string=matched.group()
+                count[match_string] += 1
+                messages[match_string].append(line.strip("AssertionError:"))
+       results.close()
+       os.remove(file)
+   except IOError:
+       os.remove(file)
+       print "glue-validator failed to parse the error messages!"
+       sys.exit(1)
+   
    errors = count['ERROR']
    warnings = count['WARNING']
    info = count['INFO']
