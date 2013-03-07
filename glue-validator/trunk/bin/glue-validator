@@ -73,14 +73,15 @@ if __name__ == "__main__":
                           suite.addTest(inst(test_name,entry,entry[attribute],glue_version)) 
 
     if config.has_key('nagios'):
-      results=tempfile.NamedTemporaryFile(delete=False)
-      unittest.TextTestRunner(stream=results,verbosity=2).run(suite)
-      results.close()
+      auxfile=tempfile.mkstemp()
+      fh=open(auxfile[1],'w')
+      unittest.TextTestRunner(stream=fh,verbosity=2).run(suite)
+      fh.close()
       if config.has_key('verbosity'):
          debug_level=int(config['verbosity'])
       else:
          debug_level=0
-      validator.utils.nagios_output(debug_level,results.name)
+      validator.utils.nagios_output(debug_level,auxfile[1])
     else:
       unittest.TextTestRunner(verbosity=2).run(suite)
 
