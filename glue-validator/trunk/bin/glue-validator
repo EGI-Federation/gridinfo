@@ -9,6 +9,7 @@ import validator.utils
 import validator.EntryTest
 import validator.WLCGTest
 import validator.EGIProfileTest
+import validator.KnownIssues
 
 
 if __name__ == "__main__":
@@ -67,11 +68,14 @@ if __name__ == "__main__":
               for test_name in test_names:
                   attribute=test_name.rsplit('_')[1]
                   if attribute in entry:     
-                      suite.addTest(inst(test_name,entry,entry[attribute],glue_version)) 
+                      if (config.has_key('exclude-known-issues') and (test_name not in validator.KnownIssues.test_list)) \
+                          or not config.has_key('exclude-known-issues'):
+                          suite.addTest(inst(test_name,entry,entry[attribute],glue_version)) 
 
     if config.has_key('nagios'):
-      results=tempfile.NamedTemporaryFile()
+      results=tempfile.NamedTemporaryFile(delete=False)
       unittest.TextTestRunner(stream=results,verbosity=2).run(suite)
+      results.close()
       if config.has_key('verbosity'):
          debug_level=int(config['verbosity'])
       else:
