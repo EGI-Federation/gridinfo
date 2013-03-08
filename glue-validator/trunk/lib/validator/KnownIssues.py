@@ -120,8 +120,6 @@ test_list = ('')
 #'test_GLUE2StorageServiceCapacityReservedSize_OK'
 #'test_GLUE2StorageShareServingState_OK'
 #'test_GLUE2StorageShareAccessLatency_OK'
-#'test_GLUE2StorageShareRetentionPolicy_OK'
-#'test_GLUE2StorageShareExpirationMode_OK'
 #'test_GLUE2StorageShareDefaultLifeTime_OK'
 #'test_GLUE2StorageShareMaximumLifeTime_OK'
 #'test_GLUE2StorageShareCapacityTotalSize_OK'
