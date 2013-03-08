@@ -1,6 +1,7 @@
 import re
 import unittest
 import datetime
+import time
 
 class EGIProfileTest(unittest.TestCase):
 
@@ -21,7 +22,7 @@ class EGIProfileTest(unittest.TestCase):
 
     def test_GLUE2EntityCreationTime_OK (self):
         try:
-            creationtime = datetime.datetime.strptime( self.value[0], "%Y-%m-%dT%H:%M:%SZ" )
+            creationtime = datetime.datetime(*(time.strptime(self.value[0],"%Y-%m-%dT%H:%M:%SZ")[0:6]))
             now = datetime.datetime.utcnow()
             year = datetime.timedelta(days=365)
             if creationtime > now:
@@ -46,7 +47,7 @@ class EGIProfileTest(unittest.TestCase):
                        "GLUE2EntityCreationTime is not published") % (self.dn)
         else:
             try:
-                creationtime = datetime.datetime.strptime( self.entry['GLUE2EntityCreationTime'][0], "%Y-%m-%dT%H:%M:%SZ" ) 
+                creationtime =  datetime.datetime(*(time.strptime(self.entry['GLUE2EntityCreationTime'][0],"%Y-%m-%dT%H:%M:%SZ")[0:6])) 
                 now = datetime.datetime.utcnow()
                 validity = datetime.timedelta(seconds=int(self.value[0]))
                 if ( creationtime + validity ) < now:
@@ -239,7 +240,7 @@ class EGIProfileTest(unittest.TestCase):
         self.assertTrue( self.value[0] == 'production', message )
 
     def test_GLUE2EndpointHealthState_OK (self):
-        message = "INFO: %s should publish a 'OK' HealthState instead of '%s'" % (self.dn, self.value[0])
+        message = "INFO: %s should publish a 'ok' HealthState instead of '%s'" % (self.dn, self.value[0])
         self.assertTrue( self.value[0] == 'ok', message )
 
     def test_GLUE2ComputingEndpointServingState_OK (self):
@@ -248,7 +249,7 @@ class EGIProfileTest(unittest.TestCase):
 
     def test_GLUE2EndpointStartTime_OK (self):
         try:
-            creationtime = datetime.datetime.strptime( self.value[0], "%Y-%m-%dT%H:%M:%SZ" )
+            creationtime = datetime.datetime(*(time.strptime(self.value[0],"%Y-%m-%dT%H:%M:%SZ")[0:6]))
             now = datetime.datetime.utcnow()
             twoyears = datetime.timedelta(days=730)
             if creationtime > now:
@@ -276,7 +277,7 @@ class EGIProfileTest(unittest.TestCase):
 
     def test_GLUE2EndpointDowntimeAnnounce_OK (self):
         try:
-            creationtime = datetime.datetime.strptime( self.value[0], "%Y-%m-%dT%H:%M:%SZ" )
+            creationtime = datetime.datetime(*(time.strptime(self.value[0],"%Y-%m-%dT%H:%M:%SZ")[0:6]))
             now = datetime.datetime.utcnow()
             year = datetime.timedelta(days=365)
             if creationtime > now:
@@ -304,11 +305,11 @@ class EGIProfileTest(unittest.TestCase):
         try:
             status = True
             message = ""
-            starttime = datetime.datetime.strptime( self.value[0], "%Y-%m-%dT%H:%M:%SZ" )
+            starttime = datetime.datetime(*(time.strptime(self.value[0],"%Y-%m-%dT%H:%M:%SZ")[0:6]))
             now = datetime.datetime.utcnow()
             year = datetime.timedelta(days=365)
             if 'GLUE2EndpointDowntimeEnd' in self.entry:
-                endtime = datetime.datetime.strptime( self.entry['GLUE2EndpointDowntimeEnd'][0], "%Y-%m-%dT%H:%M:%SZ" )
+                endtime = datetime.datetime(*(time.strptime(self.entry['GLUE2EndpointDowntimeEnd'][0],"%Y-%m-%dT%H:%M:%SZ")[0:6]))
                 if starttime > endtime:
                     message = "ERROR: %s publishes Downtime start time '%s' later than Downtime end time '%s'" % \
                               (self.dn, self.value[0], self.entry['GLUE2EndpointDowntimeEnd'][0])
@@ -331,7 +332,7 @@ class EGIProfileTest(unittest.TestCase):
         try:
             status = True
             message = ""
-            endtime = datetime.datetime.strptime( self.value[0], "%Y-%m-%dT%H:%M:%SZ" )
+            endtime = datetime.datetime(*(time.strptime(self.value[0],"%Y-%m-%dT%H:%M:%SZ")[0:6]))
             now = datetime.datetime.utcnow()
             year = datetime.timedelta(days=365)
             week = datetime.timedelta(days=7)
@@ -759,7 +760,7 @@ class EGIProfileTest(unittest.TestCase):
 
     def test_GLUE2ApplicationEnvironmentRemovalDate_OK (self):
         try:
-           removaldate = datetime.datetime.strptime( self.value[0], "%Y-%m-%dT%H:%M:%SZ" )
+           removaldate = datetime.datetime(*(time.strptime(self.value[0],"%Y-%m-%dT%H:%M:%SZ")[0:6]))
            now = datetime.datetime.utcnow()
            message = "INFO: % publishes a removal date '%s' in the past !" % (self.dn, self.value[0])
         except ValueError:
@@ -856,14 +857,6 @@ class EGIProfileTest(unittest.TestCase):
     def test_GLUE2StorageShareAccessLatency_OK (self):
         message = "INFO: %s publishes 'offline' for AccessLatency" % (self.dn)
         self.assertTrue ( self.value[0] != 'offline', message )
-
-    def test_GLUE2StorageShareRetentionPolicy_OK (self):
-        message = "INFO: %s publishes RetentionPolicy '%s'" % (self.dn, self.value[0])
-        self.assertTrue ( self.value[0] == 'custodial' or self.value[0] == 'replica', message )
-
-    def test_GLUE2StorageShareExpirationMode_OK (self):
-        message = "INFO: %s publishes ExpirationMode '%s'" % (self.dn, self.value[0])
-        self.assertTrue ( self.value[0] == 'neverexpire', message )
 
     def test_GLUE2StorageShareDefaultLifeTime_OK (self):
         message = "INFO: %s publishes DefaultLifeTime '%s' less than 100000 seconds" % (self.dn, self.value[0])

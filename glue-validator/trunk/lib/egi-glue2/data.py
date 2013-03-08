@@ -93,7 +93,7 @@ schema = {
         'GLUE2PolicyID' : ('URI', True, 'Mandatory'),
         'GLUE2PolicyScheme' : ('PolicyScheme_t', True, 'Mandatory'),
         'GLUE2PolicyRule' : ('String', False, 'Mandatory'),
-        'GLUE2PolicyUserDomainForeignKey' : ('URI', False, 'Optional'),
+        'GLUE2PolicyUserDomainForeignKey' : ('URI', False, 'Recommended'),
         'GLUE2PolicyEndpointForeignKey' : ('URI', True, 'Optional'),
         },
     'GLUE2AccessPolicy' : {},
