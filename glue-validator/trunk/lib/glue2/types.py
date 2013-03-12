@@ -66,7 +66,9 @@ def is_allowed_URL_Schema(value):
       'gsidcap',
       'httpg',
       'ldap',
-      'voms'
+      'voms',
+      'myproxy',
+      'lfc'
       ]
    if value in types:
       return True
@@ -162,7 +164,7 @@ def is_JobDescription_t(value):
       'egee:jdl',
       'globus:rsl',
       'nordugrid:xrsl',
-      'ogf:jsdl:1.0',
+      'ogf:jsdl:1.0'
       ]
    if value in descriptions:
        return True
@@ -341,7 +343,7 @@ def is_AppEnvState_t(value):
       'installingautomatically',
       'installingmanually',
       'notinstallable',
-      'pendingremoval'
+      'pendingremoval',
       'removing'
       ]
    if value in states:
@@ -353,7 +355,7 @@ def is_SchedulingPolicy_t(value):
    policies = [
       'fairshare',
       'fifo',
-      'random',
+      'random'
       ]
    if value in policies:
       return True
@@ -385,7 +387,7 @@ def is_ApplicationHandle_t(value):
       'executable',
       'module',
       'Path',
-      'softenv',
+      'softenv'
       ]
    if value in types:
       return True
@@ -397,7 +399,7 @@ def is_CPUMultiplicity_t(value):
       'multicpu-multicore',
       'multicpu-singlecore',
       'singlecpu-multicore',
-      'singlecpu-singlecore',
+      'singlecpu-singlecore'
       ]
    if value in types:
       return True
@@ -406,8 +408,8 @@ def is_CPUMultiplicity_t(value):
 
 def is_DataStoreType_t(value):
    types = [
-      'disk'
-      'optical'
+      'disk',
+      'optical',
       'tape'
       ]
    if value in types:
@@ -419,7 +421,7 @@ def is_License_t(value):
    types = [
       'commercial',
       'opensource',
-      'unknown',
+      'unknown'
       ]
    if value in types:
       return True
@@ -428,9 +430,9 @@ def is_License_t(value):
 
 def is_NetworkInfo_t(value):
    types = [
-      '100megabitethernet'
-      'gigabitethernet'
-      'infiniband'
+      '100megabitethernet',
+      'gigabitethernet',
+      'infiniband',
       'myrinet'
       ]
    if value in types:
@@ -444,7 +446,7 @@ def is_OSFamily_t(value):
       'linux',
       'macosx',
       'solaris',
-      'windows',
+      'windows'
       ]
    if value in types:
       return True
@@ -467,7 +469,7 @@ def is_OSName_t(value):
       'suse',
       'ubuntu',
       'windowsvista',
-      'windowsxp',
+      'windowsxp'
       ]
    if value in types:
       return True
@@ -480,7 +482,7 @@ def is_ParallelSupport_t(value):
    types = [
       'mpi',
       'none',
-      'openmp',
+      'openmp'
       ]
    if value in types:
       return True
@@ -493,7 +495,7 @@ def is_Platform_t(value):
       'i386',
       'itanium',
       'powerpc',
-      'sparc',
+      'sparc'
       ]
    if value in types:
       return True
@@ -504,7 +506,7 @@ def is_ReservationPolicy_t(value):
    types = [
       'mandatory',
       'none',
-      'optional',
+      'optional'
       ]
    if value in types:
       return True

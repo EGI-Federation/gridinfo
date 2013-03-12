@@ -3,7 +3,7 @@
 %endif
 Summary: A validation framework for Grid information providers
 Name: glue-validator
-Version: 2.0.10
+Version: 2.0.11
 Release: 0%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
@@ -46,6 +46,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+* Tue Mar 12 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.11-0
+- Transformed creation times into UTC
+- Extended types after reviewing information providers
+
 * Fri Mar 08 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.10-0
 - Fixed datetime problem not working in SL5
 - Removed tests that were already part of the general type check test
