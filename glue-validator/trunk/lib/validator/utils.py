@@ -252,7 +252,7 @@ def nagios_output(debug_level,file):
        count = {'INFO':0,'WARNING':0,'ERROR':0}
        messages = {'INFO':[],'WARNING':[],'ERROR':[]}
        for line in results:
-          if line.find("AssertionError:") > -1:
+          if line.find("INFO:") > -1 or line.find("WARNING:") > -1 or line.find("ERROR:") > -1:
              matched=re.search(r'(INFO|WARNING|ERROR)',line)
              if matched is not None:
                 match_string=matched.group()

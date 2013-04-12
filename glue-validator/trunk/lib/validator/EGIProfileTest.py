@@ -31,19 +31,18 @@ class EGIProfileTest(unittest.TestCase):
             creationtime = datetime.datetime(*(time.strptime(self.value[0],"%Y-%m-%dT%H:%M:%SZ")[0:6]))
             now = datetime.datetime.utcnow()
             year = datetime.timedelta(days=365)
-            if local_to_utc(creationtime.timetuple()) > now:
+            if local_to_utc(creationtime.timetuple()) > now.timetuple():
                 message = "ERROR: %s has a creation time '%s' in the future!" % (self.dn, self.value[0])
                 status = False
-            elif local_to_utc(creationtime,timetuple()) < (now - year):
+            elif local_to_utc(creationtime.timetuple()) < (now - year).timetuple:
                 message = "WARNING: %s has a creation time '%s' of more than one year ago" % (self.dn, self.value[0]) 
                 status = False
             else: 
                 message = ""
                 status = True
         except ValueError:
-            message = ("WARNING: %s publishes CreationTime '%s' that does not follow "
-                       "the type Datetime_t") % (self.dn, self.value[0])
-            status = False
+            message = ""
+            status = True
         self.assertTrue(status, message)
 
     def test_GLUE2EntityValidity_OK (self):
@@ -56,9 +55,11 @@ class EGIProfileTest(unittest.TestCase):
                 creationtime =  datetime.datetime(*(time.strptime(self.entry['GLUE2EntityCreationTime'][0],"%Y-%m-%dT%H:%M:%SZ")[0:6])) 
                 now = datetime.datetime.utcnow()
                 validity = datetime.timedelta(seconds=int(self.value[0]))
-                if ( local_to_utc(creationtime.timmetuple()) + validity ) < now:
+                due_time = local_to_utc((creationtime + validity).timetuple()) 
+                creationtime_utc = local_to_utc(creationtime.timetuple())
+                if due_time < now.timetuple():
                     message = ("ERROR: %s created in '%s' is no longer valid according to " 
-                              "the published validity '%s' seconds!") % \
+                              "the published validity '%s' seconds !") % \
                               (self.dn, self.entry['GLUE2EntityCreationTime'][0], self.value[0])
                     status = False
                 else:
@@ -197,20 +198,18 @@ class EGIProfileTest(unittest.TestCase):
 
     def test_GLUE2ComputingServiceTotalJobs_OK (self):
         total = 0
+        job_stats = "" 
         for job in ['GLUE2ComputingServiceRunningJobs',
+
                     'GLUE2ComputingServiceWaitingJobs',
                     'GLUE2ComputingServiceStagingJobs',
                     'GLUE2ComputingServiceSuspendedJobs',
                     'GLUE2ComputingServicePreLRMSWaitingJobs']:
             if job in self.entry:
                 total = total + int(self.entry[job][0])
-        message = ("WARNING: %s is publishing a wrong number of total jobs '%s', that does not sum up "
-                   "RunningJobs=%s, WaitingJobs=%s, StagingJobs=%s, SuspendedJobs=%s and PreLRMSWaitingJobs=%s")\
-                   % (self.dn, self.value[0], self.entry['GLUE2ComputingServiceRunningJobs'][0], \
-                      self.entry['GLUE2ComputingServiceWaitingJobs'][0], \
-                      self.entry['GLUE2ComputingServiceStagingJobs'][0], \
-                      self.entry['GLUE2ComputingServiceSuspendedJobs'][0], \
-                      self.entry['GLUE2ComputingServicePreLRMSWaitingJobs'][0])           
+                job_stats = job_stats + " %s=%s" % (job,self.entry[job][0])
+        message = "WARNING: %s is publishing a wrong number of total jobs '%s', that does not sum up " \
+                   % (self.dn, self.value[0]) + job_stats
         self.assertTrue( total == int(self.value[0]), message ) 
 
     def test_GLUE2ComputingServiceRunningJobs_OK (self):
@@ -240,19 +239,18 @@ class EGIProfileTest(unittest.TestCase):
             creationtime = datetime.datetime(*(time.strptime(self.value[0],"%Y-%m-%dT%H:%M:%SZ")[0:6]))
             now = datetime.datetime.utcnow()
             twoyears = datetime.timedelta(days=730)
-            if local_to_utc(creationtime.timetuple()) > now:
+            if local_to_utc(creationtime.timetuple()) > now.timetuple():
                 message = "ERROR: %s has a Start time '%s' in the future!" % (self.dn, self.value[0])
                 status = False
-            elif local_to_utc(creationtime.timetuple()) < (now - twoyears):
+            elif local_to_utc(creationtime.timetuple()) < (now - twoyears).timetuple():
                 message = "WARNING: %s has a Start time '%s' of more than two years ago" % (self.dn, self.value[0])
                 status = False
             else:
                 message = ""
                 status = True
         except ValueError:
-            message = ("WARNING: %s publishes StartTime '%s' that does not follow the type " 
-                       "Datetime_t") % (self.dn, self.value[0])
-            status = False
+            message = "" 
+            status = True
         self.assertTrue(status, message)
 
     def test_GLUE2EndpointIssuerCA_OK (self):
@@ -268,19 +266,18 @@ class EGIProfileTest(unittest.TestCase):
             creationtime = datetime.datetime(*(time.strptime(self.value[0],"%Y-%m-%dT%H:%M:%SZ")[0:6]))
             now = datetime.datetime.utcnow()
             year = datetime.timedelta(days=365)
-            if local_to_utc(creationtime.timetuple()) > now:
+            if local_to_utc(creationtime.timetuple()) > now.timetuple():
                 message = "ERROR: %s has a Downtime announce '%s' in the future!" % (self.dn, self.value[0])
                 status = False
-            elif local_to_utc(creationtime.timetuple()) < (now - year):
+            elif local_to_utc(creationtime.timetuple()) < (now - year).timetuple():
                 message = "WARNING: %s has a Downtime announce '%s' of more than one year ago" % (self.dn, self.value[0])
                 status = False
             else:
                 message = ""
                 status = True
         except ValueError:
-            message = ("WARNING: %s publishes DowntimeAnnounce '%s' that does not follow the type "
-                       "Datetime_t") % (self.dn, self.value[0])
-            status = False
+            message = ""
+            status = True
         self.assertTrue(status, message)
 
     def test_GLUE2EndpointDowntimeAnnounce_checkStart (self):
@@ -302,18 +299,17 @@ class EGIProfileTest(unittest.TestCase):
                     message = "ERROR: %s publishes Downtime start time '%s' later than Downtime end time '%s'" % \
                               (self.dn, self.value[0], self.entry['GLUE2EndpointDowntimeEnd'][0])
                     status = False
-            elif local_to_utc(starttime.timetuple()) > (now + year):
+            elif local_to_utc(starttime.timetuple()) > (now + year).timetuple():
                 message = "WARNING: %s publishes a Downtime start time '%s' in more than one year !" % \
                           (self.dn, self.value[0])
                 status = False
-            elif local_to_utc(starttime.timetuple()) < (now - year):
+            elif local_to_utc(starttime.timetuple()) < (now - year).timetuple():
                 message = "WARNING: %s publishes a Downtime start time '%s' of more than one year ago !" % \
                           (self.dn, self.value[0])
                 status = False
         except ValueError:
-            message = "WARNING: %s publishes DowntimeStart '%s' that does not follow the type Datetime_t" % \
-                      (self.dn, self.value[0])
-            status = False
+            message = "" 
+            status = True
         self.assertTrue(status, message)
 
     def test_GLUE2EndpointDowntimeEnd_OK (self):
@@ -327,21 +323,21 @@ class EGIProfileTest(unittest.TestCase):
             if 'GLUE2EndpointDowntimeStart' not in self.entry:
                 message = "ERROR: %s publishes Downtime end time with no Downtime start time" % (self.dn)
                 status = False
-            elif local_to_utc(endtime.timetuple()) > (now + year):
+            elif local_to_utc(endtime.timetuple()) > (now + year).timetuple():
                 message = "WARNING: %s publishes a Downtime end time '%s' in more than one year !" % (self.dn, self.value[0])
                 status = False
-            elif local_to_utc(endtime.timetuple()) < (now - week):
+            elif local_to_utc(endtime.timetuple()) < (now - week).timetuple():
                 message = "WARNING: %s publishes a Downtime end time '%s' of more than one week ago !" % \
                           (self.dn, self.value[0])
                 status = False
         except ValueError:
-            message = "WARNING: %s publishes DowntimeEnd '%s' that does not follow the type Datetime_t" % \
-                      (self.dn, self.value[0])
-            status = False
+            message = ""
+            status = True
         self.assertTrue(status, message)
 
     def test_GLUE2ComputingEndpointTotalJobs_OK (self):
         total = 0
+        job_stats = ""
         for job in ['GLUE2ComputingEndpointRunningJobs',
                     'GLUE2ComputingEndpointWaitingJobs',
                     'GLUE2ComputingEndpointStagingJobs',
@@ -349,13 +345,9 @@ class EGIProfileTest(unittest.TestCase):
                     'GLUE2ComputingEndpointPreLRMSWaitingJobs']:
             if job in self.entry:
                 total = total + int(self.entry[job][0])
-        message = ("WARNING: %s is publishing a wrong number of total jobs '%s', that does not sum up "
-                   "RunningJobs=%s, WaitingJobs=%s, StagingJobs=%s, SuspendedJobs=%s and PreLRMSWaitingJobs=%s")\
-                   % (self.dn, self.value[0], self.entry['GLUE2ComputingEndpointRunningJobs'][0], \
-                      self.entry['GLUE2ComputingEndpointWaitingJobs'][0], \
-                      self.entry['GLUE2ComputingEndpointStagingJobs'][0], \
-                      self.entry['GLUE2ComputingEndpointSuspendedJobs'][0], \
-                      self.entry['GLUE2ComputingEndpointPreLRMSWaitingJobs'][0])
+                job_stats = job_stats + " %s=%s" % (job,self.entry[job][0])
+        message = "WARNING: %s is publishing a wrong number of total jobs '%s', that does not sum up" \
+                   % (self.dn, self.value[0]) + job_stats
         self.assertTrue( total == int(self.value[0]), message )
 
     def test_GLUE2ComputingEndpointRunningJobs_OK (self):
@@ -483,6 +475,7 @@ class EGIProfileTest(unittest.TestCase):
 
     def test_GLUE2ComputingShareTotalJobs_OK (self):
         total = 0
+        job_stats = ""
         for job in ['GLUE2ComputingShareRunningJobs',
                     'GLUE2ComputingShareLocalRunningJobs',
                     'GLUE2ComputingShareWaitingJobs',
@@ -493,17 +486,9 @@ class EGIProfileTest(unittest.TestCase):
                     'GLUE2ComputingSharePreLRMSWaitingJobs']:
             if job in self.entry:
                 total = total + int(self.entry[job][0])
-        message = ("WARNING: %s is publishing a wrong number of total jobs '%s', that does not sum up "
-                   "RunningJobs=%s, LocalRunningJobs=%s, WaitingJobs=%s, LocalWaitingJobs=%s, StagingJobs=%s, "
-                   "SuspendedJobs=%s, LocalSuspendedJobs=%s and PreLRMSWaitingJobs=%s")\
-                   % (self.dn, self.value[0], self.entry['GLUE2ComputingShareRunningJobs'][0], \
-                      self.entry['GLUE2ComputingShareLocalRunningJobs'][0], \
-                      self.entry['GLUE2ComputingShareWaitingJobs'][0], \
-                      self.entry['GLUE2ComputingShareLocalWaitingJobs'][0], \
-                      self.entry['GLUE2ComputingShareStagingJobs'][0], \
-                      self.entry['GLUE2ComputingShareSuspendedJobs'][0], \
-                      self.entry['GLUE2ComputingShareLocalSuspendedJobs'][0], \
-                      self.entry['GLUE2ComputingSharePreLRMSWaitingJobs'][0])
+                job_stats = job_stats + " %s=%s" % (job,self.entry[job][0])
+        message = "WARNING: %s is publishing a wrong number of total jobs '%s', that does not sum up " \
+                   % (self.dn, self.value[0]) + job_stats
         self.assertTrue( total == int(self.value[0]), message )
 
     def test_GLUE2ComputingShareRunningJobs_OK (self):
@@ -748,9 +733,9 @@ class EGIProfileTest(unittest.TestCase):
            now = datetime.datetime.utcnow()
            message = "INFO: % publishes a removal date '%s' in the past !" % (self.dn, self.value[0])
         except ValueError:
-            message = "WARNING: %s publishes RemovalDate '%s' that does not follow the type Datetime_t" % (self.dn, self.value[0])
-            status = False
-        self.asserTrue ( local_to_utc(removaldate.timetuple()) < now , message )
+            message = ""
+            status = True
+        self.asserTrue ( local_to_utc(removaldate.timetuple()) < now.timetuple() , message )
 
     def test_GLUE2ApplicationEnvironmentMaxSlots_OK (self):
         message = "INFO: %s publishes zero MaxSlots" % (self.dn)
@@ -786,16 +771,15 @@ class EGIProfileTest(unittest.TestCase):
 
     def test_GLUE2StorageServiceCapacityTotalSize_OK (self):
         total = 0
+        cap_stats = ""
         for cap in ['GLUE2StorageServiceCapacityFreeSize',
                     'GLUE2StorageServiceCapacityUsedSize',
                     'GLUE2StorageServiceCapacityReservedSize']:
             if cap in self.entry:
                 total = total + int(self.entry[cap][0])
-        message = ("ERROR: %s is publishing a wrong number of total size for storage capacity '%s', "
-                   "that does not sum up FreeSize=%s, UsedSize=%s and ReservedSize=%s") % \
-                   (self.dn, self.value[0], self.entry['GLUE2StorageServiceCapacityFreeSize'][0], \
-                    self.entry['GLUE2StorageServiceCapacityUsedSize'][0], \
-                    self.entry['GLUE2StorageServiceCapacityReservedSize'][0])
+                cap_stats = cap_stats + " %s=%s" % (cap,self.entry[cap][0])
+        message = "ERROR: %s is publishing a wrong number of total size for storage capacity '%s' that does not sum up" \
+                   % ( self.dn, self.value[0] ) + cap_stats
         self.assertTrue( total == int(self.value[0]), message )
 
     def test_GLUE2StorageServiceCapacityTotalSize_MinRange (self):
@@ -850,13 +834,13 @@ class EGIProfileTest(unittest.TestCase):
 
     def test_GLUE2StorageShareCapacityTotalSize_OK (self):
         total = 0
+        share_stats = ""
         for share in ['GLUE2StorageShareCapacityFreeSize', 'GLUE2StorageShareCapacityUsedSize']:
             if share in self.entry:
                 total = total + int(self.entry[share][0])
-        message = ("ERROR: %s is publishing a wrong number of total size for storage share capacity '%s', "
-                   "that does not sum up FreeSize=%s and UsedSize=%s") % \
-                   (self.dn, self.value[0], self.entry['GLUE2StorageShareCapacityFreeSize'][0], \
-                    self.entry['GLUE2StorageShareCapacityUsedSize'][0])
+                share_stats = share_stats + " %s=%s" % (share,self.entry[share][0])
+        message = ("ERROR: %s is publishing a wrong number of total size for storage share capacity '%s'" 
+                   "that does not sum up") % (self.dn, self.value[0]) + share_stats
         self.assertTrue( total <= int(self.value[0]), message )
 
     def test_GLUE2StorageShareCapacityTotalSize_MinRange (self):
