@@ -7,7 +7,7 @@ schema = {
         'objectClass' : ('ObjectClass', False, 'Mandatory'),
         'GLUE2EntityCreationTime' : ('DateTime_t', True, 'Recommended'),
         'GLUE2EntityValidity' : ('UInt64', True, 'Desirable'),
-        'GLUE2EntityOtherInfo' : ('EntityOtherInfo_t', False, 'Mandatory'),
+        'GLUE2EntityOtherInfo' : ('EntityOtherInfo_t', False, 'Optional'),
         },
     'GLUE2Group' : {
         'GLUE2GroupID' : ('URI', True, 'Mandatory'),

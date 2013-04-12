@@ -3,7 +3,7 @@
 %endif
 Summary: A validation framework for Grid information providers
 Name: glue-validator
-Version: 2.0.11
+Version: 2.0.12
 Release: 0%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
@@ -46,6 +46,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+* Fri Apr 12 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.12-0
+- Modified Entrytest to collect all erros within an object instead of terminating after the first error is found
+- Modified EGIProfile to fix bug related to date and time and references to non existing attributes
+- Removed extra type checks from individual tests in EGIProfile
+- Defined OtherInfo attribute as optional
+- Updated the nagios output function in utils to deal with 'grouped' failure messages coming from Entrytest tests  
+
 * Tue Mar 12 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.11-0
 - Transformed creation times into UTC
 - Extended types after reviewing information providers
