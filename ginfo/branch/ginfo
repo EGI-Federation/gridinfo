@@ -29,7 +29,7 @@ import re
 import urllib2
 import signal
 
-VERSION = '0.3.3'
+VERSION = '1.0.1'
 TIMEOUT = 30
 
 # configuration dictionnary that will be filled with the submitted options
@@ -208,21 +208,6 @@ def validate_conf():
         CONF['flag']['bind'] = 'o=glue'
         if 'verbose' in CONF['flag']:
             print 'The default binding will be used:', CONF['flag']['bind']
-    if 'list' in CONF['flag']:
-        if CONF['flag']['list'] not in ELTS[CONF['object']].keys():
-            sys.exit('Error: '+CONF['flag']['list']+' is a wrong attribute.')
-        if 'verbose' in CONF['flag']:
-            print 'List all the possible values for the following attribute:', CONF['flag']['list']
-    """
-    if 'clean' in CONF['flag'] and 'strict' in CONF['flag']:
-        sys.exit('Error: choose between clean and strict.')
-    elif 'clean' in CONF['flag']:
-        if 'verbose' in CONF['flag']:
-            print 'Results have been cleaned.'
-    elif 'strict' in CONF['flag']:
-        if 'verbose' in CONF['flag']:
-            print 'Results have been cleaned strictly.'
-    """
     if 'timeout' in CONF['flag']:
         if 'verbose' in CONF['flag']:
             print 'Ldap timeout has been set to '+CONF['flag']['timeout']+' second(s).'
@@ -233,6 +218,12 @@ def validate_conf():
     else:
         if 'verbose' in CONF['flag']:
             print 'The specified object is '+CONF['object']+'.'
+    if 'list' in CONF['flag']:
+        if CONF['flag']['list'] not in ELTS[CONF['object']].keys():
+            sys.exit('Error: '+CONF['flag']['list']+' is a wrong attribute.')
+        if 'verbose' in CONF['flag']:
+            print 'List all the possible values for the following attribute:', CONF['flag']['list']
+
 
     # Filters
     if CONF['filter']:
@@ -258,8 +249,10 @@ def usage():
     
     return '''Usage: ginfo [options] Object [attribute_to_filter='value of the attribute'] [attribute_to_display]
 
-    List attributes corresponding to an object. All attributes of an object are displayed by default.
+    List attributes corresponding to an object. All attributes of an object are
+    displayed by default.
 
+    [OPTIONS]
         --host      host        Specify a host to query. By default the
                                 environmental variable LCG_GFAL_INFOSYS will be
                                 used.
@@ -273,28 +266,30 @@ def usage():
     -V, --version               Prints the version of ginfo
     -h, --help                  Prints this helpful message
 
-    Available objects are:
-        AdminDomain, ComputingManager, ComputingShare, Endpoint, ExecutionEnvironment, Location, MappingPolicy, Service.
-
-    Available attributes to display for each object are:
+    [OBJECTS AND CORRESPONDING ATTRIBUTES]
         AdminDomain:
-            ID, Description
+            ID, Description.
         ComputingManager:
-            ID, ProductName, ProductVersion, ServiceID
+            ID, ProductName, ProductVersion, ServiceID.
         ComputingShare:
-            ID, MaxCPUTime, MaxWallTime, ServingState, ExecutionEnvironmentForeignKey,
- RunningJobs, WaitingJobs
+            ID, MaxCPUTime, MaxWallTime, ServingState, 
+            ExecutionEnvironmentForeignKey, RunningJobs, WaitingJobs.
         Endpoint:
-            ID, URL, Capability, InterfaceName, InterfaceVersion, Implementor, ImplementationVersion, QualityLevel, HealthState, ServingState, ServiceForeignKey
+            ID, URL, Capability, InterfaceName, InterfaceVersion, Implementor, 
+            ImplementationVersion, QualityLevel, HealthState, ServingState, 
+            ServiceForeignKey.
         ExecutionEnvironment:
-            ID, OSName, ConnectivityOut, MainMemorySize, VirtualMemorySize
+            ID, OSName, ConnectivityOut, MainMemorySize, VirtualMemorySize.
         Location:
-            ID, Country, Latitude, Longitude
+            ID, Country, Latitude, Longitude.
         MappingPolicy:
-            ID, Scheme, Rule, ComputingShareID
+            ID, Scheme, Rule, ComputingShareID.
         Service:
-            ID, Capability, Type, QualityLevel, StatusInfo, AdminDomainID
+            ID, Capability, Type, QualityLevel, StatusInfo, AdminDomainID.
 '''
+
+def handler(signum, frame):
+    sys.exit('Error: Timeout to contact the LDAP server.')
 
 def request(filter=None):
     """Returns the result of the ldap request with the filter given"""
@@ -303,6 +298,7 @@ def request(filter=None):
         t = int(CONF['flag']['timeout'])
     except (ValueError, KeyError):
         t = TIMEOUT
+    signal.signal(signal.SIGALRM, handler)
     signal.alarm(t)
     if 'host' in CONF['flag']:
         try:
