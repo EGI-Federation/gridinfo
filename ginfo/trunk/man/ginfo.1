@@ -1,24 +1,19 @@
-.TH ginfo 1 "AUGUST 2012" "Version 0.2.4" "ginfo manual"
+.TH ginfo 1 "APRIL 2013" "Version 1.0.1" "ginfo manual"
 .SH NAME
 ginfo \- fetch service information
 .SH SYNOPSIS
-ginfo [options] [attributes]
+ginfo [options] Object [attribute_to_filter='value of the attribute'] [attribute_to_display]
 .SH DESCRIPTION
-List service URLs and other attributes.
+List attributes corresponding to an object. By default, all the attributes of an object are 
+displayed.
 .SH OPTIONS
 .IP "    \fB--host\fP     \fIhost\fP"
 Specify a host to query. By default the environmental variable LCG_GFAL_INFOSYS
 will be used.
-.IP "\fB-r, --registry\fP     \fIregistry\fP"
-Specify an EMI registry to query.
 .IP "\fB-b, --bind\fP     \fIbinding\fP"
 Specify the binding (o=glue by default).
 .IP "\fB-l, --list\fP     \fIattribute\fP"
 List all the possible values of the specified attribute.
-.IP "    \fB--clean\fP"
-Clean results in replacing all invalid values with INVALID.
-.IP "\fB-s, --strict\fP"
-Strictly enforces known values (Only recommended with up-to-date version).
 .IP "\fB-c, --csv\fP"
 Output in CSV formating
 .IP "\fB-j, --json\fP"
@@ -32,93 +27,89 @@ Prints the version of ginfo
 .IP "\fB-h, --help\fP"
 Prints this helpful message
 .PP
-Additional options to filter services by the specified attribute:
-.IP "    \fB--cap\fP      \fIEndpointCapability\fP"
-.IP "\fB-d, --domain\fP   \fIServiceAdminDomainForeignKey\fP"
-.IP "    \fB--endid\fP    \fIEndpointID\fP"
-.IP "\fB-i, --id\fP       \fIServiceID\fP"
-.IP "\fB-m, --imp\fP      \fIEndpointImplementationName\fP"
-.IP "    \fB--impv\fP     \fIEndpointImplementationVersion\fP"
-.IP "\fB-n, --int\fP      \fIEndpointInterfaceName\fP"
-.IP "    \fB--intv\fP     \fIEndpointInterfaceVersion\fP"
-.IP "\fB-q, --ql\fP       \fIEndpointQualityLevel\fP"
-.IP "    \fB--tech\fP     \fIEndpointTechnology\fP"
-.IP "\fB-t, --type\fP     \fIServiceType\fP"
-.IP "\fB-u, --url\fP      \fIEndpointURL\fP"
-.IP "    \fB--vo\fP       \fIPolicyRule\fP"
+.SH OBJECTS AND CORRESPONDING ATTRIBUTES
+.IP "\fBAdminDomain:\fP"
+\fIID, Description.\fP
+.IP "\fBComputingManager:\fP"
+\fIID, ProductName, ProductVersion, ServiceID.\fP
+.IP "\fBComputingShare:\fP"
+\fIID, MaxCPUTime, MaxWallTime, ServingState,\fP
+\fIExecutionEnvironmentForeignKey, RunningJobs, WaitingJobs.\fP
+.IP "\fBEndpoint:\fP"
+\fIID, URL, Capability, InterfaceName, InterfaceVersion, Implementor,\fP
+\fIImplementationVersion, QualityLevel, HealthState, ServingState,\fP
+\fIServiceForeignKey.\fP
+.IP "\fBExecutionEnvironment:\fP"
+\fIID, OSName, ConnectivityOut, MainMemorySize, VirtualMemorySize.\fP
+.IP "\fBLocation:\fP"
+\fIID, Country, Latitude, Longitude.\fP
+.IP "\fBMappingPolicy:\fP"
+\fIID, Scheme, Rule, ComputingShareID.\fP
+.IP "\fBService:\fP"
+\fIID, Capability, Type, QualityLevel, StatusInfo, AdminDomainID.\fP
 .PP
-Available attributes to display are:
-.IP "\fBcap      EndpointCapability\fP"
-.IP "\fBdomain   ServiceAdminDomainForeignKey\fP"
-.IP "\fBendid       EndpointID\fP"
-.IP "\fBid       ServiceID\fP"
-.IP "\fBimp      EndpointImplementationName\fP"
-.IP "\fBimpv     EndpointImplementationVersion\fP"
-.IP "\fBint      EndpointInterfaceName\fP"
-.IP "\fBintv     EndpointInterfaceVersion\fP"
-.IP "\fBql       EndpointQualityLevel\fP"
-.IP "\fBtech     EndpointTechnology\fP"
-.IP "\fBtype     ServiceType\fP"
-.IP "\fBurl      EndpointURL\fP"
-.IP "\fBvo       PolicyRule\fP"
 
 .SH OUTPUT FORMAT
+
 .PP
-Standard output:
-.IP "EndpointImplementationVersion: value"
-.IP "EndpointImplementationName: value"
-.IP "EndpointInterfaceName: value"
-.IP "EndpointCapability: value"
-.IP "PolicyRule: value"
-.IP "EndpointURL: value"
-.IP "EndpointInterfaceVersion: value"
-.IP "EndpointQualityLevel: value"
-.IP "ServiceType: value"
-.IP "ServiceID: value"
+Standard output for an Endpoint:
+    HealthState: Value
+    Implementor: Value
+    InterfaceName: Value
+    ServingState: Value
+    URL: Value
+    ImplementationVersion: Value
+    Capability: Value
+    ServiceForeignKey: Value
+    QualityLevel: Value
+    ID: Value
+    InterfaceVersion: Value
 .br
 .PP
-JSON output:
-.IP "[... '(ServiceID)': {"
-.IP "'EndpointImplementationVersion': value,"
-.IP "'ServiceAdminDomainForeignKey: value,"
-.IP "'EndpointQualityLevel': value,"
-.IP "'EndpointInterfaceVersion': value,"
-.IP "'EndpointImplementationName': value,"
-.IP "'PolicyRule': value,"
-.IP "'EndpointURL': value,"
-.IP "'EndpointCapability': value,"
-.IP "'ServiceID': value,"
-.IP "'EndpointInterfaceName': value,"
-.IP "'ServiceType': value,"
-.IP ", ...]"
+JSON output for an Endpoint:
+    [... "Value_of_the_ID": {
+    "HealthState": Value,
+    "Implementor": Value,
+    "InterfaceName": Value,
+    "ServingState": Value,
+    "URL": Value,
+    "ImplementationVersion": Value,
+    "Capability": Value,
+    "ServiceForeignKey": Value,
+    "QualityLevel": Value,
+    "ID": Value,
+    "InterfaceVersion": Value}
+    , ...]
 .br
 .PP
-CSV output:
-.IP ServiceAdminDomainForeignKey,EndpointImplementationVersion,EndpointImplementationName,EndpointInterfaceName,EndpointCapability,PolicyRule,EndpointURL,EndpointInterfaceVersion,EndpointQualityLevel,ServiceType,ServiceID
+CSV output for an Endpoint:
+    HealthState,Implementor,InterfaceName,ServingState,URL,
+    ImplementationVersion,Capability,ServiceForeignKey,QualityLevel,
+    ID,InterfaceVersion
 
 .SH EXAMPLES
-.IP "1) List all information for all endpoint URLs"
-ginfo  --host bdii.example.com
+.IP "1) List all information for all Endpoint attributes"
+ginfo --host bdii.example.com Endpoint
 
-.IP "2) Use the host from the LCG_GFAL_INFOSYS environment variable and list all endpoint URLs"
+.IP "2) Use the host from the LCG_GFAL_INFOSYS environment variable and list all Location countries"
 export LCG_GFAL_INFOSYS=bdii.example.com:2170
 .br
-ginfo url
+ginfo Location country
 
-.IP "3) List published GLUE 2.0 interface types"
-ginfo  --list int
+.IP "3) List all the Service types"
+ginfo -l Type Service
 
-.IP "4) List all published FTS endpoints"
-ginfo  --int org.glite.FileTransfer  url
+.IP "4) List all IDs from Endpoint which have 'org.glite.FileTransfer' as name of Interface"
+ginfo Endpoint InterfaceName=org.glite.FileTransfer ID
 
-.IP "5) Show the version"
-ginfo  --int org.glite.FileTransfer  url intv
+.IP "5) Show the version too"
+ginfo Endpoint InterfaceName=org.glite.FileTransfer ID InterfaceVersion
 
-.IP "6) Show all available information"
-ginfo  --int org.glite.FileTransfer
+.IP "6) Show all available information about these Endpoints"
+ginfo Endpoint InterfaceName=org.glite.FileTransfer
 
 .IP "7) export to CSV"
-ginfo  --int org.glite.FileTransfer  --csv url
+ginfo --csv Endpoint InterfaceName=org.glite.FileTransfer
 
 .SH AUTHOR
 Ivan Calvet <Ivan.Calvet at cern dot ch>
