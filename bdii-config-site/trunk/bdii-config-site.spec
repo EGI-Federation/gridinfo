@@ -1,10 +1,14 @@
 Name:		bdii-config-site
 Version:	1.0.7
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Site BDII configration files
 Group:		Development/Libraries
 License:	ASL 2.0
 URL:            https://tomtools.cern.ch/confluence/display/IS/Home 
+# The source for this package was pulled from upstream's vcs.  Use the
+# following commands to generate the tarball:
+#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii-config-site/tags/R_1_0_7_2 %{name}-%{version}
+#  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
@@ -47,8 +51,12 @@ rm -rf %{buildroot}
 /var/lib/bdii/gip/provider/glite-info-provider-site-glue2
 
 %changelog
+* Wed Apr 24 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.7-2
+- Added Source URL information
+
 * Wed Oct 24 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.7-1
 - #BUG 98427: Fixed rpmlint errors: Changed /opt/glite/libexec to /usr/libexec
+
 * Wed Mar 14 2012 Laurence Field <laurence.field@cern.ch> - 1.0.6-1
 - Improved dependency definition
 * Tue Aug 22 2011 Laurence Field <laurence.field@cern.ch> - 1.0.5-1
