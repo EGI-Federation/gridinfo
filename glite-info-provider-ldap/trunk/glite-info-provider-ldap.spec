@@ -1,11 +1,14 @@
 Name:		glite-info-provider-ldap
 Version:	1.4.4
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	LDAP information provider
 Group:		Development/Libraries
 License:	ASL 2.0
 URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
-#               wget -O %{name}-%{version}-443.tar.gz "http://svnweb.cern.ch/world/wsvn/gridinfo/bdii/tags/R_5_1_0?op=dl&rev=443"
+# The source for this package was pulled from upstream's vcs.  Use the
+# following commands to generate the tarball:
+#  svn export http://svnweb.cern.ch/guest/gridinfo/glite-info-provider-ldap/tags/R_1_4_4_2 %{name}-%{version}
+#  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
@@ -38,6 +41,9 @@ rm -rf %{buildroot}
 %doc /usr/share/doc/glite-info-provider-ldap/README
 
 %changelog
+* Wed Apr 24 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.4.4-2
+- Added Source URL information
+
 * Tue Dec 04 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.4.4-1
 - Fix after testing: Use 'resource' instead of 'services' since new alias is not valid in previous BDII versions.
 
