@@ -1,10 +1,14 @@
 Name:		glite-info-update-endpoints
 Version:	2.0.12
-Release:	1%{?dist}
+Release:	2%{?dist}
 Summary:	Updates LDAP endpoins for EGI and OSG
 Group:		Development/Libraries
 License:	ASL 2.0
 URL:		https://tomtools.cern.ch/confluence/display/IS/Home 
+# The source for this package was pulled from upstream's vcs.  Use the
+# following commands to generate the tarball:
+#  svn export http://svnweb.cern.ch/guest/gridinfo/te-info-update-endpoints/tags/R_2_0_12_2 %{name}-%{version}
+#  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
 BuildRoot:	%{_tmppath}/%{name}-%{version}-build
@@ -43,6 +47,9 @@ rm -rf %{buildroot}
 %doc /usr/share/doc/glite-info-update-endpoints/README
 
 %changelog
+* Wed Apr 24 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.12-2
+- Added Source URL information
+
 * Wed Nov 21 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.12-1
 - BUG #98983: Improve error handling in glite-info-update-endpoints 
 
