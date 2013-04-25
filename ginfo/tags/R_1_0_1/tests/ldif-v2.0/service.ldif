@@ -1,0 +1,32 @@
+dn: GLUE2ServiceID=service_1,GLUE2GroupID=resource,o=glue
+objectClass: GLUE2Entity
+objectClass: GLUE2Service
+GLUE2ServiceID: service_1
+GLUE2ServiceType: service_type_a
+GLUE2ServiceQualityLevel: XXX
+GLUE2ServiceAdminDomainForeignKey: domain_a
+
+dn: GLUE2ServiceID=service_2,GLUE2GroupID=resource,o=glue
+objectClass: GLUE2Entity
+objectClass: GLUE2Service
+GLUE2ServiceID: service_2
+GLUE2ServiceType: service_type_b
+GLUE2ServiceQualityLevel: XXX
+GLUE2ServiceAdminDomainForeignKey: domain_a
+
+dn: GLUE2ServiceID=service_3,GLUE2GroupID=resource,o=glue
+objectClass: GLUE2Entity
+objectClass: GLUE2Service
+GLUE2ServiceID: service_3
+GLUE2ServiceType: service_type_a
+GLUE2ServiceQualityLevel: XXX
+GLUE2ServiceAdminDomainForeignKey: domain_b
+
+dn: GLUE2ServiceID=service_4,GLUE2GroupID=resource,o=glue
+objectClass: GLUE2Entity
+objectClass: GLUE2Service
+GLUE2ServiceID: service_4
+GLUE2ServiceType: service_type_b
+GLUE2ServiceQualityLevel: XXX
+GLUE2ServiceAdminDomainForeignKey: 
+
