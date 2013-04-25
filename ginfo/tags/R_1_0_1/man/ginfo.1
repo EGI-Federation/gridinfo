@@ -1,0 +1,115 @@
+.TH ginfo 1 "APRIL 2013" "Version 1.0.1" "ginfo manual"
+.SH NAME
+ginfo \- fetch service information
+.SH SYNOPSIS
+ginfo [options] Object [attribute_to_filter='value of the attribute'] [attribute_to_display]
+.SH DESCRIPTION
+List attributes corresponding to an object. By default, all the attributes of an object are 
+displayed.
+.SH OPTIONS
+.IP "    \fB--host\fP     \fIhost\fP"
+Specify a host to query. By default the environmental variable LCG_GFAL_INFOSYS
+will be used.
+.IP "\fB-b, --bind\fP     \fIbinding\fP"
+Specify the binding (o=glue by default).
+.IP "\fB-l, --list\fP     \fIattribute\fP"
+List all the possible values of the specified attribute.
+.IP "\fB-c, --csv\fP"
+Output in CSV formating
+.IP "\fB-j, --json\fP"
+Output in JSON formating
+.IP "    \fB--timeout\fP"
+Change the ldap timeout (15 seconds by default).
+.IP "\fB-v, --verbose\fP"
+Enable verbose mode
+.IP "\fB-V, --version\fP"
+Prints the version of ginfo
+.IP "\fB-h, --help\fP"
+Prints this helpful message
+.PP
+.SH OBJECTS AND CORRESPONDING ATTRIBUTES
+.IP "\fBAdminDomain:\fP"
+\fIID, Description.\fP
+.IP "\fBComputingManager:\fP"
+\fIID, ProductName, ProductVersion, ServiceID.\fP
+.IP "\fBComputingShare:\fP"
+\fIID, MaxCPUTime, MaxWallTime, ServingState,\fP
+\fIExecutionEnvironmentForeignKey, RunningJobs, WaitingJobs.\fP
+.IP "\fBEndpoint:\fP"
+\fIID, URL, Capability, InterfaceName, InterfaceVersion, Implementor,\fP
+\fIImplementationVersion, QualityLevel, HealthState, ServingState,\fP
+\fIServiceForeignKey.\fP
+.IP "\fBExecutionEnvironment:\fP"
+\fIID, OSName, ConnectivityOut, MainMemorySize, VirtualMemorySize.\fP
+.IP "\fBLocation:\fP"
+\fIID, Country, Latitude, Longitude.\fP
+.IP "\fBMappingPolicy:\fP"
+\fIID, Scheme, Rule, ComputingShareID.\fP
+.IP "\fBService:\fP"
+\fIID, Capability, Type, QualityLevel, StatusInfo, AdminDomainID.\fP
+.PP
+
+.SH OUTPUT FORMAT
+
+.PP
+Standard output for an Endpoint:
+    HealthState: Value
+    Implementor: Value
+    InterfaceName: Value
+    ServingState: Value
+    URL: Value
+    ImplementationVersion: Value
+    Capability: Value
+    ServiceForeignKey: Value
+    QualityLevel: Value
+    ID: Value
+    InterfaceVersion: Value
+.br
+.PP
+JSON output for an Endpoint:
+    [... "Value_of_the_ID": {
+    "HealthState": Value,
+    "Implementor": Value,
+    "InterfaceName": Value,
+    "ServingState": Value,
+    "URL": Value,
+    "ImplementationVersion": Value,
+    "Capability": Value,
+    "ServiceForeignKey": Value,
+    "QualityLevel": Value,
+    "ID": Value,
+    "InterfaceVersion": Value}
+    , ...]
+.br
+.PP
+CSV output for an Endpoint:
+    HealthState,Implementor,InterfaceName,ServingState,URL,
+    ImplementationVersion,Capability,ServiceForeignKey,QualityLevel,
+    ID,InterfaceVersion
+
+.SH EXAMPLES
+.IP "1) List all information for all Endpoint attributes"
+ginfo --host bdii.example.com Endpoint
+
+.IP "2) Use the host from the LCG_GFAL_INFOSYS environment variable and list all Location countries"
+export LCG_GFAL_INFOSYS=bdii.example.com:2170
+.br
+ginfo Location country
+
+.IP "3) List all the Service types"
+ginfo -l Type Service
+
+.IP "4) List all IDs from Endpoint which have 'org.glite.FileTransfer' as name of Interface"
+ginfo Endpoint InterfaceName=org.glite.FileTransfer ID
+
+.IP "5) Show the version too"
+ginfo Endpoint InterfaceName=org.glite.FileTransfer ID InterfaceVersion
+
+.IP "6) Show all available information about these Endpoints"
+ginfo Endpoint InterfaceName=org.glite.FileTransfer
+
+.IP "7) export to CSV"
+ginfo --csv Endpoint InterfaceName=org.glite.FileTransfer
+
+.SH AUTHOR
+Ivan Calvet <Ivan.Calvet at cern dot ch>
