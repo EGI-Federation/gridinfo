@@ -29,522 +29,334 @@ import re
 import urllib2
 import signal
 
-VERSION = '0.2.7'
+VERSION = '1.0.1'
+TIMEOUT = 60
 
 # configuration dictionnary that will be filled with the submitted options
-CONF = {}
+CONF = {'object': None, 'flag': {}, 'filter': {}, 'attribute': []}
 
-# long_option: [short_option, parameter_needed]
-OPTIONS = {
+# long_flag: [short_flag, parameter_needed]
+FLAGS = {
     'host': [None, True],
-    'registry': ["r", True],
     'bind': ["b", True],
     'list': ["l", True],
     'clean': [None, False],
     'strict': ["s", False],
     'csv': ["c", False],
     'json': ["j", False],
-    'emi': ["e", False],
-    'timeout': [None, True],
+    'timeout': ["t", True],
     'verbose': ["v", False],
     'version': ["V", False],
     'help': ["h", False],
-    'cap': [None, True],
-    'domain': ["d", True],
-    'endid': [None, True],
-    'id': ["i", True],
-    'imp': ["m", True],
-    'impv': [None, True],
-    'int': ["n", True],
-    'intv': [None, True],
-    'ql': ["q", True],
-    'tech': [None, True],
-    'type': ["t", True],
-    'url': ["u", True],
-    'vo': [None, True],
     }
 
-# ldap request attribute: [prefix_object, object_class, key, output_list, EMI_name]
-ATTRIBUTES = {
-    'cap': ['', 'Endpoint', 'Capability', True, 'Service_Endpoint_Capability'],
-    'domain': ['', 'Service', 'AdminDomainForeignKey', False, 'Service_Admin_Domain'],
-    'endid': ['', 'Endpoint', 'ID', False, 'Service_Endpoint_ID'],
-    'id': ['', 'Service', 'ID', False, 'Service_ID'],
-    'imp': ['', 'Endpoint', 'ImplementationName', False, 'Service_Endpoint_Implementation_Name'],
-    'impv': ['', 'Endpoint', 'ImplementationVersion', False, 'Service_Endpoint_Implementation_Version'],
-    'int': ['', 'Endpoint', 'InterfaceName', False, 'Service_Endpoint_Interface_Name'],
-    'intv': ['', 'Endpoint', 'InterfaceVersion', False, 'Service_Endpoint_Interface_Version'],
-    'ql': ['', 'Endpoint', 'QualityLevel', False, 'Service_Endpoint_Quality_Level'],
-    'tech': ['', 'Endpoint', 'Technology', False, 'Service_Endpoint_Technology'],
-    'type': ['', 'Service', 'Type', False, 'Service_Type'],
-    'url': ['', 'Endpoint', 'URL', False, 'Service_Endpoint_URL'],
-    'vo': ['Access', 'Policy', 'Rule', True, None],
-    }
-
-# keys that link ldap objects to Endpoint object [objectKey, EndpointKey]
-OBJECT_KEY = {'Service': ['ID', 'EndpointServiceForeignKey'], 'AccessPolicy': ['EndpointForeignKey', 'EndpointID']}
-
-TIMEOUT = 15
-
-if sys.version_info[:2] < (2,5):
-    def all(iterable):
-        for element in iterable:
-            if not element:
-                return False
-        return True
+# {'object': {'attribute': 'attribute name's for the bdii', ...}, ...}
+ELTS = {
+'AdminDomain':
+    {'ID': 'DomainID',
+     'Description': 'DomainDescription'},
+'Location':
+    {'ID': 'LocationID',
+     'Country': 'LocationCountry',
+     'Latitude': 'LocationLatitude',
+     'Longitude': 'LocationLongitude'},
+'Service':
+    {'ID': 'ServiceID',
+     'Capability': 'ServiceCapability',
+     'Type': 'ServiceType',
+     'QualityLevel': 'ServiceQualityLevel',
+     'StatusInfo': 'ServiceStatusInfo',
+     'AdminDomainID': 'ServiceAdminDomainForeignKey'},
+'Endpoint':
+    {'ID': 'EndpointID',
+     'URL': 'EndpointURL',
+     'Capability': 'EndpointCapability',
+     'InterfaceName': 'EndpointInterfaceName',
+     'InterfaceVersion': 'EndpointInterfaceVersion',
+     'Implementor': 'EndpointImplementor',
+     'ImplementationVersion': 'EndpointImplementationVersion',
+     'QualityLevel': 'EndpointQualityLevel',
+     'HealthState': 'EndpointHealthState',
+     'ServingState': 'EndpointServingState',
+     'ServiceForeignKey': 'EndpointServiceForeignKey'},
+'ComputingShare':
+    {'ID': 'ShareID',
+     'MaxCPUTime': 'ComputingShareMaxCPUTime',
+     'MaxWallTime': 'ComputingShareMaxWallTime',
+     'ServingState': 'ComputingShareServingState',
+     'ExecutionEnvironmentForeignKey': 'ComputingShareExecutionEnvironmentForeignKey',
+     'RunningJobs': 'ComputingShareRunningJobs',
+     'WaitingJobs': 'ComputingShareWaitingJobs'},
+'MappingPolicy':
+    {'ID': 'PolicyID',
+     'Scheme': 'PolicyScheme',
+     'Rule': 'PolicyRule',
+     'ComputingShareID': 'MappingPolicyShareForeignKey'},
+'GlueCESEBindGroupCEUniqueID':
+    {},
+'ExecutionEnvironment':
+    {'ID': 'ResourceID',
+     'OSName': 'ExecutionEnvironmentOSName',
+     'ConnectivityOut': 'ExecutionEnvironmentConnectivityOut',
+     'MainMemorySize': 'ExecutionEnvironmentMainMemorySize',
+     'VirtualMemorySize': 'ExecutionEnvironmentVirtualMemorySize'},
+'ComputingManager':
+    {'ID': 'ManagerID',
+     'ProductName': 'ManagerProductName',
+     'ProductVersion': 'ManagerProductVersion',
+     'ServiceID': 'ComputingManagerComputingServiceForeignKey'},
+'ToComputingService':
+    {},
+}
 
 def main(argv):
     """Main function that launches the other functions""" 
 
     parse_options(argv)
     validate_conf()
-    if 'list' in CONF and 'registry' in CONF:
-        result = list_attr_registry() # option --list and --registry  
-    elif 'list' in CONF:
-        result = list_attr() # option --list
-    elif 'registry' in CONF:
-        result = list_services_registry() # option --registry
+    if 'list' in CONF['flag']:
+        result = list_attributes() # option --list
     else:
-        result = list_services() # get all the informations about services
-    if 'verbose' in CONF:
+        result = list_object() # get all the informations about the specified object
+    if 'verbose' in CONF['flag']:
         print ''
-    result = clean(result)
+    # result = clean(result)
     print serialize_output(result)
     sys.exit()
 
 def parse_options(argv):
     """Parse the selected options and put them in a config dictionnary""" 
 
-    # parse the options
-    short_options = ''
-    long_options = []
-    long_options_bis = [] # options without any short option
-    for i in OPTIONS:
-        if OPTIONS[i][0]:
-            short_options += OPTIONS[i][0]
-            long_options.append(i)
-            if OPTIONS[i][1]:
-                short_options += ':'
-                long_options[-1] += '='
-        else:
-            long_options_bis.append(i)
-            if OPTIONS[i][1]:
-                long_options_bis[-1] += '='
-    long_options.extend(long_options_bis)
+    # build the good sequence to parse the flags with getopt
+    short_flags = ''
+    long_flags = [[], []] # Long flags with a short flag, or without
+    for i in FLAGS:
+        j = 1
+        if FLAGS[i][0]:
+            j = 0
+            short_flags += FLAGS[i][0]
+            if FLAGS[i][1]:
+                short_flags += ':'
+        long_flags[j].append(i)
+        if FLAGS[i][1]:
+            long_flags[j][-1] += '='
+    long_flags = long_flags[0] + long_flags[1]
+    # identify flags and put them in the config dictionnary
     try:
-        opts, args = getopt.getopt(argv, short_options, long_options)
+        flags, args = getopt.getopt(argv, short_flags, long_flags)
     except getopt.error, err:
-        if err.opt in ("l", "list"):
-            sys.exit(list_usage())
-        else:
-            sys.exit(usage())
-
-    # put the options in the config dictionnary
-    for opt, arg in opts:
-        opt = opt[opt.rfind('-')+1:]
-        for i in OPTIONS:
-            if opt in (i, OPTIONS[i][0]):
-                if i not in CONF:
-                    if OPTIONS[i][1]:
-                        CONF[i] = arg
+        sys.exit(usage())
+    for flag, arg in flags:
+        flag = flag[flag.rfind('-')+1:]
+        for i in FLAGS:
+            if flag in (i, FLAGS[i][0]):
+                if i not in CONF['flag']:
+                    if FLAGS[i][1]:
+                        CONF['flag'][i] = arg
                     else:
-                        CONF[i] = True
+                        CONF['flag'][i] = True
                     break 
                 else:
-                    sys.exit('Error: use options not more than once.')
-
-    # put the arguments in the config dictionnary
-    CONF['args'] = args
-    if len(args) == 0:
-        CONF['args'] = ATTRIBUTES.keys() # all by default
-        CONF['args'].sort()
+                    sys.exit("Error: Don't use a flag more than once.")
+    
+    for arg in args:
+        # identify filters and put them in the config dictionnary
+        if '=' in arg:
+            filter = arg[:arg.find('=')]
+            CONF['filter'][filter] = arg[arg.find('=')+1:]
+        # identify the object and put it in the config dictionnary
+        elif arg in ELTS.keys() and CONF['object'] is None:
+            CONF['object'] = arg
+        # all other elements are attributes and are put in the config dictionnary
+        else:
+            CONF['attribute'].append(arg)
 
 def validate_conf():
     """Prints verbose messages and checks for errors""" 
         
     # options
-    if 'help' in CONF:
+    if 'help' in CONF['flag']:
         print usage()
         sys.exit()
-    if 'version' in CONF:
+    if 'version' in CONF['flag']:
         print os.path.basename(sys.argv[0]) +' V'+VERSION
         sys.exit()
-    if 'verbose' in CONF:
+    if 'verbose' in CONF['flag']:
         print 'Verbose mode enabled'
-    if all(i in CONF for i in ['csv', 'json', 'emi']) and 'list' not in CONF:
-        sys.exit('Error: choose between csv, json and emi.')
-    elif 'csv' in CONF and 'json' in CONF and 'list' not in CONF:
+    if 'csv' in CONF['flag'] and 'json' in CONF['flag'] and 'list' not in CONF['flag']:
         sys.exit('Error: choose between csv and json.')
-    elif 'csv' in CONF and 'emi' in CONF and 'list' not in CONF:
-        sys.exit('Error: choose between csv and emi.')
-    elif 'emi' in CONF and 'json' in CONF and 'list' not in CONF:
-        sys.exit('Error: choose between json and emi.')
-    elif 'csv' in CONF and 'list' not in CONF:
-        if 'verbose' in CONF:
+    elif 'csv' in CONF['flag'] and 'list' not in CONF['flag']:
+        if 'verbose' in CONF['flag']:
             print 'Output in csv formating'
-    elif 'json' in CONF and 'list' not in CONF:
-        if 'verbose' in CONF:
+    elif 'json' in CONF['flag'] and 'list' not in CONF['flag']:
+        if 'verbose' in CONF['flag']:
             print 'Output in json formating'
-    elif 'emi' in CONF and 'list' not in CONF:
-        for k in ATTRIBUTES:
-            if not ATTRIBUTES[k][4] and k in CONF['args']:
-                CONF['args'].remove(k)
-        if 'verbose' in CONF:
-            print 'Output in emi formating'
-    if 'host' in CONF and 'registry' in CONF:
-        sys.exit('Error: choose between host and registry option.')
-    elif 'registry' in CONF:
-        if 'verbose' in CONF:
-            print 'The following EMI registry will be used:', CONF['registry']
-    elif 'host' in CONF:
-        if 'verbose' in CONF:
-            print 'The following host will be used:', CONF['host']
+    if 'host' in CONF['flag']:
+        if 'verbose' in CONF['flag']:
+            print 'The following host will be used:', CONF['flag']['host']
     else:
         if 'LCG_GFAL_INFOSYS' in os.environ:
-            CONF['host'] = os.environ['LCG_GFAL_INFOSYS']
-            if 'verbose' in CONF:
-                print 'The following host will be used:', CONF['host']
+            CONF['flag']['host'] = os.environ['LCG_GFAL_INFOSYS']
+            if 'verbose' in CONF['flag']:
+                print 'The following host will be used:', CONF['flag']['host']
         else:
             sys.exit(usage())
-    if 'bind' in CONF:
-        if 'verbose' in CONF:
-            print 'The following binding will be used:', CONF['bind']
+    if 'bind' in CONF['flag']:
+        if 'verbose' in CONF['flag']:
+            print 'The following binding will be used:', CONF['flag']['bind']
     else:
-        CONF['bind'] = 'o=glue'
-        if 'verbose' in CONF:
-            print 'The default binding will be used:', CONF['bind']
-    if 'list' in CONF:
-        if CONF['list'] not in ATTRIBUTES.keys():
-            for i in ATTRIBUTES:
-                if ATTRIBUTES[i][1]+ATTRIBUTES[i][2] == CONF['list']:
-                    CONF['list'] = i
-                    break
-            if CONF['list'] not in ATTRIBUTES.keys():
-                sys.exit('Error: '+CONF['list']+' wrong attribute.')
-        if 'verbose' in CONF:
-            print 'List all the possible values for the following attribute:', ATTRIBUTES[CONF['list']][1]+ATTRIBUTES[CONF['list']][2]
-            for i in ['csv', 'json', 'emi'] + ATTRIBUTES.keys():
-                if i in CONF:
-                    print 'Option --'+i+' is not compatible with --list option.'
-    if 'clean' in CONF and 'strict' in CONF:
-        sys.exit('Error: choose between clean and strict.')
-    elif 'clean' in CONF:
-        if 'verbose' in CONF:
-            print 'Results have been cleaned.'
-    elif 'strict' in CONF:
-        if 'verbose' in CONF:
-            print 'Results have been cleaned strictly.'
-    if 'timeout' in CONF:
-        if 'verbose' in CONF:
-            print 'Ldap timeout has been set to '+CONF['timeout']+' second(s).'
+        CONF['flag']['bind'] = 'o=glue'
+        if 'verbose' in CONF['flag']:
+            print 'The default binding will be used:', CONF['flag']['bind']
+    if 'timeout' in CONF['flag']:
+        if 'verbose' in CONF['flag']:
+            print 'Ldap timeout has been set to '+CONF['flag']['timeout']+' second(s).'
 
-    # attributes
-    for i in ATTRIBUTES.keys():
-        if i in CONF:
-            if 'verbose' in CONF and 'list' not in CONF:
-                print 'Filter services by the following '+ATTRIBUTES[i][1]+ATTRIBUTES[i][2]+':', CONF[i]
-    
-    # arguments
-    if 'args' in CONF and 'list' not in CONF:
-        display_list = []
-        arg_list = []
-        for arg in CONF['args']:
-            if arg not in ATTRIBUTES.keys():
-                wrong_arg = True
-                for i in ATTRIBUTES:
-                    if ATTRIBUTES[i][1]+ATTRIBUTES[i][2] == arg:
-                        if i not in arg_list:
-                            arg_list.append(i)
-                            display_list.append(arg)
-                        wrong_arg = False
-                        break
-                if wrong_arg:
-                    sys.exit('Error: '+arg+' is a wrong attribute.')
-            elif arg not in arg_list:
-                arg_list.append(arg)
-                display_list.append(ATTRIBUTES[arg][1]+ATTRIBUTES[arg][2])
-        CONF['args'] = arg_list
-        if 'verbose' in CONF:
-            print 'The following attribute(s) will be displayed:', ' '.join(display_list)
+    # Object
+    if not CONF['object']:
+        sys.exit('Error: Please specify an object.')
+    else:
+        if 'verbose' in CONF['flag']:
+            print 'The specified object is '+CONF['object']+'.'
+    if 'list' in CONF['flag']:
+        if CONF['flag']['list'] not in ELTS[CONF['object']].keys():
+            sys.exit('Error: '+CONF['flag']['list']+' is a wrong attribute.')
+        if 'verbose' in CONF['flag']:
+            print 'List all the possible values for the following attribute:', CONF['flag']['list']
+
+
+    # Filters
+    if CONF['filter']:
+        for filter in CONF['filter']:
+            if filter not in ELTS[CONF['object']]:
+                sys.exit('Error: '+filter+' is not a valid filter.')
+        if 'verbose' in CONF['flag']:
+            for filt in CONF['filter']:
+                print 'Filter results by the following '+filt+':', CONF['filter'][filt]
+
+    # Attributes
+    if CONF['attribute']:
+        for att in CONF['attribute']:
+            if att not in ELTS[CONF['object']]:
+                sys.exit('Error: '+att+' is not a valid attribute.')
+    else:
+        CONF['attribute'] = ELTS[CONF['object']].keys()
+    if 'verbose' in CONF['flag']:
+        print 'The following attribute(s) will be displayed:', ', '.join(CONF['attribute'])
 
 def usage():
     """Returns the usage message""" 
     
-    return '''Usage: ginfo [options] [attributes]
+    return '''Usage: ginfo [options] Object [attribute_to_filter='value of the attribute'] [attribute_to_display]
 
-    List URLs of services along with other optional attributes.
+    List attributes corresponding to an object. By default, all the attributes of an object are
+    displayed.
 
+    [OPTIONS]
         --host      host        Specify a host to query. By default the
                                 environmental variable LCG_GFAL_INFOSYS will be
                                 used.
-    -r, --registry  registry    Specify an EMI registry to query.
     -b, --bind      binding     Specify the binding (o=glue by default).
     -l, --list      attribute   List all the possible values of the specified
                                 attribute.
-        --clean                 Clean results in replacing all invalid data.
-    -s, --strict                Clean strictly results in replacing all invalid
-                                data.
     -c, --csv                   Output in CSV format
     -j, --json                  Output in JSON format
-        --timeout               Change the ldap timeout (15 seconds by default).
+    -t, --timeout               Change the ldap timeout (15 seconds by default).
     -v, --verbose               Enable verbose mode
     -V, --version               Prints the version of ginfo
     -h, --help                  Prints this helpful message
 
-    Addition options to filter services by the specified attribute:
+    [OBJECTS AND CORRESPONDING ATTRIBUTES]
+        AdminDomain:
+            ID, Description.
+        ComputingManager:
+            ID, ProductName, ProductVersion, ServiceID.
+        ComputingShare:
+            ID, MaxCPUTime, MaxWallTime, ServingState, 
+            ExecutionEnvironmentForeignKey, RunningJobs, WaitingJobs.
+        Endpoint:
+            ID, URL, Capability, InterfaceName, InterfaceVersion, Implementor, 
+            ImplementationVersion, QualityLevel, HealthState, ServingState, 
+            ServiceForeignKey.
+        ExecutionEnvironment:
+            ID, OSName, ConnectivityOut, MainMemorySize, VirtualMemorySize.
+        Location:
+            ID, Country, Latitude, Longitude.
+        MappingPolicy:
+            ID, Scheme, Rule, ComputingShareID.
+        Service:
+            ID, Capability, Type, QualityLevel, StatusInfo, AdminDomainID.
+'''
 
-        --cap       EndpointCapability
-    -d, --domain    ServiceAdminDomainForeignKey
-        --endid     EndpointID
-    -i, --id        ServiceID
-    -m, --imp       EndpointImplementationName
-        --impv      EndpointImplementationVersion
-    -n, --int       EndpointInterfaceName
-        --intv      EndpointInterfaceVersion
-    -q, --ql        EndpointQualityLevel
-	--tech      EndpointTechnology
-    -t, --type      ServiceType
-    -u, --url       EndpointURL
-        --vo        PolicyRule
-
-    Available attributes to display are:
-
-        cap       EndpointCapability
-        domain    ServiceAdminDomainForeignKey
-        endid     EndpointID
-        id        ServiceID
-        imp       EndpointImplementationName
-        impv      EndpointImplementationVersion
-        int       EndpointInterfaceName
-        intv      EndpointInterfaceVersion
-        ql        EndpointQualityLevel
-        tech      EndpointTechnology
-        type      ServiceType
-        url       EndpointURL
-        vo        PolicyRule'''
-
-def list_usage():
-    """Returns the usage message for list option"""
-
-    return '''Available attributes are:
-
-        cap       EndpointCapability
-        domain    ServiceAdminDomainForeignKey
-        endid     EndpointID
-        id        ServiceID
-        imp       EndpointImplementationName
-        impv      EndpointImplementationVersion
-        int       EndpointInterfaceName
-        intv      EndpointInterfaceVersion
-        ql        EndpointQualityLevel
-        tech      EndpointTechnology
-        type      ServiceType
-        url       EndpointURL
-        vo        PolicyRule'''
+def handler(signum, frame):
+    sys.exit('Error: Timeout to contact the LDAP server.')
 
 def request(filter=None):
     """Returns the result of the ldap request with the filter given"""
+
     try:
-        t = int(CONF['timeout'])
+        t = int(CONF['flag']['timeout'])
     except (ValueError, KeyError):
         t = TIMEOUT
+    signal.signal(signal.SIGALRM, handler)
     signal.alarm(t)
-    if 'host' in CONF:
+    if 'host' in CONF['flag']:
         try:
             port = ''
-            if ':' not in CONF['host']:
+            if ':' not in CONF['flag']['host']:
                 port = ':2170'
-            con = ldap.initialize('ldap://'+CONF['host']+port)
+            con = ldap.initialize('ldap://'+CONF['flag']['host']+port)
+            print filter
             if filter:
-                result = con.result(con.search(CONF['bind'], ldap.SCOPE_SUBTREE, filter))[1]
+                result = con.result(con.search(CONF['flag']['bind'], ldap.SCOPE_SUBTREE, filter))[1]
             else:
-                result = con.result(con.search(CONF['bind'], ldap.SCOPE_SUBTREE))[1]
+                result = con.result(con.search(CONF['flag']['bind'], ldap.SCOPE_SUBTREE))[1]
         except ldap.SERVER_DOWN:
             sys.exit('Error: Can\'t contact the LDAP server. Please check your host.')
-    elif 'registry' in CONF:
-        url = CONF['registry']
-        if filter:
-            separator = '&'
-            if '?' not in url:
-                separator = '?'
-            url += separator + filter
-        try:
-            req = urllib2.Request(url)
-        except ValueError:
-            sys.exit('Error: Can\'t contact the url.')
-        handle = urllib2.urlopen(req)
-        result = json.loads(handle.read())
     return result
 
-def list_services_registry():
-    """Returns a dictionary of filtered results from an http request in the EMI registry"""
-
-    filter = ''
-    for i in ATTRIBUTES:
-        if ATTRIBUTES[i][4]:
-            if i in CONF:
-                if filter:
-                    filter += '&'
-                filter += ATTRIBUTES[i][4] + '=' + CONF[i]
-    for j in CONF:
-        if j in ATTRIBUTES  and not ATTRIBUTES[j][4]:
-            if 'verbose' in CONF:
-                sys.exit('Error: No result. Verify search parameters.')
-            else:
-                return {}
-    list_results = request(filter)
-    dic = {}
-    for res in list_results:
-        if '_id' not in res:
-            continue
-        _id = res['_id']['$oid']
-        # filter by id
-        if 'id' in CONF and CONF['id'] != _id:
-            continue
-        dic[_id] = {}
-        for i in ATTRIBUTES:
-            att = ATTRIBUTES[i][4]
-            if att:
-                value = None
-                if att == '_id':
-                    value = _id
-                elif att in res:
-                    value = res[att]
-                dic[_id][i] = value
-        for j in CONF['args']:
-            if j not in dic[_id]:
-                dic[_id][j] = None
-    if len(dic) == 0 and 'verbose' in CONF:
-        sys.exit('Error: No result. Verify search parameters.')
-    return dic
-
-def list_services():
+def list_object():
     """Returns a dictionary of filtered results from a ldap request""" 
 
-    ldap_filter = {'Endpoint': ''}
-    result = {}
-    selection_list = {}
-
-    # Generate the filters 
-    for i in ATTRIBUTES:
-        at1 = ATTRIBUTES[i][0]+ATTRIBUTES[i][1]
-        at2 = ATTRIBUTES[i][1]+ATTRIBUTES[i][2]
-        if i in CONF:
-            if at1 not in ldap_filter:
-                ldap_filter[at1] = ''
-            tmp_filter = '(GLUE2'+at2+'='+CONF[i]+')'
-            if at2 == 'PolicyRule':
-                tmp_filter = '(|(GLUE2PolicyRule=ALL)'+tmp_filter+')'
-            ldap_filter[at1] += tmp_filter
-    # Execute the filtered ldap requests and put results in a list
-    for i in OBJECT_KEY.keys():
-        if i in ldap_filter:
-            result[i] = request('(&(objectClass=GLUE2'+i+')'+ldap_filter[i]+')')
-            selection_list[i] = []
-            for res in result[i]:
-                selection_list[i].append(res[1]['GLUE2'+i+OBJECT_KEY[i][0]][0])
+    # Construct the filter
+    filter = ''
+    for f in CONF['filter']:
+        filter += '(GLUE2'+CONF['object'] + f + '=' + CONF['filter'][f] + ')'
     
     # Main loop using Endpoint object
-    result['Endpoint'] = request('(&(objectClass=GLUE2Endpoint)'+ldap_filter['Endpoint']+')')
+    result = request('(&(objectClass=GLUE2' + CONF['object'] + ')' + filter + ')')
     dic = {} # Final results
-    dic2 = {} # Tmp results
-    multiples = []
-    for res in result['Endpoint']: # for each endpoint entry
-        ids = {}
-        for i in OBJECT_KEY:
-            ids[i] = res[1]['GLUE2'+OBJECT_KEY[i][1]][0]
-        # Executes the filtering by other objects
-        stop = False
-        for i in OBJECT_KEY.keys():
-            if i in selection_list and ids[i] not in selection_list[i]:
-                stop = True
-                break
-        if stop:
-            continue
-        # Fill in the dictionnary of one entry (key = ServiceID)
-        if ids['Service'] in dic and ids['Service'] not in multiples:
-            multiples.append(ids['Service'])
-        dic[ids['Service']] = {}
-        for attr in CONF['args']: # for all displayed attributes
-            at1 = ATTRIBUTES[attr][0]+ATTRIBUTES[attr][1]
-            at2 = ATTRIBUTES[attr][1]+ATTRIBUTES[attr][2]
-            dic[ids['Service']][attr] = None # initialization
-            if ATTRIBUTES[attr][3]:
-                dic[ids['Service']][attr] = [] # initialization for lists
-            if attr in CONF and not ATTRIBUTES[attr][3] and CONF[attr].find('*') == -1: # if the attribute is filtered and not a list
-                dic[ids['Service']][attr] = CONF[attr]
+    for res in result:
+        id = res[1]['GLUE2' + ELTS[CONF['object']]['ID']][0]
+        dic[id] = {}
+        for att in CONF['attribute']:
+            id2 = 'GLUE2' + ELTS[CONF['object']][att]
+            if id2 in res[1]:
+                dic[id][att] = res[1][id2]
             else:
-                if at1 == 'Endpoint':
-                    if 'GLUE2'+at2 in res[1]:
-                        dic[ids['Service']][attr] = res[1]['GLUE2'+at2] # get the value
-                        if not ATTRIBUTES[attr][3]: # if attr not a list, take the first element
-                            dic[ids['Service']][attr] = dic[ids['Service']][attr][0]
-                else: # Service and AccessPolicy objects
-                    if at1 not in result:
-                        result[at1] = request('(objectClass=GLUE2'+at1+')')
-                    if attr not in dic2: # temporary dictionnary to store results of other objects
-                        dic2[attr] = {}
-                        for res2 in result[at1]:
-                            if 'GLUE2'+at2 in res2[1]:
-                                dic2[attr][res2[1]['GLUE2'+at1+OBJECT_KEY[at1][0]][0]] = res2[1]['GLUE2'+at2]
-                            else:
-                                dic2[attr][res2[1]['GLUE2'+at1+OBJECT_KEY[at1][0]][0]] = None
-                    if ids[at1] in dic2[attr]:
-                        dic[ids['Service']][attr] = dic2[attr][ids[at1]] # get the value
-                        if not ATTRIBUTES[attr][3] and dic[ids['Service']][attr]: # if attr not a list, take the first element
-                            dic[ids['Service']][attr] = dic[ids['Service']][attr][0]
-    if multiples and 'verbose' in CONF:
-        print 'Warning: these service ids were found many times and only the last entry will be displayed:\n'+'\n'.join(multiples)
-    if len(dic) == 0 and 'verbose' in CONF:
-        sys.exit('Error: No result. Verify search parameters.')
+                dic[id][att] = None
     return dic
 
-def list_attr_registry():
-    """Returns a list of values in the EMI registry for a given attribute"""
-
-    list_results = request()
-    attr_list = []
-    att = ATTRIBUTES[CONF['list']][4]
-    if not att:
-        sys.exit("Error: "+CONF['list']+" canno't be found in the EMI registry.")
-    for res in list_results:
-        if att in res and res[att]:
-            if ATTRIBUTES[CONF['list']][3]:
-                for j in res[att]:
-                    if j not in attr_list:
-                        attr_list.append(j)
-            elif res[att] not in attr_list:
-                if att == '_id':
-                    attr_list.append(res[att]['$oid'])
-                else:
-                    attr_list.append(res[att])
-        elif 'None' not in attr_list:
-            attr_list.append('None')
-    return attr_list
-
-def list_attr():
+def list_attributes():
     """Returns a list of values for a given attribute""" 
     
-    object_class = ATTRIBUTES[CONF['list']][0]+ATTRIBUTES[CONF['list']][1]
-    key = ATTRIBUTES[CONF['list']][1]+ATTRIBUTES[CONF['list']][2]
-    result = request('objectClass=GLUE2'+object_class)
+    id = 'GLUE2' + ELTS[CONF['object']][CONF['flag']['list']]
+    result = request('objectClass=GLUE2' + CONF['object'])
     attr_list = []
     for res in result:
-        if 'GLUE2'+key in res[1]:
-            if ATTRIBUTES[CONF['list']][3]:
-                for i in res[1]['GLUE2'+key]:
-                    if i not in attr_list:
-                        attr_list.append(i)
-            if res[1]['GLUE2'+key][0] not in attr_list:
-                attr_list.append(res[1]['GLUE2'+key][0])
+        if id in res[1]:
+            for att in res[1][id]:
+                if att not in attr_list:
+                    attr_list.append(att)
         else:
             if 'None' not in attr_list:
                 attr_list.append('None')
     attr_list.sort()
     return attr_list
 
+"""
 def clean(result):
-    """Clean all the results"""
+    ""Clean all the results""
     values = {
         'ql': [
             'development',
@@ -770,54 +582,42 @@ def clean(result):
                 result2[i][ATTRIBUTES[j][1]+ATTRIBUTES[j][2]] = result[i][j]
         result = result2
     return result
+"""
 
 def serialize_output(result):
     """Return the output with the wished format""" 
 
-    if 'list' in CONF:
+    if 'list' in CONF['flag']:
         output = '\n'.join(result)
-    elif 'csv' in CONF:
+    elif 'csv' in CONF['flag']:
         csv_list = []
         titles = []
-        for j in CONF['args']:
-           titles.append(ATTRIBUTES[j][1]+ATTRIBUTES[j][2]) 
+        for att in CONF['attribute']:
+           titles.append(att) 
         csv_list.append(','.join(titles))
-        for i in result:
+        for id in result:
             tmp_list = []
-            for j in CONF['args']:
-                att = ATTRIBUTES[j][1]+ATTRIBUTES[j][2]
-                if result[i][att] == None:
+            for att in CONF['attribute']:
+                if result[id][att] == None:
                     tmp_list.append('None')
-                elif ATTRIBUTES[j][3]:
-                    tmp_list.append('"'+','.join(result[i][att])+'"')
+                elif len(result[id][att]) > 1:
+                    tmp_list.append('"'+','.join(result[id][att])+'"')
                 else:
-                    tmp_list.append(result[i][att])
+                    tmp_list.append(result[id][att][0])
             csv_list.append(','.join(tmp_list))
         output = '\n'.join(csv_list)
-    elif 'json' in CONF:
+    elif 'json' in CONF['flag']:
         output = json.dumps(result)
-    elif 'emi' in CONF:
-        emi_list = []
-        for i in result:
-            dic_tmp = {}
-            for j in CONF['args']:
-                att = ATTRIBUTES[j][1]+ATTRIBUTES[j][2]
-		dic_tmp[ATTRIBUTES[j][4]] = result[i][att]
-            emi_list.append(json.dumps(dic_tmp))
-        output = '['+', '.join(emi_list)+']'
     else:
-        entry_list = []
-        for i in result:
-            for j in CONF['args']:
-                att = ATTRIBUTES[j][1]+ATTRIBUTES[j][2]
-                if result[i][att] == None:
-                    entry_list.append(att+': None')
-                elif ATTRIBUTES[j][3]:
-                    entry_list.append(att+': '+', '.join(result[i][att]))
+        output_list = []
+        for id in result:
+            for att in result[id]:
+                if not result[id][att]:
+                    output_list.append(att+': None')
                 else:
-                    entry_list.append(att+': '+result[i][att])
-            entry_list.append('')
-        output = '\n'.join(entry_list)
+                    output_list.append(att+': '+', '.join(result[id][att]))
+            output_list.append('')
+        output = '\n'.join(output_list)
     return output
 
 if __name__ == "__main__":
