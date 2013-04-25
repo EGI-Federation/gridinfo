@@ -1,5 +1,5 @@
 Name:		ginfo
-Version:	0.2.4
+Version:	1.0.1
 Release:	1%{?dist}
 Summary:	A versatile tool for discovering Grid services
 Group:		Applications/Internet
@@ -7,8 +7,8 @@ License:	ASL 2.0
 URL:		https://svnweb.cern.ch/trac/gridinfo/browser/ginfo
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/ginfo/tags/R_0_2_4 ginfo-0.2.4
-#  tar --gzip -czvf ginfo-0.2.2.tar.gz ginfo-0.2.4
+#   svn export http://svnweb.cern.ch/guest/gridinfo/ginfo/tags/R_1_0_1 ginfo-1.0.1
+#  tar --gzip -czvf ginfo-1.0.1.tar.gz ginfo-1.0.1
 
 Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
@@ -16,7 +16,7 @@ BuildRoot:	%{_tmppath}/%{name}-%{version}-build
 
 Requires:      python-ldap
 %if "%{?dist}" == ".el5"
-Requires:      python-json
+Requires:      python-simplejson
 %endif
 
 %description
@@ -42,6 +42,8 @@ rm -rf %{buildroot}
 %doc LICENSE
 
 %changelog
+* Thu Apr 25 2013 Laurence Field <laurence.field@cern.ch> - 1.0.1-1
+- Refactored version enabling general GLUE 2.0 queries
 * Thu Oct 25 2012 Laurence Field <laurence.field@cern.ch> - 0.2.4-1
 - Added -b --bind option.
 * Wed Aug 29 2012 Laurence Field <laurence.field@cern.ch> - 0.2.3-1
