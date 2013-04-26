@@ -257,7 +257,19 @@ def nagios_output(debug_level,file):
              if matched is not None:
                 match_string=matched.group()
                 count[match_string] += 1
-                messages[match_string].append(line.strip("AssertionError:"))
+                messages[match_string].append("%s --------------------------------\n" % match_string)
+                # Description
+                messages[match_string].append(results.next())
+                # Affected DN
+                DN = results.next().split(",")
+                for i, element in enumerate(DN): 
+                     messages[match_string].append(element)
+                     if i != len(DN) - 1:
+                         messages[match_string].append("\n                  ")
+                # Affected attribute
+                messages[match_string].append(results.next())
+                # Published values
+                messages[match_string].append(results.next() + "\n")
        results.close()
        os.remove(file)
    except IOError:

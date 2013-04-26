@@ -147,6 +147,7 @@ def is_InterfaceName_t(value):
       'org.glite.Argus.PDP',
       'org.glite.Argus.PAP',
       'org.glite.Argus.PEP',
+      'org.glite.ce.ApplicationPublisher',
       'org.nordugrid.ldapglue1',
       'org.nordugrid.wsrfglue2',
       'org.nordugrid.ldapglue2',
@@ -162,6 +163,7 @@ def is_JobDescription_t(value):
    descriptions = [
       'condor',
       'egee:jdl',
+      'emies:adl',
       'globus:rsl',
       'nordugrid:xrsl',
       'ogf:jsdl:1.0'
@@ -300,7 +302,9 @@ def is_Capability_t(value):
       'data.naming.scheme',
       'data.transfer',
       'data.transfer.cepull',
+      'data.transfer.cepull.ftp',
       'data.transfer.cepush',
+      'data.transfer.cepush.srm',
       'executionmanagement.candidatesetgenerator',
       'executionmanagement.dynamicvmdeploy',
       'executionmanagement.executionandplanning',
@@ -320,6 +324,7 @@ def is_Capability_t(value):
       'information.publication',
       'information.lookup.job',
       'information.query',
+      'information.query.xpath1',
       'security.accounting',
       'security.attributeauthority',
       'security.authentication',
@@ -493,9 +498,11 @@ def is_Platform_t(value):
    types = [
       'amd64',
       'i386',
+      'i686',
       'itanium',
       'powerpc',
-      'sparc'
+      'sparc',
+      'x86_64'
       ]
    if value in types:
       return True
@@ -650,7 +657,9 @@ def is_EntityOtherInfo_t(value):
       'Share',
       'CPUScalingReferenceSI00',
       'CreamCEId',
-      'CREAMCEId'
+      'CREAMCEId',
+      'MiddlewareName=EMI',
+      'This CREAM-CE is using Argus'
       ] 
    if value.rsplit('=')[0] in types:
       return True
