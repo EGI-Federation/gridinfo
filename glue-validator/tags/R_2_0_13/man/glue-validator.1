@@ -1,0 +1,31 @@
+.TH GLUE_VALIDATOR 1 
+.SH NAME
+glue-validator \- Validates information against the GLUE information model.
+.SH SYNOPSIS
+.B Usage: /usr/bin/glue-validator -t <test class> 
+.I [OPTIONS] 
+.SH DESCRIPTION
+The 
+.B glue-validator 
+reads information from either an LDIF file or an LDAP server. The information is validated against the GLUE information model. 
+.SH OPTIONS
+.IP "-t --test"   
+The test class [glue1|glue2].
+.PP 
+Server Mode: Obtains LDIF from an OpenLDAP server.
+.IP "-h --host"      
+Hostname of the LDAP server.
+.IP "-p --port"      
+Port for the LDAP server.
+.IP "-b --bind"      
+The bind point for the LDAP server. 
+.PP 
+File Mode: Obtains LDIF directly from a file.
+.IP "-f --file"      
+An LDIF file
+.PP 
+Options:
+.IP "-d --debug"     
+Debug level 0-3, default 0
+.SH AUTHOR
+Laurence Field <Laurence.Field at cern dot ch>
