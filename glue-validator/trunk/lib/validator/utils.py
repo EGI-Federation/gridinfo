@@ -5,17 +5,19 @@ import signal
 import string
 import re
 import datetime
+import validator.messages
 
 def parse_options():
     config = {}
     config['debug'] = 0
     config['output'] = None
     config['testsuite'] = 'general'
+    config['separator'] = "\n"
    
     try:
-        opts, args = getopt.getopt(sys.argv[1:], "H:p:b:f:v:g:s:t:knVh",
+        opts, args = getopt.getopt(sys.argv[1:], "H:p:b:f:v:g:s:t:r:knVh",
           ["hostname=", "port=", "bind=", "file=", "verbosity=", "glue-version=", 
-           "testsuite=", "timeout=", "exclude-known-issues", "nagios", "version", "help"])
+           "testsuite=", "timeout=", "separator=", "exclude-known-issues", "nagios", "version", "help"])
     except getopt.GetoptError:
         sys.stderr.write("Error: Invalid option specified.\n")
         usage()
@@ -39,6 +41,8 @@ def parse_options():
             config['nagios'] = True
         if o in ("-t", "--timeout"):
             config['timeout'] = a
+        if o in ("-r", "--separator"):
+            config['separator'] = a
         if o in ("-V", "--version"):
             sys.stdout.write("glue-validator version 2")
             sys.exit()
@@ -119,20 +123,21 @@ Server Mode: Obtains LDIF from an OpenLDAP server.
  -b --bind          The bind point for the LDAP server. 
 
 File Mode: Obtains LDIF directly from a file.
- -f --file      An LDIF file
+ -f --file          An LDIF file
 
 Tesuite type: Selects the set of tests to be executed against the LDIF.
- -s --testsuite   The testsuite  [general (default)|wlcg|egi-profile].
+ -s --testsuite     The testsuite  [general (default)|wlcg|egi-profile].
 
-Nagios output: Indicates whether the command should produce Nagios output.
-               This is only available for the egi-profile testsuite.
- -n --nagios
+Nagios output: 
+ -n --nagios        Indicates whether the command should produce Nagios output.
+                    This is only available for the egi-profile testsuite.
+ -r --separator     Defines the separator for the nagios output messages, default \n
 
 Other Options:
- -t --timeout   glue-validator runtime timeout, default 10s 
- -v --verbose   verbosity level 0-3, default 0
- -V --version   prints glue-validator version
- -h --help      prints glue-validator usage
+ -t --timeout       glue-validator runtime timeout, default 10s 
+ -v --verbose       Verbosity level 0-3, default 0
+ -V --version       Prints glue-validator version
+ -h --help          Prints glue-validator usage
 
 Examples:
 
@@ -252,24 +257,23 @@ def nagios_output(debug_level,file):
        count = {'INFO':0,'WARNING':0,'ERROR':0}
        messages = {'INFO':[],'WARNING':[],'ERROR':[]}
        for line in results:
-          if line.find("INFO:") > -1 or line.find("WARNING:") > -1 or line.find("ERROR:") > -1:
+          if line.find("INFO START:") > -1 or line.find("WARNING START:") > -1 or line.find("ERROR START:") > -1:
              matched=re.search(r'(INFO|WARNING|ERROR)',line)
              if matched is not None:
                 match_string=matched.group()
                 count[match_string] += 1
-                messages[match_string].append("%s --------------------------------\n" % match_string)
-                # Description
-                messages[match_string].append(results.next())
-                # Affected DN
-                DN = results.next().split(",")
-                for i, element in enumerate(DN): 
-                     messages[match_string].append(element)
-                     if i != len(DN) - 1:
-                         messages[match_string].append("\n                  ")
-                # Affected attribute
-                messages[match_string].append(results.next())
-                # Published values
-                messages[match_string].append(results.next() + "\n")
+                extra_line = line.replace("AssertionError: %s START:" % match_string," ")
+                while extra_line.find("END") == -1:  
+                    #if extra_line.find("Affected DN") > -1:
+                    #    DN = extra_line.split(",")
+                    #    for i, element in enumerate(DN): 
+                    #        messages[match_string].append(element)
+                    #        if i != len(DN) - 1:
+                    #            messages[match_string].append("\n                  ")
+                    #else:
+                    messages[match_string].append(extra_line)
+                    extra_line = results.next()
+                messages[match_string].append("\n")
        results.close()
        os.remove(file)
    except IOError:
@@ -309,3 +313,27 @@ def nagios_output(debug_level,file):
    else:
      sys.exit(0)
 
+
+def message_generator ( type , code , dn , attribute , value , extra_info="" ):
+
+    config = parse_options()
+    separator = config['separator']
+    #separator = "\n"
+    message = ("%s START:%s"
+               "%s Description: %s%s"
+               "%s Affected DN: %s%s"
+               "%s Affected attribute: %s%s"
+               "%s Published value: %s ") %\
+              ( type, separator,\
+                code, validator.messages.messages[code], separator,\
+                code, dn, separator,\
+                code, attribute, separator,\
+                code, value )
+    if extra_info != "":
+        message = message + ("\n%s Additional information: %s\n") % ( code, extra_info )
+    else:
+        message = message + "\n"
+
+    message = message + "%s END\n" % ( type )
+              
+    return message 

@@ -68,7 +68,8 @@ def is_allowed_URL_Schema(value):
       'ldap',
       'voms',
       'myproxy',
-      'lfc'
+      'lfc',
+      'gsissh'
       ]
    if value in types:
       return True

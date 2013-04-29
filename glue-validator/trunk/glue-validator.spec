@@ -3,11 +3,11 @@
 %endif
 Summary: A validation framework for Grid information providers
 Name: glue-validator
-Version: 2.0.13
+Version: 2.0.14
 Release: 0%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_13 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_14 %{name}-%{version}
 #  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source0: %{name}-%{version}.tar.gz
 License: ASL 2.0
@@ -46,6 +46,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+* Mon Apr 29 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.14-0
+- Defined a general message generator function and added an option to define a separator
+- Added missing type
+- Fixed OtherInfo type check that is not done in the general test but on specific tests
+
 * Fri Apr 26 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.13-0
 - Improved error, warning and info messages defining a common structure for all tests
 - Defined OtherInfo as a multivalued attribute in the EGI profile
