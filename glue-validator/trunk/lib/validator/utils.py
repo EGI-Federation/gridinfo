@@ -106,6 +106,16 @@ def parse_options():
             sys.stderr.write("Error: egi-profile testsuite must be executed against the egi-glue2 schema version.\n")
             usage()
             sys.exit(1)
+    if config['testsuite'] == 'general' and config.has_key('nagios'):
+            sys.stderr.write("Error: Nagios output is only available for egi-profile testsuite.\n")
+            usage()
+            sys.exit(1)
+    if (config.has_key('separator') and not config.has_key('verbosity')) or \
+       (config.has_key('separator') and config.has_key('verbosity') and config['verbosity'] != 3):
+            sys.stderr.write("Error: Separator option is only available for verbosity level 3.\n")
+            usage()
+            sys.exit(1)
+  
 
     return config
 
@@ -131,7 +141,8 @@ Tesuite type: Selects the set of tests to be executed against the LDIF.
 Nagios output: 
  -n --nagios        Indicates whether the command should produce Nagios output.
                     This is only available for the egi-profile testsuite.
- -r --separator     Defines the separator for the nagios output messages, default \n
+ -r --separator     Defines the separator for the nagios output messages , default \n
+                    This is only available for the verbosity level 3.
 
 Other Options:
  -t --timeout       glue-validator runtime timeout, default 10s 
