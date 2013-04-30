@@ -50,6 +50,7 @@ rm -rf $RPM_BUILD_ROOT
 * Tue Apr 30 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.15-0
 - Defined new verbose level 2 for nagios output
 - Added associated attribute to message dictionary
+- Added sanity checks for the command line options (nagios, verbosity level and separator) 
 
 * Mon Apr 29 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.14-0
 - Defined a general message generator function and added an option to define a separator
