@@ -110,8 +110,8 @@ def parse_options():
             sys.stderr.write("Error: Nagios output is only available for egi-profile testsuite.\n")
             usage()
             sys.exit(1)
-    if (config.has_key('separator') and not config.has_key('verbosity')) or \
-       (config.has_key('separator') and config.has_key('verbosity') and config['verbosity'] != 3):
+    if (config['separator'] != "\n" and not config.has_key('verbosity')) or \
+       (config['separator'] != "\n" and config.has_key('verbosity') and config['verbosity'] != 3):
             sys.stderr.write("Error: Separator option is only available for verbosity level 3.\n")
             usage()
             sys.exit(1)
