@@ -3,11 +3,11 @@
 %endif
 Summary: A validation framework for Grid information providers
 Name: glue-validator
-Version: 2.0.14
+Version: 2.0.16
 Release: 0%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_14 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_16 %{name}-%{version}
 #  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source0: %{name}-%{version}.tar.gz
 License: ASL 2.0
@@ -16,6 +16,7 @@ BuildRoot: %{_tmppath}/%{name}-buildroot
 BuildArch: noarch
 BuildRequires: python-devel
 Requires: openldap-clients
+Obsoletes: glue-validator-cron
 Url: http://cern.ch/glue
 
 %description
@@ -46,6 +47,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+* Tue Apr 30 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.15-0
+- Defined new verbose level 2 for nagios output
+- Added associated attribute to message dictionary
+
 * Mon Apr 29 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.14-0
 - Defined a general message generator function and added an option to define a separator
 - Added missing type

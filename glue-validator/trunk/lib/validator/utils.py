@@ -252,28 +252,45 @@ def convert_entry(entry_string):
 
 def nagios_output(debug_level,file):
 
+   config = parse_options()
    try:
        results = open(file,'r')
        count = {'INFO':0,'WARNING':0,'ERROR':0}
        messages = {'INFO':[],'WARNING':[],'ERROR':[]}
+       summary = {}
        for line in results:
+
+          # Process new error, warning or info block
           if line.find("INFO START:") > -1 or line.find("WARNING START:") > -1 or line.find("ERROR START:") > -1:
              matched=re.search(r'(INFO|WARNING|ERROR)',line)
              if matched is not None:
                 match_string=matched.group()
                 count[match_string] += 1
                 extra_line = line.replace("AssertionError: %s START:" % match_string," ")
-                while extra_line.find("END") == -1:  
-                    #if extra_line.find("Affected DN") > -1:
-                    #    DN = extra_line.split(",")
-                    #    for i, element in enumerate(DN): 
-                    #        messages[match_string].append(element)
-                    #        if i != len(DN) - 1:
-                    #            messages[match_string].append("\n                  ")
-                    #else:
-                    messages[match_string].append(extra_line)
+                while extra_line.find("END") == -1: 
+
+                    # If separator is a newline, print the DN in different lines as well 
+                    if config['separator'] == "\n" and extra_line.find("Affected DN") > -1:
+                        DN = extra_line.split(",")
+                        for i, element in enumerate(DN): 
+                            messages[match_string].append(element)
+                            if i != len(DN) - 1:
+                                messages[match_string].append("\n                  ")
+                    else:
+                        messages[match_string].append(extra_line)
+                    old_line = extra_line
                     extra_line = results.next()
+
+                # Summary per attribute and value
+                code=re.search(r'(I...|W...|E...)',old_line)
+                if code is not None:
+                    code_string=code.group()
+                    if code_string in summary:
+                        summary[code_string] += 1
+                    else:
+                        summary[code_string] = 1
                 messages[match_string].append("\n")
+
        results.close()
        os.remove(file)
    except IOError:
@@ -293,6 +310,12 @@ def nagios_output(debug_level,file):
 
    print "%s - errors %i, warnings %i, info %i | errors=%i;warnings=%i;info=%i" % \
          (state, errors, warnings, info, errors, warnings, info)
+  
+   if debug_level == 2:
+       sys.stdout.write("Summary per type of error, warning and info message:\n")
+       for i in sorted(summary.keys()):
+           sys.stdout.write("%s - %s (%s): " % (i, validator.messages.messages[i][0], validator.messages.messages[i][1]))
+           sys.stdout.write("%i\n" % summary[i])
 
    if debug_level == 3:
       maxlines=100
@@ -325,7 +348,7 @@ def message_generator ( type , code , dn , attribute , value , extra_info="" ):
                "%s Affected attribute: %s%s"
                "%s Published value: %s ") %\
               ( type, separator,\
-                code, validator.messages.messages[code], separator,\
+                code, validator.messages.messages[code][0], separator,\
                 code, dn, separator,\
                 code, attribute, separator,\
                 code, value )
