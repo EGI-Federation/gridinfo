@@ -4,10 +4,6 @@ import datetime
 import time
 import validator.utils
 
-#---------------------------------------------------------------------------------------------
-def local_to_utc(t):
-    secs = time.mktime(t)
-    return time.gmtime(secs)
 #----------------------------------------------------------------------------------------------
 
 class EGIProfileTest(unittest.TestCase):
@@ -32,10 +28,10 @@ class EGIProfileTest(unittest.TestCase):
             creationtime = datetime.datetime(*(time.strptime(self.value[0],"%Y-%m-%dT%H:%M:%SZ")[0:6]))
             now = datetime.datetime.utcnow()
             year = datetime.timedelta(days=365)
-            if local_to_utc(creationtime.timetuple()) > now.timetuple():
+            if creationtime.timetuple() > now.timetuple():
                 message = validator.utils.message_generator("ERROR","E001",self.dn,"GLUE2EntityCreationTime",self.value[0])
                 status = False
-            elif local_to_utc(creationtime.timetuple()) < (now - year).timetuple:
+            elif creationtime.timetuple() < (now - year).timetuple():
                 message = validator.utils.message_generator("WARNING","W001",self.dn,"GLUE2EntityCreationTime",self.value[0])
                 status = False
             else: 
@@ -56,8 +52,7 @@ class EGIProfileTest(unittest.TestCase):
                                 (*(time.strptime(self.entry['GLUE2EntityCreationTime'][0],"%Y-%m-%dT%H:%M:%SZ")[0:6])) 
                 now = datetime.datetime.utcnow()
                 validity = datetime.timedelta(seconds=int(self.value[0]))
-                due_time = local_to_utc((creationtime + validity).timetuple()) 
-                creationtime_utc = local_to_utc(creationtime.timetuple())
+                due_time = (creationtime + validity).timetuple() 
                 if due_time < now.timetuple():
                     message = validator.utils.message_generator\
                               ("ERROR","E002",self.dn,"GLUE2EntityValidity",self.value[0],\
@@ -259,10 +254,10 @@ class EGIProfileTest(unittest.TestCase):
             creationtime = datetime.datetime(*(time.strptime(self.value[0],"%Y-%m-%dT%H:%M:%SZ")[0:6]))
             now = datetime.datetime.utcnow()
             twoyears = datetime.timedelta(days=730)
-            if local_to_utc(creationtime.timetuple()) > now.timetuple():
+            if creationtime.timetuple() > now.timetuple():
                 message = validator.utils.message_generator("ERROR","E010",self.dn,"GLUE2EndpointStartTime",self.value[0])
                 status = False
-            elif local_to_utc(creationtime.timetuple()) < (now - twoyears).timetuple():
+            elif creationtime.timetuple() < (now - twoyears).timetuple():
                 message = validator.utils.message_generator("WARNING","W006",self.dn,"GLUE2EndpointStartTime",self.value[0])
                 status = False
             else:
@@ -286,11 +281,11 @@ class EGIProfileTest(unittest.TestCase):
             creationtime = datetime.datetime(*(time.strptime(self.value[0],"%Y-%m-%dT%H:%M:%SZ")[0:6]))
             now = datetime.datetime.utcnow()
             year = datetime.timedelta(days=365)
-            if local_to_utc(creationtime.timetuple()) > now.timetuple():
+            if creationtime.timetuple() > now.timetuple():
                 message = validator.utils.message_generator("ERROR","E011",self.dn,\
                           "GLUE2EndpointDowntimeAnnounce",self.value[0])
                 status = False
-            elif local_to_utc(creationtime.timetuple()) < (now - year).timetuple():
+            elif creationtime.timetuple() < (now - year).timetuple():
                 message = validator.utils.message_generator("WARNING","W007",self.dn,\
                           "GLUE2EndpointDowntimeAnnounce",self.value[0])
                 status = False
@@ -320,11 +315,11 @@ class EGIProfileTest(unittest.TestCase):
                     message = validator.utils.message_generator("ERROR","E012",self.dn,"GLUE2EndpointDowntimeStart",\
                               self.value[0],"GLUE2EndpointDowntimeEnd is %s" % self.entry['GLUE2EndpointDowntimeEnd'][0])
                     status = False
-            elif local_to_utc(starttime.timetuple()) > (now + year).timetuple():
+            elif starttime.timetuple() > (now + year).timetuple():
                 message = validator.utils.message_generator("WARNING","W009",self.dn,\
                           "GLUE2EndpointDowntimeStart",self.value[0])
                 status = False
-            elif local_to_utc(starttime.timetuple()) < (now - year).timetuple():
+            elif starttime.timetuple() < (now - year).timetuple():
                 message = validator.utils.message_generator("WARNING","W010",self.dn,\
                           "GLUE2EndpointDowntimeStart",self.value[0])
                 status = False
@@ -344,11 +339,11 @@ class EGIProfileTest(unittest.TestCase):
             if 'GLUE2EndpointDowntimeStart' not in self.entry:
                 message = validator.utils.message_generator("ERROR","E013",self.dn,"GLUE2EndpointDowntimeEnd",self.value[0])
                 status = False
-            elif local_to_utc(endtime.timetuple()) > (now + year).timetuple():
+            elif endtime.timetuple() > (now + year).timetuple():
                 message = validator.utils.message_generator("WARNING","W011",self.dn,\
                           "GLUE2EndpointDowntimeEnd",self.value[0])
                 status = False
-            elif local_to_utc(endtime.timetuple()) < (now - week).timetuple():
+            elif endtime.timetuple() < (now - week).timetuple():
                 message = validator.utils.message_generator("WARNING","W012",self.dn,\
                           "GLUE2EndpointDowntimeEnd",self.value[0])
                 status = False
@@ -811,7 +806,7 @@ class EGIProfileTest(unittest.TestCase):
         except ValueError:
             message = ""
             status = True
-        self.asserTrue ( local_to_utc(removaldate.timetuple()) < now.timetuple() , message )
+        self.asserTrue ( removaldate.timetuple() < now.timetuple() , message )
 
     def test_GLUE2ApplicationEnvironmentMaxSlots_OK (self):
         message = validator.utils.message_generator("INFO","I080",self.dn,\
