@@ -1,4 +1,4 @@
-.TH ginfo 1 "APRIL 2013" "Version 1.0.1" "ginfo manual"
+.TH ginfo 1 "APRIL 2013" "Version 1.0.2" "ginfo manual"
 .SH NAME
 ginfo \- fetch service information
 .SH SYNOPSIS
@@ -7,7 +7,7 @@ ginfo [options] Object [attribute_to_filter='value of the attribute'] [attribute
 List attributes corresponding to an object. By default, all the attributes of an object are 
 displayed.
 .SH OPTIONS
-.IP "    \fB--host\fP     \fIhost\fP"
+.IP "\fB-H, --host\fP     \fIhost\fP"
 Specify a host to query. By default the environmental variable LCG_GFAL_INFOSYS
 will be used.
 .IP "\fB-b, --bind\fP     \fIbinding\fP"
@@ -18,14 +18,14 @@ List all the possible values of the specified attribute.
 Output in CSV formating
 .IP "\fB-j, --json\fP"
 Output in JSON formating
-.IP "    \fB--timeout\fP"
+.IP "\fB-t, --timeout\fP"
 Change the ldap timeout (15 seconds by default).
 .IP "\fB-v, --verbose\fP"
 Enable verbose mode
 .IP "\fB-V, --version\fP"
-Prints the version of ginfo
+Print the version of ginfo
 .IP "\fB-h, --help\fP"
-Prints this helpful message
+Print this helpful message
 .PP
 .SH OBJECTS AND CORRESPONDING ATTRIBUTES
 .IP "\fBAdminDomain:\fP"
@@ -78,8 +78,7 @@ JSON output for an Endpoint:
     "ServiceForeignKey": Value,
     "QualityLevel": Value,
     "ID": Value,
-    "InterfaceVersion": Value}
-    , ...]
+    "InterfaceVersion": Value}, ...]
 .br
 .PP
 CSV output for an Endpoint:
@@ -108,8 +107,8 @@ ginfo Endpoint InterfaceName=org.glite.FileTransfer ID InterfaceVersion
 .IP "6) Show all available information about these Endpoints"
 ginfo Endpoint InterfaceName=org.glite.FileTransfer
 
-.IP "7) export to CSV"
+.IP "7) Export to CSV"
 ginfo --csv Endpoint InterfaceName=org.glite.FileTransfer
 
 .SH AUTHOR
-Ivan Calvet <Ivan.Calvet at cern dot ch>
+Ivan Calvet <ivan.calvet at cern dot ch>

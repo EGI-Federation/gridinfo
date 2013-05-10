@@ -29,7 +29,7 @@ import re
 import urllib2
 import signal
 
-VERSION = '1.0.1'
+VERSION = '1.0.2'
 TIMEOUT = 60
 
 # configuration dictionnary that will be filled with the submitted options
@@ -37,7 +37,7 @@ CONF = {'object': None, 'flag': {}, 'filter': {}, 'attribute': []}
 
 # long_flag: [short_flag, parameter_needed]
 FLAGS = {
-    'host': [None, True],
+    'host': ["H", True],
     'bind': ["b", True],
     'list': ["l", True],
     'clean': [None, False],
@@ -253,7 +253,7 @@ def usage():
     displayed.
 
     [OPTIONS]
-        --host      host        Specify a host to query. By default the
+    -H, --host      host        Specify a host to query. By default the
                                 environmental variable LCG_GFAL_INFOSYS will be
                                 used.
     -b, --bind      binding     Specify the binding (o=glue by default).
@@ -263,8 +263,8 @@ def usage():
     -j, --json                  Output in JSON format
     -t, --timeout               Change the ldap timeout (15 seconds by default).
     -v, --verbose               Enable verbose mode
-    -V, --version               Prints the version of ginfo
-    -h, --help                  Prints this helpful message
+    -V, --version               Print the version of ginfo
+    -h, --help                  Print this helpful message
 
     [OBJECTS AND CORRESPONDING ATTRIBUTES]
         AdminDomain:
@@ -306,7 +306,6 @@ def request(filter=None):
             if ':' not in CONF['flag']['host']:
                 port = ':2170'
             con = ldap.initialize('ldap://'+CONF['flag']['host']+port)
-            print filter
             if filter:
                 result = con.result(con.search(CONF['flag']['bind'], ldap.SCOPE_SUBTREE, filter))[1]
             else:
@@ -353,236 +352,6 @@ def list_attributes():
                 attr_list.append('None')
     attr_list.sort()
     return attr_list
-
-"""
-def clean(result):
-    ""Clean all the results""
-    values = {
-        'ql': [
-            'development',
-            'pre-production',
-            'production',
-            'testing'
-            ],
-        'cap': [
-            'data.access.flatfiles',
-            'data.access.relational',
-            'data.access.xml',
-            'data.management.replica',
-            'data.management.storage',
-            'data.management.transfer',
-            'data.naming.resolver',
-            'data.naming.scheme',
-            'data.transfer',
-            'executionmanagement.candidatesetgenerator',
-            'executionmanagement.dynamicvmdeploy',
-            'executionmanagement.executionandplanning',
-            'executionmanagement.jobdescription',
-            'executionmanagement.jobexecution',
-            'executionmanagement.jobmanager',
-            'executionmanagement.reservation',
-            'information.discovery',
-            'information.logging',
-            'information.model',
-            'information.monitoring',
-            'information.provenance',
-            'security.accounting',
-            'security.attributeauthority',
-            'security.authentication',
-            'security.authorization',
-            'security.credentialstorage',
-            'security.delegation',
-            'security.identymapping'
-        ],
-        'int': [
-           'MyProxy',
-           'SRM',
-           'VOBOX',
-           'bdii_site',
-           'bdii_top',
-           'dcap',
-           'emi.storm',
-           'gsidcap',
-           'gsiftp',
-           'http',
-           'https',
-           'lcg-file-catalog',
-           'lcg-local-file-catalog',
-           'org.glite.ChannelManagement',
-           'org.glite.Delegation',
-           'org.glite.FileTransfer',
-           'org.glite.RTEPublisher',
-           'org.glite.ce.ApplicationPublisher',
-           'org.glite.ce.CREAM',
-           'org.glite.ce.Monitor',
-           'org.glite.lb.Server',
-           'org.glite.voms',
-           'org.glite.voms-admin',
-           'org.glite.wms.WMProxy',
-           'org.globus.gram',
-           'org.nordugrid.gridftpjob',
-           'org.nordugrid.ldapglue1',
-           'org.nordugrid.ldapglue2',
-           'org.nordugrid.ldapng',
-           'xroot'
-        ],
-        'type': [
-            'org.dcache.storage',
-            'org.glite.wms.WMProxy',
-            'org.glite.lb.Server',
-            'org.glite.ce.ApplicationPublisher',
-            'org.glite.ce.CREAM',
-            'org.glite.ce.Monitor',
-            'org.glite.rgma.Consumer',
-            'org.glite.rgma.Registry',
-            'org.glite.rgma.Schema',
-            'org.glite.rgma.Browser',
-            'org.glite.rgma.PrimaryProducer',
-            'org.glite.rgma.SecondaryProducer',
-            'org.glite.rgma.OnDemandProducer',
-            'org.glite.RTEPublisher',
-            'org.glite.voms',
-            'org.glite.voms-admin',
-            'org.glite.AMGA',
-            'org.glite.ChannelManagement',
-            'org.glite.FileTransfer',
-            'org.glite.FileTransferStats',
-            'org.glite.ChannelAgent',
-            'org.glite.Delegation',
-            'org.glite.KeyStore',
-            'org.nordugrid.execution.arex',
-            'SRM',
-            'gsiftp',
-            'org.edg.gatekeeper',
-            'it.infn.GridICE',
-            'MyProxy',
-            'GUMS',
-            'gridmap-file',
-            'GridCat',
-            'edu.caltech.cacr.monalisa',
-            'OpenSSH',
-            'xroot',
-            'BDII',
-            'bdii_site',
-            'bdii_top',
-            'VOBOX',
-            'msg.broker.rest',
-            'msg.broker.stomp',
-            'msg.broker.stomp-ssl',
-            'msg.broker.openwire',
-            'msg.broker.openwire-ssl',
-            'org.lcg.Frontier',
-            'org.lcg.Squid',
-            'Nagios',
-            'National-NAGIOS',
-            'Project-NAGIOS',
-            'Regional-NAGIOS',
-            'data-location-interface',
-            'local-data-location-interface',
-            'lcg-file-catalog',
-            'lcg-local-file-catalog',
-            'pbs.torque.server',
-            'pbs.torque.maui',
-            'other'
-        ],
-    }
-    
-    if 'list' in CONF and 'vo' in CONF['list']:
-        invalid_list = []
-        for i in result:
-            # policyRule must begin with VO:
-            if not re.match('^VO:', i) and i != 'ALL' and i not in invalid_list:
-                invalid_list.append(i)
-        for i in invalid_list:
-            result.remove(i)
-        if invalid_list:
-            result.append('INVALID')
-    elif 'list' not in CONF:
-        for i in result:
-            # policyRule must begin with VO:
-            if 'vo' in result[i]:
-                if result[i]['vo'] != None:
-                    for k in range(len(result[i]['vo'])):
-                        if not re.match('^VO:', result[i]['vo'][k]) and result[i]['vo'][k] != 'ALL':
-                            result[i]['vo'][k] = 'INVALID'
-
-    if 'clean' in CONF or 'strict' in CONF:
-        if 'list' in CONF:
-            invalid_list = []
-            for i in result:
-                # all elements which contain spaces or are empty are invalid.
-                if not i or i == 'None' or i.find(' ') >= 0:
-                    invalid_list.append(i)
-                # version should contain a number
-                if CONF['list'] in ['intv', 'impv']:
-                    if not re.match('^.*[0-9]+', i) and i not in invalid_list:
-                        invalid_list.append(i)
-                # quality level is restricted
-                if CONF['list'] == 'ql':
-                    if i not in values['ql'] and i not in invalid_list:
-                        invalid_list.append(i)
-                # url must be correctly formated
-                if CONF['list'] == 'url':
-                    if not re.match('(?:(?:([a-z0-9+.-]+)://)|(www\.))+(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(/[a-zA-Z0-9\&amp;%_\./-~-]*)?', i) and i not in invalid_list:
-                        invalid_list.append(i)
-                if 'strict' in CONF:
-                    # "j" is restricted
-                    for j in ['cap', 'type', 'int']:
-                        if CONF['list'] == j:
-                            if i not in values[j] and i not in invalid_list:
-                                invalid_list.append(i)
-            for i in invalid_list:
-                result.remove(i)
-            if invalid_list:
-                result.append('INVALID')            
-        else:
-            for i in result:
-                # all elements which contain spaces or are empty
-                for j in result[i]:
-                    if ATTRIBUTES[j][3]:
-                        if result[i][j]:
-                            for k in range(len(result[i][j])):
-                                if not result[i][j][k] or result[i][j][k].find(' ') >= 0:
-                                    result[i][j][k] = 'INVALID'
-                            continue
-                        else:
-                            result[i][j] = ['INVALID']
-                    elif not result[i][j] or result[i][j].find(' ') >= 0:
-                        result[i][j] = 'INVALID'
-                # version should contain a number
-                for j in ['intv', 'impv']:
-                    if j in result[i]:
-                        if not re.match('^.*[0-9]+', result[i][j]):
-                            result[i][j] = 'INVALID'
-                # quality level is restricted
-                if 'ql' in result[i]:
-                    if result[i]['ql'] not in values['ql']:
-                        result[i]['ql'] = 'INVALID'
-                # url must be correctly formated
-                if 'url' in result[i]:
-                    if not re.match('(?:(?:([a-z0-9+.-]+)://)|(www\.))+(([a-zA-Z0-9\._-]+\.[a-zA-Z]{2,6})|([0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}))(/[a-zA-Z0-9\&amp;%_\./-~-]*)?', result[i]['url']):
-                        result[i]['url'] = 'INVALID'
-                if 'strict' in CONF:
-                    if 'cap' in result[i]:
-                        for k in range(len(result[i]['cap'])):
-                            if result[i]['cap'][k] not in values['cap'] and result[i]['cap'][k] != 'INVALID':
-                                result[i]['cap'][k] = 'INVALID'
-                    for j in ['type', 'int']:
-                        # "j" is restricted
-                        if j in result[i]:
-                            if result[i][j] not in values[j] and result[i][j] != 'INVALID':
-                                result[i][j] = 'INVALID'
-
-    #Renaming of attributes
-    if 'list' not in CONF:
-        result2 = {}
-        for i in result:
-            result2[i] = {}
-            for j in result[i]:
-                result2[i][ATTRIBUTES[j][1]+ATTRIBUTES[j][2]] = result[i][j]
-        result = result2
-    return result
-"""
 
 def serialize_output(result):
     """Return the output with the wished format""" 

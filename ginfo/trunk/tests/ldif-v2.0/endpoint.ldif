@@ -9,7 +9,7 @@ GLUE2EndpointInterfaceName: interface_name_a
 GLUE2EndpointURL: ldap://host:2170/XXX
 GLUE2EndpointImplementationVersion: 5.0.0
 GLUE2EndpointInterfaceVersion: 3.0.0
-GLUE2EndpointImplementationName: implementation_name_a
+GLUE2EndpointImplementor: implementor_a
 GLUE2EndpointServiceForeignKey: service_1
 GLUE2EndpointQualityLevel: testing
 GLUE2EndpointHealthState: XXX
@@ -24,7 +24,7 @@ GLUE2EndpointInterfaceName: interface_name_b
 GLUE2EndpointURL: ldap://host:2170/YYY
 GLUE2EndpointImplementationVersion: 5.0.1
 GLUE2EndpointInterfaceVersion: 3.0.1
-GLUE2EndpointImplementationName: implementation_name_b
+GLUE2EndpointImplementor: implementor_b
 GLUE2EndpointServiceForeignKey: service_2
 GLUE2EndpointQualityLevel: testing
 GLUE2EndpointHealthState: XXX
@@ -40,7 +40,7 @@ GLUE2EndpointInterfaceName: interface_name_b
 GLUE2EndpointURL: ldap://host:2170/ZZZ
 GLUE2EndpointImplementationVersion: 5.0.0
 GLUE2EndpointInterfaceVersion: 3.0.1
-GLUE2EndpointImplementationName: implementation_name_b
+GLUE2EndpointImplementor: implementor_b
 GLUE2EndpointServiceForeignKey: service_3
 GLUE2EndpointQualityLevel: production
 GLUE2EndpointHealthState: XXX
@@ -56,7 +56,7 @@ GLUE2EndpointInterfaceName: interface_name_a
 GLUE2EndpointURL: host:2170/AAA
 GLUE2EndpointImplementationVersion: NotANumber
 GLUE2EndpointInterfaceVersion: NotANumber
-GLUE2EndpointImplementationName: implementation name c
+GLUE2EndpointImplementor: implementation name c
 GLUE2EndpointServiceForeignKey: service_4
 GLUE2EndpointQualityLevel: OtherQuality
 GLUE2EndpointHealthState: XXX
