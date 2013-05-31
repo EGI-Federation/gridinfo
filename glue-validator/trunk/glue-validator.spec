@@ -16,8 +16,7 @@ BuildRoot: %{_tmppath}/%{name}-buildroot
 BuildArch: noarch
 BuildRequires: python-devel
 Requires: openldap-clients
-Obsoletes: glue-validator-cron
-Url: http://cern.ch/glue
+Url: http://gridinfo.web.cern.ch/glue/glue-validator-guide
 
 %description
 A validation framework for Grid information providers. 
@@ -50,6 +49,8 @@ rm -rf $RPM_BUILD_ROOT
 
 * Fri May 31 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.17-0
 - Fixed messages in EntryTest that were not concatenated
+- Removed obsolete of glue-validator-cron that is now fixed
+- Update spec URL to point to new Information System web pages
 
 * Mon May 06 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.16-0
 - Fixed bug with dates: GLUE dates were transformed into UTC when they already are UTC 
