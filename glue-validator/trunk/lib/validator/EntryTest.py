@@ -30,7 +30,7 @@ class EntryTest(unittest.TestCase):
             message = ""
             for obj in self.entry['objectClass']:
                 if not self.types.is_ObjectClass(obj):
-                    message = validator.utils.message_generator("ERROR","E021",self.dn,"NA",obj)
+                    message = message + validator.utils.message_generator("ERROR","E021",self.dn,"NA",obj)
                     status = False
             self.assertTrue(status, message)
 
@@ -42,21 +42,21 @@ class EntryTest(unittest.TestCase):
             if obj in self.schema:
                 for attribute in self.schema[obj]:
                     if attribute == 'GLUE2GroupID' and attribute not in self.entry and 'GLUE2GroupName' not in self.entry:
-                        message = validator.utils.message_generator("WARNING","W034",self.dn,attribute,"NA")
+                        message = message + validator.utils.message_generator("WARNING","W034",self.dn,attribute,"NA")
                         status = False
                     elif self.test_class != 'egi-glue2' and self.schema[obj][attribute][2] and attribute not in self.entry:
-                        message = validator.utils.message_generator("WARNING","W034",self.dn,attribute,"NA")
+                        message = message + validator.utils.message_generator("WARNING","W034",self.dn,attribute,"NA")
                         status = False
                             
                     else:
                         if self.schema[obj][attribute][2] == 'Mandatory' and attribute not in self.entry:
-                            message = validator.utils.message_generator("WARNING","W034",self.dn,attribute,"NA")
+                            message = message + validator.utils.message_generator("WARNING","W034",self.dn,attribute,"NA")
                             status = False 
                         elif self.schema[obj][attribute][2] == 'Recommended' and attribute not in self.entry:
-                            message = validator.utils.message_generator("INFO","I095",self.dn,attribute,"NA")
+                            message = message + validator.utils.message_generator("INFO","I095",self.dn,attribute,"NA")
                             status = False
                         elif self.schema[obj][attribute][2] == 'Undesirable' and attribute in self.entry:
-                            message = validator.utils.message_generator("WARNING","W034",self.dn,attribute,"NA")
+                            message = message + validator.utils.message_generator("WARNING","W034",self.dn,attribute,"NA")
                             status = False
         self.assertTrue(status, message) 
 
@@ -68,7 +68,8 @@ class EntryTest(unittest.TestCase):
             if obj in self.schema:
                 for attribute in self.schema[obj]:
                     if self.schema[obj][attribute][1] and attribute in self.entry and len(self.entry[attribute]) > 1:
-                        message = validator.utils.message_generator("WARNING","W036",self.dn,attribute,self.entry[attribute])
+                        message = message + \
+                        validator.utils.message_generator("WARNING","W036",self.dn,attribute,self.entry[attribute])
                         status = False
         self.assertTrue(status, message)
 
@@ -84,7 +85,7 @@ class EntryTest(unittest.TestCase):
                         for value in self.entry[attribute]:
                             check = getattr(self.types, 'is_' + data_type)
                             if not check(value):  
-                                message = validator.utils.message_generator\
+                                message = message + validator.utils.message_generator\
                                           ("WARNING","W037",self.dn,attribute,self.entry[attribute],\
                                            "Expected type is %s" % data_type)
                                 status = False
@@ -100,7 +101,7 @@ class EntryTest(unittest.TestCase):
                     if attribute in self.schema[obj]:
 	                    for value in self.entry[attribute]:
                                 if value == "":
-                                    message = validator.utils.message_generator\
+                                    message = message + validator.utils.message_generator\
                                               ("WARNING","W038",self.dn,attribute,"empty!")
 
         self.assertTrue(status, message)
