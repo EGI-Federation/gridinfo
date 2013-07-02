@@ -27,8 +27,9 @@ class EGIProfileTest(unittest.TestCase):
         try:
             creationtime = datetime.datetime(*(time.strptime(self.value[0],"%Y-%m-%dT%H:%M:%SZ")[0:6]))
             now = datetime.datetime.utcnow()
-            year = datetime.timedelta(days=365)
-            if creationtime.timetuple() > now.timetuple():
+            margin = datetime.timedelta(seconds=120)
+            year = datetime.timedelta(days=730)
+            if creationtime.timetuple() > (now + margin).timetuple():
                 message = validator.utils.message_generator("ERROR","E001",self.dn,"GLUE2EntityCreationTime",self.value[0])
                 status = False
             elif creationtime.timetuple() < (now - year).timetuple():
@@ -187,9 +188,11 @@ class EGIProfileTest(unittest.TestCase):
                                   "GLUE2EntityOtherInfo: CPUScalingReference",att.split('CPUScalingReference')[1])
                         status = False
             else:
-                message = message + \
-                          validator.utils.message_generator("ERROR","E006",self.dn,"GLUE2EntityOtherInfo",pair)
-                status = False
+                index = pair.find("using Argus") # Known issue with wrong syntax from CREAM CE info providers
+                if (index == -1): 
+                    message = message + \
+                              validator.utils.message_generator("ERROR","E006",self.dn,"GLUE2EntityOtherInfo",pair)
+                    status = False
         totalshare=0 
         for i in sharedict:
             totalshare = totalshare + sharedict[i]
@@ -253,8 +256,9 @@ class EGIProfileTest(unittest.TestCase):
         try:
             creationtime = datetime.datetime(*(time.strptime(self.value[0],"%Y-%m-%dT%H:%M:%SZ")[0:6]))
             now = datetime.datetime.utcnow()
+            margin = datetime.timedelta(seconds=120)
             twoyears = datetime.timedelta(days=730)
-            if creationtime.timetuple() > now.timetuple():
+            if creationtime.timetuple() > (now + margin).timetuple():
                 message = validator.utils.message_generator("ERROR","E010",self.dn,"GLUE2EndpointStartTime",self.value[0])
                 status = False
             elif creationtime.timetuple() < (now - twoyears).timetuple():
@@ -280,8 +284,9 @@ class EGIProfileTest(unittest.TestCase):
         try:
             creationtime = datetime.datetime(*(time.strptime(self.value[0],"%Y-%m-%dT%H:%M:%SZ")[0:6]))
             now = datetime.datetime.utcnow()
+            margin = datetime.timedelta(seconds=120)
             year = datetime.timedelta(days=365)
-            if creationtime.timetuple() > now.timetuple():
+            if creationtime.timetuple() > (now + margin).timetuple():
                 message = validator.utils.message_generator("ERROR","E011",self.dn,\
                           "GLUE2EndpointDowntimeAnnounce",self.value[0])
                 status = False

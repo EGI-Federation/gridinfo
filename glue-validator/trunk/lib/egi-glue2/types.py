@@ -658,9 +658,7 @@ def is_EntityOtherInfo_t(value):
       'Share',
       'CPUScalingReferenceSI00',
       'CreamCEId',
-      'CREAMCEId',
-      'MiddlewareName=EMI',
-      'This CREAM-CE is using Argus'
+      'CREAMCEId'
       ] 
    if value.rsplit('=')[0] in types:
       return True

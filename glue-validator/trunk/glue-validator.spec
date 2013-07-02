@@ -3,11 +3,11 @@
 %endif
 Summary: A validation framework for Grid information providers
 Name: glue-validator
-Version: 2.0.17
+Version: 2.0.18
 Release: 0%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_17 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_18 %{name}-%{version}
 #  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source0: %{name}-%{version}.tar.gz
 License: ASL 2.0
@@ -46,6 +46,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+
+* Fri Jun 21 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.18-0
+- BUG #101815: Redirect timeout error message to stdout
+- BUG #101828: Accept GLUE2EntityOtherInfo: This CREAM-CE is using Argus as correct until CREAM CE fixes syntax
+- BUG #101829: Increase time range when checking dates
 
 * Fri May 31 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.17-0
 - Fixed messages in EntryTest that were not concatenated

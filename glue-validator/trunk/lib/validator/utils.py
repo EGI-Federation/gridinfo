@@ -171,11 +171,11 @@ def get_config(file_name):
 
 def handler(signum, frame):
     if (signum == 14):
-        sys.stderr.write("Timed out while reading LDIF source\n")
+        sys.stdout.write("UNKNOWN - Timed out\n")
         # Commit suicide
         process_group = os.getpgrp()
         os.killpg(process_group, signal.SIGTERM)
-        sys.exit(1)
+        sys.exit(3)
 
 def fast_read_ldif(source,timeout):
     # Get pipe file descriptors
@@ -306,8 +306,8 @@ def nagios_output(debug_level,file):
        os.remove(file)
    except IOError:
        os.remove(file)
-       print "glue-validator failed to parse the error messages!"
-       sys.exit(1)
+       print "UNKNOWN - glue-validator failed to parse the error messages!"
+       sys.exit(3)
    
    errors = count['ERROR']
    warnings = count['WARNING']
