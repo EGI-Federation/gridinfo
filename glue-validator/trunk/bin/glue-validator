@@ -26,8 +26,8 @@ if __name__ == "__main__":
         if os.path.exists(config['file']):
             source = "file://%s" % (config['file'])
         else:
-            sys.stderr.write("Error: File %s does not exist\n" %(config['file'],))
-            sys.exit(1)
+            sys.stdout.write("UNKNOWN: File %s does not exist\n" %(config['file'],))
+            sys.exit(3)
 
     if config.has_key('hostname'):
       source = "ldap://%s:%s/%s" % (config['hostname'], config['port'], config['bind'])
@@ -35,8 +35,8 @@ if __name__ == "__main__":
     ldif = validator.utils.fast_read_ldif(source,config['timeout'])
     dns_dict = validator.utils.get_dns(ldif)
     if len(dns_dict) == 0:
-        sys.stderr.write("Error: No LDAP entries returned from %s\n" %(source,))
-        sys.exit(1)
+        sys.stdout.write("UNKNOWN: No LDAP entries returned from %s\n" %(source,))
+        sys.exit(3)
     suite = unittest.TestSuite()
     for dn in dns_dict:
       entry = ldif[dns_dict[dn][0]:dns_dict[dn][1]]
