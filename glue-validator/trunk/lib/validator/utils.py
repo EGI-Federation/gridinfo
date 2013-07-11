@@ -214,6 +214,10 @@ def fast_read_ldif(source,timeout):
             host = url[2].split(':')[0]
             port = url[2].split(':')[1]
             bind = url[3]
+            count=4
+            while count < len(url):
+                bind = bind + "/" + url[count]
+                count = count + 1 
             command = "ldapsearch -LLL -x -h %s -p %s -b %s 2>/dev/null" % (host, port, bind)
             pipe = os.popen(command)
 
