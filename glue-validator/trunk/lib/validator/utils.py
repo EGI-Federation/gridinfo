@@ -51,7 +51,22 @@ def parse_options():
         if o in ("-h", "--help"):
             usage()
             sys.exit()
-   
+
+    if ( not (config.has_key('hostname'))):
+        sys.stderr.write("Error: Must specify a hostname\n")
+        usage()
+        sys.exit(1)
+
+    if ( not (config.has_key('port'))):     
+        sys.stderr.write("Error: Must specify a port\n")
+        usage()
+        sys.exit(1)
+    
+    if ( not (config.has_key('bind'))):     
+        sys.stderr.write("Error: Must specify a bind\n")
+        usage()
+        sys.exit(1)
+
     if config.has_key('verbosity'):
         config['verbosity'] = int(config['verbosity'])
         if (config['verbosity'] > 3):
