@@ -225,9 +225,10 @@ class EGIProfileTest(unittest.TestCase):
             if job in self.entry:
                 total = total + int(self.entry[job][0])
                 job_stats = job_stats + " %s=%s" % (job,self.entry[job][0])
+        job_stats = job_stats + " Difference is %s" % (total - int(self.value[0]))
         message = validator.utils.message_generator("WARNING","W005",self.dn,"GLUE2ComputingServiceTotalJobs",\
                   self.value[0],job_stats )
-        self.assertTrue( total == int(self.value[0]), message ) 
+        self.assertTrue( total == int(self.value[0]) , message )
 
     def test_GLUE2ComputingServiceRunningJobs_OK (self):
         message = validator.utils.message_generator("INFO","I014",self.dn,"GLUE2ComputingServiceRunningJobs",self.value[0])
@@ -368,9 +369,10 @@ class EGIProfileTest(unittest.TestCase):
             if job in self.entry:
                 total = total + int(self.entry[job][0])
                 job_stats = job_stats + " %s=%s" % (job,self.entry[job][0])
+        job_stats = job_stats + " Difference is %s" % (total - int(self.value[0]))
         message = validator.utils.message_generator("WARNING","W013",self.dn,"GLUE2ComputingEndpointTotalJobs",\
                   self.value[0],job_stats )
-        self.assertTrue( total == int(self.value[0]), message )
+        self.assertTrue( total == int(self.value[0]) , message )
 
     def test_GLUE2ComputingEndpointRunningJobs_OK (self):
         message = validator.utils.message_generator("INFO","I021",self.dn,"GLUE2ComputingEndpointRunningJobs",self.value[0])
@@ -518,9 +520,10 @@ class EGIProfileTest(unittest.TestCase):
             if job in self.entry:
                 total = total + int(self.entry[job][0])
                 job_stats = job_stats + " %s=%s" % (job,self.entry[job][0])
+        job_stats = job_stats + " Difference is %s" % (total - int(self.value[0]))
         message = validator.utils.message_generator("WARNING","W025",self.dn,"GLUE2ComputingShareTotalJobs",\
                   self.value[0],job_stats)
-        self.assertTrue( total == int(self.value[0]), message )
+        self.assertTrue( total == int(self.value[0]) , message )
 
     def test_GLUE2ComputingShareRunningJobs_OK (self):
         message = validator.utils.message_generator("INFO","I035",self.dn,"GLUE2ComputingShareRunningJobs",self.value[0])
@@ -854,15 +857,27 @@ class EGIProfileTest(unittest.TestCase):
     def test_GLUE2StorageServiceCapacityTotalSize_OK (self):
         total = 0
         cap_stats = ""
+        value = True
         for cap in ['GLUE2StorageServiceCapacityFreeSize',
                     'GLUE2StorageServiceCapacityUsedSize',
                     'GLUE2StorageServiceCapacityReservedSize']:
             if cap in self.entry:
                 total = total + int(self.entry[cap][0])
                 cap_stats = cap_stats + " %s=%s" % (cap,self.entry[cap][0])
-        message = validator.utils.message_generator("ERROR","E014",self.dn,\
+            else:
+                message = validator.utils.message_generator("INFO","I096", self.dn,\
+                          "GLUE2StorageServiceCapacityTotalSize",self.value[0],cap)
+                value = False
+                break
+        if value:
+            low = int(self.value[0]) - (int(self.value[0]) * 0.005)
+            high = int(self.value[0]) + (int(self.value[0]) * 0.005)
+            cap_stats = cap_stats + " %s <= %s <= %s; Difference is %s" % (low, total, high, total - int(self.value[0]))
+            message = validator.utils.message_generator("ERROR","E014",self.dn,\
                   "GLUE2StorageServiceCapacityTotalSize",self.value[0],cap_stats)
-        self.assertTrue( total == int(self.value[0]), message )
+            if not ( low <= total <= high ):
+                value = False
+        self.assertTrue( value , message )
 
     def test_GLUE2StorageServiceCapacityTotalSize_MinRange (self):
         if 'GLUE2StorageServiceCapacityType' in self.entry:
@@ -920,13 +935,27 @@ class EGIProfileTest(unittest.TestCase):
     def test_GLUE2StorageShareCapacityTotalSize_OK (self):
         total = 0
         share_stats = ""
-        for share in ['GLUE2StorageShareCapacityFreeSize', 'GLUE2StorageShareCapacityUsedSize']:
+        value = True
+        for share in ['GLUE2StorageShareCapacityFreeSize',
+                      'GLUE2StorageShareCapacityUsedSize',
+                      'GLUE2StorageShareCapacityReservedSize']:
             if share in self.entry:
                 total = total + int(self.entry[share][0])
                 share_stats = share_stats + " %s=%s" % (share,self.entry[share][0])
-        message = validator.utils.message_generator("ERROR","E018",self.dn,\
-                  "GLUE2StorageShareCapacityTotalSize",self.value[0],share_stats)
-        self.assertTrue( total <= int(self.value[0]), message )
+            else:
+                message = validator.utils.message_generator("INFO","I097", self.dn,\
+                          "GLUE2StorageShareCapacityTotalSize",self.value[0],share)
+                value = False
+                break
+        if value:
+            low = int(self.value[0]) - (int(self.value[0]) * 0.005)
+            high = int(self.value[0]) + (int(self.value[0]) * 0.005)
+            share_stats = share_stats + " %s <= %s <= %s; Difference is %s" % (low, total, high, total - int(self.value[0]))
+            message = validator.utils.message_generator("ERROR","E018",self.dn,\
+                      "GLUE2StorageShareCapacityTotalSize",self.value[0],share_stats)
+            if not ( low <= total <= high ):
+                value = False
+        self.assertTrue( value , message )
 
     def test_GLUE2StorageShareCapacityTotalSize_MinRange (self):
         message = validator.utils.message_generator("INFO","I091",self.dn,"GLUE2StorageShareCapacityTotalSize",self.value[0])

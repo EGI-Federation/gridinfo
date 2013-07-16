@@ -1,5 +1,5 @@
 
-test_list = ('')
+test_list = ('test_GLUE2EntityValidity_OK')
 
 # List of existing tests
 #'test_GLUE2EntityCreationTime_OK'

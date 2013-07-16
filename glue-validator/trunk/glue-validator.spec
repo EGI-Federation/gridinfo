@@ -47,7 +47,14 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 
-* Fri Jul 12 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.19-0
+* Tue Jul 16 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.19-0
+- Added 0.5% tolerance to Share and Storage Service Capacity tests
+- Added test_GLUE2EntityValidity_OK to known issues
+- Activate --exclude-known-issues option
+- Change glue-validator to make "wlcg" testsuite work as a debugging testsuite to execute only some selected tests
+- Add new info message I096 and I097
+- Allow nagios option to work with all glue options
+- Add separator in additional info in the message generator
 - BUG #101997: Fix to work with bindings containing "/" 
 - Improved usage of glue-validator command line options
  

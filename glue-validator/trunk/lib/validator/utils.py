@@ -121,10 +121,6 @@ def parse_options():
             sys.stderr.write("Error: egi-profile testsuite must be executed against the egi-glue2 schema version.\n")
             usage()
             sys.exit(1)
-    if config['testsuite'] == 'general' and config.has_key('nagios'):
-            sys.stderr.write("Error: Nagios output is only available for egi-profile testsuite.\n")
-            usage()
-            sys.exit(1)
     if (config['separator'] != "\n" and not config.has_key('verbosity')) or \
        (config['separator'] != "\n" and config.has_key('verbosity') and config['verbosity'] != 3):
             sys.stderr.write("Error: Separator option is only available for verbosity level 3.\n")
@@ -155,15 +151,15 @@ Tesuite type: Selects the set of tests to be executed against the LDIF.
 
 Nagios output: 
  -n --nagios        Indicates whether the command should produce Nagios output.
-                    This is only available for the egi-profile testsuite.
- -r --separator     Defines the separator for the nagios output messages , default \n
+ -r --separator     Defines the separator for the nagios output messages , default \\n
                     This is only available for the verbosity level 3.
 
 Other Options:
- -t --timeout       glue-validator runtime timeout, default 10s 
- -v --verbose       Verbosity level 0-3, default 0
- -V --version       Prints glue-validator version
- -h --help          Prints glue-validator usage
+ -k --exclude-known-issues  Do not run tests for wrongly published attributes due to known bugs
+ -t --timeout               glue-validator runtime timeout, default 10s 
+ -v --verbose               Verbosity level 0-3, default 0
+ -V --version               Prints glue-validator version
+ -h --help                  Prints glue-validator usage
 
 Examples:
 
@@ -383,7 +379,7 @@ def message_generator ( type , code , dn , attribute , value , extra_info="" ):
                 code, attribute, separator,\
                 code, value )
     if extra_info != "":
-        message = message + ("\n%s Additional information: %s\n") % ( code, extra_info )
+        message = message + ("%s%s Additional information: %s\n") % ( separator, code, extra_info )
     else:
         message = message + "\n"
 
