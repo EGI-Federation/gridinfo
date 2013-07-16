@@ -54,7 +54,9 @@ if __name__ == "__main__":
               test_names = unittest.TestLoader().getTestCaseNames(validator.WLCGTest.WLCGTest)
               glue_version = config['glue-version']
               for test_name in test_names:
-                  suite.addTest(inst(test_name, entry, glue_version))               
+                  attribute=test_name.rsplit('_')[1]
+                  if attribute in entry:
+                      suite.addTest(inst(test_name,entry,entry[attribute],glue_version)) 
       elif (config['testsuite'] == 'egi-profile'):
       	      module = sys.modules['validator.EntryTest']
 	      inst = getattr(module, 'EntryTest')

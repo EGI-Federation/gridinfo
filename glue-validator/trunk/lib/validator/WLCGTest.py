@@ -1,9 +1,14 @@
 import re
 import unittest
+import datetime
+import time
+import validator.utils
 
+#----------------------------------------------------------------------------------------------
 class WLCGTest(unittest.TestCase):
 
-    def __init__(self, test_name, entry, test_class):
+    def __init__(self, test_name, entry, value, test_class):
+
         unittest.TestCase.__init__(self, test_name)
         self.entry = entry
         if 'dn' in entry:
@@ -11,17 +16,13 @@ class WLCGTest(unittest.TestCase):
         else:
             self.dn = None
 
-        if 'objectClass' in entry:
-            self.objects = entry['objectClass']
-        else:
-            self.objects = []
-
-        self.schema = __import__('%s.data' %(test_class,)).data.schema 
         self.types = __import__('%s.types' %(test_class,)).types
 
-    def test_GlueCEPolicyMaxCPUTime_default (self):
-        message = "ERROR: Entry %s contains default value of 999999999 for GlueCEPolicyMaxCPUTime" % (self.dn)
-        if 'GlueCEPolicyMaxCPUTime' in self.entry:
-        	self.assertEqual(self.entry['GlueCEPolicyMaxCPUTime'],999999999, message)
+        self.value = value
 
+#----------------------------------------------------------------------------------------------
+
+    def test_GLUE2ComputingShareMaxCPUTime_OK (self):
+        message = validator.utils.message_generator("INFO","I029",self.dn,"GLUE2ComputingShareMaxCPUTime",self.value[0])
+        self.assertTrue ( int(self.value[0]) != 999999999, message )
 
