@@ -13,6 +13,7 @@ def parse_options():
     config['output'] = None
     config['testsuite'] = 'general'
     config['separator'] = "\n"
+    config['nagios'] = True
    
     try:
         opts, args = getopt.getopt(sys.argv[1:], "H:p:b:f:v:g:s:t:r:knVh",
@@ -52,17 +53,22 @@ def parse_options():
             usage()
             sys.exit()
 
-    if ( not (config.has_key('hostname'))):
-        sys.stderr.write("Error: Must specify a hostname\n")
+    if ( not (config.has_key('hostname') or config.has_key('file'))):
+        sys.stderr.write("Error: Must specify a hostname or file\n")
         usage()
         sys.exit(1)
 
-    if ( not (config.has_key('port'))):     
+    if ( (config.has_key('hostname') and config.has_key('file'))):
+        sys.stderr.write("Error: Must specify either hostname or file\n")
+        usage()
+        sys.exit(1)
+
+    if ( (config.has_key('hostname') and not config.has_key('port'))):     
         sys.stderr.write("Error: Must specify a port\n")
         usage()
         sys.exit(1)
     
-    if ( not (config.has_key('bind'))):     
+    if ( config.has_key('hostname') and not (config.has_key('bind'))):     
         sys.stderr.write("Error: Must specify a bind\n")
         usage()
         sys.exit(1)
@@ -70,20 +76,15 @@ def parse_options():
     if config.has_key('verbosity'):
         config['verbosity'] = int(config['verbosity'])
         if (config['verbosity'] > 3):
-            sys.stderr.write("Error: Invalid logging level.\n")
+            sys.stderr.write("Error: Invalid logging level\n")
             usage()
             sys.exit(1)
    
     if ((config.has_key('port') or config.has_key('bind')) and config.has_key('file')):
-        sys.stderr.write("Error: Can not specify both file and (port/bind) output options.\n")
+        sys.stderr.write("Error: (port/bind) options are needed by hostname only\n")
         usage()
         sys.exit(1)
    
-    if (not (config.has_key('hostname') or  config.has_key('file'))):
-        sys.stderr.write("Error: Must specify file or hostname\n")
-        usage()
-        sys.exit(1)
-
     if config.has_key('glue-version'):
         if not config['glue-version'] in ['glue2', 'glue1', 'egi-glue2']:
             sys.stderr.write("Error: Invalid schema version %s.\n" %(config['glue-version'],))
@@ -127,7 +128,6 @@ def parse_options():
             usage()
             sys.exit(1)
   
-
     return config
 
 # Funtion to print out the usage
@@ -149,15 +149,13 @@ File Mode: Obtains LDIF directly from a file.
 Tesuite type: Selects the set of tests to be executed against the LDIF.
  -s --testsuite     The testsuite  [general (default)|wlcg|egi-profile].
 
-Nagios output: 
- -n --nagios        Indicates whether the command should produce Nagios output.
- -r --separator     Defines the separator for the nagios output messages , default \\n
-                    This is only available for the verbosity level 3.
 
 Other Options:
  -k --exclude-known-issues  Do not run tests for wrongly published attributes due to known bugs
  -t --timeout               glue-validator runtime timeout, default 10s 
  -v --verbose               Verbosity level 0-3, default 0
+ -r --separator             Defines the separator for the output messages, default \\n
+                            This is only available for the verbosity level 3.
  -V --version               Prints glue-validator version
  -h --help                  Prints glue-validator usage
 
@@ -165,7 +163,7 @@ Examples:
 
   glue-validator -g glue1 -H localhost -p 2170 -b o=grid -s wlcg
   glue-validator -g glue2 -H localhost -p 2170 -b o=glue
-  glue-validator -g egi-glue2 -H localhost -p 2170 -b o=glue -s egi-profile -n
+  glue-validator -g egi-glue2 -H localhost -p 2170 -b o=glue -s egi-profile
 
 ''')
    
