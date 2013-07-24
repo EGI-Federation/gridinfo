@@ -180,6 +180,10 @@ def create_urls_file(egi_urls, osg_urls):
             contents = open(config['manual_file']).read()
             file_handle.write("\n\n# Appended Manual Additions\n\n")
             file_handle.write(contents)
+        else:
+            log.error("Manual URL file %s does not exist!" % (config['manual_file']))
+            sys.exit(1)
+
     
     file_handle.close()
     os.rename(config['output_file'] + ".tmp", config['output_file'])
