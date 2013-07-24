@@ -1,0 +1,19 @@
+dn: GlueServiceUniqueID=service_1,Mds-Vo-name=resource,o=grid
+objectClass: GlueTop
+objectClass: GlueService
+objectClass: GlueKey
+objectClass: GlueSchemaVersion
+GlueServiceStatus: OK
+GlueServiceStatusInfo: Runnning OK
+GlueServiceUniqueID: service_1
+GlueServiceEndpoint: http://service_1
+GlueServiceVersion: 3.0.0
+GlueServiceName: Test
+GlueServiceType: generic
+GlueServiceSemantics: http://service_1/semantics
+GlueServiceStartTime: 2010-03-29T16:11:12+02:00
+GlueForeignKey: GlueSiteUniqueID=NIKHEF-ELPROD
+GlueSchemaVersionMajor: 1
+GlueSchemaVersionMinor: 3
+
+
