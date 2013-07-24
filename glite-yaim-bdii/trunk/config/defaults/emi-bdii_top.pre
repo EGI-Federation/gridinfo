@@ -16,6 +16,9 @@
 # Use a ram disk for the top level BDII to imporve performance
 BDII_RAM_DISK=yes
 
+# Define a default size of the RAM disk to install the LDAP DB
+BDII_RAM_SIZE=1500M
+
 # Use OpenLDAP for the top-level BDII
 SLAPD=/usr/sbin/slapd
 
