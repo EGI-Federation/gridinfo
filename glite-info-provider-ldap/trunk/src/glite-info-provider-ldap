@@ -345,9 +345,22 @@ if( -d $cache_dir ){
 	$file_info =  stat($file);
 	my $mtime=$file_info->mtime;
 	my $atime=$file_info->atime;
-	`sed -i 's/GlueServiceStatus:.*/GlueServiceStatus: Unknown/g' $file`;
-	`sed -i 's/GlueCEStateStatus:.*/GlueCEStateStatus: Unknown/g' $file`;
-	`sed -i 's/GlueSEStatus:.*/GlueSEStatus: Unknown/g' $file`;
+        if ( $options{g} ){
+             print LOGFILE "*** Updating cached values in GLUE 2"
+             `sed -i 's/GLUE2ApplicationEnvironmentState:.*/GLUE2ApplicationEnvironmentState: Unknown/g' $file`;
+             `sed -i 's/GLUE2ComputingActivityRestartState:.*/GLUE2ComputingActivityRestartState: Unknown/g' $file`;
+             `sed -i 's/GLUE2ComputingActivityState:.*/GLUE2ComputingActivityState: Unknown/g' $file`;
+             `sed -i 's/GLUE2ComputingShareServingState:.*/GLUE2ComputingShareServingState: Unknown/g' $file`;
+             `sed -i 's/GLUE2DomainDescription:.*/GLUE2DomainDescription: Unknown/g' $file`;
+             `sed -i 's/GLUE2EndpointHealthState:.*/GLUE2EndpointHealthState: Unknown/g' $file`;
+             `sed -i 's/GLUE2EndpointServingState:.*/GLUE2EndpointServingState: Unknown/g' $file`;
+             `sed -i 's/GLUE2StorageShareServingState:.*/GLUE2StorageShareServingState: Unknown/g' $file`;
+        }else{
+             print LOGFILE "*** Updating cached values in GLUE 1"
+             `sed -i 's/GlueServiceStatus:.*/GlueServiceStatus: Unknown/g' $file`;
+             `sed -i 's/GlueCEStateStatus:.*/GlueCEStateStatus: Unknown/g' $file`;
+             `sed -i 's/GlueSEStatus:.*/GlueSEStatus: Unknown/g' $file`;
+        }
 	utime $atime, $mtime, $file;
     }
 }

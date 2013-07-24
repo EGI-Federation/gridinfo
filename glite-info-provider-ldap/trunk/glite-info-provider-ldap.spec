@@ -1,13 +1,13 @@
 Name:		glite-info-provider-ldap
-Version:	1.4.4
-Release:	2%{?dist}
+Version:	1.4.5
+Release:	1%{?dist}
 Summary:	LDAP information provider
 Group:		Development/Libraries
 License:	ASL 2.0
-URL:		https://twiki.cern.ch/twiki/bin/view/EGEE/BDII
+URL:		http://gridinfo.web.cern.ch
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#  svn export http://svnweb.cern.ch/guest/gridinfo/glite-info-provider-ldap/tags/R_1_4_4_2 %{name}-%{version}
+#  svn export http://svnweb.cern.ch/guest/gridinfo/glite-info-provider-ldap/tags/R_1_4_5_1 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
@@ -41,6 +41,10 @@ rm -rf %{buildroot}
 %doc /usr/share/doc/glite-info-provider-ldap/README
 
 %changelog
+
+* Wed Jul 24 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.4.5-1
+- BUG #101805: Set to 'unknown' cached GLUE 2 state attributes
+
 * Wed Apr 24 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.4.4-2
 - Added Source URL information
 
