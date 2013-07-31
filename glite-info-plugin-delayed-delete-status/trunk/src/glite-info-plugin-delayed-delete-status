@@ -1,0 +1,107 @@
+#!/usr/bin/python
+	
+import os
+import sys
+import getopt
+import logging
+import string
+import re
+
+
+global log
+
+def setup_logging():
+    """creates and returns stderr logger"""
+    global log
+
+    log = logging.getLogger()
+    hdlr = logging.StreamHandler()
+    form = logging.Formatter('%(asctime)s %(levelname)-8s %(message)s')
+    hdlr.setFormatter(form)
+    log.addHandler(hdlr)
+    log.setLevel(logging.WARN)
+
+def parse_args():
+    """Parses the command line arguments"""
+    global log
+    global new_delayed_delete
+
+    new_delayed_delete=""
+    try:
+        opts, args = getopt.getopt(sys.argv[1:], "f:hv", ["file", "help", "verbose"])
+    except getopt.GetoptError, e:
+        log.error("While parsing arguments: %s." % str(e).strip())
+        usage()
+        sys.exit(1)
+    for opt, arg in opts:
+        if opt == "-f" or opt == "--file":
+            new_delayed_delete=arg
+        elif opt == "-h" or opt == "--help":
+            usage()
+            sys.exit()
+        elif opt == "-v" or opt == "--verbose":
+            log.setLevel(logging.DEBUG)
+
+    if new_delayed_delete == "":
+        log.error("Delayed delete file not specified!")
+        usage()
+        sys.exit(1)
+
+
+def usage():
+    """prints the command line options of the program"""
+
+    print """
+            Usage:""", os.path.basename(sys.argv[0]), """[options]
+
+            Options:
+              -f --file    New Delayed Delete file
+              -h --help    Display this help
+              -v --verbose Run in verbose mode
+
+            """
+
+
+def create_ldap_modif():
+
+    status = { 'GlueServiceUniqueID': ['GlueServiceStatus'], 
+               'GlueCEUniqueID': ['GlueCEStatus'],
+               'GlueSEUniqueID' : ['GlueSEStatus'], 
+               'GLUE2ApplicationEnvironmentID' : ['GLUE2ApplicationEnvironmentState'],
+               'GLUE2ComputingActivityID' : ['GLUE2ComputingActivityRestartState','GLUE2ComputingActivityState'],
+               'GLUE2ServiceID' : ['GLUE2ServiceStatusInfo'],
+               'GLUE2EndpointID' : ['GLUE2EndpointHealthState','GLUE2EndpointHealthStateInfo','GLUE2EndpointServingState'],
+               'GLUE2ShareID' : ['GLUE2ComputingShareServingState','GLUE2StorageShareServingState'] } 
+
+    try: 
+            dns = open(new_delayed_delete,'r')
+            for dn in dns:
+                if ( dn != ""):
+            	   try:
+                	log.debug("%s" % (dn))
+                        id,_ = dn.split("=",1)
+                        log.debug("%s" % (id)) 
+                        attribute=re.search(r'(GlueServiceUniqueID|GlueCEUniqueID|GlueSEUniqueID\
+                                               |GLUE2ApplicationEnvironmentID|GLUE2ComputingActivityID\
+                                               |GLUE2ServiceID|GLUE2ShareID|GLUE2EndpointID)',id)
+                        if attribute is not None:
+                                print "dn: %s" % (dn.strip())
+                                print "changetype:modify"
+                        	for att_state in status[attribute.group()]: 
+                                	print "replace: %s" % (att_state)
+                                	print "%s: Unknown" % (att_state)  
+                                	print "-\n"
+                   except ValueError:
+                	log.error("Unable to parse DN %s" % (dn))
+
+    except IOError:
+            log.error("Unable to open Delayed Delete file %s" % (new_delayed_delete))
+            sys.exit(1)
+
+if __name__ == "__main__":
+
+    setup_logging()
+    parse_args()
+    create_ldap_modif()
+
+
