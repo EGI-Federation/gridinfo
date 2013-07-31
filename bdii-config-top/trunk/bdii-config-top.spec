@@ -1,13 +1,13 @@
 Name:		bdii-config-top
-Version:	1.0.7
-Release:	2%{?dist}
+Version:	1.0.8
+Release:	1%{?dist}
 Summary:	Top BDII configuration files
 Group:		Development/Libraries
 License:	ASL 2.0
-URL:            https://tomtools.cern.ch/confluence/display/IS/Home 
+URL:            http://gridinfo.web.cern.ch
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii-config-top/tags/R_1_0_7_2 %{name}-%{version}
+#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii-config-top/tags/R_1_0_8_1 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
@@ -21,6 +21,8 @@ Requires: openldap-servers
 Requires:	glite-info-provider-ldap
 Requires:	glite-info-provider-service
 Requires:	glite-info-update-endpoints
+Requires:	glite-info-plugin-fcr
+Requires:       glite-info-plugin-delayed-delete-status
 
 %description
 Configuration files for the Top BDII
@@ -40,14 +42,19 @@ rm -rf %{buildroot}
 
 %files
 %defattr(-,root,root,-)
-
+%dir /var/log/glite/
 /var/lib/bdii/gip/provider/glite-info-provider-service-bdii-top
 /var/lib/bdii/gip/provider/glite-info-provider-top
 /var/lib/bdii/gip/provider/glite-info-provider-service-bdii-top-glue2
 /var/lib/bdii/gip/provider/glite-info-provider-top-glue2
 /var/lib/bdii/gip/plugin/glite-info-plugin-fcr
+/var/lib/bdii/gip/plugin/glite-info-plugin-delayed-delete-status
 
 %changelog
+
+* Wed Apr 24 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.8-1
+- BUG #99298: new plugin to set state attributes of cached entries to 'Unknown'
+
 * Wed Apr 24 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.7-2
 - Added Source URL information
 

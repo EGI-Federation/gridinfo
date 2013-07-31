@@ -12,6 +12,7 @@ install:
 	@echo installing ...
 	@mkdir -p $(prefix)/var/lib/bdii/gip/provider/
 	@mkdir -p $(prefix)/var/lib/bdii/gip/plugin/
+	@mkdir -p ${prefix}/var/log/glite
 	@install -m 0755 provider/glite-info-provider-* $(prefix)/var/lib/bdii/gip/provider/
 	@install -m 0755 plugin/glite-info-plugin-* $(prefix)/var/lib/bdii/gip/plugin/
 
