@@ -11,6 +11,7 @@ default:
 install:
 	@echo installing ...
 	@mkdir -p ${prefix}/usr/libexec/
+	@mkdir -p $(prefix)/var/log/glite/
 	@mkdir -p $(prefix)/usr/share/doc/glite-info-plugin-delayed-delete-status
 	@install -m 0755 src/glite-info-plugin-delayed-delete-status $(prefix)/usr/libexec
 	@install -m 0644 doc/README $(prefix)/usr/share/doc/glite-info-plugin-delayed-delete-status/
