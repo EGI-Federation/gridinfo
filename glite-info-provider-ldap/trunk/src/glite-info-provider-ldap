@@ -361,6 +361,7 @@ if(( -d $cache_dir ) and ($name ne 'grid') and ($name ne 'local')){
              `sed -i 's/GLUE2StorageShareServingState:.*/GLUE2StorageShareServingState: Unknown/g' $file`;
         }else{
              `sed -i 's/GlueServiceStatus:.*/GlueServiceStatus: Unknown/g' $file`;
+             `sed -i 's/GlueServiceStatusInfo:.*/GlueServiceStatusInfo: Unknown/g' $file`;
              `sed -i 's/GlueCEStateStatus:.*/GlueCEStateStatus: Unknown/g' $file`;
              `sed -i 's/GlueSEStatus:.*/GlueSEStatus: Unknown/g' $file`;
         }
