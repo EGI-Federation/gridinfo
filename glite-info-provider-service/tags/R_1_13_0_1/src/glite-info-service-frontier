@@ -1,0 +1,18 @@
+#!/bin/bash
+
+# init function for the Frontier service publisher, to export some variables
+
+FRONTIER_PORT=${FRONTIER_PORT:-3128}
+FRONTIER_HOST=${FRONTIER_HOST:-`hostname -f`}
+
+CATALINA_HOME=/data/dbfrontier/tomcat
+CATALINA_PID=$CATALINA_HOME/logs/tomcat.pid
+
+FRONTIER_PID_FILE=${FRONTIER_PID_FILE:-${CATALINA_PID}}
+
+# Write to stdout - will be imported by the info provider
+
+echo FRONTIER_PORT=$FRONTIER_PORT
+echo FRONTIER_HOST=$FRONTIER_HOST
+echo FRONTIER_PID_FILE=$FRONTIER_PID_FILE
+
