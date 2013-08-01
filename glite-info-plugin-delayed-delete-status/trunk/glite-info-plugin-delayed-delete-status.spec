@@ -26,6 +26,11 @@ Updates GLUE state attributes of delayed delete entries in the Top BDII
 rm -rf %{buildroot}
 make install prefix=%{buildroot}
 
+%post
+touch /var/log/glite/glite-info-plugin-delayed-delete-status.log
+chmod 0644 /var/log/glite/glite-info-plugin-delayed-delete-status.log 
+chown ldap:ldap /var/log/glite/glite-info-plugin-delayed-delete-status.log
+
 %clean
 rm -rf %{buildroot}
 
@@ -36,7 +41,7 @@ rm -rf %{buildroot}
 
 %changelog
 
-* Wed Jul 31 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.0-1
+* Fri Aug 02 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.0-1
 - Initial release
 
 
