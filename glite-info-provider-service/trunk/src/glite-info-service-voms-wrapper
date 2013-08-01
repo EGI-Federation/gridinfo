@@ -14,6 +14,11 @@ sitename=$2
 
 # Construct the base UniqueID in the same format as the info provider
 host=`hostname -f`
+if [ x$host == "x" ]; then
+    echo "Error: hostname -f returned a null string"
+    exit 99
+fi
+
 check=`cksum $config | cut -d" " -f 1`
 uniqueid=${3:-${host}_org.glite.voms_${check}}
 
