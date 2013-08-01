@@ -14,6 +14,7 @@
 #
 # 28/08/12: Restore the export of the site name in the GLITE_INFO_SERVICE_SITE_ID
 #           environment variable (was done for GLUE 1 but got lost for GLUE 2)
+# 01/08/13: Die if hostname -f returns a null string
 #
 # Arguments are:
 #    - a comma-separated list of configuration files for the
@@ -178,6 +179,11 @@ if (!$SID) {
 # a checksum of the Endpoint config files
     my $host = `hostname -f`;
     chomp($host);
+    if (!$host) {
+# If we can't get a local hostname at all we can't construct a unique ID
+        print STDERR "Error: hostname -f returned a null string\n";
+        exit 99;
+    }
 # We checked above that the config files are readable
     my $check = `cat @ConfigFiles | cksum | cut -d\" \" -f 1`;
     chomp($check);

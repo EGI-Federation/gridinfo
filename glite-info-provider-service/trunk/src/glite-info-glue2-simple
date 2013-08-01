@@ -16,6 +16,7 @@
 # 05/04/11: Add the endpoint type (extracted from the config file name) to the Service ID
 # 28/08/12: Restore the export of the site name in the GLITE_INFO_SERVICE_SITE_ID
 #           environment variable (was done for GLUE 1 but got lost for GLUE 2)
+# 01/08/13: Die if hostname -f returns a null string
 #
 # Arguments are:
 #    - a configuration file for the Endpoint information, optionally*
@@ -152,11 +153,16 @@ if (!$SID) {
 }
 
 if (!$SID) {
+    my $host = `hostname -f`;
+    chomp($host);
+    if (!$host) {
+# If we can't get a local hostname at all we can't construct a unique ID
+        print STDERR "Error: hostname -f returned a null string\n";
+        exit 99;
+    }
 # This time we can construct a default, made from the host name and
 # a checksum of the config file. Unfortunately this can't include the
 # service type because we don't know it yet ...
-    my $host = `hostname -f`;
-    chomp($host);
     my $check = `cksum $Endpoint_conf | cut -d\" \" -f 1`;
     chomp($check);
 # ... but we can cheat by assuming that the config file name follows the

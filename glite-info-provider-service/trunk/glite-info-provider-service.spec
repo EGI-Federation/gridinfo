@@ -1,5 +1,5 @@
 Name:           glite-info-provider-service
-Version:        1.12.0
+Version:        1.13.0
 Release:        1%{?dist}
 Summary:        The GLUE service information provider
 License:        ASL 2.0
@@ -107,6 +107,7 @@ rm -rf %{buildroot}
 /etc/glite/info/service/glite-info-glue2-service-test.conf.template
 /etc/glite/info/service/glite-info-glue2-service-argus.conf.template
 /etc/glite/info/service/glue1.test.ldif
+/etc/glite/info/service/glue1.test.ldif.prev
 /etc/glite/info/service/glue2.test.ldif
 /etc/glite/info/service/glue2.multi.test.ldif
 /etc/glite/info/service/glue2.test.ldif.prev
@@ -114,6 +115,12 @@ rm -rf %{buildroot}
 %doc /usr/share/doc/glite-info-provider-service/README-GLUE2
 
 %changelog
+* Thu Aug 01 2013 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.13.0-1
+- Allow longer strings in GlueServiceData, bug #102168
+- Die if hostname -f returns a null string, bug #101562
+- Allow for an rpm name change in the WMS templates, bug #100872
+- Change the published URL for the Argus PDP templates, bug #100822
+- Allow for a move in the pidfile location in the LB templates, bug #100126
 * Mon Oct 22 2012 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.12.0-1
 - Protect against non-ASCII characters in strings, bug #98374
 * Sat Sep 29 2012 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.11.0-2

@@ -70,7 +70,7 @@ get_acbr = echo -e "VO:dteam\nVO:ops"
 # ServiceData entries if any, as a list of key=value pairs
 # This will normally call a separate script
 
-get_data = echo -e "world=disk\nsupport=turtle"
+get_data = echo -e "world=disk\nsupport=turtle\naverylongstringwithmorethanonehundredcharactersaverylongstringwithmorethanonehundredcharactersaverylongstringwithmorethanonehundredcharacters=anotherverylongstringwithmorethanonehundredcharactersanotherverylongstringwithmorethanonehundredcharactersanotherverylongstringwithmorethanonehundredcharacters"
 
 # Associated services
 
