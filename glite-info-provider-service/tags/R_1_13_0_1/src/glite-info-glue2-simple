@@ -1,0 +1,297 @@
+#!/usr/bin/perl -w
+
+#
+# glite-info-glue2-simple: a script to generate a GLUE 2
+# Service object with a single Endpoint, analogous to the existing
+# GLUE 1 Service provider glite-info-service
+#
+# This script in turn calls the glite-info-glue2-service and
+# glite-info-glue2-endpoint scripts to generate the actual objects
+#
+# Ref: http://www.ogf.org/documents/GFD.147.pdf
+#      http://glue20.web.cern.ch/glue20/
+#
+# Stephen Burke, v 1.0 March 2010
+#
+# 05/04/11: Add the endpoint type (extracted from the config file name) to the Service ID
+# 28/08/12: Restore the export of the site name in the GLITE_INFO_SERVICE_SITE_ID
+#           environment variable (was done for GLUE 1 but got lost for GLUE 2)
+# 01/08/13: Die if hostname -f returns a null string
+#
+# Arguments are:
+#    - a configuration file for the Endpoint information, optionally*
+#      followed by a comma-separated configuration file for the
+#      Service information
+#    - the GLUE2DomainID (i.e. the site unique ID) (optional*)
+#    - the GLUE2ServiceID (optional)
+#    - the GLUE2EndpointID (optional)
+#
+# * The DomainID can only be omitted if it is provided in the Service
+#   config file. The Service and Endpoint IDs are generated automatically
+#   if not supplied.
+#
+# Copyright (c) Members of the EGEE Collaboration. 2010.
+# See http://www.eu-egee.org/partners/ for details on the copyright
+# holders.
+#
+#     Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
+use strict;
+use FileHandle;
+
+# Temporary variable for commands to be executed
+my $command;
+
+# Only the first argument is mandatory
+
+if (! $ARGV[0]) {
+    print STDERR "Usage: glite-info-glue2-simple <endpoint-config-file>[,<service-config-file>] [<site-ID> [<service-ID> [<endpoint-ID>]]]\n";
+    exit 1;
+}
+
+my $Config = $ARGV[0];
+
+# Files can be comma-separated - NB assumes no commas in the names ...
+my @ConfigFiles = split /,/, $Config;
+
+# The first one is the Endpoint config ...
+my $Endpoint_conf = shift @ConfigFiles;
+
+# Simple check on the file
+if (!(-r $Endpoint_conf)) {
+    print STDERR "Error: Configuration file $Endpoint_conf is not readable\n";
+    exit 2;
+}
+
+# ... optionally followed by a service config
+my $Service_conf = shift @ConfigFiles;
+
+# Optional Domain ID
+my $DID = $ARGV[1];
+
+# Optional Service ID
+my $SID = $ARGV[2];
+
+# Optional Endpoint ID
+my $EID = $ARGV[3];
+
+# No whitespace in IDs
+$DID =~ s/\s+//g if ($DID);
+$SID =~ s/\s+//g if ($SID);
+$EID =~ s/\s+//g if ($EID);
+
+# Config items are commands to be executed - "echo" is a no-op
+
+my %config = (
+        get_site_id => 'echo',
+        get_service_id => 'echo',
+        get_capability => 'echo',
+        get_type => 'echo',
+        get_qualitylevel => 'echo',
+        get_statusinfo => 'echo',
+        get_complexity => 'echo',
+        get_otherinfo => 'echo'
+	      );
+
+# Process the service config file if it exists
+
+if ($Service_conf) {
+    my $fh = new FileHandle $Service_conf
+	or die "Error: Can't open configuration file: $Service_conf\n";
+    foreach (<$fh>) {
+	if ((! m/^\#/) & (m/=/)){
+# For lines containing an = and not starting with #
+	    m/^(.*?)=\s*(.*)\s*$/;
+# Split on the first =, no leading or trailing whitespace in the value
+	    my $key = $1;
+	    my $value = $2;
+# No whitespace at all in the key
+	    $key =~ s/\s+//g;
+	    $config{$key} = $value;
+	}
+    }
+}
+
+# Now sort out the arguments
+
+if (!$DID) {
+# An explicit argument takes precedence over the config file
+    $command = $config{get_site_id};
+    $DID = `$command`;
+# No whitespace in IDs
+    $DID =~ s/\s+//g;
+}
+
+if (!$DID) {
+# No default possible
+    print STDERR "Error: Site name (DomainID) not specified\n";
+    exit 3;
+}
+
+# Export the DomainID as an environment variable so it can be used
+# in the scripts and config items
+
+$ENV{"GLITE_INFO_SERVICE_SITE_ID"} = $DID;
+
+
+if (!$SID) {
+# Again an explicit argument takes precedence
+    $command = $config{get_service_id};
+    $SID = `$command`;
+    $SID =~ s/\s+//g;
+}
+
+if (!$SID) {
+    my $host = `hostname -f`;
+    chomp($host);
+    if (!$host) {
+# If we can't get a local hostname at all we can't construct a unique ID
+        print STDERR "Error: hostname -f returned a null string\n";
+        exit 99;
+    }
+# This time we can construct a default, made from the host name and
+# a checksum of the config file. Unfortunately this can't include the
+# service type because we don't know it yet ...
+    my $check = `cksum $Endpoint_conf | cut -d\" \" -f 1`;
+    chomp($check);
+# ... but we can cheat by assuming that the config file name follows the
+# standard convention ...
+    $Endpoint_conf =~ m/glite-info-\w+-(.+).conf/;
+    my $typeguess = $1;
+    if (!$typeguess) {
+	$typeguess = "unknown";
+    }
+# Note that this may cause trouble if hostname -f does not return an fqdn,
+# but I think that is normally required by other things anyway 
+    $SID = $host . "_" . $typeguess . "_" . $check;
+}
+
+# No default needed here, the provider constructs it
+if (!$EID) {
+    $EID = "";
+}
+
+# These four are normally extracted from the Endpoint, but
+# can be set from the config file
+
+# Should return a comma-separated list - this will be added to the
+# Endpoint Capabilities
+$command = $config{get_capability};
+my $Capabilities = "," . `$command`;
+$Capabilities =~ s/\s+//g;
+
+# The Type will override the value in the Endpoint
+$command = $config{get_type};
+my $Type = `$command`;
+$Type =~ s/\s+//g;
+
+# These two shouldn't normally be needed but we may as well have a
+# way to force them
+
+$command = $config{get_qualitylevel};
+my $QualityLevel = `$command`;
+$QualityLevel =~ s/\s+//g;
+
+$command = $config{get_complexity};
+my $Complexity = `$command`;
+$Complexity =~ s/\s+//g;
+
+# Extract any StatusInfo and OtherInfo items
+
+$command = $config{get_statusinfo};
+my @SI = `$command`;
+
+$command = $config{get_otherinfo};
+my @OI = `$command`;
+
+# Now execute the Endpoint info provider, catching the LDIF in a list
+
+my @endpoint_ldif = `glite-info-glue2-endpoint $Endpoint_conf $SID $EID`;
+
+# Various attributes need to be collected out of the Endpoint to be
+# summarised in the Service
+
+my $Attr;
+my $QL = "UNDEFINEDVALUE";
+my $Cap;
+
+foreach (@endpoint_ldif) {
+# Read through the LDIF and look for the relevant attributes
+    if ( m/^GLUE2EndpointInterfaceName:/ && !$Type) {
+	($Attr, $Type) = split /:/, $_, 2;
+# For simple services we'll set the ServiceType the same as the endpoint type
+	$Type =~ s/\s+//g;
+    } elsif ( m/^GLUE2EndpointQualityLevel:/ ) {
+# The Service QualityLevel is the best QL of any Endpoint - we only
+# have one here so it must be the best ...
+        ($Attr, $QL) = split /:/, $_, 2;
+        $QL =~ s/\s+//g;
+    } elsif ( m/^GLUE2EndpointCapability:/ ) {
+# The Service accumulates all the Capabilities of its Endpoints
+	($Attr, $Cap) = split /:/, $_, 2;
+	$Cap =~ s/\s+//g;
+# Make a comma-separated list (with a leading comma)
+	$Capabilities = $Capabilities . "," . $Cap;
+    }
+}
+
+if (!$Type) {
+    $Type = "UNDEFINEDVALUE";
+}
+
+# The Service provider wants the Type and Capabilities together
+$Type = $Type . $Capabilities;
+
+# Allow overrides from the config file
+if (!$QualityLevel) {
+    $QualityLevel = $QL;
+}
+
+if (!$Complexity) {
+    $Complexity = 1;
+}
+
+# Concatenate the QualityLevel and Complexity - this script only
+# supports one Endpoint
+my $EndpointInfo = $QualityLevel . "," . $Complexity;
+
+# Now tack on any StatusInfo items
+foreach (@SI) {
+    s/\s+//g;
+    if ($_) {
+	$EndpointInfo = $EndpointInfo . "," . $_;
+    }
+}
+
+# And finally see if there are any OtherInfo strings
+my $OtherInfo = "";
+foreach (@OI) {
+# These might contain white space so we should quote them
+    $OtherInfo = $OtherInfo . '"' . $_ . '"' . " ";
+}
+
+# Execute the Service provider, again catching the output
+my @service_ldif = `glite-info-glue2-service $DID $SID $Type $EndpointInfo $OtherInfo`;
+
+# Finally just print the LDIF back to stdout
+
+foreach (@service_ldif) {
+    print;
+}
+
+foreach (@endpoint_ldif) {
+    print;
+}
+
+exit 0;

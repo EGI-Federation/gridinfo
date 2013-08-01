@@ -1,0 +1,26 @@
+#!/bin/bash
+
+# Minimal init function for the argus service publisher
+
+# These can be overridden by external definitions of the variables,
+# e.g. if the advertised host name should be an alias
+
+ARGUS_HOST=${ARGUS_HOST:-`hostname -f`}
+
+ARGUS_PAP_PORT=${ARGUS_PAP_PORT:-8150}
+ARGUS_PDP_PORT=${ARGUS_PDP_PORT:-8152}
+ARGUS_PEP_PORT=${ARGUS_PEP_PORT:-8154}
+
+# Write to stdout - will be imported by the info provider
+
+echo ARGUS_HOST=$ARGUS_HOST
+
+echo ARGUS_PAP_PORT=$ARGUS_PAP_PORT
+echo ARGUS_PDP_PORT=$ARGUS_PDP_PORT
+echo ARGUS_PEP_PORT=$ARGUS_PEP_PORT
+
+echo ARGUS_PAP_PID_FILE=/var/run/argus-pap.pid
+echo ARGUS_PDP_PID_FILE=/var/run/argus-pdp.pid
+echo ARGUS_PEP_PID_FILE=/var/run/argus-pepd.pid
+
+
