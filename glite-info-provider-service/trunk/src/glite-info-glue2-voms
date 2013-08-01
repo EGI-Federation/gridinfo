@@ -13,6 +13,7 @@
 #
 # Stephen Burke, v 1.0 July 2011
 # 18/07/12: Change the ServiceType to org.glite.voms, see bug #95869
+# 01/08/13: Die if hostname -f returns a null string
 #
 # Arguments are:
 #    - a single configuration file for the voms endpoint(s), optionally
@@ -100,6 +101,11 @@ if (!$SID) {
 # as well be consistent).
     my $host = `hostname -f`;
     chomp($host);
+    if (!$host) {
+# If we can't get a local hostname at all we can't construct a unique ID
+        print STDERR "Error: hostname -f returned a null string\n";
+        exit 99;
+    }
     my $check = `cksum $vomsconf | cut -d\" \" -f 1`;
     chomp($check);
 # Note that this may cause trouble if hostname -f does not return an fqdn,
