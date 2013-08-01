@@ -25,10 +25,10 @@ get_version = echo 1.0.0
 # A command to return the service endpoint to stdout (uses variables set
 # in the init script)
 
-get_endpoint = echo http://localhost:$ARGUS_PDP_PORT/authz
+#get_endpoint = echo http://localhost:$ARGUS_PDP_PORT/authz
 
-# May later be:
-#get_endpoint = echo https://$ARGUS_HOST:$ARGUS_PDP_PORT/authz
+# Should now be:
+get_endpoint = echo https://$ARGUS_HOST:$ARGUS_PDP_PORT/authz
 
 # A command to check the status of the service. The status message should be
 # returned to stdout - it can be multi-line, the output will be massaged

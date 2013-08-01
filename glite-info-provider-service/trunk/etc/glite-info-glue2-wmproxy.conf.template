@@ -88,7 +88,7 @@ get_implementor = echo gLite
 
 get_implementationname = echo WMS
 
-get_implementationversion = rpm -q glite-wms-wmproxy --queryformat '%{version}\n'
+get_implementationversion = rpm -q $WMPROXY_RPM --queryformat '%{version}\n'
 
 # The Quality Level for this endpoint: 1 = development, 2 = testing,
 # 3 = pre-production and 4 = production

@@ -19,6 +19,9 @@
 # 27/4/10: Add support for defining the SiteUniqueID in the config file
 # 28/4/10: Filter out any non-ASCII characters in StatusInfo and DataValue,
 #          and also filter the standard list of pids in status text
+# 1/8/13:  Die if hostname -f returns a null string
+#          Increase the length limit for strings in ServiceData from
+#          99 chars to 239
 #
 # Arguments are:
 #    -   a service-specific configuration file
@@ -53,7 +56,7 @@ my $confile;
 my $UID;
 my $command;
 
-my $gis_version = "1.6";
+my $gis_version = "1.7";
 
 my $host = `hostname -f`;
 chomp($host);
@@ -216,6 +219,11 @@ my $Type = $config{service_type};
 if ($ARGV[2]) {
     $UID = $ARGV[2];
 } else {
+    if (!$host) {
+# If we can't get a local hostname at all we can't construct a unique ID
+	print STDERR "Error: hostname -f returned a null string\n";
+	exit 99;
+    }
     my $check = `cksum $confile | cut -d\" \" -f 1`;
     chomp($check);
 # Note that this may cause trouble if hostname -f does not return an fqdn,
@@ -471,11 +479,12 @@ foreach (@ServiceData) {
 # Just in case, zap any non-ASCII characters
 	$value =~ tr/\0-\x7f/?/c;
 # R-GMA has varchar(100)
-	if (length($key) > 99) {
-	    $key = substr($key, 0, 94) . "4444";
+# R-GMA is no longer relevant!
+	if (length($key) > 240) {
+	    $key = substr($key, 0, 239) . "4444";
 	}
-        if (length($value) > 99) {
-            $value = substr($value, 0, 94) . "4444";
+        if (length($value) > 240) {
+            $value = substr($value, 0, 239) . "4444";
         }
 # Don't output anything if the key is null
         if (length($key) > 0) {

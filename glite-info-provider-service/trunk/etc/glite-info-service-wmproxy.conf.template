@@ -20,7 +20,7 @@ service_type = org.glite.wms.WMProxy
 # This should be a command which returns the service interface version
 # in the format 3[.2[.1]]. Set to the RPM version.
 
-get_version = rpm -q glite-wms-wmproxy --queryformat '%{version}\n'
+get_version = rpm -q $WMPROXY_RPM --queryformat '%{version}\n'
 
 # A command to return the service endpoint to stdout (uses variables set
 # in the init script)

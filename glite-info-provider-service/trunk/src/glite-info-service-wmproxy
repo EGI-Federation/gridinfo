@@ -24,9 +24,14 @@ WMPROXY_HOST=${WMPROXY_HOST:-${WMPROXY_HOST_DEFAULT}}
 eval WMPROXY_PID_FILE=`grep ^PidFile $WMPROXY_CONF | cut -d" " -f2`
 WMPROXY_PID_FILE=${WMPROXY_PID_FILE:-/var/httpd-wmproxy.pid}
 
+# The rpm to supply the version has changed
+WMPROXY_RPM=glite-wms-wmproxy
+rpm -q glite-wms-interface > /dev/null && WMPROXY_RPM=glite-wms-interface
+
 # Write to stdout - will be imported by the info provider
 
 echo WMPROXY_PORT=$WMPROXY_PORT
 echo WMPROXY_HOST=$WMPROXY_HOST
 echo WMPROXY_PID_FILE=$WMPROXY_PID_FILE
+echo WMPROXY_RPM=$WMPROXY_RPM
 
