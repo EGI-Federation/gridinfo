@@ -34,7 +34,7 @@ rm -rf %{buildroot}
 %doc LICENSE
 
 %changelog
-* Wed Jul 24 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 4.3.14-1
+* Thu Aug 01 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 4.3.14-1
 - BUG #101389: Added BDII_RAM_SIZE
 
 * Wed Nov 14 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 4.3.13-1
