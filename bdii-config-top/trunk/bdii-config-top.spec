@@ -52,7 +52,7 @@ rm -rf %{buildroot}
 
 %changelog
 
-* Wed Apr 24 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.8-1
+* Fri Aug 02 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.8-1
 - BUG #99298: new plugin to set state attributes of cached entries to 'Unknown'
 
 * Wed Apr 24 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.7-2
