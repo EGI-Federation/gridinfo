@@ -288,7 +288,6 @@ foreach(@urls){
 	print LOGFILE "ignoring badly formatted line: '$_'\n";
 	next;
     }
-    print LOGFILE "Command is: $command\n";
 
     # Fork the search.
     if (!defined($pid=fork)) {
@@ -357,6 +356,7 @@ if(( -d $cache_dir ) and ($name ne 'grid') and ($name ne 'local')){
              `sed -i 's/GLUE2ComputingShareServingState:.*/GLUE2ComputingShareServingState: Unknown/g' $file`;
              `sed -i 's/GLUE2DomainDescription:.*/GLUE2DomainDescription: Unknown/g' $file`;
              `sed -i 's/GLUE2EndpointHealthState:.*/GLUE2EndpointHealthState: Unknown/g' $file`;
+             `sed -i 's/GLUE2EndpointHealthStateInfo:.*/GLUE2EndpointHealthStateInfo: Unknown/g' $file`;
              `sed -i 's/GLUE2EndpointServingState:.*/GLUE2EndpointServingState: Unknown/g' $file`;
              `sed -i 's/GLUE2StorageShareServingState:.*/GLUE2StorageShareServingState: Unknown/g' $file`;
         }else{

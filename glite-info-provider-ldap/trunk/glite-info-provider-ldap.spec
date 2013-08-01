@@ -43,6 +43,7 @@ rm -rf %{buildroot}
 %changelog
 
 * Mon Jul 29 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.4.5-1
+- Removed log messages used for debuggin and added missing state attribute
 - Removed cache for Top BDII and define it only for site BDII
 - Fixed missing ";"
 - BUG #101805: Set to 'unknown' cached GLUE 2 state attributes
