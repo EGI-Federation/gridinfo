@@ -105,6 +105,8 @@ if ($options{d}) {
 }
 
 # Set ttl for cache or set ttl to 0 if using dynamic option
+# site BDII implements an actual cache of 10min (default)
+# top BDII does not implement a cache but 1min tolerance is defined
 my $ttl;
 if ($options{v}){
     if ( ! int($options{v})){
@@ -116,7 +118,11 @@ if ($options{v}){
 	exit 1;
     }
 }else{
-    $ttl=600;
+    if (($name eq 'grid') or ($name eq 'local')){ 
+        $ttl=60;
+    }else{
+        $ttl=600;
+    }
 }
 
 # Set timeout for the ldapsearch
@@ -282,6 +288,7 @@ foreach(@urls){
 	print LOGFILE "ignoring badly formatted line: '$_'\n";
 	next;
     }
+    print LOGFILE "Command is: $command\n";
 
     # Fork the search.
     if (!defined($pid=fork)) {
@@ -324,10 +331,6 @@ foreach(@pid){
     waitpid($_, 0);
 }
 
-my $end_time = `date '+\%Y-\%m-\%d \%T'`; chomp $end_time;
-my $dt = sprintf "%4d", time - $t0;
-print LOGFILE "=== $end_time END - elapsed: $dt\n";
-
 for (<$tmp_dir/*.err>){
     $region=$_;
     $region=~s/.*\///;
@@ -338,15 +341,16 @@ for (<$tmp_dir/*.err>){
     unlink($_);
 }
 
-#Change cache status values
-if( -d $cache_dir ){
+# Change cache status values in site BDII only
+# Top BDII already implements a cache with the delayed delete functionality
+if(( -d $cache_dir ) and ($name ne 'grid') and ($name ne 'local')){
     my @files=glob("$cache_dir/*.ldif");
+    print LOGFILE "*** Setting to 'Unknown' cached state values in the site BDII\n";
     foreach my $file (@files) {
 	$file_info =  stat($file);
 	my $mtime=$file_info->mtime;
 	my $atime=$file_info->atime;
         if ( $options{g} ){
-             print LOGFILE "*** Updating cached values in GLUE 2";
              `sed -i 's/GLUE2ApplicationEnvironmentState:.*/GLUE2ApplicationEnvironmentState: Unknown/g' $file`;
              `sed -i 's/GLUE2ComputingActivityRestartState:.*/GLUE2ComputingActivityRestartState: Unknown/g' $file`;
              `sed -i 's/GLUE2ComputingActivityState:.*/GLUE2ComputingActivityState: Unknown/g' $file`;
@@ -356,7 +360,6 @@ if( -d $cache_dir ){
              `sed -i 's/GLUE2EndpointServingState:.*/GLUE2EndpointServingState: Unknown/g' $file`;
              `sed -i 's/GLUE2StorageShareServingState:.*/GLUE2StorageShareServingState: Unknown/g' $file`;
         }else{
-             print LOGFILE "*** Updating cached values in GLUE 1";
              `sed -i 's/GlueServiceStatus:.*/GlueServiceStatus: Unknown/g' $file`;
              `sed -i 's/GlueCEStateStatus:.*/GlueCEStateStatus: Unknown/g' $file`;
              `sed -i 's/GlueSEStatus:.*/GlueSEStatus: Unknown/g' $file`;
@@ -453,6 +456,10 @@ for (<$cache_dir/*.ldif>) {
     }
     close LDIF;
 }
+
+my $end_time = `date '+\%Y-\%m-\%d \%T'`; chomp $end_time;
+my $dt = sprintf "%4d", time - $t0;
+print LOGFILE "=== $end_time END - elapsed: $dt\n";
 
 $/ = $rs;
 
