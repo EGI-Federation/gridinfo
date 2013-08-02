@@ -64,36 +64,42 @@ def usage():
 
 def create_ldap_modif():
 
+# Temporarily removed Shares (BUG #102173)
+# 'GLUE2ShareID' : ['GLUE2ComputingShareServingState','GLUE2StorageShareServingState']
+
     status = { 'GlueServiceUniqueID': ['GlueServiceStatus','GlueServiceStatusInfo'], 
                'GlueCEUniqueID': ['GlueCEStatus'],
                'GlueSEUniqueID' : ['GlueSEStatus'], 
                'GLUE2ApplicationEnvironmentID' : ['GLUE2ApplicationEnvironmentState'],
                'GLUE2ComputingActivityID' : ['GLUE2ComputingActivityRestartState','GLUE2ComputingActivityState'],
                'GLUE2ServiceID' : ['GLUE2ServiceStatusInfo'],
-               'GLUE2EndpointID' : ['GLUE2EndpointHealthState','GLUE2EndpointHealthStateInfo','GLUE2EndpointServingState'],
-               'GLUE2ShareID' : ['GLUE2ComputingShareServingState','GLUE2StorageShareServingState'] } 
+               'GLUE2EndpointID' : ['GLUE2EndpointHealthState','GLUE2EndpointHealthStateInfo','GLUE2EndpointServingState'] }
 
     try: 
             dns = open(new_delayed_delete,'r')
             for dn in dns:
                 if ( dn != ""):
             	   try:
-                	log.debug("%s" % (dn))
+                	log.debug("DN: %s" % (dn))
                         id,_ = dn.split("=",1)
-                        log.debug("%s" % (id)) 
+                        log.debug("Detected attribute: %s" % (id)) 
                         attribute=re.search(r'(GlueServiceUniqueID|GlueCEUniqueID|GlueSEUniqueID\
                                                |GLUE2ApplicationEnvironmentID|GLUE2ComputingActivityID\
-                                               |GLUE2ServiceID|GLUE2ShareID|GLUE2EndpointID)',id)
+                                               |GLUE2ServiceID|GLUE2EndpointID)',id)
                         if attribute is not None:
+                                log.debug("Update state attributes: OK")
                                 print "dn: %s" % (dn.strip())
                                 print "changetype:modify"
                         	for att_state in status[attribute.group()]: 
                                 	print "replace: %s" % (att_state)
                                 	print "%s: Unknown" % (att_state)  
-                                	print "-\n"
+                                	print "-"
+                                print ""
+                        else: 
+                                log.debug("No state attributes")
+
                    except ValueError:
                 	log.error("Unable to parse DN %s" % (dn))
-
             dns.close()
 
     except IOError:
