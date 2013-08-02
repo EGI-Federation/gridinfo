@@ -94,6 +94,8 @@ def create_ldap_modif():
                    except ValueError:
                 	log.error("Unable to parse DN %s" % (dn))
 
+            dns.close()
+
     except IOError:
             log.error("Unable to open Delayed Delete file %s" % (new_delayed_delete))
             sys.exit(1)
