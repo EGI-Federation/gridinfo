@@ -1,0 +1,7 @@
+The glite-info-plugin-delayed-delete-status plugin is used in the top level BDII.
+It checks new GLUE entries marked for deletion in each BDII cycle and updates their 
+GLUE state attributes to 'Unknown', if any. This is used only if the cache functionality 
+is used (BDII_DELETE_DELAY > 0 in the /etc/bdii/bdii.conf file).
+
+In this way, cached entries show status 'Unknown', meaning that those entries are cached
+and that it was not possible to contact the corresponding resource.
