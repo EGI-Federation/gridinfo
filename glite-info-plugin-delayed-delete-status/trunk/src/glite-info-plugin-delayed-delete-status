@@ -64,7 +64,7 @@ def usage():
 
 def create_ldap_modif():
 
-    status = { 'GlueServiceUniqueID': ['GlueServiceStatus'], 
+    status = { 'GlueServiceUniqueID': ['GlueServiceStatus','GlueServiceStatusInfo'], 
                'GlueCEUniqueID': ['GlueCEStatus'],
                'GlueSEUniqueID' : ['GlueSEStatus'], 
                'GLUE2ApplicationEnvironmentID' : ['GLUE2ApplicationEnvironmentState'],
