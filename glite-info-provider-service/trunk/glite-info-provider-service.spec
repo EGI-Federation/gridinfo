@@ -5,7 +5,7 @@ Summary:        The GLUE service information provider
 License:        ASL 2.0
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/glite-info-provider-service/tags/R_1_12_0_1 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/glite-info-provider-service/tags/R_1_13_1_1 %{name}-%{version}
 #  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source:         %{name}-%{version}.tar.gz
 BuildArch:      noarch
