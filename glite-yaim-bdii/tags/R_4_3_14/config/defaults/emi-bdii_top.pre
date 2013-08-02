@@ -1,0 +1,33 @@
+##############################################################################
+#
+# NAME :        emi-bdii_top.pre
+#
+# DESCRIPTION : This is a configuration file containing predefined values for variables
+#               used by top BDII.
+#
+# AUTHORS :     yaim-contact@cern.ch
+#
+# NOTES :
+#
+# YAIM MODULE:  glite-yaim-bdii
+#
+##############################################################################
+
+# Use a ram disk for the top level BDII to imporve performance
+BDII_RAM_DISK=yes
+
+# Define a default size of the RAM disk to install the LDAP DB
+BDII_RAM_SIZE=1500M
+
+# Use OpenLDAP for the top-level BDII
+SLAPD=/usr/sbin/slapd
+
+# Use the slapd.conf file for OpenLDAP 2.4
+SLAPD_CONF=/etc/bdii/bdii-top-slapd.conf
+
+# Caching BDII: Use this variable to configure in seconds the delayed delete option
+# Default is 24h. Set it to 0 if you want to disable the caching functionality.
+BDII_DELETE_DELAY=43200
+
+# IPv6 Support. 
+BDII_IPV6_SUPPORT=no
