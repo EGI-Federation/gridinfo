@@ -1,0 +1,4 @@
+#!/bin/sh
+
+/usr/libexec/glite-info-plugin-fcr -u http://lcg-fcr.cern.ch:8083/fcr-data/exclude.ldif
+
