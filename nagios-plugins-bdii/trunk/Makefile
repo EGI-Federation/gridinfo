@@ -16,9 +16,9 @@ compile:
 
 install:
 	mkdir -p $(prefix)$(lib_dir)/nagios/plugins/
-	mkdir -p $(prefix)/usr/share/doc/$(NAME)-$(VERSION)
+	mkdir -p $(prefix)/usr/share/doc/$(NAME)
 	install -m 0755 ${build}/check_bdii_entries $(prefix)/$(lib_dir)/nagios/plugins/
-	install -m 0644 LICENSE $(prefix)/usr/share/doc/$(NAME)-$(VERSION)
+	install -m 0644 LICENSE $(prefix)/usr/share/doc/$(NAME)/
 
 sources: dist
 	cp $(build)/$(NAME)-$(VERSION).tar.gz .

@@ -1,10 +1,10 @@
 Summary: Nagios Plugin - check_bdii_entries
 Name: nagios-plugins-bdii
-Version: 1.0.14
+Version: 1.0.15
 Release: 1%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/nagios-plugins-bdii/tags/R_1_0_14 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/nagios-plugins-bdii/tags/R_1_0_15 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source0: %{name}-%{version}.tar.gz
 License: ASL 2.0
@@ -30,12 +30,14 @@ make install prefix=%{buildroot}
 %files
 %defattr(-,root,root)
 %{_libdir}/nagios/plugins/check_bdii_entries
-%{_defaultdocdir}/%{name}-%{version}/LICENSE
+%{_defaultdocdir}/%{name}/LICENSE
 
 %clean
 rm -rf %{buildroot}
 
 %changelog
+* Wed Aug 07 2013 Laurence Field <laurence.field@cern.ch> - 1.0.15-1%{?dist}
+- Fix for Redhat bug 993990
 * Thu Dec 08 2011 Laurence Field <laurence.field@cern.ch> - 1.0.14-1%{?dist}
 - Added LICENSE file to binary
 * Fri Dec 02 2011 Laurence Field <laurence.field@cern.ch> - 1.0.13-1%{?dist}
