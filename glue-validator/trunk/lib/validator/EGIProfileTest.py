@@ -187,12 +187,6 @@ class EGIProfileTest(unittest.TestCase):
                                   validator.utils.message_generator("INFO","I013",self.dn,\
                                   "GLUE2EntityOtherInfo: CPUScalingReference",att.split('CPUScalingReference')[1])
                         status = False
-            else:
-                index = pair.find("using Argus") # Known issue with wrong syntax from CREAM CE info providers
-                if (index == -1): 
-                    message = message + \
-                              validator.utils.message_generator("ERROR","E006",self.dn,"GLUE2EntityOtherInfo",pair)
-                    status = False
         totalshare=0 
         for i in sharedict:
             totalshare = totalshare + sharedict[i]
@@ -865,18 +859,14 @@ class EGIProfileTest(unittest.TestCase):
                 total = total + int(self.entry[cap][0])
                 cap_stats = cap_stats + " %s=%s" % (cap,self.entry[cap][0])
             else:
-                message = validator.utils.message_generator("INFO","I096", self.dn,\
-                          "GLUE2StorageServiceCapacityTotalSize",self.value[0],cap)
-                value = False
-                break
-        if value:
-            low = int(self.value[0]) - (int(self.value[0]) * 0.005)
-            high = int(self.value[0]) + (int(self.value[0]) * 0.005)
-            cap_stats = cap_stats + " %s <= %s <= %s; Difference is %s" % (low, total, high, total - int(self.value[0]))
-            message = validator.utils.message_generator("ERROR","E014",self.dn,\
+                cap_stats = cap_stats + " %s=Not published" % (cap)
+        low = int(self.value[0]) - (int(self.value[0]) * 0.005)
+        high = int(self.value[0]) + (int(self.value[0]) * 0.005)
+        cap_stats = cap_stats + " %s <= %s <= %s; Difference is %s" % (low, total, high, total - int(self.value[0]))
+        message = validator.utils.message_generator("ERROR","E014",self.dn,\
                   "GLUE2StorageServiceCapacityTotalSize",self.value[0],cap_stats)
-            if not ( low <= total <= high ):
-                value = False
+        if not ( low <= total <= high ):
+            value = False
         self.assertTrue( value , message )
 
     def test_GLUE2StorageServiceCapacityTotalSize_MinRange (self):
@@ -893,7 +883,7 @@ class EGIProfileTest(unittest.TestCase):
                self.entry['GLUE2StorageServiceCapacityType'][0] == 'nearline':
                    message = validator.utils.message_generator("INFO","I087",self.dn,\
                              "GLUE2StorageServiceCapacityTotalSize",self.value[0])
-                   self.assertTrue ( int(self.value[0]) <= 1000000 , message )
+                   self.assertTrue ( int(self.value[0]) <= 1000000000 , message )
 
     def test_GLUE2StorageServiceCapacityFreeSize_OK (self):
         if 'GLUE2StorageServiceCapacityTotalSize' in self.entry:
@@ -936,25 +926,27 @@ class EGIProfileTest(unittest.TestCase):
         total = 0
         share_stats = ""
         value = True
-        for share in ['GLUE2StorageShareCapacityFreeSize',
-                      'GLUE2StorageShareCapacityUsedSize',
+        for share in ['GLUE2StorageShareCapacityFreeSize',\
+                      'GLUE2StorageShareCapacityUsedSize',\
                       'GLUE2StorageShareCapacityReservedSize']:
             if share in self.entry:
-                total = total + int(self.entry[share][0])
-                share_stats = share_stats + " %s=%s" % (share,self.entry[share][0])
+                if (share == 'GLUE2StorageShareCapacityReservedSize') and \
+                   (self.entry['GLUE2StorageShareCapacityReservedSize'][0] == self.value[0]):
+                       share_stats = share_stats + " %s=%s (Not added)" % (share,self.entry[share][0])
+                else:
+                       total = total + int(self.entry[share][0])
+                       share_stats = share_stats + " %s=%s" % (share,self.entry[share][0])
             else:
-                message = validator.utils.message_generator("INFO","I097", self.dn,\
-                          "GLUE2StorageShareCapacityTotalSize",self.value[0],share)
-                value = False
-                break
-        if value:
-            low = int(self.value[0]) - (int(self.value[0]) * 0.005)
-            high = int(self.value[0]) + (int(self.value[0]) * 0.005)
-            share_stats = share_stats + " %s <= %s <= %s; Difference is %s" % (low, total, high, total - int(self.value[0]))
-            message = validator.utils.message_generator("ERROR","E018",self.dn,\
-                      "GLUE2StorageShareCapacityTotalSize",self.value[0],share_stats)
-            if not ( low <= total <= high ):
-                value = False
+                share_stats = share_stats + " %s=Not published" % (share)
+        low = int(self.value[0]) - (int(self.value[0]) * 0.005)
+        low = low - 1
+        high = int(self.value[0]) + (int(self.value[0]) * 0.005)
+        high = high + 1
+        share_stats = share_stats + "; %s <= %s <= %s; Difference is %s" % (low, total, high, total - int(self.value[0]))
+        message = validator.utils.message_generator("ERROR","E018",self.dn,\
+                  "GLUE2StorageShareCapacityTotalSize",self.value[0],share_stats)
+        if not ( low <= total <= high ):
+            value = False
         self.assertTrue( value , message )
 
     def test_GLUE2StorageShareCapacityTotalSize_MinRange (self):
@@ -963,7 +955,7 @@ class EGIProfileTest(unittest.TestCase):
 
     def test_GLUE2StorageShareCapacityTotalSize_MaxRange (self):
         message = validator.utils.message_generator("INFO","I092",self.dn,"GLUE2StorageShareCapacityTotalSize",self.value[0])
-        self.assertTrue ( int(self.value[0]) <= 1000000, message )
+        self.assertTrue ( int(self.value[0]) <= 1000000000, message )
 
     def test_GLUE2StorageShareCapacityFreeSize_OK (self):
         if 'GLUE2StorageShareCapacityTotalSize' in self.entry:
