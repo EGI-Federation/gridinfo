@@ -60,6 +60,7 @@ rm -rf $RPM_BUILD_ROOT
 - Improved usage of glue-validator command line options
 - BUG #101997: Fix to work with bindings containing "/" 
 - BUG #101996: Accept single strings in OtherInfo
+- BUG #101934: Align OS Names with EGI guidelines and enable the OS Name checking that was disabled
  
 * Fri Jun 21 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.18-0
 - BUG #101815: Redirect timeout error message to stdout

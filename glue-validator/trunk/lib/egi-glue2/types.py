@@ -470,8 +470,8 @@ def is_OSName_t(value):
       'linux-rocks',
       'mandrake',
       'redhatenterpriseas',
-      'scientificlinux',
-      'scientificlinuxcern',
+      'scientificsl',
+      'scientificcernslc',
       'suse',
       'ubuntu',
       'windowsvista',
@@ -480,8 +480,7 @@ def is_OSName_t(value):
    if value in types:
       return True
    else:
-      # let it pass
-      return True
+      return False
 
 
 def is_ParallelSupport_t(value):
