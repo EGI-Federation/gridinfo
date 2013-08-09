@@ -144,15 +144,16 @@ messages = {
 "I084" : ( "Incoherent attribute range", "GLUE2ApplicationEnvironmentFreeJobs" ),
 "I085" : ( "Incoherent attribute range", "GLUE2ApplicationEnvironmentFreeUserSeats" ),
 "I086" : ( "Total capacity size less than 1000 GB", "GLUE2StorageServiceCapacityTotalSize" ),
-"I087" : ( "Total capacity size greater than 1 million GB", "GLUE2StorageServiceCapacityTotalSize" ),
+"I087" : ( "Total capacity size greater than 1 billion GB", "GLUE2StorageServiceCapacityTotalSize" ),
 "I088" : ( "Access latency is 'offline'", "GLUE2StorageShareAccessLatency" ),
 "I089" : ( "Default life time less than 100000 seconds", "GLUE2StorageShareDefaultLifeTime" ),
 "I090" : ( "Maximum life time less than 100000 seconds", "GLUE2StorageShareMaximumLifeTime" ),
 "I091" : ( "Total share capacity size less than 1000 GB", "GLUE2StorageShareCapacityTotalSize" ),
-"I092" : ( "Total share capacity size greater than 1 million GB", "GLUE2StorageShareCapacityTotalSize" ),
+"I092" : ( "Total share capacity size greater than 1 billion GB", "GLUE2StorageShareCapacityTotalSize" ),
 "I093" : ( "Bandwidth less than 100", "GLUE2ToComputingServiceBandwidth" ),
 "I094" : ( "Bandwidth greater than 100000", "GLUE2ToComputingServiceBandwidth" ),
 "I095" : ( "Recommended attribute not present", "Several attributes" ),
-"I096" : ( "Missing attribute to perform validation", "GLUE2StorageServiceCapacityTotalSize" )
-"I097" : ( "Missing attribute to perform validation", "GLUE2StorageShareCapacityTotalSize" )
+"I096" : ( "Missing attribute to perform validation", "GLUE2StorageServiceCapacityTotalSize" ),
+"I097" : ( "Missing attribute to perform validation", "GLUE2StorageShareCapacityTotalSize" ),
+"I999" : ( "OK test", "NA" )
 }
