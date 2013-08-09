@@ -187,12 +187,6 @@ class EGIProfileTest(unittest.TestCase):
                                   validator.utils.message_generator("INFO","I013",self.dn,\
                                   "GLUE2EntityOtherInfo: CPUScalingReference",att.split('CPUScalingReference')[1])
                         status = False
-            else:
-                index = pair.find("using Argus") # Known issue with wrong syntax from CREAM CE info providers
-                if (index == -1): 
-                    message = message + \
-                              validator.utils.message_generator("ERROR","E006",self.dn,"GLUE2EntityOtherInfo",pair)
-                    status = False
         totalshare=0 
         for i in sharedict:
             totalshare = totalshare + sharedict[i]
@@ -212,18 +206,12 @@ class EGIProfileTest(unittest.TestCase):
         message = validator.utils.message_generator("ERROR","E009",self.dn,"GLUE2LocationLatitude",self.value[0])
         self.assertTrue( float(self.value[0]) > -90 and float(self.value[0]) < 90, message)
 
-#------------------------------------- ID attributes -----------------------------------------------
+#------------------------------------- GLUE2Service -----------------------------------------------
 
     def test_GLUE2ServiceID_OK (self):
         status = re.match('^_',self.value[0])
         message = validator.utils.message_generator("WARNING","W039",self.dn,"GLUE2ServiceID",self.value[0])
         self.assertFalse(status, message)
-
-    def test_GLUE2EndpointID_OK (self):
-        status = re.match('^_',self.value[0])
-        message = validator.utils.message_generator("WARNING","W040",self.dn,"GLUE2EndpointID",self.value[0])
-        self.assertFalse(status, message)
-
 
 #------------------------------------- GLUE2ComputingService ---------------------------------------
 
@@ -264,8 +252,18 @@ class EGIProfileTest(unittest.TestCase):
                   "GLUE2ComputingServicePreLRMSWaitingJobs",self.value[0])
         self.assertTrue( int(self.value[0]) < 1000000, message )
 
-#------------------------------------- GLUE2ComputingEndpoint ---------------------------------------
+#------------------------------------- GLUE2Endpoint ---------------------------------------
 
+    def test_GLUE2EndpointID_OK (self):
+        status = re.match('^_',self.value[0])
+        message = validator.utils.message_generator("WARNING","W040",self.dn,"GLUE2EndpointID",self.value[0])
+        self.assertFalse(status, message)
+
+    def test_GLUE2EndpointImplementationVersion_OK (self):
+        message = validator.utils.message_generator("WARNING","W041",self.dn,\
+                  "GLUE2EndpointImplementationVersion",self.value[0])
+        self.assertTrue( self.value[0].find("is not installed") == -1, message )
+          
     def test_GLUE2EndpointStartTime_OK (self):
         try:
             creationtime = datetime.datetime(*(time.strptime(self.value[0],"%Y-%m-%dT%H:%M:%SZ")[0:6]))
@@ -370,6 +368,8 @@ class EGIProfileTest(unittest.TestCase):
             message = ""
             status = True
         self.assertTrue(status, message)
+
+#------------------------------------- GLUE2ComputingEndpoint ---------------------------------------
 
     def test_GLUE2ComputingEndpointTotalJobs_OK (self):
         total = 0
