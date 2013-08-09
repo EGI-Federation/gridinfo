@@ -58,6 +58,8 @@ messages = {
 "W036" : ( "Single valued attribute with more than one value", "Several attributes" ),
 "W037" : ( "Wrong type", "Several attributes" ),
 "W038" : ( "Empty attribute", "Several attributes" ),
+"W039" : ( "Wrong Service ID starting with _","GLUE2ServiceID" ), 
+"W040" : ( "Wrong Endpoint ID starting with _","GLUE2EndpointID" ), 
 "I001" : ( "Unknown Grid Infrastructure name", "GLUE2EntityOtherInfo" ),
 "I002" : ( "Unknown configuration tool", "GLUE2EntityOtherInfo" ),
 "I003" : ( "Unknown EGI NGI", "GLUE2EntityOtherInfo" ),
