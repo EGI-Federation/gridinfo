@@ -60,6 +60,7 @@ messages = {
 "W038" : ( "Empty attribute", "Several attributes" ),
 "W039" : ( "Wrong Service ID starting with _","GLUE2ServiceID" ), 
 "W040" : ( "Wrong Endpoint ID starting with _","GLUE2EndpointID" ), 
+"W041" : ( "Rpm used to publish implementation version does not exist","GLUE2EndpointImplementationVersion" ), 
 "I001" : ( "Unknown Grid Infrastructure name", "GLUE2EntityOtherInfo" ),
 "I002" : ( "Unknown configuration tool", "GLUE2EntityOtherInfo" ),
 "I003" : ( "Unknown EGI NGI", "GLUE2EntityOtherInfo" ),
