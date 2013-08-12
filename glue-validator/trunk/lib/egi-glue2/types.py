@@ -461,21 +461,20 @@ def is_OSFamily_t(value):
 
 def is_OSName_t(value):
    types = [
-      'aix',
-      'centos',
-      'debian',
-      'fedoracore',
-      'gentoo',
-      'leopard',
-      'linux-rocks',
-      'mandrake',
-      'redhatenterpriseas',
-      'scientificsl',
-      'scientificcernslc',
-      'suse',
-      'ubuntu',
-      'windowsvista',
-      'windowsxp'
+      'AIX',
+      'CentOS',
+      'Debian',
+      'Fedoracore',
+      'Gentoo',
+      'Leopard',
+      'Linux-rocks',
+      'Mandrake',
+      'RedhatEnterpriseAS',
+      'ScientificSL',
+      'ScientificCERNSLC',
+      'SUSE LINUX',
+      'Ubuntu',
+      'Microsoft WINDOWS' 
       ]
    if value in types:
       return True
