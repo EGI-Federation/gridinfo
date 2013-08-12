@@ -48,6 +48,7 @@ rm -rf $RPM_BUILD_ROOT
 %changelog
 
 * Mon Aug 12 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.19-0
+- Add tests for OS types and add general type checking test to known issues
 - Add known-issues to the general tests
 - Added +-(1+0.5%) tolerance to Share and Storage Service Capacity tests
 - Adapted Share and Storage Service Capacity tests to current way of publishing for DPM, dCache and StoRM

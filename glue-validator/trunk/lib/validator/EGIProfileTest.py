@@ -731,6 +731,29 @@ class EGIProfileTest(unittest.TestCase):
 
 #------------------------------------- GLUE2ExecutionEnvironment ---------------------------------------
 
+    # Until info providers fix types, the general type checking is in "Known Issues" 
+    # OS and Platform types that depend on sys admin are explicitely executed
+    def test_GLUE2ExecutionEnvironmentPlatform_OK (self):
+        status = self.types.is_Platform_t(self.value[0])
+        message = validator.utils.message_generator\
+                 ("WARNING","W042",self.dn,"GLUE2ExecutionEnvironmentPlatform",self.value[0],\
+                  "Expected type is Platform_t")
+        self.assertTrue(status, message)
+
+    def test_GLUE2ExecutionEnvironmentOSFamily_OK (self):
+        status = self.types.is_OSFamily_t(self.value[0])
+        message = validator.utils.message_generator\
+                 ("WARNING","W043",self.dn,"GLUE2ExecutionEnvironmentOSFamily",self.value[0],\
+                  "Expected type is OSFamily_t")
+        self.assertTrue(status, message)
+
+    def test_GLUE2ExecutionEnvironmentOSName_OK (self):
+        status = self.types.is_OSName_t(self.value[0])
+        message = validator.utils.message_generator\
+                 ("WARNING","W044",self.dn,"GLUE2ExecutionEnvironmentOSName",self.value[0],\
+                  "Expected type is OSName_t")
+        self.assertTrue(status, message)
+
     def test_GLUE2ExecutionEnvironmentTotalInstances_MinRange (self):
         message = validator.utils.message_generator("INFO","I063",self.dn,\
                   "GLUE2ExecutionEnvironmentTotalInstances",self.value[0])
