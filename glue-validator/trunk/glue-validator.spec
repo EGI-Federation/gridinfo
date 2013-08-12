@@ -47,11 +47,12 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 
-* Fri Aug 09 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.19-0
+* Mon Aug 12 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.19-0
+- Add known-issues to the general tests
 - Added +-(1+0.5%) tolerance to Share and Storage Service Capacity tests
 - Adapted Share and Storage Service Capacity tests to current way of publishing for DPM, dCache and StoRM
 - Changed upper limit in Share and Storage Service Capacity to 1 billion GB instead of 1 million GB
-- Known-issues: test_GLUE2EntityValidity_OK
+- Updated known-issues with list of tests 
 - Activate --exclude-known-issues option
 - Change glue-validator to make "wlcg" testsuite work as a debugging testsuite to execute only some selected tests
 - Add new info message I096 and I097

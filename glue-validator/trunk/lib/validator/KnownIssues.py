@@ -1,5 +1,17 @@
 
-test_list = ('test_GLUE2EntityValidity_OK')
+test_list = (
+'test_GLUE2EndpointImplementationVersion_OK',
+'test_GLUE2StorageServiceCapacityTotalSize_OK',
+'test_GLUE2StorageServiceCapacityFreeSize_OK',
+'test_GLUE2StorageServiceCapacityUsedSize_OK',
+'test_GLUE2StorageServiceCapacityReservedSize_OK',
+'test_GLUE2StorageShareCapacityTotalSize_OK',
+'test_GLUE2StorageShareCapacityFreeSize_OK',
+'test_GLUE2StorageShareCapacityUsedSize_OK',
+'test_GLUE2EntityValidity_OK',
+'test_mandatory_attributes',
+'test_data_types'
+)
 
 # List of existing tests
 #'test_GLUE2EntityCreationTime_OK'
@@ -7,16 +19,15 @@ test_list = ('test_GLUE2EntityValidity_OK')
 #'test_GLUE2EntityOtherInfo_OK'
 #'test_GLUE2LocationLongitude_OK'
 #'test_GLUE2LocationLatitude_OK'
-#'test_GLUE2ServiceQualityLevel_OK'
+#'test_GLUE2ServiceID_OK'
 #'test_GLUE2ComputingServiceTotalJobs_OK'
 #'test_GLUE2ComputingServiceRunningJobs_OK'
 #'test_GLUE2ComputingServiceWaitingJobs_OK'
 #'test_GLUE2ComputingServiceStagingJobs_OK'
 #'test_GLUE2ComputingServiceSuspendedJobs_OK'
 #'test_GLUE2ComputingServicePreLRMSWaitingJobs_OK'
-#'test_GLUE2ComputingEndpointQualityLevel_OK'
-#'test_GLUE2EndpointHealthState_OK'
-#'test_GLUE2ComputingEndpointServingState_OK'
+#'test_GLUE2EndpointID_OK'
+#'test_GLUE2EndpointImplementationVersion_OK'
 #'test_GLUE2EndpointStartTime_OK'
 #'test_GLUE2EndpointIssuerCA_OK'
 #'test_GLUE2EndpointTrustedCA_OK'
@@ -67,7 +78,6 @@ test_list = ('test_GLUE2EntityValidity_OK')
 #'test_GLUE2ComputingShareMaxVirtualMemory_MaxRange'
 #'test_GLUE2ComputingShareGuaranteedVirtualMemory_MinRange'
 #'test_GLUE2ComputingShareGuaranteedVirtualMemory_MaxRange'
-#'test_GLUE2ComputingShareServingState_OK'
 #'test_GLUE2ComputingShareEstimatedAverageWaitingTime_OK'
 #'test_GLUE2ComputingShareEstimatedWorstWaitingTime_OK'
 #'test_GLUE2ComputingShareFreeSlots_OK'
@@ -118,7 +128,6 @@ test_list = ('test_GLUE2EntityValidity_OK')
 #'test_GLUE2StorageServiceCapacityFreeSize_OK'
 #'test_GLUE2StorageServiceCapacityUsedSize_OK'
 #'test_GLUE2StorageServiceCapacityReservedSize_OK'
-#'test_GLUE2StorageShareServingState_OK'
 #'test_GLUE2StorageShareAccessLatency_OK'
 #'test_GLUE2StorageShareDefaultLifeTime_OK'
 #'test_GLUE2StorageShareMaximumLifeTime_OK'
