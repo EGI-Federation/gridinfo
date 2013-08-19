@@ -1,0 +1,78 @@
+#!/usr/bin/python
+
+import sys
+import logging
+import gsutils
+
+error_messages= {
+   "connection.error":      ["Connection Error","ERROR"],
+   "example.gluesitename.exists": ["GlueSiteName does not exist in the entry","ERROR"],
+   "example.gluesitename.c": ["GlueSiteName does not contain the letter C","WARNING"]
+   }
+          
+def test_glue_site(entry):
+   log.debug("Testing site entry")
+
+   if (entry.has_key('GlueSiteName')):
+      test_site_name(entry)
+   else:
+      my_errors.log(entry['dn'][0],'example.gluesitename.exist', 'This is a detailed message', entry['GlueSiteUniqueID'][0])
+
+def test_site_name(entry):
+   log.debug("Testing site name for %s" %(entry['GlueSiteName'][0]) )
+   
+   try:
+      entry['GlueSiteName'][0].index('C')
+   except ValueError, e:
+      my_errors.log(entry['dn'][0],'example.gluesitename.c', 'This is a detailed message', entry['GlueSiteUniqueID'][0])
+
+if __name__ == "__main__":
+
+   global my_errors
+
+   config = gsutils.parse_options()
+
+   log = logging.getLogger('glite-validate-example')
+   hdlr = logging.StreamHandler(sys.stderr)
+   formatter = logging.Formatter('[%(levelname)s]: %(message)s')
+   hdlr.setFormatter(formatter)
+   log.addHandler(hdlr)
+   log.setLevel(config['debug'])
+                     
+   
+   # Testing logging.
+   log.error("Test message") 
+   log.warning("Test message")
+   log.info("Test message")
+   log.debug("Test mesaage")
+
+   # Initialize error logger.
+   my_errors=gsutils.error_logger('gstat-validate-example',error_messages)
+
+   # Set filter to reduced the amount of information 
+   filter = "'(objectclass=GlueSite)'"
+
+   if config.has_key('file'):
+      source = "file://%s" % (config['file'])
+   if config.has_key('host'):
+      source = "ldap://%s:%s/%s?filter=%s" % (config['host'], config['port'], config['bind'], filter)
+
+   ldif = gsutils.fast_read_ldif(source)
+   dns = gsutils.get_dns(ldif)
+   log.info("Found %s entries" %(len(dns)) )
+   
+   # Itterate through LDIF entries and test.
+   for dn in dns:
+      entry = ldif[dns[dn][0]:dns[dn][1]].strip()
+      entry = gsutils.convert_entry(entry)
+      for object_class in entry['objectClass']:
+         if ( object_class == "GlueSite" ):
+            test_glue_site(entry)
+
+   if (len(dns) == 0 ):
+      details = "No results returned."
+      my_errors.log(config['bind'], "connection.error", details, 'Unknown')
+
+   gsutils.do_output(my_errors,config)   
+   gsutils.do_exit(my_errors)   
+            
