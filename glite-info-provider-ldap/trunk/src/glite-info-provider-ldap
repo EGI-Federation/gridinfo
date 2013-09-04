@@ -270,19 +270,11 @@ foreach(@urls){
 	}else{
 	    $bind = $4;
 	}
-        # If this is a top BDII and GLUE 2.0 is queried, apply patch for ARC 
-	if ($name eq 'grid'){
-            $command = "ldapsearch -x -LLL -h $2 -p $3 -b $bind -s base "
-                . $filter
-                . "> $tmp_dir/$region.ldif 2>$tmp_dir/$region.err"
-                . " ; ldapsearch -x -LLL -h $2 -p $3 -b GLUE2GroupID=resource,$bind "
-                . $filter
-                . ">> $tmp_dir/$region.ldif 2>>$tmp_dir/$region.err";
-        }else{	
-  	    $command = "ldapsearch -x -LLL -h $2 -p $3 -b $bind "
-	        . $filter
-	        . "> $tmp_dir/$region.ldif 2>$tmp_dir/$region.err";
-        }
+
+        $command = "ldapsearch -x -LLL -h $2 -p $3 -b $bind "
+           . $filter
+           . "> $tmp_dir/$region.ldif 2>$tmp_dir/$region.err";
+
     } else {
 	chomp;
 	print LOGFILE "ignoring badly formatted line: '$_'\n";
