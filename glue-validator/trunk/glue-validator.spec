@@ -47,7 +47,7 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 
-* Mon Aug 12 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.19-0
+* Fri Sep 06 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.19-0
 - Add correct case in OS names
 - Add tests for OS types and add general type checking test to known issues
 - Add known-issues to the general tests
@@ -58,9 +58,9 @@ rm -rf $RPM_BUILD_ROOT
 - Activate --exclude-known-issues option
 - Change glue-validator to make "wlcg" testsuite work as a debugging testsuite to execute only some selected tests
 - Add new info message I096 and I097
-- Allow nagios option to work with all glue options and make it the default
+- Allow nagios option to work with all glue options
 - Add separator in additional info in the message generator
-- Improved usage of glue-validator command line options
+- Improved usage of glue-validator command line options and define default options
 - BUG #101997: Fix to work with bindings containing "/" 
 - BUG #101996: Accept single strings in OtherInfo
 - BUG #101934: Align OS Names with EGI guidelines and enable the OS Name checking that was disabled
