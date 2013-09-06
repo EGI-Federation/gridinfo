@@ -11,9 +11,10 @@ def parse_options():
     config = {}
     config['debug'] = 0
     config['output'] = None
-    config['testsuite'] = 'general'
+    config['testsuite'] = 'egi-profile'
     config['separator'] = "\n"
     config['nagios'] = True
+    config['glue-version'] = 'egi-glue2'
    
     try:
         opts, args = getopt.getopt(sys.argv[1:], "H:p:b:f:v:g:s:t:r:knVh",
@@ -45,7 +46,7 @@ def parse_options():
         if o in ("-r", "--separator"):
             config['separator'] = a
         if o in ("-V", "--version"):
-            sys.stdout.write("glue-validator version 2")
+            sys.stdout.write("glue-validator version 2.0.19\n")
             sys.exit()
         if o in ("-k", "--exclude-known-issues"):
             config['exclude-known-issues'] = True
@@ -91,9 +92,7 @@ def parse_options():
             usage()
             sys.exit(1)
     else:
-        sys.stderr.write("Error: Must specify a schema version.\n")
-        usage()
-        sys.exit(1)
+        config['glue-version']='egi-glue2' 
 
     if config.has_key('testsuite'):
         if not config['testsuite'] in ['general', 'wlcg', 'egi-profile']:
@@ -101,7 +100,7 @@ def parse_options():
             usage()
             sys.exit(1)
     else:
-        config['testsuite']='general'
+        config['testsuite']='egi-profile'
 
     if not config.has_key('timeout'):
         config['timeout']=10
@@ -115,6 +114,10 @@ def parse_options():
             usage()
             sys.exit(1)
     if config['glue-version'] == 'glue2' and ( config['bind'].find('o=grid') != -1 ):
+            sys.stderr.write("Error: Use a glue 2 binding containing o=glue.\n")
+            usage()
+            sys.exit(1)
+    if config['glue-version'] == 'egi-glue2' and ( config['bind'].find('o=grid') != -1 ):
             sys.stderr.write("Error: Use a glue 2 binding containing o=glue.\n")
             usage()
             sys.exit(1)
@@ -132,23 +135,26 @@ def parse_options():
 
 # Funtion to print out the usage
 def usage():
-    sys.stderr.write('Usage: %s -g <glue schema version> [OPTIONS] \n' % (sys.argv[0]))
+    sys.stderr.write('Usage: %s [LDIF OPTIONS] [-g] [-s] [Other Options]\n' % (sys.argv[0]))
     sys.stderr.write('''
- -g --glue-version        The glue schema version to be tested [glue1|glue2|egi-glue2].
 
-OPTIONS:
+Mandatory Arguments:
 
-Server Mode: Obtains LDIF from an OpenLDAP server.
- -H --hostname      Hostname of the LDAP server.
- -p --port          Port for the LDAP server.
- -b --bind          The bind point for the LDAP server. 
+Server Mode: Obtains LDIF from an OpenLDAP server
+ -H --hostname      Hostname of the LDAP server
+ -p --port          Port for the LDAP server
+ -b --bind          The bind point for the LDAP server
 
-File Mode: Obtains LDIF directly from a file.
+File Mode: Obtains LDIF directly from a file
  -f --file          An LDIF file
 
-Tesuite type: Selects the set of tests to be executed against the LDIF.
- -s --testsuite     The testsuite  [general (default)|wlcg|egi-profile].
+Optional Arguments:
 
+GLUE version: Selects the GLUE schema version to be tested
+ -g --glue-version        The glue schema version to be tested [glue1|glue2|egi-glue2 (default)]
+
+Tesuite type: Selects the set of tests to be executed against the LDIF
+ -s --testsuite     The testsuite  [general|egi-profile (default)]
 
 Other Options:
  -k --exclude-known-issues  Do not run tests for wrongly published attributes due to known bugs
@@ -161,9 +167,9 @@ Other Options:
 
 Examples:
 
-  glue-validator -g glue1 -H localhost -p 2170 -b o=grid -s wlcg
-  glue-validator -g glue2 -H localhost -p 2170 -b o=glue
-  glue-validator -g egi-glue2 -H localhost -p 2170 -b o=glue -s egi-profile
+  GLUE 1.3 validation: glue-validator -H localhost -p 2170 -b o=grid -g glue1
+  GLUE 2.0 validation: glue-validator -H localhost -p 2170 -b o=glue -g glue2
+  EGI profile against GLUE 2.0 validation: glue-validator -H localhost -p 2170 -b o=glue 
 
 ''')
    
