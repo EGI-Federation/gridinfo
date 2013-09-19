@@ -29,7 +29,7 @@ import re
 import urllib2
 import signal
 
-VERSION = '1.0.2'
+VERSION = '1.0.3'
 TIMEOUT = 60
 
 # configuration dictionnary that will be filled with the submitted options
@@ -107,6 +107,17 @@ ELTS = {
      'ServiceID': 'ComputingManagerComputingServiceForeignKey'},
 'ToComputingService':
     {},
+'StorageShare':
+    {'ID': 'StorageShareSharingID',
+    'Path': 'StorageSharePath',
+    'AccessMode': 'StorageShareAccessMode',
+    'AccessLatency': 'StorageShareAccessLatency',
+    'ServingState': 'StorageShareServingState',
+    'RetentionPolicy': 'StorageShareRetentionPolicy',
+    'ExpirationMode': 'StorageShareExpirationMode',
+    'DefaultLifeTime': 'StorageShareDefaultLifeTime',
+    'MaximumLifeTime': 'StorageShareMaximumLifeTime',
+    'Tag': 'StorageShareTag'},
 }
 
 def main(argv):
@@ -286,6 +297,9 @@ def usage():
             ID, Scheme, Rule, ComputingShareID.
         Service:
             ID, Capability, Type, QualityLevel, StatusInfo, AdminDomainID.
+        StorageShare:
+            ID, Path, AccessMode, AccessLatency, ServingState, RetentionPolicy,
+            ExpirationMode, DefaultLifeTime, MaximumLifeTime, Tag.
 '''
 
 def handler(signum, frame):

@@ -1,4 +1,5 @@
-dn: GLUE2EndpointID=service_1_endpoint_1,GLUE2ServiceID=service_1,GLUE2GroupID=resource,o=glue
+#Endpoint
+dn: GLUE2EndpointID=service_1_endpoint_1,GLUE2GroupID=resource,o=glue
 objectClass: GLUE2Entity
 objectClass: GLUE2Endpoint
 GLUE2EndpointID: service_1_endpoint_1
@@ -15,7 +16,7 @@ GLUE2EndpointQualityLevel: testing
 GLUE2EndpointHealthState: XXX
 GLUE2EndpointServingState: XXX
 
-dn: GLUE2EndpointID=service_2_endpoint_2,GLUE2ServiceID=service_2,GLUE2GroupID=resource,o=glue
+dn: GLUE2EndpointID=service_2_endpoint_2,GLUE2GroupID=resource,o=glue
 objectClass: GLUE2Entity
 objectClass: GLUE2Endpoint
 GLUE2EndpointID: service_2_endpoint_2
@@ -30,7 +31,7 @@ GLUE2EndpointQualityLevel: testing
 GLUE2EndpointHealthState: XXX
 GLUE2EndpointServingState: XXX
 
-dn: GLUE2EndpointID=service_3_endpoint_3,GLUE2ServiceID=service_3,GLUE2GroupID=resource,o=glue
+dn: GLUE2EndpointID=service_3_endpoint_3,GLUE2GroupID=resource,o=glue
 objectClass: GLUE2Entity
 objectClass: GLUE2Endpoint
 GLUE2EndpointID: service_3_endpoint_3
@@ -46,7 +47,7 @@ GLUE2EndpointQualityLevel: production
 GLUE2EndpointHealthState: XXX
 GLUE2EndpointServingState: XXX
 
-dn: GLUE2EndpointID=service_4_endpoint_4,GLUE2ServiceID=service_4,GLUE2GroupID=resource,o=glue
+dn: GLUE2EndpointID=service_4_endpoint_4,GLUE2GroupID=resource,o=glue
 objectClass: GLUE2Entity
 objectClass: GLUE2Endpoint
 GLUE2EndpointID: service_4_endpoint_4
