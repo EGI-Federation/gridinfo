@@ -105,8 +105,8 @@ if ($options{d}) {
 }
 
 # Set ttl for cache or set ttl to 0 if using dynamic option
-# site BDII implements an actual cache of 10min (default)
-# top BDII does not implement a cache but 1min tolerance is defined
+# site BDII implements a cache of 10min (default)
+# top BDII does not implement a cache at this level
 my $ttl;
 if ($options{v}){
     if ( ! int($options{v})){
@@ -118,11 +118,8 @@ if ($options{v}){
 	exit 1;
     }
 }else{
-    if (($name eq 'grid') or ($name eq 'local')){ 
-        $ttl=60;
-    }else{
-        $ttl=600;
-    }
+    $ttl=600;
+    
 }
 
 # Set timeout for the ldapsearch
@@ -136,7 +133,7 @@ if ($options{t}){
 
 
 # Set the maximum file size.
-my $max_file_size=10;
+my $max_file_size=25;
 
 if ($options{s}){
     if ( ! int($options{s})){
@@ -322,6 +319,7 @@ foreach(@pid){
     waitpid($_, 0);
 }
 
+my $failed=0;
 for (<$tmp_dir/*.err>){
     $region=$_;
     $region=~s/.*\///;
@@ -330,6 +328,7 @@ for (<$tmp_dir/*.err>){
     system("cat $_ >> $log_file");
     print LOGFILE "\n";
     unlink($_);
+    $failed++;
 }
 
 # Change cache status values in site BDII only
@@ -380,16 +379,18 @@ for (<$tmp_dir/*.ldif>){
 
 #Get Time again
 $current_time=time;
-# Delete old files from the cache
-for (<$cache_dir/*.ldif>){
-    $file_info =  stat($_);
-    $file_time=$file_info->mtime;
-    if ( $current_time > ($file_time + $ttl) ){
-	$region=$_;
-	$region=~s/.*\///;
-	$region=~s/\.ldif$//;
-	print LOGFILE "NOTICE: deleting stale cache file for $region.\n";
-	unlink($_);
+# Delete old files from the cache in site BDII only
+if(($name ne 'grid') and ($name ne 'local')){
+    for (<$cache_dir/*.ldif>){
+        $file_info =  stat($_);
+        $file_time=$file_info->mtime;
+        if ( $current_time > ($file_time + $ttl) ){
+    	    $region=$_;
+	    $region=~s/.*\///;
+	    $region=~s/\.ldif$//;
+	    print LOGFILE "deleting stale cache file $region\n";
+	    unlink($_);
+        }
     }
 }
 
@@ -451,6 +452,7 @@ for (<$cache_dir/*.ldif>) {
 
 my $end_time = `date '+\%Y-\%m-\%d \%T'`; chomp $end_time;
 my $dt = sprintf "%4d", time - $t0;
+print LOGFILE "Failed LDAP URLs - $failed\n";
 print LOGFILE "=== $end_time END - elapsed: $dt\n";
 
 $/ = $rs;
