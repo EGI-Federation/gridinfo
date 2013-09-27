@@ -1,5 +1,5 @@
 Name:		glite-info-provider-ldap
-Version:	1.4.7
+Version:	1.4.8
 Release:	1%{?dist}
 Summary:	LDAP information provider
 Group:		Development/Libraries
@@ -7,7 +7,7 @@ License:	ASL 2.0
 URL:		http://gridinfo.web.cern.ch
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#  svn export http://svnweb.cern.ch/guest/gridinfo/glite-info-provider-ldap/tags/R_1_4_7_1 %{name}-%{version}
+#  svn export http://svnweb.cern.ch/guest/gridinfo/glite-info-provider-ldap/tags/R_1_4_8_1 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
@@ -41,6 +41,9 @@ rm -rf %{buildroot}
 %doc /usr/share/doc/glite-info-provider-ldap/README
 
 %changelog
+
+* Fri Sep 27 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.4.8-1
+- Start with a clean cache directory in the case of Top BDIIs
 
 * Thu Sep 26 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.4.7-1
 - BUG #102608: Remove completely top level BDII cache
