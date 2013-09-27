@@ -331,32 +331,35 @@ for (<$tmp_dir/*.err>){
     $failed++;
 }
 
-# Change cache status values in site BDII only
-# Top BDII already implements a cache with the delayed delete functionality
-if(( -d $cache_dir ) and ($name ne 'grid') and ($name ne 'local')){
-    my @files=glob("$cache_dir/*.ldif");
-    print LOGFILE "*** Setting to 'Unknown' cached state values in the site BDII\n";
-    foreach my $file (@files) {
-	$file_info =  stat($file);
-	my $mtime=$file_info->mtime;
-	my $atime=$file_info->atime;
-        if ( $options{g} ){
-             `sed -i 's/GLUE2ApplicationEnvironmentState:.*/GLUE2ApplicationEnvironmentState: Unknown/g' $file`;
-             `sed -i 's/GLUE2ComputingActivityRestartState:.*/GLUE2ComputingActivityRestartState: Unknown/g' $file`;
-             `sed -i 's/GLUE2ComputingActivityState:.*/GLUE2ComputingActivityState: Unknown/g' $file`;
-             `sed -i 's/GLUE2ComputingShareServingState:.*/GLUE2ComputingShareServingState: Unknown/g' $file`;
-             `sed -i 's/GLUE2EndpointHealthState:.*/GLUE2EndpointHealthState: Unknown/g' $file`;
-             `sed -i 's/GLUE2EndpointHealthStateInfo:.*/GLUE2EndpointHealthStateInfo: Unknown/g' $file`;
-             `sed -i 's/GLUE2EndpointServingState:.*/GLUE2EndpointServingState: Unknown/g' $file`;
-             `sed -i 's/GLUE2StorageShareServingState:.*/GLUE2StorageShareServingState: Unknown/g' $file`;
+my @files=glob("$cache_dir/*.ldif");
+foreach my $file (@files) {
+        # Change cache status values in site BDII only
+        # Top BDII already implements a cache with the delayed delete functionality
+        if(( -d $cache_dir ) and ($name ne 'grid') and ($name ne 'local')){
+             print LOGFILE "*** Setting to 'Unknown' cached state values in the site BDII\n";
+	     $file_info =  stat($file);
+	     my $mtime=$file_info->mtime;
+	     my $atime=$file_info->atime;
+             if ( $options{g} ){
+                 `sed -i 's/GLUE2ApplicationEnvironmentState:.*/GLUE2ApplicationEnvironmentState: Unknown/g' $file`;
+                  `sed -i 's/GLUE2ComputingActivityRestartState:.*/GLUE2ComputingActivityRestartState: Unknown/g' $file`;
+                  `sed -i 's/GLUE2ComputingActivityState:.*/GLUE2ComputingActivityState: Unknown/g' $file`;
+                  `sed -i 's/GLUE2ComputingShareServingState:.*/GLUE2ComputingShareServingState: Unknown/g' $file`;
+                  `sed -i 's/GLUE2EndpointHealthState:.*/GLUE2EndpointHealthState: Unknown/g' $file`;
+                  `sed -i 's/GLUE2EndpointHealthStateInfo:.*/GLUE2EndpointHealthStateInfo: Unknown/g' $file`;
+                  `sed -i 's/GLUE2EndpointServingState:.*/GLUE2EndpointServingState: Unknown/g' $file`;
+                  `sed -i 's/GLUE2StorageShareServingState:.*/GLUE2StorageShareServingState: Unknown/g' $file`;
+             }else{
+                  `sed -i 's/GlueServiceStatus:.*/GlueServiceStatus: Unknown/g' $file`;
+                  `sed -i 's/GlueServiceStatusInfo:.*/GlueServiceStatusInfo: Unknown/g' $file`;
+                  `sed -i 's/GlueCEStateStatus:.*/GlueCEStateStatus: Unknown/g' $file`;
+                  `sed -i 's/GlueSEStatus:.*/GlueSEStatus: Unknown/g' $file`;
+             }
+	     utime $atime, $mtime, $file;
+        # Start with a clean cache directory for top BDII
         }else{
-             `sed -i 's/GlueServiceStatus:.*/GlueServiceStatus: Unknown/g' $file`;
-             `sed -i 's/GlueServiceStatusInfo:.*/GlueServiceStatusInfo: Unknown/g' $file`;
-             `sed -i 's/GlueCEStateStatus:.*/GlueCEStateStatus: Unknown/g' $file`;
-             `sed -i 's/GlueSEStatus:.*/GlueSEStatus: Unknown/g' $file`;
+             unlink($file); 
         }
-	utime $atime, $mtime, $file;
-    }
 }
 
 my $file_size;
