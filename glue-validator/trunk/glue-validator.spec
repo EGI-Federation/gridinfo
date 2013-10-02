@@ -3,11 +3,11 @@
 %endif
 Summary: A validation framework for Grid information providers
 Name: glue-validator
-Version: 2.0.19
+Version: 2.0.20
 Release: 0%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_19 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_20 %{name}-%{version}
 #  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source0: %{name}-%{version}.tar.gz
 License: ASL 2.0
@@ -46,6 +46,12 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+
+* Wed Oct 02 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.20-0 
+- Add tolerances for job totals
+- Add ERROR messages for default values in AWT/EWT and WaitingJobs
+- Add new tests to known issues for final version for EGI validation
+- Fixed the list of grid infrastructure names in types 
 
 * Fri Sep 06 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.19-0
 - Add correct case in OS names
