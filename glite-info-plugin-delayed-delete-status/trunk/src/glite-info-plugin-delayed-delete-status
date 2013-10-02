@@ -68,7 +68,7 @@ def create_ldap_modif():
 # 'GLUE2ShareID' : ['GLUE2ComputingShareServingState','GLUE2StorageShareServingState']
 
     status = { 'GlueServiceUniqueID': ['GlueServiceStatus','GlueServiceStatusInfo'], 
-               'GlueCEUniqueID': ['GlueCEStatus'],
+               'GlueCEUniqueID': ['GlueCEStateStatus'],
                'GlueSEUniqueID' : ['GlueSEStatus'], 
                'GLUE2ApplicationEnvironmentID' : ['GLUE2ApplicationEnvironmentState'],
                'GLUE2ComputingActivityID' : ['GLUE2ComputingActivityRestartState','GLUE2ComputingActivityState'],
