@@ -1,5 +1,5 @@
 Name:		ginfo
-Version:	1.0.2
+Version:	1.0.3
 Release:	1%{?dist}
 Summary:	A versatile tool for discovering Grid services
 Group:		Applications/Internet
@@ -7,8 +7,8 @@ License:	ASL 2.0
 URL:		https://svnweb.cern.ch/trac/gridinfo/browser/ginfo
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/ginfo/tags/R_1_0_2 ginfo-1.0.2
-#  tar --gzip -czvf ginfo-1.0.2.tar.gz ginfo-1.0.2
+#   svn export http://svnweb.cern.ch/guest/gridinfo/ginfo/tags/R_1_0_3 ginfo-1.0.3
+#  tar --gzip -czvf ginfo-1.0.3.tar.gz ginfo-1.0.3
 
 Source:		%{name}-%{version}.tar.gz
 BuildArch:	noarch
@@ -42,6 +42,8 @@ rm -rf %{buildroot}
 %doc LICENSE
 
 %changelog
+* Wed Oct 2 2013 Laurence Field <laurence.field@cern.ch> - 1.0.3-1
+- Added support for Storage Shares
 * Thu May 23 2013 Laurence Field <laurence.field@cern.ch> - 1.0.2-1
 - Minor cosmetic improvements
 * Thu Apr 25 2013 Laurence Field <laurence.field@cern.ch> - 1.0.1-1
