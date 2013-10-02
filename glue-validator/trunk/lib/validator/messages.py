@@ -20,6 +20,9 @@ messages = {
 "E019" : ( "Incoherent attribute range", "GLUE2StorageShareCapacityFreeSize" ),
 "E020" : ( "Incoherent attribute range", "GLUE2StorageShareCapacityUsedSize" ),
 "E021" : ( "The object class is not valid", "Several attributes" ),
+"E022" : ( "Default value published", "GLUE2ComputingShareWaitingJobs" ),
+"E023" : ( "Default value published", "GLUE2ComputingShareEstimatedAverageWaitingTime" ),
+"E024" : ( "Default value published", "GLUE2ComputingShareEstimatedWorstWaitingTime" ),
 "W001" : ( "Creation time more than one year old", "GLUE2EntityCreationTime" ),
 "W002" : ( "GLUE2EntityValidity published when GLUE2EntityCreationTime is not published", "GLUE2EntityValidity" ),
 "W003" : ( "Unknown profile name", "GLUE2EntityOtherInfo" ),
@@ -160,7 +163,7 @@ messages = {
 "I093" : ( "Bandwidth less than 100", "GLUE2ToComputingServiceBandwidth" ),
 "I094" : ( "Bandwidth greater than 100000", "GLUE2ToComputingServiceBandwidth" ),
 "I095" : ( "Recommended attribute not present", "Several attributes" ),
-"I096" : ( "Missing attribute to perform validation", "GLUE2StorageServiceCapacityTotalSize" ),
-"I097" : ( "Missing attribute to perform validation", "GLUE2StorageShareCapacityTotalSize" ),
+"I096" : ( "Default value published", "GLUE2ComputingShareMaxMainMemory" ),
+"I097" : ( "Default value published", "GLUE2ComputingShareMaxVirtualMemory" ),
 "I999" : ( "OK test", "NA" )
 }

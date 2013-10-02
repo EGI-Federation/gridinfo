@@ -1,6 +1,10 @@
 
 test_list = (
 'test_GLUE2EndpointImplementationVersion_OK',
+'test_GLUE2EndpointDowntimeAnnounce_OK',
+'test_GLUE2EndpointDowntimeAnnounce_checkStart',
+'test_GLUE2EndpointDowntimeStart_OK',
+'test_GLUE2EndpointDowntimeEnd_OK',
 'test_GLUE2StorageServiceCapacityTotalSize_OK',
 'test_GLUE2StorageServiceCapacityFreeSize_OK',
 'test_GLUE2StorageServiceCapacityUsedSize_OK',
@@ -8,7 +12,18 @@ test_list = (
 'test_GLUE2StorageShareCapacityTotalSize_OK',
 'test_GLUE2StorageShareCapacityFreeSize_OK',
 'test_GLUE2StorageShareCapacityUsedSize_OK',
-'test_GLUE2EntityValidity_OK',
+'test_GLUE2ExecutionEnvironmentTotalInstances_MinRange',
+'test_GLUE2ExecutionEnvironmentTotalInstances_MaxRange',
+'test_GLUE2ExecutionEnvironmentUsedInstances_OK',
+'test_GLUE2ExecutionEnvironmentUnavailableInstances_OK',
+'test_GLUE2ExecutionEnvironmentPhysicalCPUs_MaxRange',
+'test_GLUE2ExecutionEnvironmentLogicalCPUs_MaxRange',
+'test_GLUE2ExecutionEnvironmentCPUTimeScalingFactor_MaxRange',
+'test_GLUE2ExecutionEnvironmentCPUTimeScalingFactor_MinRange',
+'test_GLUE2ExecutionEnvironmentWallTimeScalingFactor_MaxRange',
+'test_GLUE2ExecutionEnvironmentWallTimeScalingFactor_MinRange',
+'test_GLUE2StorageShareDefaultLifeTime_OK',
+'test_GLUE2StorageShareMaximumLifeTime_OK',
 'test_mandatory_attributes',
 'test_data_types'
 )

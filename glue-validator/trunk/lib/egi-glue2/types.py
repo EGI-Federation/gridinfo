@@ -853,18 +853,30 @@ def is_WLCGname_t(value):
 
 def is_Grid_t(value):
    types = [
+      'Academic Grid Malaysia',
+      'AEGIS',
+      'BIGGRID',
+      'Consorzio Cometa',
+      'D-Grid',
       'EGI',
       'EELA',
-      'WLCG',
-      'NDGF',
+      'EUMED',
+      'GILDA',
+      'GISELA',
       'GRIDPP',
-      'UKNGS', 
+      'GRISU',
       'LondonGrid',
-      'NORTGHRID',
+      'NDGF',
+      'NEUGRID',
+      'NORTHGRID',
+      'RDIG',
       'SOUTHGRID',
       'SCOTGRID',
       'SEE-GRID',
-      'OSG'
+      'OSG',
+      'UKNGS', 
+      'UPM Campus Grid', 
+      'WLCG'
       ]
    if value in types:
       return True
