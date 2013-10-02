@@ -1,0 +1,6 @@
+#!/bin/sh
+killall slapd
+rm -rf /var/run/bdii/db/glue2/*
+cat ldif-v2.0/*.ldif > test.ldif
+/usr/sbin/slapadd -f slapd.conf -l test.ldif -b o=glue
+/usr/sbin/slapd -h ldap://localhost:2170 -f slapd.conf -u $(id -un)
