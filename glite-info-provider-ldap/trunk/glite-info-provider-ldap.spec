@@ -43,7 +43,8 @@ rm -rf %{buildroot}
 %changelog
 
 * Fri Sep 27 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.4.8-1
-- Start with a clean cache directory in the case of Top BDIIs
+- BUG #102675: Increase the default max size of LDIF files to 25MB
+- BUG #102698: Start with a clean cache directory in the case of Top BDIIs
 
 * Thu Sep 26 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.4.7-1
 - BUG #102608: Remove completely top level BDII cache
