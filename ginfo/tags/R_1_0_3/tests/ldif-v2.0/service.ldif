@@ -1,0 +1,41 @@
+#Service
+dn: GLUE2ServiceID=service_1,GLUE2GroupID=resource,o=glue
+objectClass: GLUE2Entity
+objectClass: GLUE2Service
+GLUE2ServiceID: service_1
+GLUE2ServiceType: service_type_a
+GLUE2ServiceQualityLevel: XXX
+GLUE2ServiceAdminDomainForeignKey: domain_1
+GLUE2ServiceStatusInfo: http://gridvm01.roma2.infn.it/get-status
+GLUE2ServiceCapability: data.management.storage
+
+dn: GLUE2ServiceID=service_2,GLUE2GroupID=resource,o=glue
+objectClass: GLUE2Entity
+objectClass: GLUE2Service
+GLUE2ServiceID: service_2
+GLUE2ServiceType: service_type_b
+GLUE2ServiceQualityLevel: XXX
+GLUE2ServiceAdminDomainForeignKey: domain_1
+GLUE2ServiceStatusInfo: http://gridvm01.roma2.infn.it/get-status
+GLUE2ServiceCapability: data.management.storage
+
+dn: GLUE2ServiceID=service_3,GLUE2GroupID=resource,o=glue
+objectClass: GLUE2Entity
+objectClass: GLUE2Service
+GLUE2ServiceID: service_3
+GLUE2ServiceType: service_type_a
+GLUE2ServiceQualityLevel: XXX
+GLUE2ServiceAdminDomainForeignKey: domain_2
+GLUE2ServiceStatusInfo: http://gridvm01.roma2.infn.it/get-status
+GLUE2ServiceCapability: data.management.storage
+
+dn: GLUE2ServiceID=service_4,GLUE2GroupID=resource,o=glue
+objectClass: GLUE2Entity
+objectClass: GLUE2Service
+GLUE2ServiceID: service_4
+GLUE2ServiceType: service_type_b
+GLUE2ServiceQualityLevel: XXX
+GLUE2ServiceAdminDomainForeignKey: domain_2 
+GLUE2ServiceStatusInfo: http://gridvm01.roma2.infn.it/get-status
+GLUE2ServiceCapability: data.management.storage
+
