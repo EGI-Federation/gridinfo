@@ -1,5 +1,5 @@
 Name:		glite-yaim-bdii
-Version:	4.3.14
+Version:	4.3.15
 Release:	1%{?dist}
 Summary:	glite-yaim-bdii module configures the top level BDII and site BDI
 Group:		Development/Tools
@@ -34,6 +34,9 @@ rm -rf %{buildroot}
 %doc LICENSE
 
 %changelog
+* Fri Nov 22 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 4.3.15-1
+- BUG https://its.cern.ch/jira/browse/GRIDINFO-12: Increase BDII_DELETE_DELAY to 4 days
+
 * Thu Aug 01 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 4.3.14-1
 - BUG #101389: Added BDII_RAM_SIZE
 
