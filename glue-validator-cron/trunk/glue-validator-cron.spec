@@ -1,5 +1,5 @@
 Name: glue-validator-cron
-Version: 1.2.0
+Version: 1.3.0
 Release: 1%{?dist} 
 Summary: Cron job running glue-validator every hour and storing the result in a log file
 # The source for this package was pulled from upstream's vcs.  Use the
@@ -39,6 +39,10 @@ rm -rf %{buildroot}
 
 
 %changelog
+
+* Fri Nov 22 2013 Maria Alandes <maria.alandes.pradillo@cern.ch>  - 1.3.0-1
+- BUG https://its.cern.ch/jira/browse/GRIDINFO-7: Perform EGI GLUE 2 validation only with verbose level 3
+
 * Fri May 31 2013 Maria Alandes <maria.alandes.pradillo@cern.ch>  - 1.2.0-1
 - Fixed command line options after glue-validator changes to be Nagios compliant
 - Added command to validate against EGI GLUE 2.0 profile
