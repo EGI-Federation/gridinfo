@@ -1,0 +1,100 @@
+##############################################################################
+#
+# NAME :        config_emir_serp
+#
+# DESCRIPTION : This function configures the EMIR Service Publisher to publish 
+#               information about a resource into a EMIR host. It uses the 
+#               information gathered by ginfo when it queries the resource BDII. 
+#
+# AUTHORS :     Maria.Alandes.Pradillo@cern.ch
+#
+# NOTES :      
+#
+# YAIM MODULE:  glite-yaim-bdii
+#                 
+##############################################################################
+
+config_emir_serp_check () {
+
+if [ "x${BDII_EMIR_ENABLE}" == "xyes" ]; then
+  requires $1 BDII_EMIR_HOST
+  return $?
+fi
+
+}
+
+config_emir_serp(){
+
+if [ "x${BDII_EMIR_ENABLE}" == "xyes" ] ; then 
+
+BDII_EMIR_INI_FILE=${BDII_EMIR_INI_FILE:-/etc/emi/emir-serp/emir-serp.ini}
+BDII_EMIR_SERP_PERIOD=${BDII_EMIR_SERP_PERIOD:-1}
+BDII_EMIR_SERP_VALIDITY=${BDII_EMIR_SERP_VALIDITY:-2}
+
+# Check EMIR Service Publisher is installed 
+
+if [ ! -f /etc/init.d/emir-serp ] ; then
+   yestr ${YEX_NOSUCHFILE}
+   yaimlog ERROR "${YERRORSTR}: /etc/init.d/emir-serp"
+   yaimlog ERROR "Make sure EMIR Service Publisher is installed !"
+   exit ${YEX_NOSUCHFILE}
+fi
+
+
+# Configure EMIR service publisher
+if [ -f ${BDII_EMIR_INI_FILE} ] ; then
+  if [ -f ${BDII_EMIR_INI_FILE}.orig ] ; then 
+     mv ${BDII_EMIR_INI_FILE} ${BDII_EMIR_INI_FILE}.old
+  else 
+     mv ${BDII_EMIR_INI_FILE} ${BDII_EMIR_INI_FILE}.orig
+  fi
+  cat << EOF > ${BDII_EMIR_INI_FILE}
+[emir-serp]
+url = ${BDII_EMIR_HOST}
+
+# Period of registration/update messages
+# Mandatory configuration parameter
+# Value is given in hours
+period = ${BDII_EMIR_SERP_PERIOD}
+
+# Time of registration entry validity
+# Mandatory configuration parameter
+# Value is given in hours
+validity = ${BDII_EMIR_SERP_VALIDITY}
+
+[servicesFromResourceBDII]
+resource_bdii_url = ldap://localhost:2170/GLUE2GroupID=resource,o=glue
+
+# Logging verbosity
+#
+# This parameter is optional (default: error)
+# Accepted values are: 'error', 'info', 'debug'
+#
+# If invalid value is given, the default value will be used.
+#verbosity = debug
+EOF
+else
+   yestr ${YEX_NOSUCHFILE}
+   yaimlog ERROR "${YERRORSTR}: ${BDII_EMIR_INI_FILE}"
+   yaimlog ERROR "YAIM could not find the ini file to configure the EMIR Service Publisher !"
+   exit ${YEX_NOSUCHFILE}
+fi
+
+# Start EMIR service publisher
+service emir-serp start
+if [ $? -ne 0 ]; then
+  yaimlog ERROR "EMIR Service Publisher failed to start !"
+  exit 1
+fi
+
+
+else
+  if [ "x${BDII_EMIR_ENABLE}" == "x" ] ; then
+     yaimlog INFO "EMIR Service Publisher is not configured because BDII_EMIR_ENABLE is undefined"
+  else
+     yaimlog INFO "EMIR Service Publisher is not configured because BDII_EMIR_ENABLE is set to ${BDII_EMIR_ENABLE}"
+  fi
+fi
+return $?
+
+}
