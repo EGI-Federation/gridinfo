@@ -1,6 +1,4 @@
 #!/bin/sh
 
-glue-validator -g glue1 -H localhost -p 2170 -b mds-vo-name=resource,o=grid &> /var/log/glue-validator/glue1-validator.log
-glue-validator -g glue2 -H localhost -p 2170 -b GLUE2GroupID=resource,o=glue &> /var/log/glue-validator/glue2-validator.log
-glue-validator -g egi-glue2 -H localhost -p 2170 -b GLUE2GroupID=resource,o=glue -s egi-profile -n -v 2 &> /var/log/glue-validator/egi-glue2-validator.log
+glue-validator -H localhost -p 2170 -b GLUE2GroupID=resource,o=glue -n -v 3 &> /var/log/glue-validator/glue2-validator.log
 
