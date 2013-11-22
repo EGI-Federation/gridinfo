@@ -1,5 +1,5 @@
 Name:		emi-bdii-top
-Version:	1.0.1
+Version:	1.0.2
 Release:	2%{?dist}
 Summary:	Metapackage for top BDII 
 Group:		Unknown
@@ -12,7 +12,7 @@ Requires:     glite-info-provider-ldap
 Requires:     glite-yaim-bdii
 Requires:     glite-yaim-core
 Requires:     bdii-config-top
-Requires:     glite-info-plugin-fcr
+Obsoletes:     glite-info-plugin-fcr
 Requires:     glite-info-update-endpoints
 
 %description
@@ -30,5 +30,8 @@ make install prefix=%{buildroot}
 %files
 
 %changelog
+* Fri Nov 22 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.2-2
+- BUG https://its.cern.ch/jira/browse/GRIDINFO-8: Decommission FCR mechanism
+
 * Mon Nov 12 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.1-2
 - Metapackage for emi-bdii-top
