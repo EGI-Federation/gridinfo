@@ -1,0 +1,4 @@
+#!/bin/sh
+
+glue-validator -H localhost -p 2170 -b GLUE2GroupID=resource,o=glue -n -v 3 &> /var/log/glue-validator/glue2-validator.log
+
