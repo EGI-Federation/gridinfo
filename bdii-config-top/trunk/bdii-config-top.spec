@@ -1,5 +1,5 @@
 Name:		bdii-config-top
-Version:	1.0.8
+Version:	1.0.9
 Release:	1%{?dist}
 Summary:	Top BDII configuration files
 Group:		Development/Libraries
@@ -7,7 +7,7 @@ License:	ASL 2.0
 URL:            http://gridinfo.web.cern.ch
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii-config-top/tags/R_1_0_8_1 %{name}-%{version}
+#  svn export http://svnweb.cern.ch/guest/gridinfo/bdii-config-top/tags/R_1_0_9_1 %{name}-%{version}
 #  tar --gzip -czvf %{name}-%{version}.tar.gz %{name}-%{version} 
 Source:		%{name}-%{version}.src.tgz
 BuildArch:	noarch
@@ -21,7 +21,7 @@ Requires: openldap-servers
 Requires:	glite-info-provider-ldap
 Requires:	glite-info-provider-service
 Requires:	glite-info-update-endpoints
-Requires:	glite-info-plugin-fcr
+Obsoletes:	glite-info-plugin-fcr
 Requires:       glite-info-plugin-delayed-delete-status
 
 %description
@@ -51,6 +51,9 @@ rm -rf %{buildroot}
 /var/lib/bdii/gip/plugin/glite-info-plugin-delayed-delete-status
 
 %changelog
+
+* Wed Nov 11 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.9-1
+- BUG https://its.cern.ch/jira/browse/GRIDINFO-8: Decommission FCR mechanism 
 
 * Fri Aug 02 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.8-1
 - BUG #99298: new plugin to set state attributes of cached entries to 'Unknown'
