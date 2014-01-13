@@ -153,7 +153,9 @@ def is_InterfaceName_t(value):
       'org.nordugrid.wsrfglue2',
       'org.nordugrid.ldapglue2',
       'org.nordugrid.gridftpjob',
-      'org.nordugrid.ldapng'
+      'org.nordugrid.ldapng',
+      'org.qcg.broker',
+      'org.oasis.notification'
       ]
    if value in interfaces:
        return True
@@ -241,6 +243,9 @@ def is_ServiceType_t(value):
       'org.nordugrid.information.egiis',
       'org.nordugrid.storage',
       'org.nordugrid.isis',
+      'org.qcg.computing',
+      'org.qcg.notification',
+      'org.qcg.broker', 
       'org.ogf.bes.BESFactory',
       'org.ogf.bes.BESManagement',
       'org.ogf.glue.emir',
