@@ -3,11 +3,11 @@
 %endif
 Summary: A validation framework for Grid information providers
 Name: glue-validator
-Version: 2.0.20
+Version: 2.0.21
 Release: 0%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_20 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_21 %{name}-%{version}
 #  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source0: %{name}-%{version}.tar.gz
 License: ASL 2.0
@@ -46,6 +46,11 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+
+* Mon Jan 13 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.21-0
+- #GRIDINFO-33: Add LHCb testuite
+- #GRIDINFO-27: Add service and interface names for QCG
+- #GRIDINFO-25: Add +-1 margin for Storage Capacities
 
 * Wed Oct 02 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.20-0 
 - Add tolerances for job totals
