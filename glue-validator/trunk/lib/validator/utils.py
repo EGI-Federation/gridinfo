@@ -95,7 +95,7 @@ def parse_options():
         config['glue-version']='egi-glue2' 
 
     if config.has_key('testsuite'):
-        if not config['testsuite'] in ['general', 'wlcg', 'egi-profile']:
+        if not config['testsuite'] in ['general', 'wlcg', 'egi-profile', 'lhcb']:
             sys.stderr.write("Error: Invalid testsuite type %s.\n" %(config['testsuite'],))
             usage()
             sys.exit(1)
@@ -105,22 +105,14 @@ def parse_options():
     if not config.has_key('timeout'):
         config['timeout']=10
     else:
-        config['timeout']=int(config['timeout'])
-
+        if (config['timeout'].isdigit()):
+            config['timeout']=int(config['timeout'])
+        else:
+            sys.stderr.write("Error: Timeout should be a number.\n")
+            usage()
+            sys.exit(1)
 
     # Sanity Checks
-    if config['glue-version'] == 'glue1' and ( config['bind'].find('o=glue') != -1 ): 
-            sys.stderr.write("Error: Use a glue 1 binding containing o=grid.\n")
-            usage()
-            sys.exit(1)
-    if config['glue-version'] == 'glue2' and ( config['bind'].find('o=grid') != -1 ):
-            sys.stderr.write("Error: Use a glue 2 binding containing o=glue.\n")
-            usage()
-            sys.exit(1)
-    if config['glue-version'] == 'egi-glue2' and ( config['bind'].find('o=grid') != -1 ):
-            sys.stderr.write("Error: Use a glue 2 binding containing o=glue.\n")
-            usage()
-            sys.exit(1)
     if config['glue-version'] in ['glue1', 'glue2'] and (config['testsuite'] == 'egi-profile'):
             sys.stderr.write("Error: egi-profile testsuite must be executed against the egi-glue2 schema version.\n")
             usage()
@@ -154,7 +146,7 @@ GLUE version: Selects the GLUE schema version to be tested
  -g --glue-version        The glue schema version to be tested [glue1|glue2|egi-glue2 (default)]
 
 Tesuite type: Selects the set of tests to be executed against the LDIF
- -s --testsuite     The testsuite  [general|egi-profile (default)]
+ -s --testsuite     The testsuite  [general|lhcb|egi-profile (default)]
 
 Other Options:
  -k --exclude-known-issues  Do not run tests for wrongly published attributes due to known bugs
