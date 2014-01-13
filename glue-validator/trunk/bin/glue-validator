@@ -8,6 +8,7 @@ import tempfile
 import validator.utils
 import validator.EntryTest
 import validator.WLCGTest
+import validator.lhcbTest
 import validator.EGIProfileTest
 import validator.KnownIssues
 
@@ -61,6 +62,15 @@ if __name__ == "__main__":
                   attribute=test_name.rsplit('_')[1]
                   if attribute in entry:
                       suite.addTest(inst(test_name,entry,entry[attribute],glue_version)) 
+      elif (config['testsuite'] == 'lhcb'):
+              module = sys.modules['validator.lhcbTest']
+              inst = getattr(module, 'lhcbTest')
+              test_names = unittest.TestLoader().getTestCaseNames(validator.lhcbTest.lhcbTest)
+              glue_version = config['glue-version']
+              for test_name in test_names:
+                  attribute=test_name.rsplit('_')[1]
+                  if attribute in entry:
+                      suite.addTest(inst(test_name,entry,entry[attribute],glue_version))
       elif (config['testsuite'] == 'egi-profile'):
       	      module = sys.modules['validator.EntryTest']
 	      inst = getattr(module, 'EntryTest')
