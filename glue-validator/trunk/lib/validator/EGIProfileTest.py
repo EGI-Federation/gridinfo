@@ -948,7 +948,9 @@ class EGIProfileTest(unittest.TestCase):
             else:
                 cap_stats = cap_stats + " %s=Not published" % (cap)
         low = int(self.value[0]) - (int(self.value[0]) * 0.005)
+        low = low - 1
         high = int(self.value[0]) + (int(self.value[0]) * 0.005)
+        high = high + 1
         cap_stats = cap_stats + " %s <= %s <= %s; Difference is %s" % (low, total, high, total - int(self.value[0]))
         message = validator.utils.message_generator("ERROR","E014",self.dn,\
                   "GLUE2StorageServiceCapacityTotalSize",self.value[0],cap_stats)
