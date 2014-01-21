@@ -35,9 +35,11 @@ under /afs/cern.ch/user/m/malandes/www/web/ssb and organised in different folder
 
 The scripts are organised as follows:
 
-- cron-lhcb-glue2-monitoring : list of scripts generating WLCG and GLUE 2 related metrics
+- cron-lhcb-glue2-monitoring : cron job to launch the list of scripts generating WLCG and GLUE 2 related metrics
 
-- cron-wlcg-glue2-monitoring: list of scripts generating LHCb and GLUE 2 related metrics
+- cron-wlcg-glue2-monitoring: cron job to launch the list of scripts generating LHCb and GLUE 2 related metrics
+
+- cron-lhcb-storage-monitoring: cron job to launch the BDII vs SRM monitoring for LHCb
 
 - /ggus: Folder containing scripts to handle GGUS tickets for automatic creation
    - ggus_monitor.py: Script generating the output needed by the Dashboard with the list of GGUS tickets
@@ -52,7 +54,7 @@ The scripts are organised as follows:
 
 - /specific_actions: Folder containing VO specific metrics or general metrics tagetting a specific validation objective:
    - lhcb-maxCPUTime-monitoring.py: metric to monitor the Max CPU Time published by LHCb queues in GLUE 2
-   - lhcb-StorageT1-monitoring.py: metric to compare BDII vs SRM storage capacity numbers (GLUE 2 where published)
+   - lhcb-storage-monitoring.py: metric to compare BDII vs SRM storage capacity numbers (GLUE 2 where published)
    - obsolete_entries.py: metric to monitor obsolete entries published in GLUE 2
 
 - /utils: Folder containing useful utilities used by the other scripts

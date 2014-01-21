@@ -25,11 +25,22 @@ templates = {
 'long_description' : 'Dear site admin,\n\n Your site is publishing 999999999 for the Max CPU Time. \
                       LHCb uses this parameter to calculate the queue length. Would it be possible to provide a \
                       defined limit for Max CPU Time?\n\nDetails:',
-'mail' : 'maria.alandes.pradillo@cern.ch',
-'loginname' : '/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=malandes/CN=644124/CN=Maria Alandes Pradillo',
-'name' : 'Maria Alandes',
+'mail' : 'lhcb-grid-bdii-srm-comparison@cern.ch',
+'loginname' : 'DN = /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=roiser/CN=576600/CN=Stefan Roiser',
+'name' : 'Stefan Roiser',
 'priority' : 'less urgent',
-'last_modifier' : 'Maria Alandes',
-'last_login' : 'Maria Alandes'
+'last_modifier' : 'Stefan Roiser',
+'last_login' : 'Stefan Roiser'
+},
+'lhcb-storage' : {
+'description' : 'BDII and SRM publish inconsistent storage capacity numbers',
+'long_description' : 'Dear site admin,\n\n Your site is publishing inconsistent storage capacity numbers in BDII compared \
+                      to what SRM reports. Could you please check?\n\nDetails:',
+'mail' : 'lhcb-grid-bdii-srm-comparison@cern.ch',
+'loginname' : 'DN = /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=roiser/CN=576600/CN=Stefan Roiser',
+'name' : 'Stefan Roiser',
+'priority' : 'less urgent',
+'last_modifier' : 'Stefan Roiser',
+'last_login' : 'Stefan Roiser'
 }
 }
