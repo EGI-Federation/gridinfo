@@ -1,0 +1,6 @@
+#!/bin/bash
+export PYTHONPATH=$PYTHONPATH:/afs/cern.ch/user/m/malandes/public/glue-validator/usr/lib/python2.4/site-packages:/afs/cern.ch/user/m/malandes/infosys/ssb:/afs/cern.ch/user/m/malandes/public/suds/python-suds-0.4.1/suds/:/afs/cern.ch/user/m/malandes/infosys/ssb/ggus:/afs/cern.ch/user/m/malandes/infosys/ssb/utils://afs/cern.ch/user/m/malandes/infosys/ssb/specific_actions
+
+#/afs/cern.ch/user/m/malandes/infosys/ssb/lhcb-glue2-monitoring.py > /afs/cern.ch/user/m/malandes/www/web/ssb/lhcb/glue2/validator.txt
+
+/afs/cern.ch/user/m/malandes/infosys/ssb/specific_actions/lhcb-maxCPUTime-monitoring.py > /afs/cern.ch/user/m/malandes/www/web/ssb/lhcb/maxCPUTime/maxCPUTime.txt
