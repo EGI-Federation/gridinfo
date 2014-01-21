@@ -1,0 +1,77 @@
+
+Monitoring scripts
+------------------
+
+This SVN module contains a set of scripts used in the WLCG Monitoring Dashboard to generate metrics related to BDII
+and GLUE deployment .
+
+For more information on how to write metrics for the WLCG Monitoring Dashboard, please check:
+https://twiki.cern.ch/twiki/bin/view/ArdaGrid/SiteStatusBoard
+
+The scripts are run locally in AFS by user "malandes" using acrontab:
+
+0 7 * * * lxplus.cern.ch /afs/cern.ch/user/m/malandes/infosys/ssb/cron-wlcg-glue2-monitoring
+0 7 * * * lxplus.cern.ch /afs/cern.ch/user/m/malandes/infosys/ssb/cron-lhcb-glue2-monitoring
+0 7 * * * lxplus.cern.ch /afs/cern.ch/user/m/malandes/infosys/ssb/monitoring/glue-deployment.py
+0 7 * * * lxplus.cern.ch /afs/cern.ch/user/m/malandes/infosys/ssb/monitoring/bdii-deployment.py
+0 * * * * lxplus.cern.ch /afs/cern.ch/user/m/malandes/infosys/ssb/specific_actions/lhcb-StorageT1-monitoring.py
+
+Results to be consumed by the Dashboard are written to the web space of user "malandes" 
+under /afs/cern.ch/user/m/malandes/www/web/ssb and organised in different folders as follows:
+
+  - /bdii: BDII related metrics. Dashboard URL: 
+    - https://wlcg-mon/dashboard/request.py/siteview#currentView=BDII+deployment 
+
+  - /general: GLUE deployment metrics. Dashboard URL: 
+    - https://wlcg-mon/dashboard/request.py/siteview#currentView=Glue+Deployment
+
+  - /lhcb: LHCb related metrics. Dashboard URL: 
+    - https://wlcg-mon/dashboard/request.py/siteview#currentView=Glue+Validator+LHCb 
+    - https://wlcg-mon/dashboard/request.py/siteview#currentView=BDII+vs+SRM+LHCb+Storage
+
+  - /wlcg: WLCG related metrics. Dashboard URL:
+    - https://wlcg-mon/dashboard/request.py/siteview#currentView=Glue+Validator+WLCG
+
+
+The scripts are organised as follows:
+
+- cron-lhcb-glue2-monitoring : list of scripts generating WLCG and GLUE 2 related metrics
+
+- cron-wlcg-glue2-monitoring: list of scripts generating LHCb and GLUE 2 related metrics
+
+- /ggus: Folder containing scripts to handle GGUS tickets for automatic creation
+   - ggus_monitor.py: Script generating the output needed by the Dashboard with the list of GGUS tickets
+   - ggus_suds.py: Script to contact the GGUS web service using SOAP
+   - ggus_templates.py: Library containing the template information for automatic GGUS creation 
+
+- /monitoring: Folder containing the scripts that will generate the output needed by the Dashboard for the different metrics
+   - bdii-deployment.py: metrics related to top and site BDII versions and number of endpoints published in GLUE 2 
+   - glue-deployment.py: metrics related to GLUE 1 and GLUE 2 numbers (number of DNs, endpoints, services, etc)
+   - lhcb-glue2-monitoring.py: GLUE 2 validation metrics for LHCb sites
+   - wlcg-glue2-monitoring.py: GLUE 2 validation metrics for sites listed in REBUS
+
+- /specific_actions: Folder containing VO specific metrics or general metrics tagetting a specific validation objective:
+   - lhcb-maxCPUTime-monitoring.py: metric to monitor the Max CPU Time published by LHCb queues in GLUE 2
+   - lhcb-StorageT1-monitoring.py: metric to compare BDII vs SRM storage capacity numbers (GLUE 2 where published)
+   - obsolete_entries.py: metric to monitor obsolete entries published in GLUE 2
+
+- /utils: Folder containing useful utilities used by the other scripts
+   - glue2-monitor.py: script running glue-validator for a specific site 
+   - sites.py: library containing the list of sites and site bdiis 
+   - create_html.py: script generating the html files used for historic information. This script needs to be run once
+     when a new metric is introduced and its historic data needs to be stored. It has to be adapted for the metric using
+     the correct list of sites. 
+
+
+Requisites
+----------
+
+- glue-validator: the glue-validator command needs to be installed in the machine where the scripts are running. The absolute path is declared inside the *-glue2-monitoring scripts.  
+
+- suds python library: this library is used to communicate with the GGUS web service which exposes a SOAP WSDL file. 
+The version that it is currenly used is 0.4.1.
+
+- Contact GGUS developers to be able to use the production instance of the GGUS service.
+
+
+
