@@ -153,13 +153,13 @@ storage_type_dict = {
 
 base_xml_url = "http://lhcb-web-dirac.cern.ch/sls/storage_space/"
 
-path_to_output = "/afs/cern.ch/user/m/malandes/www/web/ssb/lhcb/StorageT1/"
-results_disk_total = "%sStorageT1_disk-total.txt" % (path_to_output)
-results_disk_used = "%sStorageT1_disk-used.txt" % (path_to_output)
-results_tape_total = "%sStorageT1_tape-total.txt" % (path_to_output)
-results_tape_used = "%sStorageT1_tape-used.txt" % (path_to_output)
-results_user_total = "%sStorageT1_user-total.txt" % (path_to_output)
-results_user_used = "%sStorageT1_user-used.txt" % (path_to_output)
+path_to_output = "/afs/cern.ch/user/m/malandes/www/web/ssb/lhcb/storage"
+results_disk_total = "%s/lhcb_storage_disk-total.txt" % (path_to_output)
+results_disk_used = "%s/lhcb_storage_disk-used.txt" % (path_to_output)
+results_tape_total = "%s/lhcb_storage_tape-total.txt" % (path_to_output)
+results_tape_used = "%s/lhcb_storage_tape-used.txt" % (path_to_output)
+results_user_total = "%s/lhcb_storage_user-total.txt" % (path_to_output)
+results_user_used = "%s/lhcb_storage_user-used.txt" % (path_to_output)
 fh_disk_total=os.open(results_disk_total, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0600)
 fh_disk_used=os.open(results_disk_used, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0600)
 fh_tape_total=os.open(results_tape_total, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0600)
@@ -224,12 +224,12 @@ for site_name in sorted(site_bdiis.keys()):
         index2=full_text.find("UNKNOWN:")
         if (index1 > -1) or (index2 > -1):
              # Redirect this to StorageT1-storage_type-i.txt
-             result_string="%s %s %s %s %s\n" % (dt,site_name,color_code["grey"],"grey","") 
+             result_string="%s %s %s %s %s\n" % (dt,site_name,color_code["grey"],"grey","None") 
              os.write(results_dict[storage_type]["Total"],result_string)
              os.write(results_dict[storage_type]["Used"],result_string)
         elif (results[0] == ""):
              # Redirect this to StorageT1-storage_type-i.txt
-             result_string="%s %s %s %s %s\n" % (dt,site_name,color_code["pink"],"pink","")
+             result_string="%s %s %s %s %s\n" % (dt,site_name,color_code["pink"],"pink","None")
              os.write(results_dict[storage_type]["Total"],result_string)
              os.write(results_dict[storage_type]["Used"],result_string)
         else:
@@ -277,9 +277,9 @@ for site_name in sorted(site_bdiis.keys()):
 
                 # Prepare detailed output information  
                 file_name = "%s-%s-%s" % (site_name,storage_type,i)
-                file_path = "%s%s" % (path_to_output,file_name)
+                file_path = "%s/%s" % (path_to_output,file_name)
                 output = os.open (file_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0600)
-                file_url = "http://malandes.web.cern.ch/malandes/ssb/lhcb/StorageT1/%s" % (file_name)
+                file_url = "http://malandes.web.cern.ch/malandes/ssb/lhcb/storage/%s" % (file_name)
                 os.write(output,"BDII numbers:\n") 
                 os.write(output,full_text)
                 os.close(output)
