@@ -9,7 +9,7 @@ import logging
 import datetime
 
 #logging.basicConfig(level=logging.INFO)
-#logging.getLogger('suds.client').setLevel(logging.DEBUG)
+logging.getLogger('suds.client').setLevel(logging.CRITICAL)
 
 #################################################
 # Create a connection
@@ -58,7 +58,7 @@ def list_ticket (client, site_name, description):
 # Create a ticket
 #################################################
 def create_ticket (client, site_name, long_description, mail, loginname, name, priority, description,\
-                   last_modifier, last_login):
+                   last_modifier, last_login, carbon_copy):
 
     today=datetime.date.today()
     params = client.factory.create("s0:InputMapping7")
@@ -78,7 +78,7 @@ def create_ticket (client, site_name, long_description, mail, loginname, name, p
     params.GHD_Last_Modifier = last_modifier
     params.GHD_Last_Login = last_login
     params.GHD_Origin_SG = None
-    params.GHD_CarbonCopy = None
+    params.GHD_CarbonCopy = carbon_copy
     params.GHD_Affected_Site = site_name
     params.GHD_Affected_VO = None
     params.GHD_Phone = None

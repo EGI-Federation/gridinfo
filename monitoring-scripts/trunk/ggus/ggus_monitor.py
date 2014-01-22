@@ -29,7 +29,8 @@ def ggus_monitor ( site_name, template, results, extra_condition ):
                                              ggus_templates.templates[template]['priority'],
                                              ggus_templates.templates[template]['description'],
                                              ggus_templates.templates[template]['last_modifier'],
-                                             ggus_templates.templates[template]['last_login'])
+                                             ggus_templates.templates[template]['last_login'],
+                                             ggus_templates.templates[template]['carbon_copy'])
             ggus_result = ggus_out
             ggus_file_url = "https://train.ggus.eu/ws/ticket_info.php?ticket=%s" % (ggus_result)
         else:

@@ -3,7 +3,6 @@
 # 
 
 templates = {
-
 'obsolete_entries' : {
 'description' : 'GLUE 2 obsolete entries',
 'long_description' : 'Dear sys admin,\n\n It seems you are running a buggy version of the \
@@ -18,7 +17,8 @@ templates = {
 'name' : 'Maria Alandes',
 'priority' : 'less urgent',
 'last_modifier' : 'Maria Alandes',
-'last_login' : 'Maria Alandes'
+'last_login' : 'Maria Alandes',
+'carbon_copy' : None
 },
 'maxCPUTime' : {
 'description' : 'Publishing default value for Max CPU Time',
@@ -30,7 +30,8 @@ templates = {
 'name' : 'Stefan Roiser',
 'priority' : 'less urgent',
 'last_modifier' : 'Stefan Roiser',
-'last_login' : 'Stefan Roiser'
+'last_login' : 'Stefan Roiser',
+'carbon_copy' : 'maria.alandes.pradillo@cern.ch'
 },
 'lhcb-storage' : {
 'description' : 'BDII and SRM publish inconsistent storage capacity numbers',
@@ -41,6 +42,7 @@ templates = {
 'name' : 'Stefan Roiser',
 'priority' : 'less urgent',
 'last_modifier' : 'Stefan Roiser',
-'last_login' : 'Stefan Roiser'
+'last_login' : 'Stefan Roiser',
+'carbon_copy' : 'maria.alandes.pradillo@cern.ch'
 }
 }
