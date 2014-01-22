@@ -180,7 +180,7 @@ for site_name in lhcb_names_dict.keys():
 
     for storage_type in storage_type_dict.keys():
         if (site_name == "CERN-EOS") and (storage_type == "Disk"):
-            xml_file_name = "%s%s_%s.xml" % (base_xml_url,lhcb_names_dict[site_name],"LHCb-EOS")
+            xml_file_name = "%sCERN_LHCb-EOS.xml" % (base_xml_url)
         else:
             xml_file_name = "%s%s_%s.xml" % (base_xml_url,lhcb_names_dict[site_name],storage_type_dict[storage_type])
         tree = minidom.parse(urllib.urlopen(xml_file_name))
@@ -224,12 +224,12 @@ for site_name in sorted(site_bdiis.keys()):
         index2=full_text.find("UNKNOWN:")
         if (index1 > -1) or (index2 > -1):
              # Redirect this to StorageT1-storage_type-i.txt
-             result_string="%s %s %s %s %s\n" % (dt,site_name,color_code["grey"],"grey","None") 
+             result_string="%s %s %s %s %s\n" % (dt,lhcb_names_dict[site_name],color_code["grey"],"grey","None") 
              os.write(results_dict[storage_type]["Total"],result_string)
              os.write(results_dict[storage_type]["Used"],result_string)
         elif (results[0] == ""):
              # Redirect this to StorageT1-storage_type-i.txt
-             result_string="%s %s %s %s %s\n" % (dt,site_name,color_code["pink"],"pink","None")
+             result_string="%s %s %s %s %s\n" % (dt,lhcb_names_dict[site_name],color_code["pink"],"pink","None")
              os.write(results_dict[storage_type]["Total"],result_string)
              os.write(results_dict[storage_type]["Used"],result_string)
         else:
@@ -288,6 +288,7 @@ for site_name in sorted(site_bdiis.keys()):
                 (dt,lhcb_names_dict[site_name],color_code[storage_dict[storage_type][site_name]["Result"][i]],extra,\
                  storage_dict[storage_type][site_name]["Result"][i],file_url)
                 os.write(results_dict[storage_type][i],result_string)
+                
 
 os.close(fh_tape_total)
 os.close(fh_tape_used)
@@ -305,6 +306,10 @@ ggus_output = os.open (ggus_file_name, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 06
 
 for site_name in sorted(site_bdiis.keys()):
 
+    site_name_query = site_name
+    if (site_name == "CERN-EOS"):
+        site_name_query = "CERN-PROD"
+
     extra_condition = False
     ggus_details = ""
     for storage_type in storage_type_dict.keys():    
@@ -312,14 +317,14 @@ for site_name in sorted(site_bdiis.keys()):
             ggus_details = ggus_details + "\nAffected Storage Share: %s \nBDII Total:%s vs SRM Total:%s" % \
                            (id_dict[site_name][storage_type], storage_dict[storage_type][site_name]["BDII"]["Total"],\
                             storage_dict[storage_type][site_name]["SRM"]["Total"])
-            extra_condition = True    
+            #extra_condition = True    
         if (storage_dict[storage_type][site_name]["Result"]["Used"] == "red"):
             ggus_details = ggus_details + "\nAffected Storage Share: %s \nBDII Used:%s vs SRM Used:%s" % \
                            (id_dict[site_name][storage_type], storage_dict[storage_type][site_name]["BDII"]["Used"],\
                             storage_dict[storage_type][site_name]["SRM"]["Used"])
-            extra_condition = True
+            #extra_condition = True
 
-    ggus_color, ggus_result, ggus_file_url = ggus_monitor.ggus_monitor(site_name, "lhcb-storage", \
+    ggus_color, ggus_result, ggus_file_url = ggus_monitor.ggus_monitor(site_name_query, "lhcb-storage", \
                                              ggus_details, extra_condition)
     os.write(ggus_output,"%s %s %s %s %s\n" % (dt,lhcb_names_dict[site_name],ggus_result,ggus_color,ggus_file_url))
 
