@@ -118,6 +118,9 @@ ELTS = {
     'DefaultLifeTime': 'StorageShareDefaultLifeTime',
     'MaximumLifeTime': 'StorageShareMaximumLifeTime',
     'Tag': 'StorageShareTag'},
+'Share':
+    {'ID': 'ShareID',
+     'ServiceID': 'ShareServiceForeignKey'},
 }
 
 def main(argv):
