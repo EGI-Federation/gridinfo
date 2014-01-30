@@ -13,7 +13,7 @@ import ggus_monitor
 
 path_to_command = "/afs/cern.ch/user/m/malandes/public/glue-validator/usr/bin/"
 path_to_output = "/afs/cern.ch/user/m/malandes/www/web/ssb/lhcb/maxCPUTime/"
-path_to_temp = "/afs/cern.ch/user/m/malandes/temp/ssb/lhcb/"
+path_to_temp = "/afs/cern.ch/user/m/malandes/workspace/ssb/lhcb/"
 ggus_file_name = "/afs/cern.ch/user/m/malandes/www/web/ssb/lhcb/maxCPUTime/ggus_maxCPUTime.txt"
 ggus_output = os.open (ggus_file_name, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0600)
 
