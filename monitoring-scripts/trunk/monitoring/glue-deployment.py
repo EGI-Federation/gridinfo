@@ -16,7 +16,7 @@ def glue_size (glue_version):
         binding = "grid"
     elif ( glue_version == "2" ):
         binding = "glue"
-    temp_file = "/afs/cern.ch/user/m/malandes/temp/ssb/general/glue%s" % (glue_version)
+    temp_file = "/afs/cern.ch/user/m/malandes/workspace/ssb/general/glue%s" % (glue_version)
     output = os.open (temp_file, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0600)
     command1 = "ldapsearch -LLL -x -h lcg-bdii:2170 -b o=%s" % (binding)
     command2 = "ls -l --block-size=MB %s | cut -d \" \" -f5" % (temp_file)
