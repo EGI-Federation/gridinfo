@@ -131,7 +131,8 @@ color_code = {
 "red" : "ERROR",
 "green" : "OK",
 "grey" : "Unreachable",
-"pink" : "Missing_LHCb_shares"
+"pink" : "Missing_LHCb_shares",
+"yellow" : "Unable_to_use_BDII_data"
 }
 
 lhcb_names_dict = {
@@ -202,6 +203,7 @@ for site_name in sorted(site_bdiis.keys()):
     dt=datetime.datetime.now()
 
     for storage_type in storage_type_dict.keys():
+        #print ("%s ------>") % (storage_type)
         glue2_query = "ldapsearch -LLL -x -h %s -p 2170 -b GLUE2DomainID=%s,o=glue \
                        '(&(objectClass=GLUE2StorageShareCapacity)\
                           (GLUE2StorageShareCapacityStorageShareForeignKey=*%s*))'\
@@ -222,7 +224,8 @@ for site_name in sorted(site_bdiis.keys()):
         full_text=results[0].strip()
         index1=full_text.find("Error:")
         index2=full_text.find("UNKNOWN:")
-        if (index1 > -1) or (index2 > -1):
+        index3=full_text.find("error")    # Internal (implementation specific) error (80). See GGUS 101259. 
+        if (index1 > -1) or (index2 > -1) or (index3 > -1):
              # Redirect this to StorageT1-storage_type-i.txt
              result_string="%s %s %s %s %s\n" % (dt,lhcb_names_dict[site_name],color_code["grey"],"grey","None") 
              os.write(results_dict[storage_type]["Total"],result_string)
@@ -237,21 +240,27 @@ for site_name in sorted(site_bdiis.keys()):
             #print ("%s") % (full_text)
             #print ("--------------------------")
             if (schema_version[site_name] == "1"):
-                line1,line2,line3,line4=full_text.split("\n")
-                aux_dict={}
-                key1,value1=line1.split(":")
-                aux_dict[key1]=value1 
-                key2,value2=line2.split(":")
-                aux_dict[key2]=value2
-                key3,value3=line3.split(":")
-                aux_dict[key3]=value3
-                key4,value4=line4.split(":")
-                aux_dict[key4]=value4
-                for j in [key1,key2,key3,key4]:
-                    if (j.find("Total") > -1) and (aux_dict[j] != 0):
-		        storage_dict[storage_type][site_name]["BDII"]["Total"]=int(aux_dict[j])/1000		
-                    elif (j.find("Used") > -1) and (aux_dict[j] != 0):
-                        storage_dict[storage_type][site_name]["BDII"]["Used"]=int(aux_dict[j])/1000
+                try:
+                    line1,line2,line3,line4=full_text.split("\n")
+                    aux_dict={}
+                    key1,value1=line1.split(":")
+                    aux_dict[key1]=value1 
+                    key2,value2=line2.split(":")
+                    aux_dict[key2]=value2
+                    key3,value3=line3.split(":")
+                    aux_dict[key3]=value3
+                    key4,value4=line4.split(":")
+                    aux_dict[key4]=value4
+                    for j in [key1,key2,key3,key4]:
+                        if (j.find("Total") > -1) and (aux_dict[j] != 0):
+	    	            storage_dict[storage_type][site_name]["BDII"]["Total"]=int(aux_dict[j])/1000		
+                        elif (j.find("Used") > -1) and (aux_dict[j] != 0):
+                            storage_dict[storage_type][site_name]["BDII"]["Used"]=int(aux_dict[j])/1000
+                except ValueError:
+                    # Redirect this to StorageT1-storage_type-i.txt
+                    result_string="%s %s %s %s %s\n" % (dt,lhcb_names_dict[site_name],color_code["yellow"],"yellow","None")
+                    os.write(results_dict[storage_type]["Total"],result_string)
+                    os.write(results_dict[storage_type]["Used"],result_string)
             else:
                 if ( full_text.count("\n") > 1 ):        # This is for pic case
                     line1,rest=full_text.split("\n",1)
@@ -317,12 +326,12 @@ for site_name in sorted(site_bdiis.keys()):
             ggus_details = ggus_details + "\nAffected Storage Share: %s \nBDII Total:%s vs SRM Total:%s" % \
                            (id_dict[site_name][storage_type], storage_dict[storage_type][site_name]["BDII"]["Total"],\
                             storage_dict[storage_type][site_name]["SRM"]["Total"])
-            #extra_condition = True    
+            extra_condition = True    
         if (storage_dict[storage_type][site_name]["Result"]["Used"] == "red"):
             ggus_details = ggus_details + "\nAffected Storage Share: %s \nBDII Used:%s vs SRM Used:%s" % \
                            (id_dict[site_name][storage_type], storage_dict[storage_type][site_name]["BDII"]["Used"],\
                             storage_dict[storage_type][site_name]["SRM"]["Used"])
-            #extra_condition = True
+            extra_condition = True
 
     ggus_color, ggus_result, ggus_file_url = ggus_monitor.ggus_monitor(site_name_query, "lhcb-storage", \
                                              ggus_details, extra_condition)
