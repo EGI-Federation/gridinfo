@@ -4,9 +4,11 @@
 #
 ################################################################
 
-import suds
 import logging
 import datetime
+import sys
+sys.path.append('/afs/cern.ch/user/m/malandes/public/suds/python-suds-0.4.1/suds')
+import suds
 
 #logging.basicConfig(level=logging.INFO)
 logging.getLogger('suds.client').setLevel(logging.CRITICAL)
@@ -22,7 +24,7 @@ def connect(type):
         user_name = "generic_test"
         passwd = "G1n1ric_T1st"
         wsdl_url = "https://train-ars.ggus.eu/arsys/WSDL/public/train-ars/GGUS"
-    elif (type == "production"):
+    elif (type == "prod"):
         ################# Production Instance ###############################
         user_name = "genac"
         passwd = "Sp6C!M8g"

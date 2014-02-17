@@ -85,7 +85,7 @@ def obsolete_entries (site_name, site_bdii, txt_fd, ggus_txt_fd, validator_outpu
         detail_ggus = html_results.replace("<br>","")
             
     ggus_color, ggus_result, ggus_file_url = ggus_monitor.ggus_monitor(site_name, "obsolete_entries", \
-                                             detail_ggus, extra_condition) 
+                                             detail_ggus, extra_condition, "prod") 
 
     os.write(ggus_txt_fd,"%s %s %s %s %s\n" % (dt,site_name,ggus_result,ggus_color,ggus_file_url))
 
