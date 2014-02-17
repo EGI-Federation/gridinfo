@@ -334,7 +334,7 @@ for site_name in sorted(site_bdiis.keys()):
             extra_condition = True
 
     ggus_color, ggus_result, ggus_file_url = ggus_monitor.ggus_monitor(site_name_query, "lhcb-storage", \
-                                             ggus_details, extra_condition)
+                                             ggus_details, extra_condition, "prod")
     os.write(ggus_output,"%s %s %s %s %s\n" % (dt,lhcb_names_dict[site_name],ggus_result,ggus_color,ggus_file_url))
 
 os.close(ggus_output)

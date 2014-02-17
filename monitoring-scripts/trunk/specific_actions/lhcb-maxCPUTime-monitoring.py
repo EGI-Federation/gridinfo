@@ -87,7 +87,7 @@ for site_name in sorted(sites.lhcb_site_bdiis.keys()):
         extra_condition = True
 
     ggus_color, ggus_result, ggus_file_url = ggus_monitor.ggus_monitor(site_name, "maxCPUTime", \
-                                             full_text, extra_condition)
+                                             full_text, extra_condition, "prod")
 
     os.write(ggus_output,"%s %s %s %s %s\n" % (dt,sites.lhcb_names_dict[site_name],ggus_result,ggus_color,ggus_file_url))
 
