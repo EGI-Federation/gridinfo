@@ -40,27 +40,31 @@ path_to_url = "http://malandes.web.cern.ch/malandes/ssb/general"
 dt=datetime.datetime.now()
 today=datetime.date.today()
 
-command_glue1_dns              = "ldapsearch -LLL -x -h lcg-bdii:2170 -b o=grid dn | grep dn: | wc -l"
-command_glue2_dns              = "ldapsearch -LLL -x -h lcg-bdii:2170 -b o=glue dn | grep dn: | wc -l"
-command_glue1_sites            = "ldapsearch -LLL -x -h lcg-bdii:2170 -b o=grid '(objectClass=GlueSite)' GlueSiteUniqueID \
-                                  | grep GlueSiteUniqueID: | wc -l"
-command_glue2_sites            = "ldapsearch -LLL -x -h lcg-bdii:2170 -b o=glue '(objectClass=GLUE2Domain)' GLUE2DomainID \
-                                  | grep GLUE2DomainID: | wc -l"
-command_non_obsolete_glue2_appenv ="ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=glue \
+command_glue1_dns              = "ldapsearch -LLL -x -h lcg-bdii:2170 -b mds-vo-name=local,o=grid dn | grep dn: | wc -l"
+command_glue2_dns              = "ldapsearch -LLL -x -h lcg-bdii:2170 -b GLUE2GroupID=grid,o=glue dn | grep dn: | wc -l"
+command_glue1_sites            = "ldapsearch -LLL -x -h lcg-bdii:2170 -b mds-vo-name=local,o=grid '(objectClass=GlueSite)' \
+                                  GlueSiteUniqueID | grep GlueSiteUniqueID: | wc -l"
+command_glue2_sites            = "ldapsearch -LLL -x -h lcg-bdii:2170 -b GLUE2GroupID=grid,o=glue \
+                                  '(objectClass=GLUE2Domain)' GLUE2DomainID | grep GLUE2DomainID: | wc -l"
+command_non_obsolete_glue2_appenv ="ldapsearch -LLL -x -h lcg-bdii -p 2170 -b GLUE2GroupID=grid,o=glue \
                                     '(&(objectClass=GLUE2ApplicationEnvironment)(GLUE2EntityCreationTime=%s*))' \
                                     dn | grep dn: | wc -l" % (today)
-command_glue2_services         = "ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=glue '(objectClass=GLUE2Service)' \
-                                  GLUE2ServiceID | grep GLUE2ServiceID: | sort | uniq | wc -l"
-command_glue1_endpoints        = "ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=grid '(objectClass=GlueService)' \
-                                  GlueServiceUniqueID | grep GlueServiceUniqueID | sort | uniq | wc -l"
-command_glue2_endpoints        = "ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=glue '(objectClass=GLUE2Endpoint)' \
+command_glue2_services         = "ldapsearch -LLL -x -h lcg-bdii -p 2170 -b GLUE2GroupID=grid,o=glue \
+                                  '(objectClass=GLUE2Service)' GLUE2ServiceID | grep GLUE2ServiceID: | sort | uniq | wc -l"
+command_glue1_endpoints        = "ldapsearch -LLL -x -h lcg-bdii -p 2170 -b mds-vo-name=local,o=grid \
+                                  '(objectClass=GlueService)' GlueServiceUniqueID | grep GlueServiceUniqueID: \
+                                  | sort | uniq | wc -l"
+command_glue2_endpoints        = "ldapsearch -LLL -x -h lcg-bdii -p 2170 -b GLUE2GroupID=grid,o=glue \
+                                  '(objectClass=GLUE2Endpoint)' \
                                   GLUE2EndpointID | grep GLUE2EndpointID: | sort | uniq | wc -l"
-command_glue2_service_types    = "ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=glue '(objectClass=GLUE2Service)' \
-                                  GLUE2ServiceType | grep GLUE2ServiceType: | sort | uniq | wc -l" 
-command_glue1_endpoint_types   = "ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=grid '(objectClass=GlueService)' \
-                                  GlueServiceType | grep GlueServiceType: | sort | uniq | wc -l"  
-command_glue2_endpoint_types   = "ldapsearch -LLL -x -h lcg-bdii -p 2170 -b o=glue '(objectClass=GLUE2Endpoint)' \
-                                  GLUE2EndpointInterfaceName | grep GLUE2EndpointInterfaceName: | sort | uniq | wc -l"
+command_glue2_service_types    = "ldapsearch -LLL -x -h lcg-bdii -p 2170 -b GLUE2GroupID=grid,o=glue \
+                                  '(objectClass=GLUE2Service)' GLUE2ServiceType | grep GLUE2ServiceType: \
+                                  | sort | uniq | wc -l" 
+command_glue1_endpoint_types   = "ldapsearch -LLL -x -h lcg-bdii -p 2170 -b mds-vo-name=local,o=grid \
+                                  '(objectClass=GlueService)' GlueServiceType | grep GlueServiceType: | sort | uniq | wc -l"
+command_glue2_endpoint_types   = "ldapsearch -LLL -x -h lcg-bdii -p 2170 -b GLUE2GroupID=grid,o=glue \
+                                  '(objectClass=GLUE2Endpoint)' GLUE2EndpointInterfaceName \
+                                  | grep GLUE2EndpointInterfaceName: | sort | uniq | wc -l"
 
 test_dict = {
 'glue1_dns'                 :  command_glue1_dns,
