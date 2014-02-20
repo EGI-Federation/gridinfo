@@ -32,10 +32,13 @@ def ggus_monitor ( site_name, template, results, extra_condition, ggus_instance 
                                              ggus_templates.templates[template]['last_login'],
                                              ggus_templates.templates[template]['carbon_copy'])
             ggus_result = ggus_out
-            if (ggus_instance == "test"):
-                ggus_file_url = "https://train.ggus.eu/ws/ticket_info.php?ticket=%s" % (ggus_result)
-            elif (ggus_instance == "prod"):
-                ggus_file_url = "https://ggus.eu/ws/ticket_info.php?ticket=%s" % (ggus_result)
+            if (ggus_out == "GGUS ticket failed to be created"):
+                ggus_file_url = "None"
+            else:
+                if (ggus_instance == "test"):
+                    ggus_file_url = "https://train.ggus.eu/ws/ticket_info.php?ticket=%s" % (ggus_result)
+                elif (ggus_instance == "prod"):
+                    ggus_file_url = "https://ggus.eu/ws/ticket_info.php?ticket=%s" % (ggus_result)
         else:
             ggus_color = "green"
             ggus_result = "None"
