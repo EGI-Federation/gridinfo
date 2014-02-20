@@ -277,7 +277,10 @@ for site_name in sorted(site_bdiis.keys()):
                     storage_dict[storage_type][site_name]["BDII"]["Used"]=int(value1)/1000
             for i in ["Total","Used"]:
                 extra=""
-                if (storage_dict[storage_type][site_name]["BDII"][i] == storage_dict[storage_type][site_name]["SRM"][i]):
+                if ((storage_dict[storage_type][site_name]["BDII"][i] - \
+                    storage_dict[storage_type][site_name]["SRM"][i]) <= 10) or \
+                    ((storage_dict[storage_type][site_name]["BDII"][i] - \
+                    storage_dict[storage_type][site_name]["SRM"][i]) >= 10):
                     storage_dict[storage_type][site_name]["Result"][i] = "green"
                 else:
                     storage_dict[storage_type][site_name]["Result"][i] = "red"
