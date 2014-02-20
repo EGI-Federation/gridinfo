@@ -20,6 +20,19 @@ templates = {
 'last_login' : 'Maria Alandes',
 'carbon_copy' : None
 },
+'waiting_jobs' : {
+'description' : 'Waiting Jobs 444444 published',
+'long_description' : 'Dear sys admin,\n\n Your site is publishing 444444 Waiting Jobs. Please, refer to \
+                https://wiki.egi.eu/wiki/Tools/Manuals/TS59, to get more details on how to fix this problem.\n\n \
+                Thanks a lot,\nMaria\n\n',
+'mail' : 'maria.alandes.pradillo@cern.ch',
+'loginname' : '/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=malandes/CN=644124/CN=Maria Alandes Pradillo',
+'name' : 'Maria Alandes',
+'priority' : 'less urgent',
+'last_modifier' : 'Maria Alandes',
+'last_login' : 'Maria Alandes',
+'carbon_copy' : None
+},
 'maxCPUTime' : {
 'description' : 'Publishing default value for Max CPU Time',
 'long_description' : 'Dear site admin,\n\n Your site is publishing 999999999 for the Max CPU Time. \
