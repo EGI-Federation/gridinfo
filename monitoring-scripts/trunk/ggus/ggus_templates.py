@@ -23,7 +23,7 @@ templates = {
 'waiting_jobs' : {
 'description' : 'Waiting Jobs 444444 published',
 'long_description' : 'Dear sys admin,\n\n Your site is publishing 444444 Waiting Jobs. Please, refer to \
-                https://wiki.egi.eu/wiki/Tools/Manuals/TS59, to get more details on how to fix this problem.\n\n \
+                https://wiki.egi.eu/wiki/Tools/Manuals/TS59 , to get more details on how to fix this problem.\n\n \
                 Thanks a lot,\nMaria\n\n',
 'mail' : 'maria.alandes.pradillo@cern.ch',
 'loginname' : '/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=malandes/CN=644124/CN=Maria Alandes Pradillo',
@@ -35,9 +35,13 @@ templates = {
 },
 'maxCPUTime' : {
 'description' : 'Publishing default value for Max CPU Time',
-'long_description' : 'Dear site admin,\n\n Your site is publishing 999999999 for the Max CPU Time. \
-                      LHCb uses this parameter to calculate the queue length. Would it be possible to provide a \
-                      defined limit for Max CPU Time?\n\nDetails:',
+'long_description' : 'Dear site admin,\n\n Your site is publishing 999999999 for the GLUE2ComputingShareMaxCPUTime, \
+                      which is the maximum obtainable CPU time limit that MAY be granted to the job upon user request \
+                      per slot (do not confuse with GLUE2ComputingShareMaxTotalCPUTime, which is the maximum obtainable \
+                      CPU time limit that MAY be granted to the job upon user request across all assigned slots; this \
+                      attribute is a limit on the sum of the CPU time used in all the slots occupied by a multi-slot job). \
+                      LHCb uses GLUE2ComputingShareMaxCPUTime to calculate the queue length. \
+                      Would it be possible to provide a defined limit for GLUE2ComputingShareMaxCPUTime?\n\nDetails:',
 'mail' : 'lhcb-grid-bdii-srm-comparison@cern.ch',
 'loginname' : 'DN = /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=roiser/CN=576600/CN=Stefan Roiser',
 'name' : 'Stefan Roiser',
