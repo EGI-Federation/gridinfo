@@ -20,7 +20,6 @@ test_list = ['glue1_dns','glue2_dns','non_obsolete_glue2_appenv','glue2_services
              'glue2_service_types','glue1_endpoint_types','glue2_endpoint_types']
 
 for test in test_list:
-    print "Test: %s" % (test)
     output_file_name = "%s/%s.txt" % (path_to_output,test)
     output_fd = os.open (output_file_name, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0600)
     for site_name in sorted(sites.wlcg_site_bdiis.keys()):
@@ -71,7 +70,8 @@ for test in test_list:
    
         p = subprocess.Popen(test_dict[test] ,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         results = p.communicate()
-        if (results[0].find("Error") > -1 or results[0].find("UNKNOWN") > -1 or results[0].find("error")) :
+        if (results[0].find("Error") > -1 or results[0].find("UNKNOWN") > -1 or \
+            results[0].find("ldap_bind") > -1 or results[0].find("No such object") > -1) :
             color = "grey"
             result = "Unreachable" 
         else:
