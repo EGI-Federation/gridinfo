@@ -47,10 +47,12 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 
-* Mon Jan 13 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.21-0
+* Wed Mar 05 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.21-0
 - #GRIDINFO-33: Add LHCb testuite
 - #GRIDINFO-27: Add service and interface names for QCG
 - #GRIDINFO-25: Add +-1 margin for Storage Capacities
+- #GRIDINFO-44: Add service and interface names for DPM
+- #GRIDINFO-45: workaround for ARC validity bug
 
 * Wed Oct 02 2013 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.20-0 
 - Add tolerances for job totals
