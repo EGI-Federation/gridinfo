@@ -52,7 +52,11 @@ class EGIProfileTest(unittest.TestCase):
                 creationtime =  datetime.datetime\
                                 (*(time.strptime(self.entry['GLUE2EntityCreationTime'][0],"%Y-%m-%dT%H:%M:%SZ")[0:6])) 
                 now = datetime.datetime.utcnow()
-                validity = datetime.timedelta(seconds=int(self.value[0]))
+                if ( self.value[0] == "60" ):
+                    validity = datetime.timedelta(seconds=600)
+                else:
+                    validity = datetime.timedelta(seconds=int(self.value[0]))
+                # ARC validity bug.
                 due_time = (creationtime + validity).timetuple() 
                 if due_time < now.timetuple():
                     message = validator.utils.message_generator\
