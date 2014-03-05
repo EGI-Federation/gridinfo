@@ -155,7 +155,9 @@ def is_InterfaceName_t(value):
       'org.nordugrid.gridftpjob',
       'org.nordugrid.ldapng',
       'org.qcg.broker',
-      'org.oasis.notification'
+      'org.oasis.notification',
+      'webdav',
+      'xroot'
       ]
    if value in interfaces:
        return True
@@ -190,6 +192,7 @@ def is_ServiceType_t(value):
       'bdii_site',
       'bdii_top',
       'CE',
+      'DPM',
       'egi.GRIDVIEW',
       'egi.GSTAT',
       'egi.MetricsPortal',
@@ -581,7 +584,7 @@ def is_StorageAccessProtocol_t(value):
       return False
 
 def is_ExpirationMode_t(value):
-   types = ['neverexpire', 'releasewhenexpired Support', 'warnwhenexpired']
+   types = ['neverexpire', 'releasewhenexpired', 'warnwhenexpired']
    if value in types:
       return True
    else:
