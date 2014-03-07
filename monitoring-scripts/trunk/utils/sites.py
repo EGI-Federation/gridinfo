@@ -1,7 +1,7 @@
 #
 # List of site bdiis used by the dashboard scripts
 #
-# Note: List of GOCDB sites updated from GOCDB on 14.02.2014
+# Note: List of GOCDB sites updated from GOCDB on 07.03.2014
 #       List of WLCG sites updated from REBUS on 05.12.2013
 #       List of LHCb sites updated from DIRAC on 06.12.2013
 #       List of CMS sites updated from siteDB on 14.02.2014 
@@ -525,7 +525,7 @@ gocdb_bdiis = {
 "UPJS-Kosice" : "sbdii.grid.upjs.sk:2170",
 "UPV-GRyCAP" : "ngiesbdii.i3m.upv.es:2170",
 "UPorto" : "mon01.up.pt:2170",
-"USC-LCG2" : "bdii.igfae.usc.es:2170",
+"USC-LCG2" : "bdii-emi.igfae.usc.es:2170",
 "USCMS-FNAL-WC1" : "is.grid.iu.edu:2180",
 "UT_CS" : "pinguin.mt.ut.ee:2170",
 "UiB" : "glite2.bccs.uib.no:2170",
@@ -694,7 +694,7 @@ wlcg_site_bdiis = {
 "UB-LCG2": "hep-bdii.ecm.ub.es",
 "UKI-LT2-Brunel": "dc2-grid-69.brunel.ac.uk",
 "UKI-LT2-IC-HEP": "bdii.grid.hep.ph.ic.ac.uk",
-"UKI-LT2-QMUL": "bdii01.htc.esc.qmul",
+"UKI-LT2-QMUL": "bdii02.esc.qmul.ac.uk",
 "UKI-LT2-RHUL": "sbdii2.ppgrid1.rhul.ac.uk",
 "UKI-LT2-UCL-HEP": "lcg-bdii01.hep.ucl.ac.uk",
 "UKI-NORTHGRID-LANCS-HEP": "fal-pygrid-14.lancs.ac.uk",
@@ -707,14 +707,14 @@ wlcg_site_bdiis = {
 "UKI-SOUTHGRID-BHAM-HEP": "epgr09.ph.bham.ac.uk",
 "UKI-SOUTHGRID-BRIS-HEP": "lcgbdii.phy.bris.ac.uk",
 "UKI-SOUTHGRID-CAM-HEP": "vserv08.hep.phy.cam.ac.uk",
-"UKI-SOUTHGRID-OX-HEP": "t2bdii05.physics.ox.ac.uk",
+"UKI-SOUTHGRID-OX-HEP": "t2bdii06.physics.ox.ac.uk",
 "UKI-SOUTHGRID-RALPP": "heplnv140.pp.rl.ac.uk",
 "UKI-SOUTHGRID-SUSX": "grid-bdii.hpc.susx.ac.uk",
 "UNIANDES": "piaroa.uniandes.edu.co",
 "UNIBE-LHEP": "dpm.lhep.unibe.ch",
 "UNI-FREIBURG": "bdii.bfg.uni-freiburg.de",
-"USC-LCG2": "bdii.inv.usc.es",
-"WEIZMANN-LCG2": "wipp-bdii.weizmann.ac.il",
+"USC-LCG2": "bdii-emi.igfae.usc.es",
+"WEIZMANN-LCG2": "wipp-ce.weizmann.ac.il",
 "wuppertalprod": "grid-bdii.physik.uni-wuppertal.de"
 }
 
@@ -779,7 +779,7 @@ lhcb_site_bdiis = {
 "UB-LCG2": "hep-bdii.ecm.ub.es",
 "UKI-LT2-Brunel": "dc2-grid-69.brunel.ac.uk",
 "UKI-LT2-IC-HEP": "bdii.grid.hep.ph.ic.ac.uk",
-"UKI-LT2-QMUL": "bdii01.htc.esc.qmul",
+"UKI-LT2-QMUL": "bdii02.esc.qmul.ac.uk",
 "UKI-LT2-RHUL": "sbdii2.ppgrid1.rhul.ac.uk",
 "UKI-NORTHGRID-LANCS-HEP": "fal-pygrid-14.lancs.ac.uk",
 "UKI-NORTHGRID-LIV-HEP": "hepgrid4.ph.liv.ac.uk",
@@ -791,13 +791,13 @@ lhcb_site_bdiis = {
 "UKI-SOUTHGRID-BHAM-HEP": "epgr09.ph.bham.ac.uk",
 "UKI-SOUTHGRID-BRIS-HEP": "lcgbdii.phy.bris.ac.uk",
 "UKI-SOUTHGRID-CAM-HEP": "vserv08.hep.phy.cam.ac.uk",
-"UKI-SOUTHGRID-OX-HEP": "t2bdii05.physics.ox.ac.uk",
+"UKI-SOUTHGRID-OX-HEP": "t2bdii06.physics.ox.ac.uk",
 "UKI-SOUTHGRID-RALPP": "heplnv140.pp.rl.ac.uk",
 "UNI-DORTMUND": "udo-bdii01.grid.tu-dortmund.de",
 "UNINA-EGEE": "sitebdii.scope.unina.it",
-"USC-LCG2": "bdii.inv.usc.es",
+"USC-LCG2": "bdii-emi.igfae.usc.es",
 "WCSS64": "tatooine.wcss.pl",
-"WEIZMANN-LCG2": "wipp-bdii.weizmann.ac.il",
+"WEIZMANN-LCG2": "wipp-ce.weizmann.ac.il",
 "pic": "site-bdii.pic.es",
 "ru-Moscow-SINP-LCG2": "lcg02.sinp.msu.ru",
 "ru-PNPI": "cluster.pnpi.nw.ru"
