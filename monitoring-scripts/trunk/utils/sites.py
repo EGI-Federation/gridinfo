@@ -1,7 +1,7 @@
 #
 # List of site bdiis used by the dashboard scripts
 #
-# Note: List of GOCDB sites updated from GOCDB on 07.03.2014
+# Note: List of GOCDB sites updated from GOCDB on 10.03.2014
 #       List of WLCG sites updated from REBUS on 05.12.2013
 #       List of LHCb sites updated from DIRAC on 06.12.2013
 #       List of CMS sites updated from siteDB on 14.02.2014 
@@ -603,7 +603,7 @@ wlcg_site_bdiis = {
 "EELA-UTFSM": "site.hpc.utfsm.cl",
 "EFDA-JET": "grid005.jet.efda.org",
 "FI_HIP_T2": "bdii.hip.fi",
-"FMPhI-UNIBA": "lcgbdii.dnp.fmph.uniba.sk",
+"FMPhI-UNIBA": "lcgmonitor.dnp.fmph.uniba.sk",
 "FZK-LCG2" : "giis-fzk.gridka.de",
 "GoeGrid": "bdii.goegrid.gwdg.de",
 "GR-07-UOI-HEPLAB": "grid03.physics.uoi.gr",
@@ -647,7 +647,7 @@ wlcg_site_bdiis = {
 "LCG_KNU": "cluster51.knu.ac.kr",
 "LIP-Coimbra": "grid003.gridc.lip.pt",
 "LIP-Lisbon": "site-bdii.lip.pt",
-"LRZ-LMU": "lcg-lrz-ce0.grid.lrz.de",
+"LRZ-LMU": "lcg-lrz-bdii.grid.lrz.de",
 "MPPMU": "grid-bdii.rzg.mpg.de",
 "NCBJ-CIS": "bdii.cis.gov.pl",
 "NCG-INGRID-PT": "sbdii01.ncg.ingrid.pt",
@@ -679,7 +679,7 @@ wlcg_site_bdiis = {
 "SE-SNIC-T2": "bdii-se-t2.ndgf.org",
 "SFU-LCG2": "wormhole.westgrid.ca",
 "SiGNET": "dodo.ijs.si",
-"T2-TH-ALICE-NSTDA": "curium.lsr.nectec.or.th",
+"T2-TH-ALICE-NSTDA": "uranium.lsr.nectec.or.th",
 "T2_Estonia": "bdii.hep.kbfi.ee",
 "Taiwan-LCG2" : "w-bdii.grid.sinica.edu.tw",
 "TECHNION-HEP": "tech-bdii.hep.technion.ac.il",
@@ -699,7 +699,7 @@ wlcg_site_bdiis = {
 "UKI-LT2-UCL-HEP": "lcg-bdii01.hep.ucl.ac.uk",
 "UKI-NORTHGRID-LANCS-HEP": "fal-pygrid-14.lancs.ac.uk",
 "UKI-NORTHGRID-LIV-HEP": "hepgrid4.ph.liv.ac.uk",
-"UKI-NORTHGRID-MAN-HEP": "vm4.tier2.hep.manchester.ac.uk",
+"UKI-NORTHGRID-MAN-HEP": "site-bdii.tier2.hep.manchester.ac.uk",
 "UKI-NORTHGRID-SHEF-HEP": "lcg.shef.ac.uk",
 "UKI-SCOTGRID-DURHAM": "site-bdii.dur.scotgrid.ac.uk",
 "UKI-SCOTGRID-ECDF": "info2.glite.ecdf.ed.ac.uk",
@@ -783,7 +783,7 @@ lhcb_site_bdiis = {
 "UKI-LT2-RHUL": "sbdii2.ppgrid1.rhul.ac.uk",
 "UKI-NORTHGRID-LANCS-HEP": "fal-pygrid-14.lancs.ac.uk",
 "UKI-NORTHGRID-LIV-HEP": "hepgrid4.ph.liv.ac.uk",
-"UKI-NORTHGRID-MAN-HEP": "vm4.tier2.hep.manchester.ac.uk",
+"UKI-NORTHGRID-MAN-HEP": "site-bdii.tier2.hep.manchester.ac.uk",
 "UKI-NORTHGRID-SHEF-HEP": "lcg.shef.ac.uk",
 "UKI-SCOTGRID-DURHAM": "site-bdii.dur.scotgrid.ac.uk",
 "UKI-SCOTGRID-ECDF": "info2.glite.ecdf.ed.ac.uk",
