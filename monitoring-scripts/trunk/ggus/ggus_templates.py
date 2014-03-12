@@ -42,7 +42,7 @@ templates = {
                       attribute is a limit on the sum of the CPU time used in all the slots occupied by a multi-slot job). \
                       LHCb uses GLUE2ComputingShareMaxCPUTime to calculate the queue length. \
                       Would it be possible to provide a defined limit for GLUE2ComputingShareMaxCPUTime?\n\nDetails:',
-'mail' : 'lhcb-grid-bdii-srm-comparison@cern.ch',
+'mail' : 'wlcg-lhcb-bdii-srm-comparison@cern.ch',
 'loginname' : 'DN = /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=roiser/CN=576600/CN=Stefan Roiser',
 'name' : 'Stefan Roiser',
 'priority' : 'less urgent',
