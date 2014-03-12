@@ -54,7 +54,7 @@ templates = {
 'description' : 'BDII and SRM publish inconsistent storage capacity numbers',
 'long_description' : 'Dear site admin,\n\n Your site is publishing inconsistent storage capacity numbers in BDII compared \
                       to what SRM reports. Could you please check?\n\nDetails:',
-'mail' : 'lhcb-grid-bdii-srm-comparison@cern.ch',
+'mail' : 'wlcg-lhcb-bdii-srm-comparison@cern.ch',
 'loginname' : 'DN = /DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=roiser/CN=576600/CN=Stefan Roiser',
 'name' : 'Stefan Roiser',
 'priority' : 'less urgent',
