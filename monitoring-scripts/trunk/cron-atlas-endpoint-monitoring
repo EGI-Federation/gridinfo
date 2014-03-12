@@ -1,0 +1,4 @@
+#!/bin/bash
+export PYTHONPATH=/afs/cern.ch/user/m/malandes/public/glue-validator/usr/lib/python2.4/site-packages:/afs/cern.ch/user/m/malandes/infosys/ssb:/afs/cern.ch/user/m/malandes/public/suds/python-suds-0.4.1:/afs/cern.ch/user/m/malandes/infosys/ssb/ggus:/afs/cern.ch/user/m/malandes/infosys/ssb/utils://afs/cern.ch/user/m/malandes/infosys/ssb/specific_actions:$PYTHONPATH
+
+/afs/cern.ch/user/m/malandes/infosys/ssb/specific_actions/atlas-endpoint-monitoring.py

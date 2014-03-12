@@ -14,6 +14,7 @@ The scripts are run locally in AFS by user "malandes" using acrontab:
 0 7 * * * lxplus.cern.ch /afs/cern.ch/user/m/malandes/infosys/ssb/cron-lhcb-glue2-monitoring
 0 7 * * * lxplus.cern.ch /afs/cern.ch/user/m/malandes/infosys/ssb/monitoring/glue-deployment.py
 0 7 * * * lxplus.cern.ch /afs/cern.ch/user/m/malandes/infosys/ssb/monitoring/bdii-deployment.py
+0 7 * * * lxplus.cern.ch /afs/cern.ch/user/m/malandes/infosys/ssb/cron-atlas-endpoint-monitoring
 0 * * * * lxplus.cern.ch /afs/cern.ch/user/m/malandes/infosys/ssb/cron-lhcb-storage-monitoring
 
 Results to be consumed by the Dashboard are written to the web space of user "malandes" 
@@ -30,6 +31,9 @@ under /afs/cern.ch/user/m/malandes/www/web/ssb and organised in different folder
     - https://wlcg-mon/dashboard/request.py/siteview#currentView=Glue+Validator+LHCb 
     - https://wlcg-mon/dashboard/request.py/siteview#currentView=BDII+vs+SRM+LHCb+Storage
 
+  - /atlas: ATLAS related metrcis. Dashboard URL:
+    - https://wlcg-mon/dashboard/request.py/siteview#currentView=BDII+monitoring+for+ATLAS
+
   - /wlcg: WLCG related metrics. Dashboard URL:
     - https://wlcg-mon/dashboard/request.py/siteview#currentView=Glue+Validator+WLCG
 
@@ -40,6 +44,8 @@ The scripts are organised as follows:
   GLUE 1 and 2 deployment per REBUS site metrics
 
 - cron-lhcb-glue2-monitoring: cron job to launch the list of scripts generating LHCb and GLUE 2
+
+- cron-atlas-endpoint-monitoring: cron job to monitor xroot and http endpoints
 
 - cron-lhcb-storage-monitoring: cron job to launch the BDII vs SRM monitoring for LHCb
 
@@ -58,6 +64,8 @@ The scripts are organised as follows:
 - /specific_actions: Folder containing VO specific metrics or general metrics tagetting a specific validation objective:
    - lhcb-maxCPUTime-monitoring.py: metric to monitor the Max CPU Time published by LHCb queues in GLUE 2
    - lhcb-storage-monitoring.py: metric to compare BDII vs SRM storage capacity numbers (GLUE 2 where published)
+   - atlas-endpoint-monitoring.py: metric to list the number of xroot and http endpoints (GLUE 1 and GLUE 2) 
+     published in ATLAS sites
    - obsolete_entries.py: metric to monitor obsolete entries published in GLUE 2
    - waiting_jobs.py: metric to monitor 444444 waiting jobs in GLUE 2 
 
