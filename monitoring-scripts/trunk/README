@@ -40,8 +40,8 @@ under /afs/cern.ch/user/m/malandes/www/web/ssb and organised in different folder
 
 The scripts are organised as follows:
 
-- cron-wlcg-glue2-monitoring : cron job to launch the list of scripts generating WLCG and GLUE 2 related metrics, and
-  GLUE 1 and 2 deployment per REBUS site metrics
+- cron-wlcg-glue2-monitoring : cron job to launch the list of scripts generating WLCG and GLUE 2 related metrics,
+  GLUE 1 and 2 deployment per REBUS site metrics and GGUS tickets opened by COD operations
 
 - cron-lhcb-glue2-monitoring: cron job to launch the list of scripts generating LHCb and GLUE 2
 
@@ -62,12 +62,16 @@ The scripts are organised as follows:
    - wlcg-glue2-monitoring.py: GLUE 2 validation metrics for sites listed in REBUS
 
 - /specific_actions: Folder containing VO specific metrics or general metrics tagetting a specific validation objective:
-   - lhcb-maxCPUTime-monitoring.py: metric to monitor the Max CPU Time published by LHCb queues in GLUE 2
+   - lhcb-maxCPUTime-monitoring.py: metric to monitor the Max CPU Time published by LHCb queues in GLUE 2. Disabled 
+     after GLUE validator Nagios probe in production
    - lhcb-storage-monitoring.py: metric to compare BDII vs SRM storage capacity numbers (GLUE 2 where published)
    - atlas-endpoint-monitoring.py: metric to list the number of xroot and http endpoints (GLUE 1 and GLUE 2) 
      published in ATLAS sites
-   - obsolete_entries.py: metric to monitor obsolete entries published in GLUE 2
-   - waiting_jobs.py: metric to monitor 444444 waiting jobs in GLUE 2 
+   - obsolete_entries.py: metric to monitor obsolete entries published in GLUE 2. Disabled after GLUE validator Nagios probe
+     in production.
+   - waiting_jobs.py: metric to monitor 444444 waiting jobs in GLUE 2. Disabled after GLUE validator Nagios probe 
+     in production
+   - nagios_ggus.py: metric to track GGUS tickets opened by COD Operations for the GLUE validator Nagios probe
 
 - /utils: Folder containing useful utilities used by the other scripts
    - glue2-monitor.py: script running glue-validator for a specific site 
