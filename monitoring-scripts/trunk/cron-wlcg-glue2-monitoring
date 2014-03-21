@@ -4,3 +4,5 @@ export PYTHONPATH=/afs/cern.ch/user/m/malandes/public/glue-validator/usr/lib/pyt
 /afs/cern.ch/user/m/malandes/infosys/ssb/monitoring/wlcg-glue2-monitoring.py > /afs/cern.ch/user/m/malandes/www/web/ssb/wlcg/glue2/validator.txt
 
 /afs/cern.ch/user/m/malandes/infosys/ssb/monitoring/glue-deployment-per-site.py
+
+/afs/cern.ch/user/m/malandes/infosys/ssb/specific_actions/nagios_ggus.py

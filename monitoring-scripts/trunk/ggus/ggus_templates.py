@@ -61,5 +61,16 @@ templates = {
 'last_modifier' : 'Stefan Roiser',
 'last_login' : 'Stefan Roiser',
 'carbon_copy' : 'maria.alandes.pradillo@cern.ch'
+},
+'nagios_ggus' : {
+'description' : 'NAGIOS  *org.bdii.GLUE2-Validate* failed on%%',
+'long_description' : None,
+'mail' : None,
+'loginname' : None,
+'name' : None,
+'priority' : None,
+'last_modifier' : None,
+'last_login' : None,
+'carbon_copy' : None
 }
 }
