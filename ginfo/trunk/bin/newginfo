@@ -28,11 +28,11 @@ import os
 import re
 import urllib2
 import signal
+import copy
 
 VERSION = '1.1.0'
 TIMEOUT = 60
 
-#CONF = {'object': [], 'flag': {}, 'filter': {}, 'attribute': []}
 # flags selected
 OPTION = {}
 # dictionnary of objects, filters and displayed attributes selected
@@ -130,7 +130,7 @@ def main(argv):
     """Main function that launches the other functions""" 
 
     parse_options(argv)
-    #validate_conf()
+    validate_conf()
     if 'list' in OPTION:
         result = list_attributes() # option --list
     else:
@@ -180,9 +180,8 @@ def parse_options(argv):
     for arg in args:
         # identify the objects and put it in the config dictionnary
         if arg in ELTS:
-            CONF[arg] = {'filter': {}, 'attr': []}
+            CONF[arg] = {'filter': {}, 'attribute': []}
     for arg in args:
-        # FIXME: verifier que les objets correspondent aux bons filters et attr
         # identify filters and put them in the config dictionnary
         if '=' in arg:
             if arg.find('.') != -1:
@@ -199,8 +198,7 @@ def parse_options(argv):
             else:
                 object = CONF.keys()[0]
             attribute = arg[arg.find('.')+1:]
-            CONF[object]['attr'].append(attribute)
-    print CONF
+            CONF[object]['attribute'].append(attribute)
 
 def validate_conf():
     """Prints verbose messages and checks for errors""" 
@@ -244,41 +242,59 @@ def validate_conf():
             print 'Ldap timeout has been set to '+OPTION['timeout']+' second(s).'
 
     # Object
-    if not CONF['object']:
+    dicO = {}
+    def sortObjects(obj):
+        dicO[obj] = [obj]
+        for att in ELTS[obj]:
+            if att[-2:] == 'ID' and len(att[:-2]) > 0 and att[:-2] in CONF:
+                if att[:-2] in dicO:
+                    dicO[obj] += dicO[att[:-2]]
+                else:
+                    dicO[obj] += sortObjects(att[:-2])
+        return dicO[obj]
+    if not CONF:
         sys.exit('Error: Please specify an object.')
     else:
         if 'verbose' in OPTION:
-            if len(CONF['object']) == 1:
-                print 'The specified object is '+CONF['object'][0]+'.'
+            if len(CONF) == 1:
+                print 'The specified object is '+CONF.keys()[0]+'.'
             else:
-                print 'The specified objects are: '+', '.join(CONF['object'])+'.'
+                print 'The specified objects are: '+', '.join(CONF.keys())+'.'
+        for obj in CONF.keys():
+            if obj not in dicO:
+                OPTION['objects'] = sortObjects(obj)[::-1]
+        if sorted(CONF.keys()) != sorted(OPTION['objects']):
+            sys.exit('Error: You can\'t combine these objects.')
     if 'list' in OPTION:
-        if len(CONF['object']) > 1:
+        if len(CONF) > 1:
             sys.exit('Error: You have too many objects.')
-        if OPTION['list'] not in ELTS[CONF['object'][0]]:
+        if OPTION['list'] not in ELTS[CONF.keys()[0]]:
             sys.exit('Error: '+OPTION['list']+' is a wrong attribute.')
         if 'verbose' in OPTION:
             print 'List all the possible values for the following attribute:', OPTION['list']
 
-    # FIXME: En cas de plusieurs objets?
-    # Filters
-    if CONF['filter']:
-        for filter in CONF['filter']:
-            if filter not in ELTS[CONF['object'][0]]:
-                sys.exit('Error: '+filter+' is not a valid filter.')
-        if 'verbose' in OPTION:
-            for filt in CONF['filter']:
-                print 'Filter results by the following '+filt+':', CONF['filter'][filt]
+    empty = True
+    for obj in CONF:
+        # Filters
+        if CONF[obj]['filter']:
+            for filter in CONF[obj]['filter']:
+                if filter not in ELTS[obj]:
+                    sys.exit('Error: '+filter+' is not a valid filter.')
+            if 'verbose' in OPTION:
+                for filter in CONF[obj]['filter']:
+                    print 'Filter results by the following '+obj+'.'+filter+':', CONF[obj]['filter'][filter]
 
-    # Attributes
-    if CONF['attribute']:
-        for att in CONF['attribute']:
-            if att not in ELTS[CONF['object'][0]]:
-                sys.exit('Error: '+att+' is not a valid attribute.')
-    else:
-        CONF['attribute'] = ELTS[CONF['object'][0]].keys()
-    if 'verbose' in OPTION:
-        print 'The following attribute(s) will be displayed:', ', '.join(CONF['attribute'])
+        # Attributes
+        if CONF[obj]['attribute']:
+            for att in CONF[obj]['attribute']:
+                if att not in ELTS[obj]:
+                    sys.exit('Error: '+att+' is not a valid attribute.')
+            empty = False
+    for obj in CONF:
+        if empty:
+            CONF[obj]['attribute'] = ELTS[obj].keys()
+        if 'verbose' in OPTION:
+            print 'The following attribute(s) of '+obj+' will be displayed:', ', '.join(CONF[obj]['attribute'])
 
 def usage():
     """Returns the usage message""" 
@@ -293,10 +309,10 @@ def usage():
                                 environmental variable LCG_GFAL_INFOSYS will be
                                 used.
     -b, --bind      binding     Specify the binding (o=glue by default).
-    -l, --list      attribute   List all the possible values of the specified
+    #-l, --list      attribute   List all the possible values of the specified
                                 attribute.
-    -c, --csv                   Output in CSV format
-    -j, --json                  Output in JSON format
+    #-c, --csv                   Output in CSV format
+    #-j, --json                  Output in JSON format
     -t, --timeout               Change the ldap timeout (15 seconds by default).
     -v, --verbose               Enable verbose mode
     -V, --version               Print the version of ginfo
@@ -357,32 +373,38 @@ def list_object():
     """Returns a dictionary of filtered results from a ldap request""" 
 
     dic = {} # Store the final results
-    for obj in CONF:
+    for obj in OPTION['objects']:
+        dic[obj] = {} # Create a dictionnary for each object
+
         # Construct the filter
         filter = ''
         for f in CONF[obj]['filter']:
             filter += '(GLUE2'+ELTS[obj][f] + '=' + CONF[obj]['filter'][f] + ')'
 
-        # Check if there is a join to do between 2 objects
-        key = 'ID'
-        for att in ELTS[obj]:
-            if att[-2:] == 'ID' and len(att) != 2:
-                key = att
-                break
-    
         # Main loop
         result = request('(&(objectClass=GLUE2' + obj + ')' + filter + ')')
+
         for res in result:
-            id = res[1]['GLUE2' + ELTS[obj][key]][0]
-            if id not in dic:
-                dic[id] = {}
-            for att in CONF[obj]['attr']:
-                id2 = 'GLUE2' + ELTS[obj][att]
-                if id2 in res[1]:
-                    dic[id][obj+att] = res[1][id2]
+            id = res[1]['GLUE2' + ELTS[obj]['ID']][0] # ID of the entry
+            if id not in dic[obj]:
+                dic[obj][id] = {} # Creates a dictionnary for each ID of an object
+                dic[obj][id][obj] = {}
+            for att in ELTS[obj]:
+                realID = 'GLUE2' + ELTS[obj][att] # Real ID of each attributes
+                if realID in res[1]:
+                    dic[obj][id][obj][att] = res[1][realID] # Affects the value
                 else:
-                    dic[id][obj+att] = None
-    return dic
+                    dic[obj][id][obj][att] = None
+            if len(dic) > 1: # If an other object has already been requested
+                for att in ELTS[obj]:
+                    foreignObject = att[:-2]
+                    if att[-2:] == 'ID' and len(att) != 2 and foreignObject in OPTION['objects']: # For each foreignkey
+                        realID = 'GLUE2' + ELTS[obj][att]
+                        foreignKey = res[1][realID][0]
+                        if foreignKey in dic[foreignObject]:
+                            for a in dic[foreignObject][foreignKey]:
+                                dic[obj][id][a] = dic[foreignObject][foreignKey][a]
+    return dic[OPTION['objects'][-1]]
 
 # FIXME: A fixer plus tard
 def list_attributes():
@@ -402,6 +424,7 @@ def list_attributes():
     attr_list.sort()
     return attr_list
 
+# FIXME: options list, csv, json
 def serialize_output(result):
     """Return the output with the wished format""" 
 
@@ -429,11 +452,15 @@ def serialize_output(result):
     else:
         output_list = []
         for id in result:
-            for att in result[id]:
-                if not result[id][att]:
-                    output_list.append(att+': None')
-                else:
-                    output_list.append(att+': '+', '.join(result[id][att]))
+            if 'strict' in OPTION and len(result[id]) != len(OPTION['objects']):
+                continue
+            for obj in result[id]:
+                for att in result[id][obj]:
+                    if not CONF[obj]['attribute'] or att in CONF[obj]['attribute']:
+                        if not result[id][obj][att]:
+                            output_list.append(obj+'.'+att+': None')
+                        else:
+                            output_list.append(obj+'.'+att+': '+', '.join(result[id][obj][att]))
             output_list.append('')
         output = '\n'.join(output_list)
     return output
