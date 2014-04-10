@@ -3,11 +3,11 @@
 %endif
 Summary: A validation framework for Grid information providers
 Name: glue-validator
-Version: 2.0.21
+Version: 2.0.22
 Release: 0%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_21 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_22 %{name}-%{version}
 #  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source0: %{name}-%{version}.tar.gz
 License: ASL 2.0
@@ -46,6 +46,9 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+
+* Thu Apr 10 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.22-0
+- #GRIDINFO-48: Fix test_GLUE2ComputingShareTotalJobs_OK 
 
 * Wed Mar 05 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.21-0
 - #GRIDINFO-33: Add LHCb testuite
