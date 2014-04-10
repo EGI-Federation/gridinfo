@@ -36,7 +36,7 @@ under /afs/cern.ch/user/m/malandes/www/web/ssb and organised in different folder
 
   - /wlcg: WLCG related metrics. Dashboard URL:
     - https://wlcg-mon/dashboard/request.py/siteview#currentView=Glue+Validator+WLCG
-
+    - https://wlcg-mon/dashboard/request.py/siteview#currentView=WLCG+Accounting+vs+BDII
 
 The scripts are organised as follows:
 
@@ -72,6 +72,8 @@ The scripts are organised as follows:
    - waiting_jobs.py: metric to monitor 444444 waiting jobs in GLUE 2. Disabled after GLUE validator Nagios probe 
      in production
    - nagios_ggus.py: metric to track GGUS tickets opened by COD Operations for the GLUE validator Nagios probe
+   - wlcg-accounting.py : script to compare installed capacities reported at the WLCG Accounting report with BDII and REBUS
+     numbers
 
 - /utils: Folder containing useful utilities used by the other scripts
    - glue2-monitor.py: script running glue-validator for a specific site 
