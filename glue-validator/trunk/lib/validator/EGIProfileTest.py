@@ -542,11 +542,8 @@ class EGIProfileTest(unittest.TestCase):
         total = 0
         job_stats = ""
         for job in ['GLUE2ComputingShareRunningJobs',
-                    'GLUE2ComputingShareLocalRunningJobs',
                     'GLUE2ComputingShareWaitingJobs',
-                    'GLUE2ComputingShareLocalWaitingJobs',
                     'GLUE2ComputingShareSuspendedJobs',
-                    'GLUE2ComputingShareLocalSuspendedJobs',
                     'GLUE2ComputingShareStagingJobs',
                     'GLUE2ComputingSharePreLRMSWaitingJobs']:
             if job in self.entry:
