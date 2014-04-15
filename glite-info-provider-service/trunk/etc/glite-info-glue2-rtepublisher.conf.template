@@ -90,7 +90,11 @@ get_implementor = echo gLite
 
 get_implementationname = echo ApplicationPublisher
 
-get_implementationversion = rpm -q lcg-info-dynamic-software --queryformat '%{version}\n'
+# In EMI 3 the provider is in glite-ce-cream-utils
+
+#get_implementationversion = rpm -q lcg-info-dynamic-software --queryformat '%{version}\n'
+
+get_implementationversion = rpm -q glite-ce-cream-utils --queryformat '%{version}\n'
 
 # The Quality Level for this endpoint: 1 = development, 2 = testing,
 # 3 = pre-production and 4 = production

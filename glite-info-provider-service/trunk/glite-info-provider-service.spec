@@ -1,11 +1,11 @@
 Name:           glite-info-provider-service
-Version:        1.13.1
+Version:        1.13.3
 Release:        1%{?dist}
 Summary:        The GLUE service information provider
 License:        ASL 2.0
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/glite-info-provider-service/tags/R_1_13_1_1 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/glite-info-provider-service/tags/R_1_13_3_1 %{name}-%{version}
 #  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source:         %{name}-%{version}.tar.gz
 BuildArch:      noarch
@@ -115,6 +115,8 @@ rm -rf %{buildroot}
 %doc /usr/share/doc/glite-info-provider-service/README-GLUE2
 
 %changelog
+* Thu Apr 15 2014 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.13.3-1
+- Change the RPM name for the tag publisher version, bug #102207
 * Thu Aug 01 2013 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.13.1-1
 - Die if hostname -f returns a null string, voms providers, bug #101562
 * Thu Aug 01 2013 Stephen Burke <stephen.burke@stfc.ac.uk> - 1.13.0-1
