@@ -1,0 +1,7 @@
+#!/bin/sh
+# glite-info-service-glue2 was the original beta-test GLUE 2 info provider.
+# To avoid confusion this has been renamed to glite-info-service-glue2-beta,
+# and replaced by this script which calls the plug-compatible
+# glite-info-glue2-simple provider.
+
+glite-info-glue2-simple $@
