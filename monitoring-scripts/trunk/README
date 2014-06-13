@@ -23,9 +23,10 @@ under /afs/cern.ch/user/m/malandes/www/web/ssb and organised in different folder
   - /bdii: BDII related metrics. Dashboard URL: 
     - https://wlcg-mon/dashboard/request.py/siteview#currentView=BDII+deployment 
 
-  - /general: GLUE deployment metrics. Dashboard URL: 
+  - /general: GLUE and Storage deployment metrics. Dashboard URL: 
     - https://wlcg-mon/dashboard/request.py/siteview#currentView=Glue+Deployment
     - https://wlcg-mon/dashboard/request.py/siteview#currentView=Glue+Deployment+per+site
+    - https://wlcg-mon/dashboard/request.py/siteview#currentView=Storage+Deployment
 
   - /lhcb: LHCb related metrics. Dashboard URL: 
     - https://wlcg-mon/dashboard/request.py/siteview#currentView=Glue+Validator+LHCb 
@@ -41,7 +42,8 @@ under /afs/cern.ch/user/m/malandes/www/web/ssb and organised in different folder
 The scripts are organised as follows:
 
 - cron-wlcg-glue2-monitoring : cron job to launch the list of scripts generating WLCG and GLUE 2 related metrics,
-  GLUE 1 and 2 deployment per REBUS site metrics and GGUS tickets opened by COD operations
+  GLUE 1 and 2 deployment per REBUS site metrics and GGUS tickets opened by COD operations. It also generates
+  metrics for storage services (DPM, dCache, StoRM, Castor and EOS)
 
 - cron-lhcb-glue2-monitoring: cron job to launch the list of scripts generating LHCb and GLUE 2
 
@@ -60,6 +62,7 @@ The scripts are organised as follows:
    - glue-deployment-per-site.py: metrics related to GLUE 1 and GLUE 2 numbers per REBUS sites
    - lhcb-glue2-monitoring.py: GLUE 2 validation metrics for LHCb sites
    - wlcg-glue2-monitoring.py: GLUE 2 validation metrics for sites listed in REBUS
+   - storage-deployment.py: GLUE 1 and GLUE 2 storage metrics for DPM, dCache, StoRM, Castor and EOS
 
 - /specific_actions: Folder containing VO specific metrics or general metrics tagetting a specific validation objective:
    - lhcb-maxCPUTime-monitoring.py: metric to monitor the Max CPU Time published by LHCb queues in GLUE 2. Disabled 
