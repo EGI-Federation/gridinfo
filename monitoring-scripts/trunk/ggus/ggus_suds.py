@@ -43,9 +43,14 @@ def connect(type):
 def list_ticket (client, site_name, description):
 
     params = client.factory.create("s0:InputMapping6")
-    params.Qualification = "'GHD_Affected Site'=\"%s\" AND \
-                            'GHD_Short Description'LIKE\"%s\"  AND \
-                            'GHD_Meta Status'=\"Open\"" % (site_name, description)
+    if (description == "%org.bdii.GLUE2-Validate%"):
+        params.Qualification = "'GHD_Affected Site'=\"%s\" AND \
+                                'GHD_Description'LIKE\"%s\"  AND \
+                                'GHD_Meta Status'=\"Open\"" % (site_name, description)
+    else:
+        params.Qualification = "'GHD_Affected Site'=\"%s\" AND \
+                                'GHD_Short Description'LIKE\"%s\"  AND \
+                                'GHD_Meta Status'=\"Open\"" % (site_name, description)
 
     try:
         result = client.service.TicketGetList(params.Qualification)

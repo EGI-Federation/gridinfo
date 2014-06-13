@@ -63,7 +63,7 @@ templates = {
 'carbon_copy' : 'maria.alandes.pradillo@cern.ch'
 },
 'nagios_ggus' : {
-'description' : 'NAGIOS  *org.bdii.GLUE2-Validate* failed on%%',
+'description' : '%org.bdii.GLUE2-Validate%',
 'long_description' : None,
 'mail' : None,
 'loginname' : None,
