@@ -13,25 +13,36 @@ from xml.dom import minidom
 import ggus_monitor
 
 site_bdiis = {
-"CERN-PROD"  : "prod-bdii.cern.ch",
-"CERN-EOS"   : "prod-bdii.cern.ch",
-"FZK-LCG2"   : "giis-fzk.gridka.de",
-"IN2P3-CC"   : "cclcgip03.in2p3.fr",
-"INFN-T1"    : "sg01-lcg.cr.cnaf.infn.it",
-"RAL-LCG2"   : "site-bdii.gridpp.rl.ac.uk",
-"SARA-MATRIX": "sitebdii.grid.sara.nl",
-"pic"        : "site-bdii.pic.es"
+"CERN-PROD"             : "prod-bdii.cern.ch",
+"CERN-EOS"              : "prod-bdii.cern.ch",
+"FZK-LCG2"              : "giis-fzk.gridka.de",
+"IN2P3-CC"              : "cclcgip03.in2p3.fr",
+"INFN-T1"               : "sg01-lcg.cr.cnaf.infn.it",
+"RAL-LCG2"              : "site-bdii.gridpp.rl.ac.uk",
+"SARA-MATRIX"           : "sitebdii.grid.sara.nl",
+"pic"                   : "site-bdii.pic.es",
+"CSCS-LCG2"             : "bdii.lcg.cscs.ch",
+"UKI-SOUTHGRID-RALPP"   : "site-bdii.pp.rl.ac.uk",
+"UKI-NORTHGRID-MAN-HEP" : "site-bdii.tier2.hep.manchester.ac.uk",
+"CBPF"                  : "site-bdii.cat.cbpf.br",
+"RU-Protvino-IHEP"      : "bdii0002.m45.ihep.su"
 }
 
 schema_version = {
-"CERN-PROD"  : "1",
-"CERN-EOS"   : "1",
-"FZK-LCG2"   : "2",
-"IN2P3-CC"   : "1",
-"INFN-T1"    : "1",
-"RAL-LCG2"   : "1",
-"SARA-MATRIX": "1",
-"pic"        : "2"
+"CERN-PROD"            : "1",
+"CERN-EOS"             : "1",
+"FZK-LCG2"             : "2",
+"IN2P3-CC"             : "1",
+"INFN-T1"              : "1",
+"RAL-LCG2"             : "1",
+"SARA-MATRIX"          : "1",
+"pic"                  : "2",
+"CSCS-LCG2"            : "2",
+"UKI-SOUTHGRID-RALPP"  : "2",
+"UKI-NORTHGRID-MAN-HEP": "2",
+"CBPF"                 : "2", 
+"RU-Protvino-IHEP"     : "2" 
+
 }
 
 storage_dict = {
@@ -60,6 +71,21 @@ storage_dict = {
 "pic"         : { "BDII" :   { "Total" : 0,  "Used" : 0 },
                   "SRM"  :   { "Total" : 0,  "Used" : 0 },
                   "Result" : { "Total" : "", "Used" : ""}},
+"CSCS-LCG2"   : { "BDII" :   { "Total" : 0,  "Used" : 0 },
+                  "SRM"  :   { "Total" : 0,  "Used" : 0 },
+                  "Result" : { "Total" : "", "Used" : ""}},
+"UKI-SOUTHGRID-RALPP" : { "BDII" :   { "Total" : 0,  "Used" : 0 },
+                  "SRM"  :   { "Total" : 0,  "Used" : 0 },
+                  "Result" : { "Total" : "", "Used" : ""}},
+"UKI-NORTHGRID-MAN-HEP" : { "BDII" :   { "Total" : 0,  "Used" : 0 },
+                  "SRM"  :   { "Total" : 0,  "Used" : 0 },
+                  "Result" : { "Total" : "", "Used" : ""}},
+"CBPF"       : { "BDII" :   { "Total" : 0,  "Used" : 0 },
+                  "SRM"  :   { "Total" : 0,  "Used" : 0 },
+                  "Result" : { "Total" : "", "Used" : ""}},
+"RU-Protvino-IHEP" : { "BDII" :   { "Total" : 0,  "Used" : 0 },
+                  "SRM"  :   { "Total" : 0,  "Used" : 0 },
+                  "Result" : { "Total" : "", "Used" : ""}},
 },
 "Tape" : {
 "CERN-PROD"   : { "BDII" :   { "Total" : 0,  "Used" : 0 },
@@ -84,6 +110,21 @@ storage_dict = {
                   "SRM"  :   { "Total" : 0,  "Used" : 0 },
                   "Result" : { "Total" : "", "Used" : ""}},
 "pic"         : { "BDII" :   { "Total" : 0,  "Used" : 0 },
+                  "SRM"  :   { "Total" : 0,  "Used" : 0 },
+                  "Result" : { "Total" : "", "Used" : ""}},
+"CSCS-LCG2"   : { "BDII" :   { "Total" : 0,  "Used" : 0 },
+                  "SRM"  :   { "Total" : 0,  "Used" : 0 },
+                  "Result" : { "Total" : "", "Used" : ""}},
+"UKI-SOUTHGRID-RALPP" : { "BDII" :   { "Total" : 0,  "Used" : 0 },
+                  "SRM"  :   { "Total" : 0,  "Used" : 0 },
+                  "Result" : { "Total" : "", "Used" : ""}},
+"UKI-NORTHGRID-MAN-HEP" : { "BDII" :   { "Total" : 0,  "Used" : 0 },
+                  "SRM"  :   { "Total" : 0,  "Used" : 0 },
+                  "Result" : { "Total" : "", "Used" : ""}},
+"CBPF"       : { "BDII" :   { "Total" : 0,  "Used" : 0 },
+                  "SRM"  :   { "Total" : 0,  "Used" : 0 },
+                  "Result" : { "Total" : "", "Used" : ""}},
+"RU-Protvino-IHEP" : { "BDII" :   { "Total" : 0,  "Used" : 0 },
                   "SRM"  :   { "Total" : 0,  "Used" : 0 },
                   "Result" : { "Total" : "", "Used" : ""}},
 },
@@ -112,38 +153,63 @@ storage_dict = {
 "pic"         : { "BDII" :   { "Total" : 0,  "Used" : 0 },
                   "SRM"  :   { "Total" : 0,  "Used" : 0 },
                   "Result" : { "Total" : "", "Used" : ""}},
+"CSCS-LCG2"   : { "BDII" :   { "Total" : 0,  "Used" : 0 },
+                  "SRM"  :   { "Total" : 0,  "Used" : 0 },
+                  "Result" : { "Total" : "", "Used" : ""}},
+"UKI-SOUTHGRID-RALPP" : { "BDII" :   { "Total" : 0,  "Used" : 0 },
+                  "SRM"  :   { "Total" : 0,  "Used" : 0 },
+                  "Result" : { "Total" : "", "Used" : ""}},
+"UKI-NORTHGRID-MAN-HEP" : { "BDII" :   { "Total" : 0,  "Used" : 0 },
+                  "SRM"  :   { "Total" : 0,  "Used" : 0 },
+                  "Result" : { "Total" : "", "Used" : ""}},
+"CBPF"       : { "BDII" :   { "Total" : 0,  "Used" : 0 },
+                  "SRM"  :   { "Total" : 0,  "Used" : 0 },
+                  "Result" : { "Total" : "", "Used" : ""}},
+"RU-Protvino-IHEP" : { "BDII" :   { "Total" : 0,  "Used" : 0 },
+                  "SRM"  :   { "Total" : 0,  "Used" : 0 },
+                  "Result" : { "Total" : "", "Used" : ""}},
 }
 }
 
 id_dict = {
-"CERN-PROD": { "Disk" : "CASTORLHCBLHCBDISK", "Tape" : "CASTORLHCBLHCBTAPE", "USER" : "CASTORLHCBLHCBUSER" }, 
-"CERN-EOS" : { "Disk" : "LHCbEOS", "Tape" : "None", "USER" : "None" },
-"FZK-LCG2": { "Disk" : "LHCb-Disk", "Tape" : "LHCb-Tape", "USER" : "LHCb_USER" },
-"IN2P3-CC": { "Disk" : "lhcb:LHCb-Disk", "Tape" : "lhcb:LHCb-Tape", "USER" : "lhcb:LHCb_USER" },
-"INFN-T1": { "Disk" : "lhcb_disk:replica:online", "Tape" : "lhcb_tape:custodial:nearline", 
-             "USER" : "lhcb_user:replica:online" },
-"RAL-LCG2": { "Disk" : "lhcbRawRdst", "Tape" : "lhcbDst", "USER" : "lhcbUser" },
-"SARA-MATRIX": { "Disk" : "lhcb:LHCb-Disk", "Tape" : "lhcb:LHCb-Tape", "USER" : "lhcb:LHCb_USER" },
-"pic": { "Disk" : "LHCb-Disk", "Tape" : "LHCb-Tape", "USER" : "LHCb_USER" }
+"CERN-PROD"             : { "Disk" : "CASTORLHCBLHCBDISK", "Tape" : "CASTORLHCBLHCBTAPE", "USER" : "CASTORLHCBLHCBUSER" }, 
+"CERN-EOS"              : { "Disk" : "LHCbEOS", "Tape" : "None", "USER" : "None" },
+"FZK-LCG2"              : { "Disk" : "LHCb-Disk", "Tape" : "LHCb-Tape", "USER" : "LHCb_USER" },
+"IN2P3-CC"              : { "Disk" : "lhcb:LHCb-Disk", "Tape" : "lhcb:LHCb-Tape", "USER" : "lhcb:LHCb_USER" },
+"INFN-T1"               : { "Disk" : "lhcb_disk:replica:online", "Tape" : "lhcb_tape:custodial:nearline", 
+                            "USER" : "lhcb_user:replica:online" },
+"RAL-LCG2"              : { "Disk" : "lhcbRawRdst", "Tape" : "lhcbDst", "USER" : "lhcbUser" },
+"SARA-MATRIX"           : { "Disk" : "lhcb:LHCb-Disk", "Tape" : "lhcb:LHCb-Tape", "USER" : "lhcb:LHCb_USER" },
+"pic"                   : { "Disk" : "LHCb-Disk", "Tape" : "LHCb-Tape", "USER" : "LHCb_USER" },
+"CSCS-LCG2"             : { "Disk" : "LHCb-Disk", "Tape" : "None", "USER" : "None" },
+"UKI-SOUTHGRID-RALPP"   : { "Disk" : "LHCb-Disk", "Tape" : "None", "USER" : "None" },
+"UKI-NORTHGRID-MAN-HEP" : { "Disk" : "LHCb-Disk", "Tape" : "None", "USER" : "None" },
+"CBPF"                  : { "Disk" : "LHCb-Disk", "Tape" : "None", "USER" : "None" }, 
+"RU-Protvino-IHEP"      : { "Disk" : "LHCb-Disk", "Tape" : "None", "USER" : "None" }
 }
 
 color_code = {
 "red" : "ERROR",
 "green" : "OK",
 "grey" : "Unreachable",
-"pink" : "Missing_LHCb_shares",
+"blue" : "Missing_LHCb_shares",
 "yellow" : "Unable_to_use_BDII_data"
 }
 
 lhcb_names_dict = {
-"CERN-PROD": "CERN",
-"CERN-EOS" : "CERN-EOS",
-"FZK-LCG2": "GRIDKA",
-"IN2P3-CC": "IN2P3",
-"INFN-T1": "CNAF",
-"RAL-LCG2": "RAL",
-"SARA-MATRIX": "SARA",
-"pic": "PIC"
+"CERN-PROD"           : "CERN",
+"CERN-EOS"            : "CERN-EOS",
+"FZK-LCG2"            : "GRIDKA",
+"IN2P3-CC"            : "IN2P3",
+"INFN-T1"             : "CNAF",
+"RAL-LCG2"            : "RAL",
+"SARA-MATRIX"         : "SARA",
+"pic"                 : "PIC",
+"CSCS-LCG2"           : "CSCS",
+"UKI-SOUTHGRID-RALPP" : "RAL-HEP",   
+"UKI-NORTHGRID-MAN-HEP" : "Manchester",
+"CBPF"                : "CBPF", 
+"RU-Protvino-IHEP"    : "IHEP" 
 }
 
 storage_type_dict = {
@@ -232,7 +298,7 @@ for site_name in sorted(site_bdiis.keys()):
              os.write(results_dict[storage_type]["Used"],result_string)
         elif (results[0] == ""):
              # Redirect this to StorageT1-storage_type-i.txt
-             result_string="%s %s %s %s %s\n" % (dt,lhcb_names_dict[site_name],color_code["pink"],"pink","None")
+             result_string="%s %s %s %s %s\n" % (dt,lhcb_names_dict[site_name],color_code["blue"],"blue","None")
              os.write(results_dict[storage_type]["Total"],result_string)
              os.write(results_dict[storage_type]["Used"],result_string)
         else:
@@ -277,10 +343,8 @@ for site_name in sorted(site_bdiis.keys()):
                     storage_dict[storage_type][site_name]["BDII"]["Used"]=int(value1)/1000
             for i in ["Total","Used"]:
                 extra=""
-                if ((storage_dict[storage_type][site_name]["BDII"][i] - \
-                    storage_dict[storage_type][site_name]["SRM"][i]) <= 10) or \
-                    ((storage_dict[storage_type][site_name]["BDII"][i] - \
-                    storage_dict[storage_type][site_name]["SRM"][i]) >= 10):
+                if (abs (storage_dict[storage_type][site_name]["BDII"][i] - \
+                         storage_dict[storage_type][site_name]["SRM"][i]) <= 10): 
                     storage_dict[storage_type][site_name]["Result"][i] = "green"
                 else:
                     storage_dict[storage_type][site_name]["Result"][i] = "red"
@@ -313,33 +377,33 @@ os.close(fh_user_used)
 # Interacting with GGUS
 #######################################
 
-ggus_file_name = "%s/ggus_lhcb_storage.txt" % (path_to_output)
-ggus_output = os.open (ggus_file_name, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0600)
+#ggus_file_name = "%s/ggus_lhcb_storage.txt" % (path_to_output)
+#ggus_output = os.open (ggus_file_name, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0600)
 
-for site_name in sorted(site_bdiis.keys()):
+#for site_name in sorted(site_bdiis.keys()):
 
-    site_name_query = site_name
-    if (site_name == "CERN-EOS"):
-        site_name_query = "CERN-PROD"
+#    site_name_query = site_name
+#    if (site_name == "CERN-EOS"):
+#        site_name_query = "CERN-PROD"
 
-    extra_condition = False
-    ggus_details = ""
-    for storage_type in storage_type_dict.keys():    
-        if ( storage_dict[storage_type][site_name]["Result"]["Total"] == "red" ):
-            ggus_details = ggus_details + "\nAffected Storage Share: %s \nBDII Total:%s vs SRM Total:%s" % \
-                           (id_dict[site_name][storage_type], storage_dict[storage_type][site_name]["BDII"]["Total"],\
-                            storage_dict[storage_type][site_name]["SRM"]["Total"])
-            extra_condition = True    
-        if (storage_dict[storage_type][site_name]["Result"]["Used"] == "red"):
-            ggus_details = ggus_details + "\nAffected Storage Share: %s \nBDII Used:%s vs SRM Used:%s" % \
-                           (id_dict[site_name][storage_type], storage_dict[storage_type][site_name]["BDII"]["Used"],\
-                            storage_dict[storage_type][site_name]["SRM"]["Used"])
-            extra_condition = True
-
-    ggus_color, ggus_result, ggus_file_url = ggus_monitor.ggus_monitor(site_name_query, "lhcb-storage", \
-                                             ggus_details, extra_condition, "prod")
-    os.write(ggus_output,"%s %s %s %s %s\n" % (dt,lhcb_names_dict[site_name],ggus_result,ggus_color,ggus_file_url))
-
-os.close(ggus_output)
+#    extra_condition = False
+#    ggus_details = ""
+#    for storage_type in storage_type_dict.keys():    
+#        if ( storage_dict[storage_type][site_name]["Result"]["Total"] == "red" ):
+#            ggus_details = ggus_details + "\nAffected Storage Share: %s \nBDII Total:%s vs SRM Total:%s" % \
+#                           (id_dict[site_name][storage_type], storage_dict[storage_type][site_name]["BDII"]["Total"],\
+#                            storage_dict[storage_type][site_name]["SRM"]["Total"])
+#            extra_condition = True    
+#        if (storage_dict[storage_type][site_name]["Result"]["Used"] == "red"):
+#            ggus_details = ggus_details + "\nAffected Storage Share: %s \nBDII Used:%s vs SRM Used:%s" % \
+#                           (id_dict[site_name][storage_type], storage_dict[storage_type][site_name]["BDII"]["Used"],\
+#                            storage_dict[storage_type][site_name]["SRM"]["Used"])
+#            extra_condition = True
+#
+#    ggus_color, ggus_result, ggus_file_url = ggus_monitor.ggus_monitor(site_name_query, "lhcb-storage", \
+#                                             ggus_details, extra_condition, "prod")
+#    os.write(ggus_output,"%s %s %s %s %s\n" % (dt,lhcb_names_dict[site_name],ggus_result,ggus_color,ggus_file_url))
+#
+#os.close(ggus_output)
 
 
