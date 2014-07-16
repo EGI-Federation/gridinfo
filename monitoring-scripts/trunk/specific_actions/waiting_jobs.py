@@ -36,7 +36,8 @@ def waiting_jobs (site_name, site_bdii, txt_fd, ggus_txt_fd, validator_output):
             result = validator_output[index_start+2:index_end]
             command_objects="ldapsearch -LLL -x -h %s -p 2170 -b GLUE2DomainID=%s,o=glue \
                              '(&(objectClass=GLUE2ComputingShare)(GLUE2ComputingShareWaitingJobs=444444))' dn \
-                             | perl -p00e 's/\r?\n //g' | sed '/^$/d' | awk -F\"=\" '{print $(NF-4)}' | cut -d\"_\" -f1" % \
+                             | perl -p00e 's/\r?\n //g' | sed '/^$/d' | awk -F\"=\" '{print $(NF-4)}' | cut -d\"_\" -f1 \
+                             | sort | uniq" % \
                              (site_bdii, site_name)
             p = subprocess.Popen(command_objects, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
             results = p.communicate()
@@ -48,8 +49,8 @@ def waiting_jobs (site_name, site_bdii, txt_fd, ggus_txt_fd, validator_output):
             else:
                 if ( full_text == "" ):
                     full_text = "None\n"
-                html_results = "Affected CEs: %s" % (full_text.replace("\n","<br>\n"))
-            detail_result_string="<body>\n<a name=\"%s\">%s:<br>\n%s</a><br>\n" % (today,today,html_results)
+                html_results = "Affected CEs: %s" % (full_text.replace("\n",","))
+            detail_result_string="<body>\n<a name=\"%s\">%s: %s</a><br>\n" % (today,today,html_results)
             for line in fileinput.input(file_name, inplace=True):
                 sys.stdout.write(line.replace('<body>\n', detail_result_string))
         else:
@@ -62,14 +63,14 @@ def waiting_jobs (site_name, site_bdii, txt_fd, ggus_txt_fd, validator_output):
     # Interacting with GGUS
     #######################################
 
-    extra_condition = False
-    detail_ggus = ""
-    if ( color == "red" and full_text != "None\n" ):
-        extra_condition = True
-        detail_ggus = html_results.replace("<br>","")
+    #extra_condition = False
+    #detail_ggus = ""
+    #if ( color == "red" and full_text != "None\n" ):
+    #    extra_condition = True
+    #    detail_ggus = html_results.replace("<br>","")
             
-    ggus_color, ggus_result, ggus_file_url = ggus_monitor.ggus_monitor(site_name, "waiting_jobs", \
-                                             detail_ggus, extra_condition, "test") 
+    #ggus_color, ggus_result, ggus_file_url = ggus_monitor.ggus_monitor(site_name, "waiting_jobs", \
+    #                                         detail_ggus, extra_condition, "prod") 
 
-    os.write(ggus_txt_fd,"%s %s %s %s %s\n" % (dt,site_name,ggus_result,ggus_color,ggus_file_url))
+    #os.write(ggus_txt_fd,"%s %s %s %s %s\n" % (dt,site_name,ggus_result,ggus_color,ggus_file_url))
 
