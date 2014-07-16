@@ -7,4 +7,6 @@ export PYTHONPATH=/afs/cern.ch/user/m/malandes/public/glue-validator/usr/lib/pyt
 
 /afs/cern.ch/user/m/malandes/infosys/ssb/monitoring/storage-deployment.py
 
+/afs/cern.ch/user/m/malandes/infosys/ssb/specific_actions/t1-storage.py
+
 /afs/cern.ch/user/m/malandes/infosys/ssb/specific_actions/nagios_ggus.py
