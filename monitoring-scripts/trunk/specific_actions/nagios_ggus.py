@@ -23,7 +23,7 @@ detail_ggus = ""
 
 
 for site_name in sorted(sites.wlcg_site_bdiis.keys()):
-    print "%s" % (site_name)
+    #print "%s" % (site_name)
 
     ggus_color, ggus_result, ggus_file_url = ggus_monitor.ggus_monitor(site_name, "nagios_ggus", \
                                                                        detail_ggus, extra_condition, "prod") 
