@@ -80,9 +80,9 @@ def obsolete_entries (site_name, site_bdii, txt_fd, ggus_txt_fd, validator_outpu
 
     extra_condition = False
     detail_ggus = ""
-    if ( color == "red" and full_text != "None\n" ):
-        extra_condition = True
-        detail_ggus = html_results.replace("<br>","")
+    #if ( color == "red" and full_text != "None\n" ):
+    #    extra_condition = True
+    #    detail_ggus = html_results.replace("<br>","")
             
     ggus_color, ggus_result, ggus_file_url = ggus_monitor.ggus_monitor(site_name, "obsolete_entries", \
                                              detail_ggus, extra_condition, "prod") 
