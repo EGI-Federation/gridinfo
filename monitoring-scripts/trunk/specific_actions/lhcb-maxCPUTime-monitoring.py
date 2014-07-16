@@ -58,6 +58,7 @@ for site_name in sorted(sites.lhcb_site_bdiis.keys()):
         results = p.communicate()
         os.write(output,results[0])
         os.close(output)
+        full_text=""
         full_text = results[0]
 
         index1=full_text.find("Error:") 
@@ -83,8 +84,8 @@ for site_name in sorted(sites.lhcb_site_bdiis.keys()):
 
     extra_condition = False
     detail_ggus = ""
-    if ( color == "red" ):
-        extra_condition = True
+    #if ( color == "red" ):
+    #    extra_condition = True
 
     ggus_color, ggus_result, ggus_file_url = ggus_monitor.ggus_monitor(site_name, "maxCPUTime", \
                                              full_text, extra_condition, "prod")
