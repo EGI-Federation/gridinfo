@@ -38,20 +38,21 @@ under /afs/cern.ch/user/m/malandes/www/web/ssb and organised in different folder
   - /wlcg: WLCG related metrics. Dashboard URL:
     - https://wlcg-mon/dashboard/request.py/siteview#currentView=Glue+Validator+WLCG
     - https://wlcg-mon/dashboard/request.py/siteview#currentView=WLCG+Accounting+vs+BDII
+    - http://wlcg-mon.cern.ch/dashboard/request.py/siteview#currentView=T1+Storage+Deployment
 
 The scripts are organised as follows:
 
 - cron-wlcg-glue2-monitoring : cron job to launch the list of scripts generating WLCG and GLUE 2 related metrics,
   GLUE 1 and 2 deployment per REBUS site metrics and GGUS tickets opened by COD operations. It also generates
-  metrics for storage services (DPM, dCache, StoRM, Castor and EOS)
+  metrics for storage services (DPM, dCache, StoRM, Castor and EOS) and T1 storage
 
-- cron-lhcb-glue2-monitoring: cron job to launch the list of scripts generating LHCb and GLUE 2
+- cron-lhcb-glue2-monitoring: cron job to launch the list of scripts generating GLUE 2 LHCb metrics
 
-- cron-atlas-endpoint-monitoring: cron job to monitor xroot and http endpoints
+- cron-atlas-endpoint-monitoring: cron job to monitor xroot and http endpoints for ATLAS
 
 - cron-lhcb-storage-monitoring: cron job to launch the BDII vs SRM monitoring for LHCb
 
-- /ggus: Folder containing scripts to handle GGUS tickets for automatic creation
+- /ggus: Folder containing scripts to handle GGUS tickets automatic creation
    - ggus_monitor.py: Script generating the output needed by the Dashboard with the list of GGUS tickets
    - ggus_suds.py: Script to contact the GGUS web service using SOAP
    - ggus_templates.py: Library containing the template information for automatic GGUS creation 
@@ -65,18 +66,19 @@ The scripts are organised as follows:
    - storage-deployment.py: GLUE 1 and GLUE 2 storage metrics for DPM, dCache, StoRM, Castor and EOS
 
 - /specific_actions: Folder containing VO specific metrics or general metrics tagetting a specific validation objective:
-   - lhcb-maxCPUTime-monitoring.py: metric to monitor the Max CPU Time published by LHCb queues in GLUE 2. Disabled 
-     after GLUE validator Nagios probe in production
+   - lhcb-maxCPUTime-monitoring.py: metric to monitor the Max CPU Time published by LHCb queues in GLUE 2. 
+     Automatic GGGUS ticket creation disabled after GLUE validator Nagios probe in production
    - lhcb-storage-monitoring.py: metric to compare BDII vs SRM storage capacity numbers (GLUE 2 where published)
    - atlas-endpoint-monitoring.py: metric to list the number of xroot and http endpoints (GLUE 1 and GLUE 2) 
      published in ATLAS sites
    - obsolete_entries.py: metric to monitor obsolete entries published in GLUE 2. Disabled after GLUE validator Nagios probe
-     in production.
-   - waiting_jobs.py: metric to monitor 444444 waiting jobs in GLUE 2. Disabled after GLUE validator Nagios probe 
      in production
+   - waiting_jobs.py: metric to monitor 444444 waiting jobs in GLUE 2. Automatic GGUS ticke creation disabled after 
+     GLUE validator Nagios probe in production
    - nagios_ggus.py: metric to track GGUS tickets opened by COD Operations for the GLUE validator Nagios probe
    - wlcg-accounting.py : script to compare installed capacities reported at the WLCG Accounting report with BDII and REBUS
      numbers
+   - t1-accounting: metric to monitor storage types, versions and supported VOs in T1s 
 
 - /utils: Folder containing useful utilities used by the other scripts
    - glue2-monitor.py: script running glue-validator for a specific site 
