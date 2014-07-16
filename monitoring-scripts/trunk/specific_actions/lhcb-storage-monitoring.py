@@ -178,7 +178,7 @@ id_dict = {
 "IN2P3-CC"              : { "Disk" : "lhcb:LHCb-Disk", "Tape" : "lhcb:LHCb-Tape", "USER" : "lhcb:LHCb_USER" },
 "INFN-T1"               : { "Disk" : "lhcb_disk:replica:online", "Tape" : "lhcb_tape:custodial:nearline", 
                             "USER" : "lhcb_user:replica:online" },
-"RAL-LCG2"              : { "Disk" : "lhcbRawRdst", "Tape" : "lhcbDst", "USER" : "lhcbUser" },
+"RAL-LCG2"              : { "Disk" : "lhcbDst", "Tape" : "lhcbRawRdst", "USER" : "lhcbUser" },
 "SARA-MATRIX"           : { "Disk" : "lhcb:LHCb-Disk", "Tape" : "lhcb:LHCb-Tape", "USER" : "lhcb:LHCb_USER" },
 "pic"                   : { "Disk" : "LHCb-Disk", "Tape" : "LHCb-Tape", "USER" : "LHCb_USER" },
 "CSCS-LCG2"             : { "Disk" : "LHCb-Disk", "Tape" : "None", "USER" : "None" },
@@ -291,7 +291,8 @@ for site_name in sorted(site_bdiis.keys()):
         index1=full_text.find("Error:")
         index2=full_text.find("UNKNOWN:")
         index3=full_text.find("error")    # Internal (implementation specific) error (80). See GGUS 101259. 
-        if (index1 > -1) or (index2 > -1) or (index3 > -1):
+        index4=full_text.find("Can't contact")
+        if (index1 > -1) or (index2 > -1) or (index3 > -1) or (index4 > -1):
              # Redirect this to StorageT1-storage_type-i.txt
              result_string="%s %s %s %s %s\n" % (dt,lhcb_names_dict[site_name],color_code["grey"],"grey","None") 
              os.write(results_dict[storage_type]["Total"],result_string)
@@ -319,9 +320,14 @@ for site_name in sorted(site_bdiis.keys()):
                     aux_dict[key4]=value4
                     for j in [key1,key2,key3,key4]:
                         if (j.find("Total") > -1) and (aux_dict[j] != 0):
-	    	            storage_dict[storage_type][site_name]["BDII"]["Total"]=int(aux_dict[j])/1000		
+                            # workaround for RAL who publishes disk in front of tape
+                            if not (( site_name == "RAL-LCG2" ) and ( storage_type == "Tape") and \
+                                    ( j.find("Nearline") > -1 )): 
+	    	                storage_dict[storage_type][site_name]["BDII"]["Total"]=int(aux_dict[j])/1000		
                         elif (j.find("Used") > -1) and (aux_dict[j] != 0):
-                            storage_dict[storage_type][site_name]["BDII"]["Used"]=int(aux_dict[j])/1000
+                            if not (( site_name == "RAL-LCG2" ) and ( storage_type == "Tape") and \
+                                    ( j.find("Nearline") > -1 )):
+                                storage_dict[storage_type][site_name]["BDII"]["Used"]=int(aux_dict[j])/1000
                 except ValueError:
                     # Redirect this to StorageT1-storage_type-i.txt
                     result_string="%s %s %s %s %s\n" % (dt,lhcb_names_dict[site_name],color_code["yellow"],"yellow","None")
