@@ -144,12 +144,16 @@ for test in test_list:
            print test_dict[test]
         p = subprocess.Popen(test_dict[test] ,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         results = p.communicate()
-        if (results[0].find("Error") > -1 or results[0].find("UNKNOWN") > -1 or results[0].find("NA") > -1 ):
+        if ( results[0].find("Error") > -1 or results[0].find("UNKNOWN") > -1 ):
             color = "grey"
-            result = "Unreachable" 
+            result = "Unreachable"
+        elif ( results[0].find("NA") > -1 ):
+            color = "grey"
+            result = "NA" 
         else:
             color = "green"
-            if ( test == 'glue1_storage_capacity' or test == 'glue2_storage_capacity'):
+            if ( test == 'glue1_storage_online' or test == 'glue1_storage_nearline' or \
+                 test == 'glue2_storage_online' or test == 'glue2_storage_nearline' ):
                 result = round(float(results[0].strip()),2)
             else:
                 result = results[0].strip()
