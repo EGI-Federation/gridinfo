@@ -71,7 +71,8 @@ for test in test_list:
         p = subprocess.Popen(test_dict[test] ,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         results = p.communicate()
         if (results[0].find("Error") > -1 or results[0].find("UNKNOWN") > -1 or \
-            results[0].find("ldap_bind") > -1 or results[0].find("No such object") > -1) :
+            results[0].find("ldap_bind") > -1 or results[0].find("No such object") > -1 or \
+            results[0].find("Can't contact") > -1):
             color = "grey"
             result = "Unreachable" 
         else:
