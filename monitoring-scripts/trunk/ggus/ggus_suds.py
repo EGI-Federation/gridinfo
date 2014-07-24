@@ -22,12 +22,12 @@ def connect(type):
     if ( type == "test"):
         ################# Testing Instance ######################################
         user_name = "generic_test"
-        passwd = "G1n1ric_T1st"
+        passwd = "*******"
         wsdl_url = "https://train-ars.ggus.eu/arsys/WSDL/public/train-ars/GGUS"
     elif (type == "prod"):
         ################# Production Instance ###############################
         user_name = "genac"
-        passwd = "Sp6C!M8g"
+        passwd = "*******"
         wsdl_url = "https://prod-ars.ggus.eu/arsys/WSDL/public/prod-ars/GGUS"
 
     client= suds.client.Client(url=wsdl_url,faults=False)
