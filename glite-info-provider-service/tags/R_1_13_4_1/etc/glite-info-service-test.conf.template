@@ -1,0 +1,77 @@
+
+# This is a test configuration file for the GlueService information provider
+
+# Many of the entries are commands which will be executed
+# using backquotes in perl. They should write to stdout - the return
+# code is not relevant except for init and status.
+
+# An optional attribute to set the Site Unique ID
+
+get_site_id = echo this.is.a.test.site
+
+# The init command allows any setup command to be executed
+# A non-zero return code will abort the provider
+# Environment variables can be set by writing to stdout (x=y)
+
+init = echo GLITE_INFO_SERVICE_TEST=just.testing
+
+# The service type should follow the official list in
+# http://glueschema.forge.cnaf.infn.it/V12/ServiceType
+
+service_type = glue.test.service
+
+# This should be a command which returns the service interface version
+# in the format 3[.2[.1]]. Set to the RPM version for the LB server.
+
+get_version = echo 0
+
+# A command to return the service endpoint to stdout
+
+get_endpoint = echo https://this.is.a.dummy.endpoint/$GLITE_INFO_SERVICE_TEST
+
+# A command to check the status of the service. The status message should be
+# returned to stdout - it can be multi-line, the output will be massaged
+# and truncated if necessary. 
+# The return code should indicate the status:
+# 0 = OK, 1 = Critical, 2 = Warning, 3 = Unknown, other = Other
+
+# The following string tests the removal of pids and non-ASCII characters
+
+get_status = echo "one (pid 123) two (pid 456) ausgeführt" && glite-info-service-status crond
+
+# The URL of a WSDL document describing the service
+# If the string does not start with "http" this will be omitted
+
+WSDL_URL = http://some.domain/testservice.wsdl
+
+# A URL to a web page defining the service semantics, e.g. a manual
+# If the string does not start with "http" this will be omitted
+
+semantics_URL = echo http://jra1mw.cvs.cern.ch/cgi-bin/jra1mw.cgi/glite-info-provider-service/doc/README?revision=1.17&view=markup
+
+# StartTime: A command to return the service start time.
+# This should be a unix timestamp, the info provider converts it to ISO8601
+
+get_starttime = perl -e '@st=stat("/var/run/crond.pid");print "@st[10]\n";'
+
+# Owner: this should return a list of owner VO names, one per line
+# Null entries will be omitted
+# Needs to be set at config time, no easy way to get it dynamically
+
+get_owner = echo -e "dteam\nops"
+
+# A list of AccessControlBaseRule strings to indicate who is allowed to
+# have access to the service - at the simplest this is the same as the
+# Owner but with the VO names prefixed by "VO:"
+# Needs to be set at config time, no easy way to get it dynamically
+
+get_acbr = echo -e "VO:dteam\nVO:ops"
+
+# ServiceData entries if any, as a list of key=value pairs
+# This will normally call a separate script
+
+get_data = echo -e "world=disk\nsupport=turtle\naverylongstringwithmorethanonehundredcharactersaverylongstringwithmorethanonehundredcharactersaverylongstringwithmorethanonehundredcharacters=anotherverylongstringwithmorethanonehundredcharactersanotherverylongstringwithmorethanonehundredcharactersanotherverylongstringwithmorethanonehundredcharacters"
+
+# Associated services
+
+get_services = echo -e "this.is.a.related.service\nand.this.is.another.service"
