@@ -49,7 +49,11 @@ semantics_URL = http://grid-deployment.web.cern.ch/grid-deployment/eis/docs/ExpS
 # StartTime: A command to return the service start time.
 # This should be a unix timestamp, the info provider converts it to ISO8601
 
-get_starttime = perl -e '@st=stat($ENV{GRIDFTP_PROC_FILE});print "@st[10]\n";'
+#get_starttime = perl -e '@st=stat($ENV{GRIDFTP_PROC_FILE});print "@st[10]\n";'
+
+# Patch provided in GGUS ticket: https://ggus.eu/?mode=ticket_info&ticket_id=107264
+
+get_starttime = stat --format=%Z $(echo -n '/proc/'; pgrep -u root -n -P 1 -f '^/usr/sbin/globus-gridftp-server[[:space:]]' || echo nonexistent) 2>/dev/null
 
 # Owner: this should return a list of owner VO names, one per line
 # Null entries will be omitted
