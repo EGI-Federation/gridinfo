@@ -1,0 +1,516 @@
+#!/usr/bin/perl -w
+
+# glite-info-service: an information provider for the GlueService
+# object, in v 1.3 of the GLUE schema
+#
+# Stephen Burke, v 1.0 June 2007
+#
+# 7/3/08:  change mds-vo-name=local to resource
+# 18/4/08: change mds-vo-name=local to resource in GlueServiceData (!)
+# 25/4/08: make the bind DN a variable
+#          set the site UniqueID as an environment variable
+# 19/8/08: restore the deprecated AccessControlRule attribute to
+#          preserve backward compatibility
+#          Don't output a 0-length DataValue
+#          Don't output a Data object at all if the Key has zero length
+# 6/8/09:  Add hardwired ServiceData entries for the info provider version
+#          and the local hostname
+# 5/3/10:  Add the EGEE copyright and license text
+# 27/4/10: Add support for defining the SiteUniqueID in the config file
+# 28/4/10: Filter out any non-ASCII characters in StatusInfo and DataValue,
+#          and also filter the standard list of pids in status text
+# 1/8/13:  Die if hostname -f returns a null string
+#          Increase the length limit for strings in ServiceData from
+#          99 chars to 239
+#
+# Arguments are:
+#    -   a service-specific configuration file
+#    -   the GlueSiteUniqueID (optional if the ID is defined in the
+#        configuration file)
+#    -   optionally the GlueServiceUniqueID (otherwise this will be
+#        automatically constructed)
+#
+#
+# Copyright (c) Members of the EGEE Collaboration. 2007-2010. 
+# See http://www.eu-egee.org/partners/ for details on the copyright
+# holders.
+#
+#     Licensed under the Apache License, Version 2.0 (the "License"); 
+# you may not use this file except in compliance with the License. 
+# You may obtain a copy of the License at
+#
+#   http://www.apache.org/licenses/LICENSE-2.0 
+#
+# Unless required by applicable law or agreed to in writing, software 
+# distributed under the License is distributed on an "AS IS" BASIS, 
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
+# See the License for the specific language governing permissions and 
+# limitations under the License.
+#
+
+use strict;
+use FileHandle;
+use POSIX qw(strftime);
+
+my $confile;
+my $UID;
+my $command;
+
+my $gis_version = "1.7";
+
+my $host = `hostname -f`;
+chomp($host);
+
+my $bind_dn = "mds-vo-name=resource,o=grid";
+
+# The site name (GlueSiteUniqueID) should be the second argument, if any
+
+my $SiteID = $ARGV[1];
+
+# Read in the configuration file (first argument)
+
+my %config = (
+# New attribute for the Site ID - predefining as "echo" makes it optional
+	get_site_id => 'echo',
+        init => '',
+        service_type => '',
+        get_version => '',
+        get_endpoint => '',
+        get_status => '',
+        WSDL_URL => '',
+        semantics_URL => '',
+        get_starttime => '',
+        get_owner => '',
+        get_acbr => '',
+	get_data => '',
+        get_services => '',
+	      );
+
+if ($ARGV[0]){
+    $confile = $ARGV[0];
+    my $fh = new FileHandle $confile
+        or die "Error: Can't open configuration file: $ARGV[0]\n";
+    foreach (<$fh>){
+        if ((! m/^\#/) & (m/=/)){
+# For lines containing an = and not starting with #
+            m/^(.*?)=\s*(.*)\s*$/;
+# Split on the first =, no leading or trailing whitespace in the value
+            my $key=$1;
+            my $value=$2;
+            $key=~s/\s+//g;
+            $config{$key}=$value;
+        }
+    }
+}else{
+    print STDERR "Usage: glite-info-service <config-file> [<site-ID> [<service-ID>]]\n";
+    exit 1;
+}
+
+# Check that all configuration items are set
+
+my $missing = 0;
+while ( my ($key, $value) = each(%config) ) {
+    if ( ! $config{$key} ){
+        print STDERR "Error: configuration parameter $key not set\n";
+        $missing += 1;
+    }
+}
+if ( $missing ){
+    print STDERR "Error: $missing configuration parameter(s) not set in file $confile\n";
+    exit 2;
+}
+
+if (!$SiteID) {
+# An explicit argument takes precedence over the config file
+    $command = $config{get_site_id};
+    $SiteID = `$command`;
+# No whitespace in IDs
+    $SiteID =~ s/\s+//g;
+}
+
+if (!$SiteID) {
+# It must be defined one way or the other
+    print STDERR "Error: Site name (GlueSiteUniqueID) not specified\n";
+    exit 3;
+}
+
+# Export the GlueSiteUniqueID as an environment variable so it can be used
+# in the scripts and config items
+
+$ENV{"GLITE_INFO_SERVICE_SITE_ID"} = $SiteID;
+
+# Most of the configuration parameters are commands to be executed.
+# We'll do that first in case something blows up ...
+# In general we won't bother about the return code, but the output is
+# error-checked below.
+#
+# First thing is an init command, in case anything needs to be set up.
+# Any output lines are used to set environment variables (x=y).
+# Also a non-zero return code here will abort the provider without
+# outputting anything.
+
+$command = $config{init};
+my @init_result = `$command`;
+my $init_rc = $? >> 8;
+if ( $init_rc ){
+    print STDERR "Error: init command $command failed\n";
+    print STDERR "@init_result\n";
+    exit $init_rc;
+}
+
+foreach (@init_result) {
+# Should be key=value pairs
+    if ( m/=/ ){
+        m/^(.*?)=\s*(.*)\s*$/;
+# Split on the first =, no leading or trailing whitespace in the value
+        my $key=$1;
+        my $value=$2;
+        $key=~s/\s+//g;
+	if ($key) {
+	    $ENV{$key} = $value;
+	}
+    }
+}
+
+$command = $config{get_version};
+my $Version = `$command`;
+
+$command = $config{get_endpoint};
+my $Endpoint = `$command`;
+
+$command = $config{get_status};
+my $Info = `$command`;
+my $Status = $? >> 8;
+
+$command = $config{get_starttime};
+my $ST = `$command`;
+
+# NB Owner and ACBR are multivalued, so they get read into lists
+
+$command = $config{get_owner};
+my @Owner = `$command`;
+
+$command = $config{get_acbr};
+my @ACBR = `$command`;
+
+# ServiceData and related service items are also multivalued
+
+$command = $config{get_data};
+my @ServiceData = `$command`;
+
+$command = $config{get_services};
+my @RelatedServices = `$command`;
+
+# Extract the service type
+
+my $Type = $config{service_type};
+
+# The GlueServiceUniqueID needs to be unique! The old gLite configurator
+# used hostname_vo_type; the YAIM scheme is something like hostname:port.
+# Neither is sufficient, e.g. Type SRM may have two endpoints on the same
+# port for SRM v1 and SRM v2. However the endpoint is also not necessarily
+# enough (it's not obvious that all published services have endpoints). 
+# Also there is a need to watch out for invalid characters as
+# the UniqueID is used to form the DN. The solution chosen is to append a
+# checksum of the config file by default. However, there may be a need to
+# preserve a persistent UniqueID in some cases, hence the entire UniqueID
+# can be passed as an optional third argument.
+
+if ($ARGV[2]) {
+    $UID = $ARGV[2];
+} else {
+    if (!$host) {
+# If we can't get a local hostname at all we can't construct a unique ID
+	print STDERR "Error: hostname -f returned a null string\n";
+	exit 99;
+    }
+    my $check = `cksum $confile | cut -d\" \" -f 1`;
+    chomp($check);
+# Note that this may cause trouble if hostname -f does not return an fqdn,
+# but I think that is normally required by other things anyway 
+    $UID = $host . "_" . $Type . "_" . $check;
+}
+
+# Now start outputting LDIF lines for the GlueService object.
+# Note that once we get here we are committed to printing a
+# complete, valid object. Start with the DN ...
+
+print "dn: GlueServiceUniqueID=$UID,$bind_dn\n";
+
+# Print the boilerplate objectclass declarations and UniqueID
+
+print "objectClass: GlueTop\n";
+print "objectClass: GlueService\n";
+print "objectClass: GlueKey\n";
+print "objectClass: GlueSchemaVersion\n";
+print "GlueServiceUniqueID: $UID\n";
+
+# The name is just an indicative human-readable string, here of the
+# form site-type (taking the last component of compound types).
+
+my @last = split /\./, $Type;
+my $Name = $SiteID . "-" . $last[$#last];
+
+print "GlueServiceName: $Name\n";
+
+# Type is already extracted above
+
+print "GlueServiceType: $Type\n";
+
+# The Version should be the version of the service interface in the form
+# x.y.z. In the case of an error we return 4.4.4.4 by analogy with
+# the CE provider. Two-component versions are padded with a .0 and single
+# values with .0.0.
+
+# No white space allowed here
+$Version =~ s/\s+//g;
+
+# Simple format check (NB Currently allows non-numeric components)
+# RGMA defines Version as varchar(20)
+my $minor;
+my $patch;
+my $bad;
+(undef, $minor, $patch, $bad) = split /\./, $Version;
+if ( defined($bad) || (length($Version) > 16) || (length($Version) == 0) ) {
+    print "GlueServiceVersion: 4.4.4.4\n";
+} elsif ( ! defined($minor) ) {
+    print "GlueServiceVersion: $Version.0.0\n";
+} elsif ( ! defined($patch) ) {
+    print "GlueServiceVersion: $Version.0\n";
+} else {
+    print "GlueServiceVersion: $Version\n";
+}
+
+# We don't print a null endpoint (bad LDAP) but otherwise take it as
+# it comes, aside from basic checks
+#
+# URLs don't have white space
+$Endpoint =~ s/\s+//g;
+
+# Sanity check on the length
+if (length($Endpoint) > 240) {
+    $Endpoint = substr($Endpoint, 0, 239) . "4444";
+}
+
+if ($Endpoint) {
+    print "GlueServiceEndpoint: $Endpoint\n";
+}
+
+# The status return code gets turned into the standard values:
+# 0 = OK, 1 = Critical, 2 = Warning, 3 = Unknown, other = Other
+
+my $Statcode;
+if    ($Status == 0) { $Statcode = "OK" }
+elsif ($Status == 1) { $Statcode = "Critical" }
+elsif ($Status == 2) { $Statcode = "Warning" }
+elsif ($Status == 3) { $Statcode = "Unknown" }
+else                 { $Statcode = "Other" } 
+
+print "GlueServiceStatus: $Statcode\n";
+
+# The status command will have printed something, maybe multi-line,
+# to stdout - we need to massage it to something reasonable
+#
+# Strip leading and trailing spaces and convert any newlines to spaces
+$Info =~ s/^\s+//;
+$Info =~ s/\s+$//;
+$Info =~ s/\n+/ /g;
+
+# Strip anything after a control character, e.g. from service xxx status
+# (Could just strip the controls themselves but it can leave
+# strange-looking strings)
+$Info =~ s/\p{IsC}.*$//;
+
+# Attributes are typed as IA5String, which is 7-bit ASCII, so zap any
+# other characters (replaced with a ?)
+$Info =~ tr/\0-\x7f/?/c;
+
+# Also zap the standard pid list you get from the status function,
+# which is disliked by some people and anyway pretty useless for Grid
+# monitoring
+
+$Info =~ s/\(pid\s.*?\)\s*//ig;
+
+# Truncate if necessary
+if (length($Info) > 240) {
+    $Info = substr($Info, 0, 239) . " ...";
+}
+
+# Too short
+if (length($Info) < 2) {
+    $Info = "??";
+}
+
+print "GlueServiceStatusInfo: $Info\n";
+
+# WSDL and Semantics should be URLs starting with "http", no whitespace.
+# Hopefully no need to check the length as these are hard-wired in the
+# config file.
+# NB These attributes are single-valued.
+
+my $WSDL = $config{WSDL_URL};
+$WSDL =~ s/\s+//g;
+if ($WSDL =~ m/^http/) {
+    print "GlueServiceWSDL: $WSDL\n";
+}
+
+my $Semantics = $config{semantics_URL};
+$Semantics =~ s/\s+//g;
+if ($Semantics =~ m/^http/) {
+    print "GlueServiceSemantics: $Semantics\n";
+}
+
+# StartTime needs to be in the ISO8601 format, but it seems easier
+# to accept a Unix timestamp (e.g. from stat on a suitable file) and
+# convert it. The conversion function was shamelessly stolen from the web.
+# This uses local time rather than UTC, both formats are valid and it
+# might be useful to know the timezone at the server.
+#
+# No white space, should just be a number
+# The error indicator here is the Unix epoch
+$ST =~ s/\s+//g;
+if ( !($ST =~ m/^\d+$/) ) {
+    $ST = 0;
+}
+
+# We need to munge the timezone indicator to add a colon between
+# the hours and minutes
+my $tz = strftime("%z", localtime($ST));
+$tz =~ s/(\d{2})(\d{2})/$1:$2/;
+my $StartTime = strftime("%Y-%m-%dT%H:%M:%S", localtime($ST)) . $tz;
+
+# No error checks as strftime should return something reasonable
+print "GlueServiceStartTime: $StartTime\n";
+
+# The Owner can be multivalued, and can be null - typically a list of VO names.
+# Strip leading and trailing white space (there probably shouldn't be
+# embedded spaces either, but it isn't really defined).
+# Empty lines should not be printed as they aren't valid LDAP.
+# Sanity check for length, R-GMA allows 50 characters.
+
+foreach (@Owner) {
+    s/^\s+//;
+    s/\s+$//;
+    if (length > 50) {
+	$_ = substr($_, 0, 45) . "4444";
+    }
+    if ($_) {
+	print "GlueServiceOwner: $_\n";
+    }
+}
+
+# ACBR is similar to Owner.
+# Strip leading and trailing white space. The current GLUE definition
+# says that no white space at all is allowed, but DNs may contain spaces ...
+# Empty lines should not be printed as they aren't valid LDAP.
+# Sanity check for length, R-GMA hasn't defined this yet!
+
+foreach (@ACBR) {
+    s/^\s+//;
+    s/\s+$//;
+    if (length > 240) {
+        $_ = substr($_, 0, 239) . "4444";
+    }
+    if ($_) {
+	print "GlueServiceAccessControlBaseRule: $_\n";
+    }
+}
+
+# It seems we still need the old AccessControlRule attribute for now
+# for backward compatibility - only for VO: rules (the VO: gets stripped)
+
+foreach (@ACBR) {
+    s/^\s+//;
+    s/\s+$//;
+    if (length > 240) {
+        $_ = substr($_, 0, 239) . "4444";
+    }
+    if (m/^VO:/) {
+	s/^VO://;
+        print "GlueServiceAccessControlRule: $_\n";
+    }
+}
+
+# Links to any related services go here.
+# This could do with being supported better, but it isn't entirely
+# obvious how to do it. Currently only the FTS uses this and that has
+# its own info provider. Probably this should be expanded if/when there
+# is a real use-case.
+
+foreach (@RelatedServices) {
+    s/\s+//g;
+    if (length > 240) {
+        $_ = substr($_, 0, 239) . "4444";
+    }
+    if ($_) {
+        print "GlueForeignKey: GlueServiceUniqueID=$_\n";
+    }
+}
+
+# Link to the GlueSite object
+
+print "GlueForeignKey: GlueSiteUniqueID=$SiteID\n";
+
+# Final boilerplate (this code is for the GLUE 1.3 schema)
+
+print "GlueSchemaVersionMajor: 1\n";
+print "GlueSchemaVersionMinor: 3\n";
+print "\n";
+
+# Now deal with ServiceData items, if any
+
+my %items = ();
+
+# Add hardwired ServiceData entries for the local hostname and the
+# info provider version
+
+$items{"glite-info-service_version"} = $gis_version;
+
+$items{"glite-info-service_hostname"} = $host;
+
+foreach (@ServiceData) {
+# Should be key=value pairs
+    if ( m/=/ ){
+	m/^(.*?)=\s*(.*)\s*$/;
+# Split on the first =, no leading or trailing whitespace in the value
+	my $key=$1;
+	my $value=$2;
+	$key=~s/\s+//g;
+# Just in case, zap any non-ASCII characters
+	$value =~ tr/\0-\x7f/?/c;
+# R-GMA has varchar(100)
+# R-GMA is no longer relevant!
+	if (length($key) > 240) {
+	    $key = substr($key, 0, 239) . "4444";
+	}
+        if (length($value) > 240) {
+            $value = substr($value, 0, 239) . "4444";
+        }
+# Don't output anything if the key is null
+        if (length($key) > 0) {
+	    $items{$key} = $value;
+	}else{
+	    print STDERR "ServiceDataKey has 0 length, value is: " . $value . "\n";
+	}
+    }
+}
+
+# Now print the objects - the order is random but it doesn't matter
+
+while ( my ($key, $value) = each(%items) ) {
+    print "dn: GlueServiceDataKey=$key,GlueServiceUniqueID=$UID,$bind_dn\n";
+    print "objectClass: GlueTop\n";
+    print "objectClass: GlueServiceData\n";
+    print "objectClass: GlueKey\n";
+    print "objectClass: GlueSchemaVersion\n";
+    print "GlueServiceDataKey: $key\n";
+    if (length($value) > 0) {
+	print "GlueServiceDataValue: $value\n";
+    }
+    print "GlueChunkKey: GlueServiceUniqueID=$UID\n";
+    print "GlueSchemaVersionMajor: 1\n";
+    print "GlueSchemaVersionMinor: 3\n";
+    print "\n";
+}
+
+exit 0;
