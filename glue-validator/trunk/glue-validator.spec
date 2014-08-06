@@ -3,11 +3,11 @@
 %endif
 Summary: A validation framework for Grid information providers
 Name: glue-validator
-Version: 2.0.22
+Version: 2.0.23
 Release: 0%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_22 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_23 %{name}-%{version}
 #  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source0: %{name}-%{version}.tar.gz
 License: ASL 2.0
@@ -46,6 +46,13 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+
+* Wed Aug 08 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.23-0
+- #GRIDINFO-52: xroot should be used when referring to the xrootd protocol
+- #GRIDINFO-51: Add new ServiceType values
+- #GRIDINFO-50: Obsolete WLCG_NAME test
+- #GRIDINFO-47: Add 'notification' in the capability type
+- #GRIDINFO-46: Bugs reported by DPM (II)
 
 * Thu Apr 10 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.22-0
 - #GRIDINFO-48: Fix test_GLUE2ComputingShareTotalJobs_OK 

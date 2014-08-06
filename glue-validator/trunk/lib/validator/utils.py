@@ -46,7 +46,7 @@ def parse_options():
         if o in ("-r", "--separator"):
             config['separator'] = a
         if o in ("-V", "--version"):
-            sys.stdout.write("glue-validator version 2.0.21\n")
+            sys.stdout.write("glue-validator version 2.0.23\n")
             sys.exit()
         if o in ("-k", "--exclude-known-issues"):
             config['exclude-known-issues'] = True
