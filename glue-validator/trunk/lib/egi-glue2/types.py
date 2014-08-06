@@ -69,7 +69,8 @@ def is_allowed_URL_Schema(value):
       'voms',
       'myproxy',
       'lfc',
-      'gsissh'
+      'gsissh',
+      'rfio'
       ]
    if value in types:
       return True
@@ -157,7 +158,8 @@ def is_InterfaceName_t(value):
       'org.qcg.broker',
       'org.oasis.notification',
       'webdav',
-      'xroot'
+      'xroot',
+      'rfio' 
       ]
    if value in interfaces:
        return True
@@ -581,7 +583,8 @@ def is_StorageAccessProtocol_t(value):
       'nfs',
       'rfio',
       'root',
-      'xroot'
+      'xroot',
+      'webdav' 
       ]
    if value in types:
       return True
