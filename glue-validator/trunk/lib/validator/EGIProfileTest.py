@@ -128,12 +128,13 @@ class EGIProfileTest(unittest.TestCase):
                                   validator.utils.message_generator("INFO","I006",self.dn,\
                                   "GLUE2EntityOtherInfo: WLCG_TIER",val)
                         status = False
-                elif att == 'WLCG_NAME' or att == 'WLCG_PARENT':
-                    if not self.types.is_WLCGname_t(val):
-                        message = message + \
-                                  validator.utils.message_generator("INFO","I007",self.dn,\
-                                  "GLUE2EntityOtherInfo: WLCG_NAME",val)
-                        status = False
+                # Deprecated as requested in GRIDINFO-50 
+                #elif att == 'WLCG_NAME' or att == 'WLCG_PARENT':
+                #    if not self.types.is_WLCGname_t(val):
+                #        message = message + \
+                #                  validator.utils.message_generator("INFO","I007",self.dn,\
+                #                  "GLUE2EntityOtherInfo: WLCG_NAME",val)
+                #        status = False
                 elif att == 'WLCG_NAMEICON':
                     if not self.types.is_URL(val):
                         message = message + \
