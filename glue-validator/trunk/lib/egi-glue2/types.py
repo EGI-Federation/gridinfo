@@ -344,7 +344,8 @@ def is_Capability_t(value):
       'security.authorization',
       'security.credentialstorage',
       'security.delegation',
-      'security.identitymapping'
+      'security.identitymapping',
+      'notification'
       ]   
    if value in types:
       return True
