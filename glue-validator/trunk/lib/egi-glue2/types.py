@@ -576,7 +576,7 @@ def is_StorageAccessProtocol_t(value):
       'nfs',
       'rfio',
       'root',
-      'xrootd'
+      'xroot'
       ]
    if value in types:
       return True
