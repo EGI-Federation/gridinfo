@@ -20,6 +20,10 @@ The scripts are run locally in AFS by user "malandes" using acrontab:
 Results to be consumed by the Dashboard are written to the web space of user "malandes" 
 under /afs/cern.ch/user/m/malandes/www/web/ssb and organised in different folders as follows:
 
+*IMPORTANT NOTE*: Note that the output file to be used by the Dashboard could be changed to any other directory 
+                  as long as both the scripts and the Dashboard configuration are updated to write/read the data to/from 
+                  the new location.
+   
   - /bdii: BDII related metrics. Dashboard URL: 
     - https://wlcg-mon/dashboard/request.py/siteview#currentView=BDII+deployment 
 
@@ -39,6 +43,7 @@ under /afs/cern.ch/user/m/malandes/www/web/ssb and organised in different folder
     - https://wlcg-mon/dashboard/request.py/siteview#currentView=Glue+Validator+WLCG
     - https://wlcg-mon/dashboard/request.py/siteview#currentView=WLCG+Accounting+vs+BDII
     - http://wlcg-mon.cern.ch/dashboard/request.py/siteview#currentView=T1+Storage+Deployment
+    - http://wlcg-mon.cern.ch/dashboard/request.py/siteview#currentView=WLCG+Operations
 
 The scripts are organised as follows:
 
@@ -79,6 +84,8 @@ The scripts are organised as follows:
    - wlcg-accounting.py : script to compare installed capacities reported at the WLCG Accounting report with BDII and REBUS
      numbers
    - t1-accounting: metric to monitor storage types, versions and supported VOs in T1s 
+   - operations_ggus: metric to track GGUS tickets opened by WLCG Operations. Note that this metric is not yet executed
+     as part of any cron job yet. 
 
 - /utils: Folder containing useful utilities used by the other scripts
    - glue2-monitor.py: script running glue-validator for a specific site 
