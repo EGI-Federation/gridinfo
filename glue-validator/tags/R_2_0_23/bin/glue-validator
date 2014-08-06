@@ -1,0 +1,106 @@
+#!/usr/bin/python
+
+import logging
+import unittest
+import os
+import sys
+import tempfile
+import validator.utils
+import validator.EntryTest
+import validator.WLCGTest
+import validator.lhcbTest
+import validator.EGIProfileTest
+import validator.KnownIssues
+
+
+if __name__ == "__main__":
+    
+    config = validator.utils.parse_options()
+    log = logging.getLogger(sys.argv[0])
+    hdlr = logging.StreamHandler(sys.stderr)
+    formatter = logging.Formatter('[%(levelname)s]: %(message)s')
+    hdlr.setFormatter(formatter)
+    log.addHandler(hdlr)
+    log.setLevel(config['debug'])
+
+    if config.has_key('file'):
+        if os.path.exists(config['file']):
+            source = "file://%s" % (config['file'])
+        else:
+            sys.stdout.write("UNKNOWN: File %s does not exist\n" %(config['file'],))
+            sys.exit(3)
+
+    if config.has_key('hostname'):
+      source = "ldap://%s:%s/%s" % (config['hostname'], config['port'], config['bind'])
+
+    ldif = validator.utils.fast_read_ldif(source,config['timeout'])
+    dns_dict = validator.utils.get_dns(ldif)
+    if len(dns_dict) == 0:
+        sys.stdout.write("UNKNOWN: No LDAP entries returned from %s\n" %(source,))
+        sys.exit(3)
+    suite = unittest.TestSuite()
+    ldif_dict = {}
+    for dn in dns_dict:
+      entry = ldif[dns_dict[dn][0]:dns_dict[dn][1]]
+      entry = validator.utils.convert_entry(entry)
+      ldif_dict[dn] = entry
+    for dn in ldif_dict:
+      entry = ldif_dict [dn]
+      if (config['testsuite'] == 'general'):
+      	      module = sys.modules['validator.EntryTest']
+	      inst = getattr(module, 'EntryTest')
+	      test_names = unittest.TestLoader().getTestCaseNames(validator.EntryTest.EntryTest)
+              glue_version = config['glue-version']
+              for test_name in test_names:
+                  suite.addTest(inst(test_name, entry, glue_version))               
+      elif (config['testsuite'] == 'wlcg'):
+              module = sys.modules['validator.WLCGTest']
+              inst = getattr(module, 'WLCGTest')
+              test_names = unittest.TestLoader().getTestCaseNames(validator.WLCGTest.WLCGTest)
+              glue_version = config['glue-version']
+              for test_name in test_names:
+                  attribute=test_name.rsplit('_')[1]
+                  if attribute in entry:
+                      suite.addTest(inst(test_name,entry,entry[attribute],glue_version)) 
+      elif (config['testsuite'] == 'lhcb'):
+              module = sys.modules['validator.lhcbTest']
+              inst = getattr(module, 'lhcbTest')
+              test_names = unittest.TestLoader().getTestCaseNames(validator.lhcbTest.lhcbTest)
+              glue_version = config['glue-version']
+              for test_name in test_names:
+                  attribute=test_name.rsplit('_')[1]
+                  if attribute in entry:
+                      suite.addTest(inst(test_name,entry,entry[attribute],glue_version))
+      elif (config['testsuite'] == 'egi-profile'):
+      	      module = sys.modules['validator.EntryTest']
+	      inst = getattr(module, 'EntryTest')
+	      test_names = unittest.TestLoader().getTestCaseNames(validator.EntryTest.EntryTest)
+              glue_version = 'egi-glue2'
+              for test_name in test_names:
+                  if (config.has_key('exclude-known-issues') and (test_name not in validator.KnownIssues.test_list)) \
+                          or not config.has_key('exclude-known-issues'):
+                          suite.addTest(inst(test_name,entry,glue_version))               
+              module = sys.modules['validator.EGIProfileTest']
+              inst = getattr(module, 'EGIProfileTest')
+              test_names = unittest.TestLoader().getTestCaseNames(validator.EGIProfileTest.EGIProfileTest)
+              for test_name in test_names:
+                  attribute=test_name.rsplit('_')[1]
+                  if attribute in entry:     
+                      if (config.has_key('exclude-known-issues') and (test_name not in validator.KnownIssues.test_list)) \
+                          or not config.has_key('exclude-known-issues'):
+                          suite.addTest(inst(test_name,entry,entry[attribute],glue_version)) 
+          
+
+    if config.has_key('nagios'):
+      auxfile=tempfile.mkstemp()
+      fh=open(auxfile[1],'w')
+      unittest.TextTestRunner(stream=fh,verbosity=2).run(suite)
+      fh.close()
+      if config.has_key('verbosity'):
+         debug_level=int(config['verbosity'])
+      else:
+         debug_level=0
+      validator.utils.nagios_output(debug_level,auxfile[1])
+    else: #Deprecated since default is always nagios output
+      unittest.TextTestRunner(verbosity=2).run(suite)
+
