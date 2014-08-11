@@ -94,6 +94,17 @@ The scripts are organised as follows:
      when a new metric is introduced and its historic data needs to be stored. It has to be adapted for the metric using
      the correct list of sites. 
 
+GGUS color legend
+------------------
+
+The following color legend is used in the metrics that are tracking open/closed GGUS tickets:
+
+- GREY: Problem with GGUS. Either GGUS couldn't be contacted or couldn't create a ticket
+- GREEN: There is no ticket for the site
+- ORANGE: A ticket has just been opened for the site. Since GGUS metrics normally run once per day, orange means the ticket was opened since the last time the metric was executed
+- RED: A ticket is in status open for a site
+- YELLOW: A ticket is in status closed for a site  
+
 
 Requisites
 ----------
