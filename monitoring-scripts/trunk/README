@@ -38,6 +38,7 @@ under /afs/cern.ch/user/m/malandes/www/web/ssb and organised in different folder
 
   - /atlas: ATLAS related metrcis. Dashboard URL:
     - https://wlcg-mon/dashboard/request.py/siteview#currentView=BDII+monitoring+for+ATLAS
+    - https://wlcg-mon.cern.ch/dashboard/request.py/siteview#currentView=BDII+vs+SRM+ATLAS+Storage
 
   - /wlcg: WLCG related metrics. Dashboard URL:
     - https://wlcg-mon/dashboard/request.py/siteview#currentView=Glue+Validator+WLCG
@@ -53,9 +54,11 @@ The scripts are organised as follows:
 
 - cron-lhcb-glue2-monitoring: cron job to launch the list of scripts generating GLUE 2 LHCb metrics
 
+- cron-lhcb-storage-monitoring: cron job to launch the BDII vs SRM monitoring for LHCb
+
 - cron-atlas-endpoint-monitoring: cron job to monitor xroot and http endpoints for ATLAS
 
-- cron-lhcb-storage-monitoring: cron job to launch the BDII vs SRM monitoring for LHCb
+- cron-atlas-storage-monitoring: cron job to launch the BDII vs SRM monitoring for ATLAS
 
 - /ggus: Folder containing scripts to handle GGUS tickets automatic creation
    - ggus_monitor.py: Script generating the output needed by the Dashboard with the list of GGUS tickets
@@ -73,17 +76,27 @@ The scripts are organised as follows:
 - /specific_actions: Folder containing VO specific metrics or general metrics tagetting a specific validation objective:
    - lhcb-maxCPUTime-monitoring.py: metric to monitor the Max CPU Time published by LHCb queues in GLUE 2. 
      Automatic GGGUS ticket creation disabled after GLUE validator Nagios probe in production
+
    - lhcb-storage-monitoring.py: metric to compare BDII vs SRM storage capacity numbers (GLUE 2 where published)
+
    - atlas-endpoint-monitoring.py: metric to list the number of xroot and http endpoints (GLUE 1 and GLUE 2) 
      published in ATLAS sites
+
+   - atlas-storage-monitoring.py: metric to compare BDII vs SRM storage capacity numbers (GLUE 1)
+
    - obsolete_entries.py: metric to monitor obsolete entries published in GLUE 2. Disabled after GLUE validator Nagios probe
      in production
+
    - waiting_jobs.py: metric to monitor 444444 waiting jobs in GLUE 2. Automatic GGUS ticke creation disabled after 
      GLUE validator Nagios probe in production
+
    - nagios_ggus.py: metric to track GGUS tickets opened by COD Operations for the GLUE validator Nagios probe
+
    - wlcg-accounting.py : script to compare installed capacities reported at the WLCG Accounting report with BDII and REBUS
      numbers
+
    - t1-accounting: metric to monitor storage types, versions and supported VOs in T1s 
+
    - operations_ggus: metric to track GGUS tickets opened by WLCG Operations. Note that this metric is not yet executed
      as part of any cron job yet. 
 
