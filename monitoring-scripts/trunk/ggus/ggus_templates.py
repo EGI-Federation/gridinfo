@@ -72,5 +72,41 @@ templates = {
 'last_modifier' : None,
 'last_login' : None,
 'carbon_copy' : None
+},
+'ops_cvmfs_ggus' : {
+'description' : 'CVMFS Client upgrade to version 2.1.19',
+'long_description' : None,
+'mail' : None,
+'loginname' : None,
+'name' : None,
+'priority' : None,
+'last_modifier' : None,
+'last_login' : None,
+'carbon_copy' : None
+},
+'ops_voms_ggus' : {
+'description' : 'Support for new VOMS servers',
+'long_description' : 'Dear sys admin,\n\nPlease, ensure your services support the new VOMS servers by September 15th.\
+                As of that date some workflows may use proxies signed by the new servers.\
+                The old VOMS servers need to _remain_ recognized for the time being.\n\n \
+                Thanks a lot,\nThe WLCG Operations team\n\n',
+'mail' : 'maria.alandes.pradillo@cern.ch',
+'loginname' : '/DC=ch/DC=cern/OU=Organic Units/OU=Users/CN=malandes/CN=644124/CN=Maria Alandes Pradillo',
+'name' : 'Maria Alandes',
+'priority' : 'less urgent',
+'last_modifier' : 'Maria Alandes',
+'last_login' : 'Maria Alandes',
+'carbon_copy' : None
+},
+'test' : {
+'description' : 'Rod',
+'long_description' : None,
+'mail' : None,
+'loginname' : None,
+'name' : None,
+'priority' : None,
+'last_modifier' : None,
+'last_login' : None,
+'carbon_copy' : None
 }
 }
