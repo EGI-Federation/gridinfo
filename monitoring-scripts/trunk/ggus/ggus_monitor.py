@@ -10,9 +10,9 @@ import ggus_templates
 def ggus_monitor ( site_name, template, results, extra_condition, ggus_instance ):
 
     client_prod=ggus_suds.connect(ggus_instance)
-    ggus_out=ggus_suds.list_ticket(client_prod,site_name,ggus_templates.templates[template]['description'])
-    if ( ggus_out == "Unable to contact GGUS" ):
-        ggus_color = "grey"
+    ggus_out,ggus_color=ggus_suds.list_ticket(client_prod,site_name,ggus_templates.templates[template]['description'])
+    #ggus_out=ggus_suds.ggus_test(client_prod,site_name,ggus_templates.templates[template]['description'])
+    if ( ggus_out == "Failed to contact GGUS" ):
         ggus_result = "Unreachable"
         ggus_file_url = "None"
     elif ( ggus_out == "None" ):
@@ -40,11 +40,9 @@ def ggus_monitor ( site_name, template, results, extra_condition, ggus_instance 
                 elif (ggus_instance == "prod"):
                     ggus_file_url = "https://ggus.eu/ws/ticket_info.php?ticket=%s" % (ggus_result)
         else:
-            ggus_color = "green"
-            ggus_result = "None"
+            ggus_result = ggus_out
             ggus_file_url = "None"
     else:
-        ggus_color = "red"
         ggus_result = ggus_out
         if (ggus_instance == "test"):
             ggus_file_url = "https://train.ggus.eu/ws/ticket_info.php?ticket=%s" % (ggus_result)
