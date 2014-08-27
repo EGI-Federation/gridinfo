@@ -79,19 +79,19 @@ def site_srm_storage_xml_to_dict ():
                 except urllib2.HTTPError:
                     output = "XML_does_not_exist" 
                     result_string="%s %s_%s %s %s %s\n" % (dt,site,key,output,"red","None")
-                    os.write(total_fd,output)    
-                    os.write(free_fd,output)    
+                    os.write(total_fd,result_string)    
+                    os.write(free_fd,result_string)    
     #pprint (srm_dict)
 
 # get storage capacities from BDII
 def site_bdii_storage_to_dict ():
 
     for site in sorted(srm_dict.keys()):
-        if site in sites.atlas_site_bdiis: 
-            bdii_dict[site] = {}
-            for key in srm_dict[site]:
-                bdii_dict[site][key] = { "Total" : 0, "Free" : 0, "color" : "" }
-                token,se_uniqueid = key.split("_",1) 
+        bdii_dict[site] = {}
+        for key in srm_dict[site]:
+            bdii_dict[site][key] = { "Total" : 0, "Free" : 0, "color" : "" }
+            token,se_uniqueid = key.split("_",1) 
+            if site in sites.atlas_site_bdiis:
                 if token.find("DISK") > -1:
                     query_dict = { 'Total' : "ldapsearch -LLL -x -h %s -b mds-vo-name=%s,o=grid -o nettimeout=10 \
                                               '(&(objectClass=GlueSA)(GlueChunkKey=GlueSEUniqueID=%s) \
@@ -140,11 +140,12 @@ def site_bdii_storage_to_dict ():
                         bdii_dict[site][key]['color'] = "yellow"
                         bdii_dict[site][key][query] = int(full_text)/1000
 
-        else:
-            output = "No_BDII_defined"
-            result_string="%s %s_%s %s %s %s\n" % (dt,site,key,output,"red","None")
-            os.write(total_fd,output)
-            os.write(free_fd,output)
+            else:
+                bdii_dict[site][key]['color'] = "orange"
+                bdii_dict[site][key]["Total"] = "No_BDII_defined" 
+                bdii_dict[site][key]["Free"] = "No_BDII_defined" 
+
+    #pprint (bdii_dict)
 
 site_token_ddmendpoint_to_dict()
 site_srm_storage_xml_to_dict()
@@ -181,14 +182,32 @@ for site in sorted(srm_dict.keys()):
                     #print "%s_%s: %s" % (site,token,output)
                     os.write(total_fd,result_string)
                     os.write(free_fd,result_string)
-        else:
-            output = "%s : BDII not defined\n" % (site)
-            os.write(log_fd,output)
+                elif ( bdii_dict[site][token]['color'] == "pink" ):
+                    output = "No_such_SE_token"
+                    result_string="%s %s_%s %s %s %s\n" % (dt,site,token,output,"pink","None")
+                    #print "%s_%s: %s" % (site,token,output)
+                    os.write(total_fd,result_string)
+                    os.write(free_fd,result_string)
+                elif (bdii_dict[site][token]['color'] == "orange" ):
+                    output = "No_BDII_defined"
+                    result_string="%s %s_%s %s %s %s\n" % (dt,site,token,output,"orange","None")
+                    #print "%s_%s: %s" % (site,token,output)
+                    os.write(free_fd,result_string)
+                    os.write(total_fd,result_string)
+
         list=""
+        elems=len(token_dict[site][token])
+        count=1 
         for ddmendpoint in token_dict[site][token]:
-            list += "%s," % (ddmendpoint)
-            result_string="%s %s_%s %s %s %s\n" % (dt,site,token,list,"green","None") 
-            os.write(ddm_fd,result_string)  
+            site_string = "%s_" % (site)
+            ddmendpoint_name = ddmendpoint.replace(site_string,"")
+            if ( count == elems ):
+                list += "%s" % (ddmendpoint_name)
+            else:
+                list += "%s," % (ddmendpoint_name)
+            count += 1
+        result_string="%s %s_%s %s %s %s\n" % (dt,site,token,list,"green","None") 
+        os.write(ddm_fd,result_string)  
 
 os.close(log_fd)
 os.close(free_fd)
