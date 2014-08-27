@@ -1,6 +1,6 @@
 #!/usr/bin/python
 #
-# Script to monitor Tier 1 Storage Capacity for LHCb sites
+# Script to monitor Storage Capacity (BDII vs SRM) for LHCb sites
 #
 ###############################################################
 
@@ -218,7 +218,7 @@ storage_type_dict = {
 "USER" : "LHCb_USER"
 }
 
-base_xml_url = "http://lhcb-web-dirac.cern.ch/sls/storage_space/"
+base_xml_url = "http://lhcb-sls-dirac.cern.ch/sls/storage_space/"
 
 path_to_output = "/afs/cern.ch/user/m/malandes/www/web/ssb/lhcb/storage"
 results_disk_total = "%s/lhcb_storage_disk-total.txt" % (path_to_output)
@@ -383,33 +383,33 @@ os.close(fh_user_used)
 # Interacting with GGUS
 #######################################
 
-#ggus_file_name = "%s/ggus_lhcb_storage.txt" % (path_to_output)
-#ggus_output = os.open (ggus_file_name, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0600)
+ggus_file_name = "%s/ggus_lhcb_storage.txt" % (path_to_output)
+ggus_output = os.open (ggus_file_name, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0600)
 
-#for site_name in sorted(site_bdiis.keys()):
+for site_name in sorted(site_bdiis.keys()):
 
-#    site_name_query = site_name
-#    if (site_name == "CERN-EOS"):
-#        site_name_query = "CERN-PROD"
+    site_name_query = site_name
+    if (site_name == "CERN-EOS"):
+        site_name_query = "CERN-PROD"
 
-#    extra_condition = False
-#    ggus_details = ""
-#    for storage_type in storage_type_dict.keys():    
-#        if ( storage_dict[storage_type][site_name]["Result"]["Total"] == "red" ):
-#            ggus_details = ggus_details + "\nAffected Storage Share: %s \nBDII Total:%s vs SRM Total:%s" % \
-#                           (id_dict[site_name][storage_type], storage_dict[storage_type][site_name]["BDII"]["Total"],\
-#                            storage_dict[storage_type][site_name]["SRM"]["Total"])
-#            extra_condition = True    
-#        if (storage_dict[storage_type][site_name]["Result"]["Used"] == "red"):
-#            ggus_details = ggus_details + "\nAffected Storage Share: %s \nBDII Used:%s vs SRM Used:%s" % \
-#                           (id_dict[site_name][storage_type], storage_dict[storage_type][site_name]["BDII"]["Used"],\
-#                            storage_dict[storage_type][site_name]["SRM"]["Used"])
-#            extra_condition = True
-#
-#    ggus_color, ggus_result, ggus_file_url = ggus_monitor.ggus_monitor(site_name_query, "lhcb-storage", \
-#                                             ggus_details, extra_condition, "prod")
-#    os.write(ggus_output,"%s %s %s %s %s\n" % (dt,lhcb_names_dict[site_name],ggus_result,ggus_color,ggus_file_url))
-#
-#os.close(ggus_output)
+    extra_condition = False
+    ggus_details = ""
+    for storage_type in storage_type_dict.keys():    
+        if ( storage_dict[storage_type][site_name]["Result"]["Total"] == "red" ):
+            ggus_details = ggus_details + "\nAffected Storage Share: %s \nBDII Total:%s vs SRM Total:%s" % \
+                           (id_dict[site_name][storage_type], storage_dict[storage_type][site_name]["BDII"]["Total"],\
+                            storage_dict[storage_type][site_name]["SRM"]["Total"])
+            extra_condition = True    
+        if (storage_dict[storage_type][site_name]["Result"]["Used"] == "red"):
+            ggus_details = ggus_details + "\nAffected Storage Share: %s \nBDII Used:%s vs SRM Used:%s" % \
+                           (id_dict[site_name][storage_type], storage_dict[storage_type][site_name]["BDII"]["Used"],\
+                            storage_dict[storage_type][site_name]["SRM"]["Used"])
+            extra_condition = True
+
+    ggus_color, ggus_result, ggus_file_url = ggus_monitor.ggus_monitor(site_name_query, "lhcb-storage", \
+                                             ggus_details, extra_condition, "prod")
+    os.write(ggus_output,"%s %s %s %s %s\n" % (dt,lhcb_names_dict[site_name],ggus_result,ggus_color,ggus_file_url))
+
+os.close(ggus_output)
 
 
