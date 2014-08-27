@@ -22,12 +22,12 @@ def connect(type):
     if ( type == "test"):
         ################# Testing Instance ######################################
         user_name = "generic_test"
-        passwd = "*******"
+        passwd = "G1n1ric_T1st"
         wsdl_url = "https://train-ars.ggus.eu/arsys/WSDL/public/train-ars/GGUS"
     elif (type == "prod"):
         ################# Production Instance ###############################
         user_name = "genac"
-        passwd = "*******"
+        passwd = "!JhpdF5#"
         wsdl_url = "https://prod-ars.ggus.eu/arsys/WSDL/public/prod-ars/GGUS"
 
     client= suds.client.Client(url=wsdl_url,faults=False)
@@ -55,11 +55,24 @@ def list_ticket (client, site_name, description):
     try:
         result = client.service.TicketGetList(params.Qualification)
         if ( result[0] == 200):
-            return result[1][0]['GHD_Request_ID']
+            return (result[1][0]['GHD_Request_ID'],"red")
         else:
-            return "None"
+            if (description != "BDII and SRM publish inconsistent storage capacity numbers"):
+                params.Qualification = "'GHD_Affected Site'=\"%s\" AND \
+                                        'GHD_Short Description'LIKE\"%s\"  AND \
+                                        'GHD_Meta Status'=\"Closed\"" % (site_name, description)
+                try:
+                    result = client.service.TicketGetList(params.Qualification)
+                    if ( result[0] == 200):
+                        return (result[1][0]['GHD_Request_ID'],"yellow")
+                    else:
+                        return ("None","green")
+                except suds.WebFault, e:
+                    return ("Failed to contact GGUS","grey")
+            else:
+                return ("None","green")
     except suds.WebFault, e:
-        return "Failed to contact GGUS"
+        return ("Failed to contact GGUS","grey")
 
 #################################################
 # Create a ticket
@@ -105,6 +118,26 @@ def create_ticket (client, site_name, long_description, mail, loginname, name, p
             return result[1]
         else:
             return "GGUS ticket failed to be created"
+    except suds.WebFault, e:
+        return "Failed to contact GGUS"
+
+#################################################
+# Test Function
+#################################################
+def ggus_test (client, site_name, description):
+
+    params = client.factory.create("s0:InputMapping6")
+    params.Qualification = "'GHD_Affected Site'=\"%s\" AND \
+                            'GHD_Short Description'LIKE\"%s\"  AND \
+                            'GHD_Meta Status'=\"Open\"" % (site_name, description)
+
+    try:
+        result = client.service.TicketGetList(params.Qualification)
+        if ( result[0] == 200):
+            print result[1][0]['GHD_Request_ID']
+            return result[1][0]['GHD_Request_ID']
+        else:
+            return "None"
     except suds.WebFault, e:
         return "Failed to contact GGUS"
 
