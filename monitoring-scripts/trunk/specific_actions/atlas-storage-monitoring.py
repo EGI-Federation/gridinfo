@@ -7,6 +7,7 @@
 import subprocess
 import os, sys
 import datetime
+import time
 from cStringIO import StringIO
 import simplejson as json
 import urllib2
@@ -69,16 +70,24 @@ def site_srm_storage_xml_to_dict ():
                 xml_file_name = "%s/%s.xml" % (base_xml_url,ddmendpoint)
                 try:
                     xml_file = urllib2.urlopen(xml_file_name)
-                    tree = minidom.parse(xml_file)
-                    for subelement in tree.getElementsByTagName('numericvalue'):
-                        if (subelement.attributes['name'].value == "Total space"):
-                            srm_dict[site][key]["Total"] = int(float(subelement.firstChild.nodeValue))
-                        elif (subelement.attributes['name'].value == "Free space"):
-                            srm_dict[site][key]["Free"] = int(float(subelement.firstChild.nodeValue))
-                    srm_dict[site][key]['color'] = "green"
+                    last_modified = datetime.datetime(*(time.strptime(xml_file.headers.dict['last-modified'],"%a, %d %b %Y %H:%M:%S GMT")[0:6])) 
+                    margin = datetime.timedelta(days=2)
+                    if last_modified.timetuple() < (dt - margin).timetuple():
+                        output = "XML_older_than_2_days"
+                        result_string="%s %s_%s %s %s %s\n" % (dt,site,key,output,"grey","None")
+                        os.write(total_fd,result_string)
+                        os.write(free_fd,result_string)
+                    else: 
+                        tree = minidom.parse(xml_file)
+                        for subelement in tree.getElementsByTagName('numericvalue'):
+                            if (subelement.attributes['name'].value == "Total space"):
+                                srm_dict[site][key]["Total"] = int(float(subelement.firstChild.nodeValue))
+                            elif (subelement.attributes['name'].value == "Free space"):
+                                srm_dict[site][key]["Free"] = int(float(subelement.firstChild.nodeValue))
+                        srm_dict[site][key]['color'] = "green"
                 except urllib2.HTTPError:
                     output = "XML_does_not_exist" 
-                    result_string="%s %s_%s %s %s %s\n" % (dt,site,key,output,"red","None")
+                    result_string="%s %s_%s %s %s %s\n" % (dt,site,key,output,"grey","None")
                     os.write(total_fd,result_string)    
                     os.write(free_fd,result_string)    
     #pprint (srm_dict)
@@ -109,13 +118,12 @@ def site_bdii_storage_to_dict ():
                         query_dict = { 'Total' : "ldapsearch -LLL -x -h %s -b mds-vo-name=%s,o=grid -o nettimeout=10 \
                                                   '(&(objectClass=GlueSA)(GlueChunkKey=GlueSEUniqueID=%s) \
                                                   (|(GlueSALocalID=%s)(GlueSALocalID=%s:*)(GlueSALocalID=atlas:%s)))' \
-                                                  GlueSATotalNearlineSize | grep GlueSATotalNearlineSize: \
-                                                  | cut -d\":\" -f2" \
+                                                  GlueSATotalNearlineSize GlueSATotalOnlineSize | grep GlueSATotal" \
                                                   % (sites.atlas_site_bdiis[site],site,se_uniqueid,token,token,token),
                                        'Free'  : "ldapsearch -LLL -x -h %s -b mds-vo-name=%s,o=grid -o nettimeout=10 \
                                                   '(&(objectClass=GlueSA)(GlueChunkKey=GlueSEUniqueID=%s) \
                                                   (|(GlueSALocalID=%s)(GlueSALocalID=%s:*)(GlueSALocalID=atlas:%s)))' \
-                                                  GlueSAFreeNearlineSize | grep GlueSAFreeNearlineSize: | cut -d\":\" -f2" \
+                                                  GlueSAFreeNearlineSize GlueSAFreeOnlineSize | grep GlueSAFree" \
                                                   %(sites.atlas_site_bdiis[site],site,se_uniqueid,token,token,token)
                                      }
                     else:
@@ -136,9 +144,26 @@ def site_bdii_storage_to_dict ():
                     elif ( full_text == ""):
                         bdii_dict[site][key]['color'] = "pink"
                         bdii_dict[site][key][query] = "No_such_SE_token"
-                    else: 
+                    else:
                         bdii_dict[site][key]['color'] = "yellow"
-                        bdii_dict[site][key][query] = int(full_text)/1000
+                        if token.find("TAPE") > -1:
+                            size1,size2 = full_text.split("\n")
+                            size1_attr,size1_value = size1.split(":")
+                            size2_attr,size2_value = size2.split(":") 
+                            size1_value = size1_value.strip()
+                            size2_value = size2_value.strip()
+                            if size1_attr.find("NearlineSize") > -1: 
+                                if size1_value == "0":
+                                    bdii_dict[site][key][query] = int(size2_value)/1000
+                                else:
+                                    bdii_dict[site][key][query] = int(size1_value)/1000 
+                            else:
+                                if size2_value == "0":
+                                    bdii_dict[site][key][query] = int(size1_value)/1000
+                                else:
+                                    bdii_dict[site][key][query] = int(size2_value)/1000
+                        else: 
+                            bdii_dict[site][key][query] = int(full_text)/1000
 
             else:
                 bdii_dict[site][key]['color'] = "orange"
@@ -206,7 +231,7 @@ for site in sorted(srm_dict.keys()):
             else:
                 list += "%s," % (ddmendpoint_name)
             count += 1
-        result_string="%s %s_%s %s %s %s\n" % (dt,site,token,list,"green","None") 
+        result_string="%s %s_%s %s %s %s\n" % (dt,site,token,list,"yellow","None") 
         os.write(ddm_fd,result_string)  
 
 os.close(log_fd)
