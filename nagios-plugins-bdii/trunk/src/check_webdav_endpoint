@@ -1,0 +1,186 @@
+#!/usr/bin/env python
+##############################################################################
+# Copyright (c) Members of the EGEE Collaboration. 2011.
+# See http://www.eu-egee.org/partners/ for details on the copyright
+# holders.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS
+# OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+##############################################################################
+#
+# NAME :        check_webdav_endpoiut
+#
+# DESCRIPTION : Checks the webdav interface to an endpoint
+#
+# AUTHORS :     Ivan Calvet <ivan.calvet@cern.ch>
+#
+##############################################################################
+
+import time
+import pycurl
+import ldap
+from lcgdmcommon import *
+
+class check_webdav_endpoint:
+  "Checks if the server is up, and the response times"
+  __version__     = "0.0.1"
+  __nagios_id__   = "DM-WEBDAV"
+
+  # Defaults
+  DEFAULT_WARNING  = 2000
+  DEFAULT_CRITICAL = 5000
+  DEFAULT_PORT     = 443
+
+  # Specific parameters, where key = short, value = long (i.e. {"h":"help", "C:":"command="})
+  # getopt format. The long version will be the one passed even when the short is specified
+  __additional_opts__ = {"w:": "warning=",
+                         "c:": "critical=",
+                         "H:": "hostname=",
+                         "p:": "port=",
+                         "x:": "proxy="}
+
+  # Specific usage information
+  __usage__ = """
+\t-w, --warning\tSets the warning value, in milliseconds. Default: %d
+\t-c, --critical\tSets the critical value, in milliseconds. Default: %d
+\t-H, --hostname\tThe hostname to query.
+\t-p, --port\tThe server port. Default: %d
+\t-x, --proxy\tThe path to the proxy to use.
+
+Make a ping on a site to know if the https access is available. Warning and critical threshold can be set to trigger alert if the ping delay is too high.
+
+Description of work executed by the probe:
+
+\t1. Query a site with an https request on the port 443
+\t\tAccess available if answer: code 200
+\t\tAccess available if answer: other code
+\t2. Returns time to execute the request to nagios
+\t\tWarning state is triggered if request is longer than 0.3s
+\t\tCritical state is triggered if request is longer than 1s
+""" % (DEFAULT_WARNING, DEFAULT_CRITICAL, DEFAULT_PORT)
+
+  # Methods
+
+  def __init__(self, opt = {}, args = []):
+    """
+    Constructor
+
+    @param opt  Contains a dictionary with the long option name as the key, and the argument as value
+    @param args Contains the arguments not associated with any option
+    """
+    # Warning and critical
+    opt_warning  = self.DEFAULT_WARNING
+    opt_critical = self.DEFAULT_CRITICAL
+    if "warning" in opt:
+      opt_warning = opt["warning"]
+    if "critical" in opt:
+      opt_critical = opt["critical"]
+
+    self.warning  = int(float(opt_warning)  / 1000)
+    self.critical = int(float(opt_critical) / 1000)
+
+    if "port" in opt:
+        self.port = opt["port"]
+    else:
+        self.port = str(self.DEFAULT_PORT)
+
+    if "proxy" in opt:
+        self.proxy = opt["proxy"]
+
+    # Host
+    if "hostname" in opt:
+        host = opt["hostname"]
+    else:
+        return (EX_CRITICAL, "No hostname set for the test", None)
+
+    if "://" in host:
+        host = host[host.find("://")+3:]
+    if "/" in host:
+        host = host[:host.find("/")]
+    if ":" in host:
+        host = host[:host.find(":")]
+
+    con = ldap.initialize('ldap://lcg-bdii.cern.ch:2170')
+    result = con.result(con.search('o=glue', ldap.SCOPE_SUBTREE, '(&(objectClass=Glue2Endpoint)(|(GLUE2EndpointInterfaceName=webdav)(GLUE2EndpointInterfaceName=https)(GLUE2EndpointInterfaceName=http))(GLUE2EndpointURL=*'+host+'*))'))
+    if result:
+        endpoint = result[1][0][1]
+    else:
+        return (EX_CRITICAL, "No response from the BDII", None)
+    if "GLUE2EndpointImplementationName" in endpoint:
+        self.implementation = endpoint["GLUE2EndpointImplementationName"][0]
+    else:
+        self.implementation = "Unknown"
+    if self.implementation == 'DPM':
+        path = '/dpm/' + host[host.find(".")+1:] + '/home/'
+    else:
+        path = '/'
+    self.url = "https://"+host+":"+ self.port + path
+
+
+  def main(self):
+    """
+    Test code itself. May raise exceptions.
+
+    @return A tuple (exit code, message, performance)
+    """
+
+    curl = pycurl.Curl()
+    curl.setopt(pycurl.URL, self.url)
+    curl.setopt(pycurl.CONNECTTIMEOUT, self.critical)
+    curl.setopt(pycurl.TIMEOUT, self.critical)
+    curl.setopt(pycurl.SSL_VERIFYPEER, 1)
+    curl.setopt(pycurl.SSL_VERIFYHOST, 2)
+    curl.setopt(pycurl.FOLLOWLOCATION, 1)
+    curl.setopt(pycurl.WRITEFUNCTION, lambda x: None)
+    if self.proxy:
+      curl.setopt(pycurl.CAINFO, self.proxy)
+      curl.setopt(pycurl.SSLCERT, self.proxy)
+      curl.setopt(pycurl.CAPATH, "/etc/grid-security/certificates")
+
+    exception = ""
+    start = time.time()
+    try:
+      curl.perform()
+    except Exception, e:
+      exception = str(e)
+    end = time.time()
+    ellapsed_time = end - start
+
+    if ellapsed_time >= self.critical:
+      return_code = EX_CRITICAL
+    elif ellapsed_time > self.warning:
+      return_code = EX_WARNING
+    else:
+      return_code = EX_OK 
+ 
+    performance_data = "time=%.4fs;%.4f;%.4f" % (ellapsed_time, self.warning, self.critical)
+
+    code = curl.getinfo(pycurl.HTTP_CODE)
+    if exception:
+        return (EX_CRITICAL, exception[exception.find('(')+1:exception.find(')')], None)
+    elif code == 301:
+        return (EX_CRITICAL, "301, \"Moved Permanently '"+self.url+"' \"", None)
+    elif code == 403:
+        return (EX_CRITICAL, "403, \"Forbidden '"+self.url+"' \"", None)
+    elif code == 404:
+        return (EX_CRITICAL, "404, \"Not found '"+self.url+"' \"", None)
+    elif code != 200:
+        return (EX_CRITICAL, "HTTP error "+str(code)+" '"+self.url+"' \"", None)
+
+    return (return_code, "Test passed", performance_data)
+
+ 
+# When called directly
+if __name__ == "__main__":
+  run(check_webdav_endpoint)
+
