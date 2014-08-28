@@ -28,120 +28,174 @@ import os
 import re
 import urllib2
 import signal
+import copy
+from collections import OrderedDict
 
-VERSION = '1.0.4'
+VERSION = '1.9.0'
 TIMEOUT = 60
 
-# configuration dictionnary that will be filled with the submitted options
-CONF = {'object': None, 'flag': {}, 'filter': {}, 'attribute': []}
-
-# long_flag: [short_flag, parameter_needed]
+# Available flags. Format: FLAGS = {'long_flag1': ['short_flag1', <is_parameter_needed>], ...}
 FLAGS = {
-    'host': ["H", True],
-    'bind': ["b", True],
-    'list': ["l", True],
-    'clean': [None, False],
-    'strict': ["s", False],
-    'csv': ["c", False],
-    'json': ["j", False],
-    'timeout': ["t", True],
-    'verbose': ["v", False],
-    'version': ["V", False],
-    'help': ["h", False],
+    'host': ['H', True],
+    'bind': ['b', True],
+    'list': ['l', True],
+    #'clean': [None, False],
+    #'strict': ['s', False],
+    #'csv': ['c', False],
+    'json': ['j', False],
+    'timeout': ['t', True],
+    'verbose': ['v', False],
+    'version': ['V', False],
+    'help': ['h', False],
+    'ce': [None, False],
+    'se': [None, False],
+    'service': [None, False],
+    'site': [None, False],
+    'vo': [None, True],
     }
 
-# {'object': {'attribute': 'attribute name's for the bdii', ...}, ...}
+# Available elements. Format: ELTS = {'Object1': OrderedDict([('attribute1': 'name of the attribute1 in the bdii'), ...]), ...}
 ELTS = {
+'AccessPolicy':
+    OrderedDict([('ID', 'PolicyID'),
+     ('Name', 'EntityName'),
+     ('Scheme', 'PolicyScheme'),
+     ('Rule', 'PolicyRule'),
+     ('EndpointID', 'AccessPolicyEndpointForeignKey')]),
 'AdminDomain':
-    {'ID': 'DomainID',
-     'Description': 'DomainDescription'},
-'Location':
-    {'ID': 'LocationID',
-     'Country': 'LocationCountry',
-     'Latitude': 'LocationLatitude',
-     'Longitude': 'LocationLongitude'},
-'Service':
-    {'ID': 'ServiceID',
-     'Capability': 'ServiceCapability',
-     'Type': 'ServiceType',
-     'QualityLevel': 'ServiceQualityLevel',
-     'StatusInfo': 'ServiceStatusInfo',
-     'AdminDomainID': 'ServiceAdminDomainForeignKey'},
-'Endpoint':
-    {'ID': 'EndpointID',
-     'URL': 'EndpointURL',
-     'Capability': 'EndpointCapability',
-     'InterfaceName': 'EndpointInterfaceName',
-     'InterfaceVersion': 'EndpointInterfaceVersion',
-     'Implementor': 'EndpointImplementor',
-     'ImplementationVersion': 'EndpointImplementationVersion',
-     'QualityLevel': 'EndpointQualityLevel',
-     'HealthState': 'EndpointHealthState',
-     'ServingState': 'EndpointServingState',
-     'ServiceID': 'EndpointServiceForeignKey'},
-'ComputingShare':
-    {'ID': 'ShareID',
-     'MaxCPUTime': 'ComputingShareMaxCPUTime',
-     'MaxWallTime': 'ComputingShareMaxWallTime',
-     'ServingState': 'ComputingShareServingState',
-     'RunningJobs': 'ComputingShareRunningJobs',
-     'WaitingJobs': 'ComputingShareWaitingJobs',
-     'ExecutionEnvironmentID': 'ComputingShareExecutionEnvironmentForeignKey'},
-'MappingPolicy':
-    {'ID': 'PolicyID',
-     'Scheme': 'PolicyScheme',
-     'Rule': 'PolicyRule',
-     'ComputingShareID': 'MappingPolicyShareForeignKey'},
-'GlueCESEBindGroupCEUniqueID':
-    {},
-'ExecutionEnvironment':
-    {'ID': 'ResourceID',
-     'OSName': 'ExecutionEnvironmentOSName',
-     'ConnectivityOut': 'ExecutionEnvironmentConnectivityOut',
-     'MainMemorySize': 'ExecutionEnvironmentMainMemorySize',
-     'VirtualMemorySize': 'ExecutionEnvironmentVirtualMemorySize'},
+    OrderedDict([('ID', 'DomainID'),
+     ('Description', 'DomainDescription')]),
 'ComputingManager':
-    {'ID': 'ManagerID',
-     'ProductName': 'ManagerProductName',
-     'ProductVersion': 'ManagerProductVersion',
-     'ServiceID': 'ComputingManagerComputingServiceForeignKey'},
-'ToComputingService':
-    {},
-'StorageShare':
-    {'ID': 'StorageShareSharingID',
-    'Path': 'StorageSharePath',
-    'AccessMode': 'StorageShareAccessMode',
-    'AccessLatency': 'StorageShareAccessLatency',
-    'ServingState': 'StorageShareServingState',
-    'RetentionPolicy': 'StorageShareRetentionPolicy',
-    'ExpirationMode': 'StorageShareExpirationMode',
-    'DefaultLifeTime': 'StorageShareDefaultLifeTime',
-    'MaximumLifeTime': 'StorageShareMaximumLifeTime',
-    'Tag': 'StorageShareTag'},
+    OrderedDict([('ID', 'ManagerID'),
+     ('ProductName', 'ManagerProductName'),
+     ('ProductVersion', 'ManagerProductVersion'),
+     ('ServiceID', 'ComputingManagerComputingServiceForeignKey')]),
+'ComputingShare':
+    OrderedDict([('ID', 'ShareID'),
+     ('MaxCPUTime', 'ComputingShareMaxCPUTime'),
+     ('MaxWallTime', 'ComputingShareMaxWallTime'),
+     ('ServingState', 'ComputingShareServingState'),
+     ('RunningJobs', 'ComputingShareRunningJobs'),
+     ('WaitingJobs', 'ComputingShareWaitingJobs'),
+     ('ExecutionEnvironmentID', 'ComputingShareExecutionEnvironmentForeignKey'),
+     ('EndpointID', 'ComputingShareComputingEndpointForeignKey'),
+     ('Other', 'EntityOtherInfo')]),
+'Endpoint':
+    OrderedDict([('ID', 'EndpointID'),
+     ('URL', 'EndpointURL'),
+     ('Capability', 'EndpointCapability'),
+     ('InterfaceName', 'EndpointInterfaceName'),
+     ('InterfaceVersion', 'EndpointInterfaceVersion'),
+     ('Implementor', 'EndpointImplementor'),
+     ('ImplementationVersion', 'EndpointImplementationVersion'),
+     ('QualityLevel', 'EndpointQualityLevel'),
+     ('HealthState', 'EndpointHealthState'),
+     ('ServingState', 'EndpointServingState'),
+     ('ServiceID', 'EndpointServiceForeignKey')]),
+'ExecutionEnvironment':
+    OrderedDict([('ID', 'ResourceID'),
+     ('OSName', 'ExecutionEnvironmentOSName'),
+     ('ConnectivityOut', 'ExecutionEnvironmentConnectivityOut'),
+     ('MainMemorySize', 'ExecutionEnvironmentMainMemorySize'),
+     ('VirtualMemorySize', 'ExecutionEnvironmentVirtualMemorySize')]),
+#'GlueCESEBindGroupCEUniqueID':
+#    OrderedDict([]),
+'Location':
+    OrderedDict([('ID', 'LocationID'),
+     ('Country', 'LocationCountry'),
+     ('Latitude', 'LocationLatitude'),
+     ('Longitude', 'LocationLongitude')]),
+'MappingPolicy':
+    OrderedDict([('ID', 'PolicyID'),
+     ('Scheme', 'PolicyScheme'),
+     ('Rule', 'PolicyRule'),
+     ('ShareID', 'MappingPolicyShareForeignKey')]),
+'Service':
+    OrderedDict([('ID', 'ServiceID'),
+     ('Capability', 'ServiceCapability'),
+     ('Type', 'ServiceType'),
+     ('QualityLevel', 'ServiceQualityLevel'),
+     ('StatusInfo', 'ServiceStatusInfo'),
+     ('DomainID', 'ServiceAdminDomainForeignKey'),]),
 'Share':
-    {'ID': 'ShareID',
-     'ServiceID': 'ShareServiceForeignKey'},
+    OrderedDict([('ID', 'ShareID'),
+     ('ServiceID', 'ShareServiceForeignKey')]),
+'StorageShare':
+    OrderedDict([('ID', 'ShareID'),
+    ('SharingID', 'StorageShareSharingID'),
+    ('Path', 'StorageSharePath'),
+    ('AccessMode', 'StorageShareAccessMode'),
+    ('AccessLatency', 'StorageShareAccessLatency'),
+    ('ServingState', 'StorageShareServingState'),
+    ('RetentionPolicy', 'StorageShareRetentionPolicy'),
+    ('ExpirationMode', 'StorageShareExpirationMode'),
+    ('DefaultLifeTime', 'StorageShareDefaultLifeTime'),
+    ('MaximumLifeTime', 'StorageShareMaximumLifeTime'),
+    ('Tag', 'StorageShareTag')]),
+#'ToComputingService':
+#    OrderedDict([]),
 }
+
+# Dictionnary made to store the chosen  options. Format: OPTION = {'option1': 'value1', ...}
+OPTION = {}
+CONF = {}
 
 def main(argv):
     """Main function that launches the other functions""" 
 
-    parse_options(argv)
+    args = parse_option(argv)
+    validate_option()
+    shortcuts()
+    parse_conf(args)
     validate_conf()
-    if 'list' in CONF['flag']:
+    if 'list' in OPTION:
         result = list_attributes() # option --list
     else:
         result = list_object() # get all the informations about the specified object
-    if 'verbose' in CONF['flag']:
+    if 'verbose' in OPTION:
         print ''
     # result = clean(result)
     print serialize_output(result)
     sys.exit()
 
-def parse_options(argv):
-    """Parse the selected options and put them in a config dictionnary""" 
+def usage():
+    """Returns the usage message"""
 
-    # build the good sequence to parse the flags with getopt
+    usage = '''Usage: ginfo [options] [Object(s)] [attribute(s)_to_filter='value of the attribute'] [attribute(s)_to_display]
+
+    List attributes corresponding to one or multiple object(s). 
+    By default, all the attributes of an object are displayed.
+
+    [OPTIONS]
+    -H, --host      host        Specify a host to query. By default the
+                                environmental variable LCG_GFAL_INFOSYS will be
+                                used.
+    -b, --bind      binding     Specify the binding (o=glue by default).
+    -l, --list      value       List all the possible values of the specified
+                                attribute or the corresponding attributes of 
+                                an object.
+    -j, --json                  Output in JSON format
+    -t, --timeout               Change the ldap timeout (15 seconds by default).
+    -v, --verbose               Enable verbose mode
+    -V, --version               Print the version of ginfo
+    -h, --help                  Print this helpful message
+
+    [OBJECTS AND CORRESPONDING ATTRIBUTES]
+'''
+    for obj in sorted(ELTS):
+        attrs = "\t\t"
+        last_line = ", ".join(ELTS[obj])
+        while len(last_line) > 64:
+            comma = last_line[:64].rfind(",")+2
+            attrs += last_line[:comma] + "\n\t\t"
+            last_line = last_line[comma:]
+        usage += "\t" + obj + ":\n" + attrs + last_line + ".\n"
+    return usage
+
+def parse_option(argv):
+    """Parse the selected options and put them in the OPTION dictionnary""" 
+
+    # Build the correct sequence to parse the flags with getopt
     short_flags = ''
     long_flags = [[], []] # Long flags with a short flag, or without
     for i in FLAGS:
@@ -155,7 +209,7 @@ def parse_options(argv):
         if FLAGS[i][1]:
             long_flags[j][-1] += '='
     long_flags = long_flags[0] + long_flags[1]
-    # identify flags and put them in the config dictionnary
+    # Identify flags and put them in the OPTION dictionnary
     try:
         flags, args = getopt.getopt(argv, short_flags, long_flags)
     except getopt.error, err:
@@ -164,219 +218,317 @@ def parse_options(argv):
         flag = flag[flag.rfind('-')+1:]
         for i in FLAGS:
             if flag in (i, FLAGS[i][0]):
-                if i not in CONF['flag']:
+                if i not in OPTION:
                     if FLAGS[i][1]:
-                        CONF['flag'][i] = arg
+                        OPTION[i] = arg
                     else:
-                        CONF['flag'][i] = True
+                        OPTION[i] = True
                     break 
                 else:
-                    sys.exit("Error: Don't use a flag more than once.")
-    
-    for arg in args:
-        # identify filters and put them in the config dictionnary
-        if '=' in arg:
-            filter = arg[:arg.find('=')]
-            CONF['filter'][filter] = arg[arg.find('=')+1:]
-        # identify the object and put it in the config dictionnary
-        elif arg in ELTS.keys() and CONF['object'] is None:
-            CONF['object'] = arg
-        # all other elements are attributes and are put in the config dictionnary
-        else:
-            CONF['attribute'].append(arg)
-    print CONF
+                    sys.exit("Error 1: Don't use a flag more than once.")
+    return args
 
-def validate_conf():
-    """Prints verbose messages and checks for errors""" 
-        
+def validate_option():
+    """Prints verbose messages and checks for errors"""
+
     # options
-    if 'help' in CONF['flag']:
+    if 'help' in OPTION:
         print usage()
         sys.exit()
-    if 'version' in CONF['flag']:
+    if 'version' in OPTION:
         print os.path.basename(sys.argv[0]) +' V'+VERSION
         sys.exit()
-    if 'verbose' in CONF['flag']:
-        print 'Verbose mode enabled'
-    if 'csv' in CONF['flag'] and 'json' in CONF['flag'] and 'list' not in CONF['flag']:
-        sys.exit('Error: choose between csv and json.')
-    elif 'csv' in CONF['flag'] and 'list' not in CONF['flag']:
-        if 'verbose' in CONF['flag']:
-            print 'Output in csv formating'
-    elif 'json' in CONF['flag'] and 'list' not in CONF['flag']:
-        if 'verbose' in CONF['flag']:
+    #if 'csv' in OPTION and 'json' in OPTION and 'list' not in OPTION:
+    #    sys.exit('Error: Please choose between csv and json.')
+    #elif 'csv' in OPTION and 'list' not in OPTION:
+    #    if 'verbose' in OPTION:
+    #        print 'Output in csv formating'
+    if 'json' in OPTION and 'list' not in OPTION:
+        if 'verbose' in OPTION:
             print 'Output in json formating'
-    if 'host' in CONF['flag']:
-        if 'verbose' in CONF['flag']:
-            print 'The following host will be used:', CONF['flag']['host']
-    else:
+    if 'host' not in OPTION:
         if 'LCG_GFAL_INFOSYS' in os.environ:
-            CONF['flag']['host'] = os.environ['LCG_GFAL_INFOSYS']
-            if 'verbose' in CONF['flag']:
-                print 'The following host will be used:', CONF['flag']['host']
+            OPTION['host'] = os.environ['LCG_GFAL_INFOSYS']
         else:
-            sys.exit(usage())
-    if 'bind' in CONF['flag']:
-        if 'verbose' in CONF['flag']:
-            print 'The following binding will be used:', CONF['flag']['bind']
+            sys.exit("Error 2: Please specify an host to query. By default the environmental variable LCG_GFAL_INFOSYS is used.")
+    if ':' not in OPTION['host']:
+        OPTION['host'] += ':2170'
+    if 'verbose' in OPTION:
+        print 'Verbose mode enabled'
+        print 'The following host will be used:', OPTION['host']
+
+    if 'bind' in OPTION:
+        if 'verbose' in OPTION:
+            print 'The following binding will be used:', OPTION['bind']
     else:
-        CONF['flag']['bind'] = 'o=glue'
-        if 'verbose' in CONF['flag']:
-            print 'The default binding will be used:', CONF['flag']['bind']
-    if 'timeout' in CONF['flag']:
-        if 'verbose' in CONF['flag']:
-            print 'Ldap timeout has been set to '+CONF['flag']['timeout']+' second(s).'
+        OPTION['bind'] = 'o=glue'
+        if 'verbose' in OPTION:
+            print 'The default binding will be used:', OPTION['bind']
+    if 'timeout' in OPTION:
+        if 'verbose' in OPTION:
+            print 'Ldap timeout has been set to '+OPTION['timeout']+' second(s).'
+    if 'ce' in OPTION:
+        if 'verbose' in OPTION:
+            # FIXME: Be more specific with CREAMCEID
+            print 'The --ce option will display the ComputingShare objects.'
+    if 'se' in OPTION:
+        if 'verbose' in OPTION:
+            print 'The --se option will display the Service objects that are from one of these types: Storage, DPM, SRM, STaaS, org.dcache.storage .'
+    if 'service' in OPTION:
+        if 'verbose' in OPTION:
+            print 'The --service option will display the Service objects.'
+    if 'site' in OPTION:
+        if 'verbose' in OPTION:
+            print 'The --site option will display the AdminDomain objects.'
+    if 'vo' in OPTION:
+        if 'verbose' in OPTION:
+            print 'The --vo option will filter results by VO (alias PolicyRule. Eg: vo:atlas, vo:cms, ...): '
+
+def shortcuts():
+    # Shortcut options add some objects and specific filters to the CONF dictionnary
+    if 'ce' in OPTION:
+        CONF['ComputingShare'] = {'filter': {}, 'attribute': [], 'visible': True}
+        ELTS['ComputingShare'] = OrderedDict([('CE', ELTS['ComputingShare']['Other'])] + ELTS['ComputingShare'].items())
+        #FIXME: rendre insensible a la casse
+        if 'vo' in OPTION:
+            CONF['MappingPolicy'] = {'filter': {'Rule': OPTION['vo']}, 'attribute': [], 'visible': False}
+    elif 'se' in OPTION:
+        CONF['Service'] = {'filter': {'Type':'Storage,DPM,SRM,STaaS,org.dcache.storage'}, 'attribute': [], 'visible': True}
+        ELTS['Service'] = OrderedDict([('SE', ELTS['Service']['ID'])] + ELTS['Service'].items())
+        if 'vo' in OPTION:
+            CONF['AccessPolicy'] = {'filter': {'Rule': OPTION['vo']}, 'attribute': [], 'visible': False}
+            CONF['Endpoint'] = {'filter': {}, 'attribute': [], 'visible': False}
+    elif 'service' in OPTION:
+        CONF['Service'] = {'filter': {}, 'attribute': [], 'visible': True}
+        ELTS['Service'] = OrderedDict([('Service', ELTS['Service']['ID'])] + ELTS['Service'].items())
+        if 'vo' in OPTION:
+            CONF['AccessPolicy'] = {'filter': {'Rule': OPTION['vo']}, 'attribute': [], 'visible': False}
+            CONF['Endpoint'] = {'filter': {}, 'attribute': [], 'visible': False}
+    elif 'site' in OPTION:
+        CONF['AdminDomain'] = {'filter': {}, 'attribute': [], 'visible': True}
+        ELTS['AdminDomain'] = OrderedDict([('Site', ELTS['AdminDomain']['ID'])] + ELTS['AdminDomain'].items())
+        if 'vo' in OPTION:
+            CONF['Service'] = {'filter': {}, 'attribute': [], 'visible': False}
+            CONF['AccessPolicy'] = {'filter': {'Rule': OPTION['vo']}, 'attribute': [], 'visible': False}
+            CONF['Endpoint'] = {'filter': {}, 'attribute': [], 'visible': False}
+
+def parse_conf(args):
+    # Sort the other arguments between objects, filters and attributes:
+    if 'list' in OPTION:
+        if OPTION['list'] in ELTS:
+            CONF[OPTION['list']] = {'filter': {}, 'attribute': [], 'visible': True}
+        if '.' in OPTION['list']:
+            object, attribute = OPTION['list'].split(".")
+            CONF[object] = {'filter': {}, 'attribute': [], 'visible': True}
+            OPTION['list'] = attribute
+
+    for arg in list(args):
+         # Identify the objects and put them in the CONF dictionnary
+        if arg in ELTS:
+            if arg not in CONF:
+                CONF[arg] = {'filter': {}, 'attribute': [], 'visible': True}
+            args.remove(arg)
+
+    for arg in args:
+        # Identify filters and put them in the CONF dictionnary
+        if '=' in arg:
+            filter, value = arg.split('=')
+
+            if '.' in filter:
+                object, filter = filter.split('.')
+            elif len(CONF) > 1:
+                sys.exit('Error 3: If you use more than one object you should precise which object each filter refers to. Eg: Object1.filter1=value1 Object2.filter2=value2 ...')
+            else:
+                object = CONF.keys()[0]
+
+            if object in CONF:
+                CONF[object]['filter'][filter] = value
+            elif object in ELTS:
+                CONF[object] = {'filter': {filter: value}, 'attribute': [], 'visible': True}
+            else:
+                sys.exit('Error 4: ' + object + 'is not a valid object.')
+            # FIXME: UGLY
+            if 'ce' in OPTION and filter == 'CE':
+                CONF[object]['filter'][filter] = '*'+CONF[object]['filter'][filter]+'*'
+
+        # Identify attributes to display and put them in the CONF dictionnary
+        else:
+            if '.' in arg:
+                object, attribute = arg.split('.')
+            elif len(CONF) > 1:
+                sys.exit('Error 3: If you use more than one object you should precise which object each attributes refers to. Eg: Object1.attribute1 Object2.attribute2 ...')
+            else:
+                object = CONF.keys()[0]
+                attribute = arg
+            if object in CONF:
+                CONF[object]['attribute'].append(attribute)
+            elif object in ELTS:
+                CONF[object] = {'filter': {}, 'attribute': [attribute], 'visible': True}
+            else:
+                sys.exit('Error 4: ' + object + 'is not a valid object.')
+    if not CONF:
+        sys.exit('Error 5: Please specify at least one object.')
+
+def validate_conf():
+    #if 'ComputingShare' in CONF:
+    #    CONF['Share'] = CONF['ComputingShare']
+    #    del CONF['ComputingShare']
+    #    CONF['Share']['filter']['objectClass'] = 'GLUE2ComputingShare'
 
     # Object
-    if not CONF['object']:
-        sys.exit('Error: Please specify an object.')
-    else:
-        if 'verbose' in CONF['flag']:
-            print 'The specified object is '+CONF['object']+'.'
-    if 'list' in CONF['flag']:
-        if CONF['flag']['list'] not in ELTS[CONF['object']].keys():
-            sys.exit('Error: '+CONF['flag']['list']+' is a wrong attribute.')
-        if 'verbose' in CONF['flag']:
-            print 'List all the possible values for the following attribute:', CONF['flag']['list']
+    if 'verbose' in OPTION:
+        if len(CONF) == 1:
+            print 'The specified object is '+CONF.keys()[0]+'.'
+        else:
+            print 'The specified objects are: '+', '.join(CONF.keys())+'.'
+    if 'list' in OPTION:
+        if len(CONF) > 1:
+            sys.exit('Error 6: You have too many objects. You can only see the values of an attribute from one object.')
+        if OPTION['list'] not in ELTS[CONF.keys()[0]] and OPTION['list'] not in ELTS:
+            sys.exit('Error 7: '+OPTION['list']+' is not a valid attribute.')
+        if 'verbose' in OPTION:
+            print 'List all the possible values for the following attribute:', OPTION['list']
 
+    OPTION['objects'] = OrderedDict([])
+    def sortObjects(obj):
+        listO = OrderedDict([(ELTS[obj]['ID'],obj)])
+        for att in ELTS[obj]:
+            if 'ID' in att and len(att) > 2:
+                for i, o in enumerate(CONF):
+                    if att == ELTS[o]['ID']:
+                        if o in OPTION['objects'].values():
+                            listO.update(OPTION['objects'])
+                        else:
+                            listO.update(sortObjects(o))
+                        break
+        return listO
+    for obj in CONF.keys():
+        if obj not in OPTION['objects'].values():
+            OPTION['objects'] = sortObjects(obj)
+    items = OPTION['objects'].items()
+    items.reverse()
+    OPTION['objects'] = OrderedDict(items)
+    if sorted(CONF.keys()) != sorted(OPTION['objects'].values()):
+        sys.exit('Error 8: You canno\'t combine these objects: '+', '.join(CONF))
 
-    # Filters
-    if CONF['filter']:
-        for filter in CONF['filter']:
-            if filter not in ELTS[CONF['object']]:
-                sys.exit('Error: '+filter+' is not a valid filter.')
-        if 'verbose' in CONF['flag']:
-            for filt in CONF['filter']:
-                print 'Filter results by the following '+filt+':', CONF['filter'][filt]
+    for obj in CONF:
+        # Filters
+        if CONF[obj]['filter']:
+            for filter in CONF[obj]['filter']:
+                # FIXME: TOCHECK
+                if filter not in ELTS[obj] and filter != 'objectClass':
+                    sys.exit('Error 9: '+filter+' is not a valid filter from the object '+obj)
+            if 'verbose' in OPTION:
+                for filter in CONF[obj]['filter']:
+                    print 'Filter results by the following '+obj+'.'+filter+':', CONF[obj]['filter'][filter]
 
-    # Attributes
-    if CONF['attribute']:
-        for att in CONF['attribute']:
-            if att not in ELTS[CONF['object']]:
-                sys.exit('Error: '+att+' is not a valid attribute.')
-    else:
-        CONF['attribute'] = ELTS[CONF['object']].keys()
-    if 'verbose' in CONF['flag']:
-        print 'The following attribute(s) will be displayed:', ', '.join(CONF['attribute'])
-
-def usage():
-    """Returns the usage message""" 
-    
-    return '''Usage: ginfo [options] Object [attribute_to_filter='value of the attribute'] [attribute_to_display]
-
-    List attributes corresponding to an object. By default, all the attributes of an object are
-    displayed.
-
-    [OPTIONS]
-    -H, --host      host        Specify a host to query. By default the
-                                environmental variable LCG_GFAL_INFOSYS will be
-                                used.
-    -b, --bind      binding     Specify the binding (o=glue by default).
-    -l, --list      attribute   List all the possible values of the specified
-                                attribute.
-    -c, --csv                   Output in CSV format
-    -j, --json                  Output in JSON format
-    -t, --timeout               Change the ldap timeout (15 seconds by default).
-    -v, --verbose               Enable verbose mode
-    -V, --version               Print the version of ginfo
-    -h, --help                  Print this helpful message
-
-    [OBJECTS AND CORRESPONDING ATTRIBUTES]
-        AdminDomain:
-            ID, Description.
-        ComputingManager:
-            ID, ProductName, ProductVersion, ServiceID.
-        ComputingShare:
-            ID, MaxCPUTime, MaxWallTime, ServingState, 
-            RunningJobs, WaitingJobs, ExecutionEnvironmentID.
-        Endpoint:
-            ID, URL, Capability, InterfaceName, InterfaceVersion, Implementor, 
-            ImplementationVersion, QualityLevel, HealthState, ServingState, 
-            ServiceID.
-        ExecutionEnvironment:
-            ID, OSName, ConnectivityOut, MainMemorySize, VirtualMemorySize.
-        Location:
-            ID, Country, Latitude, Longitude.
-        MappingPolicy:
-            ID, Scheme, Rule, ComputingShareID.
-        Service:
-            ID, Capability, Type, QualityLevel, StatusInfo, AdminDomainID.
-        StorageShare:
-            ID, Path, AccessMode, AccessLatency, ServingState, RetentionPolicy,
-            ExpirationMode, DefaultLifeTime, MaximumLifeTime, Tag.
-'''
-
-def handler(signum, frame):
-    sys.exit('Error: Timeout to contact the LDAP server.')
+        # Attributes
+        if CONF[obj]['attribute']:
+            for att in CONF[obj]['attribute']:
+                if att not in ELTS[obj]:
+                    sys.exit('Error 10: '+att+' is not a valid attribute from the object '+obj)
+        elif CONF[obj]['visible']:
+            CONF[obj]['attribute'] = ELTS[obj].keys()
+        if 'verbose' in OPTION:
+            print 'The following attribute(s) of '+obj+' will be displayed:', ', '.join(CONF[obj]['attribute'])
 
 def request(filter=None):
     """Returns the result of the ldap request with the filter given"""
 
+    def handler(signum, frame):
+        sys.exit('Error 11: Timeout to contact the LDAP server.')
     try:
-        t = int(CONF['flag']['timeout'])
+        t = int(OPTION['timeout'])
     except (ValueError, KeyError):
         t = TIMEOUT
     signal.signal(signal.SIGALRM, handler)
     signal.alarm(t)
-    if 'host' in CONF['flag']:
+    if 'host' in OPTION:
         try:
-            port = ''
-            if ':' not in CONF['flag']['host']:
-                port = ':2170'
-            con = ldap.initialize('ldap://'+CONF['flag']['host']+port)
+            con = ldap.initialize('ldap://'+OPTION['host'])
             if filter:
-                result = con.result(con.search(CONF['flag']['bind'], ldap.SCOPE_SUBTREE, filter))[1]
+                result = con.result(con.search(OPTION['bind'], ldap.SCOPE_SUBTREE, filter))[1]
             else:
-                result = con.result(con.search(CONF['flag']['bind'], ldap.SCOPE_SUBTREE))[1]
+                result = con.result(con.search(OPTION['bind'], ldap.SCOPE_SUBTREE))[1]
         except ldap.SERVER_DOWN:
-            sys.exit('Error: Can\'t contact the LDAP server. Please check your host.')
+            sys.exit('Error 12: Can\'t contact the LDAP server. Please check your host.')
     return result
 
 def list_object():
     """Returns a dictionary of filtered results from a ldap request""" 
 
-    # Construct the filter
-    filter = ''
-    for f in CONF['filter']:
-        filter += '(GLUE2'+ELTS[CONF['object']][f] + '=' + CONF['filter'][f] + ')'
-    
-    # Main loop using Endpoint object
-    result = request('(&(objectClass=GLUE2' + CONF['object'] + ')' + filter + ')')
-    dic = {} # Final results
-    for res in result:
-        id = res[1]['GLUE2' + ELTS[CONF['object']]['ID']][0]
-        dic[id] = {}
-        for att in CONF['attribute']:
-            id2 = 'GLUE2' + ELTS[CONF['object']][att]
-            if id2 in res[1]:
-                dic[id][att] = res[1][id2]
+    dic = {} # Store the final results
+    for obj in OPTION['objects'].values():
+        dic[obj] = {} # Create a dictionnary for each object
+
+        # Construct the filter
+        filter = ''
+        for attr in CONF[obj]['filter']:
+            value = CONF[obj]['filter'][attr]
+            if ',' in value:
+                filter += '(|(GLUE2'+ELTS[obj][attr] + '=' + value.replace(',', ')(GLUE2'+ELTS[obj][attr] + '=')+'))'
+            elif attr == 'objectClass':
+                filter += '(objectClass=' + value + ')'
             else:
-                dic[id][att] = None
-    return dic
+                filter += '(GLUE2'+ELTS[obj][attr] + '=' + value + ')'
+
+        # Main loop
+        result = request('(&(objectClass=GLUE2' + obj + ')' + filter + ')')
+
+        for res in result:
+            id = res[1]['GLUE2' + ELTS[obj]['ID']][0] # ID of the entry
+            if id not in dic[obj]:
+                dic[obj][id] = {} # Creates a dictionnary for each ID of an object
+                dic[obj][id][obj] = OrderedDict([])
+            for att in ELTS[obj]:
+                realID = 'GLUE2' + ELTS[obj][att] # Real ID of each attributes
+                if realID in res[1]:
+                    dic[obj][id][obj][att] = res[1][realID] # Affects the value
+                else:
+                    dic[obj][id][obj][att] = None
+            if len(dic) > 1: # If an other object has already been requested
+                for att in ELTS[obj]:
+                    if 'ID' in att and len(att) > 2 and att in OPTION['objects']: # For each foreignkey
+                        realID = 'GLUE2' + ELTS[obj][att]
+                        if realID in res[1]:
+                            foreignObject = OPTION['objects'][att]
+                            foreignKey = res[1][realID][0]
+                            if foreignKey in dic[foreignObject]:
+                                for a in dic[foreignObject][foreignKey]:
+                                    dic[obj][id][a] = dic[foreignObject][foreignKey][a]
+                        else:
+                            pass # FIXME: FAUT faire quoi la?
+    main_object = next(reversed(OPTION['objects'].values()))
+    return dic[main_object]
 
 def list_attributes():
     """Returns a list of values for a given attribute""" 
-    
-    id = 'GLUE2' + ELTS[CONF['object']][CONF['flag']['list']]
-    result = request('objectClass=GLUE2' + CONF['object'])
-    attr_list = []
-    for res in result:
-        if id in res[1]:
-            for att in res[1][id]:
-                if att not in attr_list:
-                    attr_list.append(att)
-        else:
-            if 'None' not in attr_list:
-                attr_list.append('None')
-    attr_list.sort()
+    if OPTION['list'] in ELTS:
+        attr_list = ELTS[OPTION['list']]
+    else:
+        attribute = OPTION['list']
+        object = CONF.keys()[0]
+        id = 'GLUE2' + ELTS[object][attribute]
+        result = request('objectClass=GLUE2' + object)
+        attr_list = []
+        for res in result:
+            if id in res[1]:
+                for att in res[1][id]:
+                    if att not in attr_list:
+                        attr_list.append(att)
+            else:
+                if 'None' not in attr_list:
+                    attr_list.append('None')
+        attr_list.sort()
     return attr_list
 
 def serialize_output(result):
     """Return the output with the wished format""" 
 
-    if 'list' in CONF['flag']:
+    if 'list' in OPTION:
         output = '\n'.join(result)
-    elif 'csv' in CONF['flag']:
+    elif 'csv' in OPTION:
+        pass
         csv_list = []
         titles = []
         for att in CONF['attribute']:
@@ -393,17 +545,31 @@ def serialize_output(result):
                     tmp_list.append(result[id][att][0])
             csv_list.append(','.join(tmp_list))
         output = '\n'.join(csv_list)
-    elif 'json' in CONF['flag']:
+    elif 'json' in OPTION:
         output = json.dumps(result)
     else:
         output_list = []
         for id in result:
-            for att in result[id]:
-                if not result[id][att]:
-                    output_list.append(att+': None')
-                else:
-                    output_list.append(att+': '+', '.join(result[id][att]))
-            output_list.append('')
+                if len(result[id]) != len(OPTION['objects']):
+                    continue
+                for obj in result[id]:
+                    if 'ce' in OPTION and obj == 'ComputingShare' and 'Other' in result[id][obj] and result[id]['ComputingShare']['Other']:
+                        ce = ', '.join(result[id]['ComputingShare']['CE'])
+                        start = ce.find('CREAMCEId=') + 10
+                        ce = ce[start:ce.find(',',start)]
+                        result[id]['ComputingShare']['CE'] = [ce]
+                    for att in result[id][obj]:
+                        if att in CONF[obj]['attribute']:
+                            if len(CONF) > 1:
+                                res = obj+'.'+att+': '
+                            else:
+                                res = att+': '
+                            if not result[id][obj][att]:
+                                res += 'None'
+                            else:
+                                res += ', '.join(result[id][obj][att])
+                            output_list.append(res)
+                output_list.append('')
         output = '\n'.join(output_list)
     return output
 
