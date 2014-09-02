@@ -201,6 +201,32 @@ class EGIProfileTest(unittest.TestCase):
             status = False 
         self.assertTrue(status, message)
     
+#------------------------------------- Domain Foreign Key --------------------------------------------
+
+    def test_GLUE2LocationDomainForeignKey_OK (self):
+        substring = 'GLUE2DomainID=.*,'
+        m = re.search(substring,self.dn)
+        domain,_ = m.group(0).split(",",1) 
+        _,domain_name = domain.split("=",1)
+        message = validator.utils.message_generator("ERROR","E026",self.dn,"GLUE2LocationDomainForeignKey",self.value[0])
+        self.assertTrue( domain_name == self.value[0], message)
+
+    def test_GLUE2ContactDomainForeignKey_OK (self):
+        substring = 'GLUE2DomainID=.*,'
+        m = re.search(substring,self.dn)
+        domain,_ = m.group(0).split(",",1)
+        _,domain_name = domain.split("=",1)
+        message = validator.utils.message_generator("ERROR","E026",self.dn,"GLUE2ContactDomainForeignKey",self.value[0])
+        self.assertTrue( domain_name == self.value[0], message)
+
+    def test_GLUE2ServiceAdminDomainForeignKey_OK (self):
+        substring = 'GLUE2DomainID=.*,'
+        m = re.search(substring,self.dn)
+        domain,_ = m.group(0).split(",",1)
+        _,domain_name = domain.split("=",1)
+        message = validator.utils.message_generator("ERROR","E026",self.dn,"GLUE2ServiceAdminDomainForeignKey",self.value[0])
+        self.assertTrue( domain_name == self.value[0], message)
+
 #------------------------------------- GLUE2Location --------------------------------------------
 
     def test_GLUE2LocationLongitude_OK (self):
