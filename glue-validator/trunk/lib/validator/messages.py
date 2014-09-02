@@ -23,6 +23,8 @@ messages = {
 "E022" : ( "Default value published", "GLUE2ComputingShareWaitingJobs" ),
 "E023" : ( "Default value published", "GLUE2ComputingShareEstimatedAverageWaitingTime" ),
 "E024" : ( "Default value published", "GLUE2ComputingShareEstimatedWorstWaitingTime" ),
+"E025" : ( "GLUE Schema object hierarchy violation", "Missing objectClass" ),
+"E026" : ( "Domain Foreign Key not matching GLUE2DomainID in the dn", "DomainForeignKey attribute" ),
 "W001" : ( "Creation time more than one year old", "GLUE2EntityCreationTime" ),
 "W002" : ( "GLUE2EntityValidity published when GLUE2EntityCreationTime is not published", "GLUE2EntityValidity" ),
 "W003" : ( "Unknown profile name", "GLUE2EntityOtherInfo" ),

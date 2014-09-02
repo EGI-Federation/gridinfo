@@ -7,6 +7,7 @@ import sys
 import tempfile
 import validator.utils
 import validator.EntryTest
+import validator.ObjectTest
 import validator.WLCGTest
 import validator.lhcbTest
 import validator.EGIProfileTest
@@ -44,6 +45,12 @@ if __name__ == "__main__":
       entry = ldif[dns_dict[dn][0]:dns_dict[dn][1]]
       entry = validator.utils.convert_entry(entry)
       ldif_dict[dn] = entry
+    if config['glue-version'] == 'egi-glue2':
+        module = sys.modules['validator.ObjectTest']
+        inst = getattr(module, 'ObjectTest')
+        test_names = unittest.TestLoader().getTestCaseNames(validator.ObjectTest.ObjectTest)
+        for test_name in test_names:
+            suite.addTest(inst(test_name, ldif_dict))
     for dn in ldif_dict:
       entry = ldif_dict [dn]
       if (config['testsuite'] == 'general'):
