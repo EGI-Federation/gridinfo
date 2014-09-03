@@ -100,8 +100,9 @@ def site_bdii_storage_to_dict ():
         for key in srm_dict[site]:
             bdii_dict[site][key] = { "Total" : 0, "Free" : 0, "color" : "" }
             token,se_uniqueid = key.split("_",1) 
+            query_dict = {}
             if site in sites.atlas_site_bdiis:
-                if token.find("DISK") > -1:
+                if ( token.find("DISK") > -1 or token.find("TAPE") == -1):
                     query_dict = { 'Total' : "ldapsearch -LLL -x -h %s -b mds-vo-name=%s,o=grid -o nettimeout=10 \
                                               '(&(objectClass=GlueSA)(GlueChunkKey=GlueSEUniqueID=%s) \
                                               (|(GlueSALocalID=%s)(GlueSALocalID=%s:*)(GlueSALocalID=atlas:%s)))' \
@@ -130,7 +131,7 @@ def site_bdii_storage_to_dict ():
                         query_dict = {}
 
                 for query in query_dict.keys():
-                    #print "%s executing query %s for %s" % (site,query,key)
+                    #print "%s executing query for %s:\n %s " % (site,token,query_dict[query])
                     p = subprocess.Popen(query_dict[query], shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
                     results = p.communicate()
                     full_text=results[0].strip()
