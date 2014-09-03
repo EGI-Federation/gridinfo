@@ -4,10 +4,10 @@
 Summary: A validation framework for Grid information providers
 Name: glue-validator
 Version: 2.0.24
-Release: 0%{?dist}
+Release: 1%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_24 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_24_1 %{name}-%{version}
 #  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source0: %{name}-%{version}.tar.gz
 License: ASL 2.0
@@ -47,7 +47,10 @@ rm -rf $RPM_BUILD_ROOT
 
 %changelog
 
-* Wed Sep 02 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.24-0
+* Wed Sep 03 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.24-1
+- Increased version
+
+* Tue Sep 02 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.24-0
 - #GRIDINFO-6: Test mandatory objects are present
 - #GRIDINFO-3: Test GLUE2ServiceAdminDomainForeignKey = GLUE2DomainID in the DN 
  
