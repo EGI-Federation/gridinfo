@@ -1,5 +1,5 @@
 Name:		ginfo
-Version:	1.0.3
+Version:	1.9.0
 Release:	1%{?dist}
 Summary:	A versatile tool for discovering Grid services
 Group:		Applications/Internet
@@ -42,6 +42,8 @@ rm -rf %{buildroot}
 %doc LICENSE
 
 %changelog
+* Fri Aug 29 2014 Ivan Calvet <ivan.calvet@cern.ch> - 1.9.0-1
+- Beta version for the version 2 of ginfo which allow requests on multiple objects
 * Wed Oct 2 2013 Laurence Field <laurence.field@cern.ch> - 1.0.3-1
 - Added support for Storage Shares
 * Thu May 23 2013 Laurence Field <laurence.field@cern.ch> - 1.0.2-1
