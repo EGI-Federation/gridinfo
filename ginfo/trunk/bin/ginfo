@@ -158,6 +158,18 @@ def main(argv):
     print serialize_output(result)
     sys.exit()
 
+def listObj():
+    listObj = ""
+    for obj in sorted(ELTS):
+        attrs = "\t\t"
+        last_line = ", ".join(ELTS[obj])
+        while len(last_line) > 64:
+            comma = last_line[:64].rfind(",")+2
+            attrs += last_line[:comma] + "\n\t\t"
+            last_line = last_line[comma:]
+        listObj += "\t" + obj + ":\n" + attrs + last_line + ".\n"
+    return listObj
+
 def usage():
     """Returns the usage message"""
 
@@ -182,14 +194,7 @@ def usage():
 
     [OBJECTS AND CORRESPONDING ATTRIBUTES]
 '''
-    for obj in sorted(ELTS):
-        attrs = "\t\t"
-        last_line = ", ".join(ELTS[obj])
-        while len(last_line) > 64:
-            comma = last_line[:64].rfind(",")+2
-            attrs += last_line[:comma] + "\n\t\t"
-            last_line = last_line[comma:]
-        usage += "\t" + obj + ":\n" + attrs + last_line + ".\n"
+    usage += listObj()
     return usage
 
 def parse_option(argv):
@@ -213,7 +218,10 @@ def parse_option(argv):
     try:
         flags, args = getopt.getopt(argv, short_flags, long_flags)
     except getopt.error, err:
-        sys.exit(usage())
+        if str(err) == 'option --list requires argument':
+            sys.exit(listObj())
+        else:
+            sys.exit(usage())
     for flag, arg in flags:
         flag = flag[flag.rfind('-')+1:]
         for i in FLAGS:
@@ -250,7 +258,7 @@ def validate_option():
         if 'LCG_GFAL_INFOSYS' in os.environ:
             OPTION['host'] = os.environ['LCG_GFAL_INFOSYS']
         else:
-            sys.exit("Error 2: Please specify an host to query. By default the environmental variable LCG_GFAL_INFOSYS is used.")
+            sys.exit("Error 2: Please specify an host to query with -H or --host flag. Otherwise, by default the environmental variable LCG_GFAL_INFOSYS is used.")
     if ':' not in OPTION['host']:
         OPTION['host'] += ':2170'
     if 'verbose' in OPTION:
@@ -287,26 +295,25 @@ def validate_option():
 def shortcuts():
     # Shortcut options add some objects and specific filters to the CONF dictionnary
     if 'ce' in OPTION:
-        CONF['ComputingShare'] = {'filter': {}, 'attribute': [], 'visible': True}
+        CONF['ComputingShare'] = {'filter': {}, 'attribute': ['CE'], 'visible': True}
         ELTS['ComputingShare'] = OrderedDict([('CE', ELTS['ComputingShare']['Other'])] + ELTS['ComputingShare'].items())
-        #FIXME: rendre insensible a la casse
         if 'vo' in OPTION:
             CONF['MappingPolicy'] = {'filter': {'Rule': OPTION['vo']}, 'attribute': [], 'visible': False}
     elif 'se' in OPTION:
-        CONF['Service'] = {'filter': {'Type':'Storage,DPM,SRM,STaaS,org.dcache.storage'}, 'attribute': [], 'visible': True}
-        ELTS['Service'] = OrderedDict([('SE', ELTS['Service']['ID'])] + ELTS['Service'].items())
+        CONF['Service'] = {'filter': {'Type':'Storage,DPM,SRM,STaaS,org.dcache.storage'}, 'attribute': ['ID'], 'visible': True}
+        #ELTS['Service'] = OrderedDict([('SE', ELTS['Service']['ID'])] + ELTS['Service'].items())
         if 'vo' in OPTION:
             CONF['AccessPolicy'] = {'filter': {'Rule': OPTION['vo']}, 'attribute': [], 'visible': False}
             CONF['Endpoint'] = {'filter': {}, 'attribute': [], 'visible': False}
     elif 'service' in OPTION:
-        CONF['Service'] = {'filter': {}, 'attribute': [], 'visible': True}
-        ELTS['Service'] = OrderedDict([('Service', ELTS['Service']['ID'])] + ELTS['Service'].items())
+        CONF['Service'] = {'filter': {}, 'attribute': ['ID'], 'visible': True}
+        #ELTS['Service'] = OrderedDict([('Service', ELTS['Service']['ID'])] + ELTS['Service'].items())
         if 'vo' in OPTION:
             CONF['AccessPolicy'] = {'filter': {'Rule': OPTION['vo']}, 'attribute': [], 'visible': False}
             CONF['Endpoint'] = {'filter': {}, 'attribute': [], 'visible': False}
     elif 'site' in OPTION:
-        CONF['AdminDomain'] = {'filter': {}, 'attribute': [], 'visible': True}
-        ELTS['AdminDomain'] = OrderedDict([('Site', ELTS['AdminDomain']['ID'])] + ELTS['AdminDomain'].items())
+        CONF['AdminDomain'] = {'filter': {}, 'attribute': ['ID'], 'visible': True}
+        #ELTS['AdminDomain'] = OrderedDict([('Site', ELTS['AdminDomain']['ID'])] + ELTS['AdminDomain'].items())
         if 'vo' in OPTION:
             CONF['Service'] = {'filter': {}, 'attribute': [], 'visible': False}
             CONF['AccessPolicy'] = {'filter': {'Rule': OPTION['vo']}, 'attribute': [], 'visible': False}
@@ -384,10 +391,16 @@ def validate_conf():
     if 'list' in OPTION:
         if len(CONF) > 1:
             sys.exit('Error 6: You have too many objects. You can only see the values of an attribute from one object.')
-        if OPTION['list'] not in ELTS[CONF.keys()[0]] and OPTION['list'] not in ELTS:
+        if OPTION['list'] in ELTS:
+            if 'verbose' in OPTION:
+                print 'List all the attributes from the following object:', OPTION['list']
+        elif OPTION['list'] in ELTS[CONF.keys()[0]]:
+            if 'verbose' in OPTION:
+                print 'List all the possible values for the following attribute:', OPTION['list']
+
+        else:
             sys.exit('Error 7: '+OPTION['list']+' is not a valid attribute.')
-        if 'verbose' in OPTION:
-            print 'List all the possible values for the following attribute:', OPTION['list']
+        return 0
 
     OPTION['objects'] = OrderedDict([])
     def sortObjects(obj):
@@ -447,6 +460,7 @@ def request(filter=None):
         try:
             con = ldap.initialize('ldap://'+OPTION['host'])
             if filter:
+                print filter
                 result = con.result(con.search(OPTION['bind'], ldap.SCOPE_SUBTREE, filter))[1]
             else:
                 result = con.result(con.search(OPTION['bind'], ldap.SCOPE_SUBTREE))[1]
