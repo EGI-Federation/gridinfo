@@ -1,0 +1,38 @@
+name=nagios-plugins-emi.webdav
+spec=../spec/nagios-plugins-emi.webdav.spec
+version=${shell grep '^Version:' $(spec) | awk '{print $$2}' }
+rpmbuild=${shell pwd}/rpmbuild
+#MOCKENV=epel-6-cernonly-x86_64
+MOCKENV=fedora-rawhide-x86_64
+MOCKARGS=--trace --verbose
+
+rpmdefines=--define='_topdir ${rpmbuild}' \
+        --define='_sourcedir %{_topdir}/SOURCES' \
+        --define='_builddir %{_topdir}/BUILD' \
+        --define='_srcrpmdir %{_topdir}/SRPMS' \
+        --define='_rpmdir %{_topdir}/RPMS'
+
+dist: clean
+	tar -zcvf ./${name}-${version}.tar.gz ../src/check_webdav_endpoint ../src/lcgdmcommon.py
+
+clean:
+	@rm -rf $(rpmbuild)
+	@rm -f ${name}-${version}.tar.gz
+
+prepare: dist
+	@mkdir -p  $(rpmbuild)/RPMS/noarch
+	@mkdir -p  $(rpmbuild)/SRPMS/
+	@mkdir -p  $(rpmbuild)/SPECS/
+	@mkdir -p  $(rpmbuild)/SOURCES/
+	@mkdir -p  $(rpmbuild)/BUILD/
+	mv ${name}-${version}.tar.gz $(rpmbuild)/SOURCES 
+
+srpm: prepare $(spec)
+	rpmbuild --nodeps -bs $(rpmdefines) $(spec)
+
+rpm: srpm
+	rpmbuild --nodeps -bb $(rpmdefines) $(spec) 
+
+mock: srpm
+	/usr/bin/mock $(MOCKARGS) -r $(MOCKENV) --rebuild $(rpmbuild)/SRPMS/$(name)-$(version)-*.src.rpm
+
