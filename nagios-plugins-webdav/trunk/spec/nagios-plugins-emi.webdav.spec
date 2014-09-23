@@ -1,5 +1,5 @@
 Name:           nagios-plugins-emi.webdav
-Version:        1.1.1
+Version:        1.1.0
 Release:        1%{?dist}
 Summary:        Nagios module to test webdav interface of egi endpoints
 Group:          Applications/Internet
