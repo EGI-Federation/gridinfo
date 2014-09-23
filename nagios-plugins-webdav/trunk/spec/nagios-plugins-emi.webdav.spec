@@ -5,7 +5,7 @@ Summary:        Nagios module to test webdav interface of egi endpoints
 Group:          Applications/Internet
 License:        ASL 2.0
 Source:         %{name}-%{version}.tar.gz
-URL:            https://svnweb.cern.ch/trac/gridinfo/browser/nagios-plugins-bdii/trunk/docs/info.txt
+URL:            https://svnweb.cern.ch/trac/gridinfo/browser/nagios-plugins-webdav/trunk/docs/info.txt
 BuildArch:      noarch
 BuildRoot:		%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
