@@ -1,0 +1,30 @@
+DM-WEBDAV-ENDPOINT
+
+Check if an endpoint defined by the hostname is available for writing through https by a dteam member in a reasonable amount of time.
+
+Options:
+    -w, --warning\tSets the warning value, in seconds. Default: %d
+    -c, --critical\tSets the critical value, in seconds. Default: %d
+    -t, --timeout\tSets the timeout value, in seconds. Default: %d
+    -H, --hostname\tThe hostname to query.
+    -p, --port\tThe server port. Default: %d
+    -P, --path\tThe optionnal path.
+    -x, --proxy\tThe path to the proxy to use.
+
+Description of work executed by the probe:
+
+1. Construct the URL based on the hostname. It uses the path if given or look for it in the GLUE2 bdii and chose the one that fit its type (DPM, dCache, ...).
+2. Tries to write a test file with a PUT request
+    If it gets the HTTP code 201, the test is passed.
+    Otherwise, the test has failed.
+3. Clean the directory by removing the file.
+
+What does the server need to pass the test?
+
+1. The server needs to be working at the adress published in the BDII.
+
+2. SSL needs to be setup correctly to enable https access.
+
+3. The configuration of your server needs to be setup to allow writing by a dteam member for these paths:
+    - for DPM: /dpm/<DN>/home/dteam/
+    - for dCache: /pnfs/<DN>/data/dteam/
