@@ -33,7 +33,7 @@ import ldap
 from lcgdmcommon import *
 
 class check_webdav_endpoint:
-  "Check if an endpoint defined by the hostname is available for writing through https by a dteam member in a reasonable amount of time."
+  "Check if an endpoint defined by the hostname is available for writing through https by a member from the specified VO in a reasonable amount of time."
   __version__     = "1.1.0"
   __nagios_id__   = "DM-WEBDAV-ENDPOINT"
 
@@ -51,17 +51,19 @@ class check_webdav_endpoint:
                          "H:": "hostname=",
                          "p:": "port=",
                          "P:": "path=",
+                         "o:": "vo=",
                          "x:": "proxy="}
 
   # Specific usage information
   __usage__ = """
-\t-w, --warning\tSets the warning value, in seconds. Default: %d
-\t-c, --critical\tSets the critical value, in seconds. Default: %d
-\t-t, --timeout\tSets the timeout value, in seconds. Default: %d
-\t-H, --hostname\tThe hostname to query.
-\t-p, --port\tThe server port. Default: %d
-\t-P, --path\tThe optionnal path.
-\t-x, --proxy\tThe path to the proxy to use.
+\t-H, --hostname\tThe hostname to query. (Mandatory)
+\t    --vo\tThe Virtual Organization. (Mandatory)
+\t-x, --proxy\tThe path to the proxy to use. (Mandatory)
+\t-p, --port\tThe server port. (Optionnal, default: %d)
+\t-P, --path\tThe optionnal path. (Optionnal)
+\t-w, --warning\tSets the warning value, in seconds. (Optionnal, default: %d)
+\t-c, --critical\tSets the critical value, in seconds. (Optionnal, default: %d)
+\t-t, --timeout\tSets the timeout value, in seconds. (Optionnal, default: %d)
 
 Warning and critical threshold can be set to trigger alert if the request delay
 is too high.
@@ -75,7 +77,7 @@ Description of work executed by the probe:
 \t\tOtherwise, the test has failed.
 \t3. Clean the directory by removing the file.
 
-""" % (DEFAULT_WARNING, DEFAULT_CRITICAL, DEFAULT_TIMEOUT, DEFAULT_PORT)
+""" % (DEFAULT_PORT, DEFAULT_WARNING, DEFAULT_CRITICAL, DEFAULT_TIMEOUT)
 
   # Methods
 
@@ -86,7 +88,31 @@ Description of work executed by the probe:
     @param opt  Contains a dictionary with the long option name as the key, and the argument as value
     @param args Contains the arguments not associated with any option
     """
-    # Options
+
+    # Mandatory options:
+    if "proxy" not in opt:
+        return None
+    else:
+        self.proxy = opt["proxy"]
+    if "hostname" not in opt:
+        return None
+    else:
+        # Filtering of the hostname
+        h = opt["hostname"]
+        if "://" in h:
+            h = h[h.find("://")+3:]
+        if "/" in h:
+            h = h[:h.find("/")]
+        if ":" in h:
+            self.port = h[h.find(":")+1:]
+            h = h[:h.find(":")]
+        self.host = h
+    if "vo" not in opt:
+        return None
+    else:
+        self.vo = opt["vo"]
+
+    # Optionnal options:
     if "warning" in opt:
         self.warning = int(opt["warning"])
     else:
@@ -101,27 +127,8 @@ Description of work executed by the probe:
         self.timeout = int(self.DEFAULT_TIMEOUT)
     if "port" in opt:
         self.port = opt["port"]
-    else:
+    elif "port" not in dir(self):
         self.port = str(self.DEFAULT_PORT)
-
-    if "proxy" in opt:
-        self.proxy = opt["proxy"]
-    else:
-        self.proxy = None
-    if "hostname" not in opt:
-        # Critical exit if no hostname provided
-        return None
-    # Filtering of the hostname
-    h = opt["hostname"]
-    if "://" in h:
-        h = h[h.find("://")+3:]
-    if "/" in h:
-        h = h[:h.find("/")]
-    if ":" in h:
-        if 'port' not in opt:
-            self.port = h[h.find(":")+1:]
-        h = h[:h.find(":")]
-    self.host = h
     self.url = "https://%s:%s" % (self.host, self.port)
 
     if "path" in opt:
@@ -129,8 +136,6 @@ Description of work executed by the probe:
         self.implementation = "Default"
     else:
         # Look for the endpoint in the BDII to know which kind of storage it is and determine the correct path
-        self.path = None
-        self.implementation = "Unknown"
         bdii_list = os.environ['LCG_GFAL_INFOSYS'].split(',')
         for bdii in bdii_list:
             try:
@@ -138,13 +143,16 @@ Description of work executed by the probe:
                 result = con.result(con.search('o=glue', ldap.SCOPE_SUBTREE, '(&(objectClass=Glue2Endpoint)(|(GLUE2EndpointInterfaceName=webdav)(GLUE2EndpointInterfaceName=https)(GLUE2EndpointInterfaceName=http))(GLUE2EndpointURL=*'+self.host+'*))'))
                 break
             except ldap.SERVER_DOWN:
-                pass
+                return None
+        self.path = None
         try:
             endpoint = result[1][0][1]
         except:
             return None
         if "GLUE2EndpointImplementationName" in endpoint:
             self.implementation = endpoint["GLUE2EndpointImplementationName"][0]
+        else:
+            self.implementation = "Unknown"
 
   def request(self, url, action):
     """ Execute the pycurl request to test the endpoint """
@@ -195,14 +203,23 @@ Description of work executed by the probe:
     @return A tuple (exit code, message, performance)
     """
 	
+    if 'proxy' not in dir(self):
+        return (EX_UNKNOWN, "No proxy was specified.", None)
     if 'host' not in dir(self):
-        return (EX_CRITICAL, "No hostname was specified.", None)
+        return (EX_UNKNOWN, "No hostname was specified.", None)
+    if 'vo' not in dir(self):
+        return (EX_UNKNOWN, "No Virtual Organization was specified.", None)
+    if 'implementation' not in dir(self):
+        if 'path' not in dir(self):
+            return (EX_UNKNOWN, "No BDII available.", None)
+        else:
+            return (EX_UNKNOWN, "No entry is the BDII.", None)
 
     host = self.host[self.host.find(".")+1:]
     path = {'Default': [self.path],
-            'Unknown': ['/', '/dteam/', '/pnfs/' + host + '/dteam/', '/pnfs/' + host + '/data/dteam/', '/dpm/' + host + '/home/dteam/'],
-            'DPM': ['/dpm/' + host + '/home/dteam/'],
-            'dCache': ['/', '/dteam/', '/pnfs/' + host + '/dteam/', '/pnfs/' + host + '/data/dteam/']}
+            'Unknown': ['/', '/%s/' % self.vo, '/pnfs/%s/%s/' % (host, self.vo), '/pnfs/%s/data/%s/' % (host, self.vo), '/dpm/%s/home/%s/' % (host, self.vo)],
+            'DPM': ['/dpm/%s/home/%s/' % (host, self.vo)],
+            'dCache': ['/', '/%s/' % self.vo, '/pnfs/%s/%s/' % (host, self.vo), '/pnfs/%s/data/%s/' % (host, self.vo)]}
     for p in path[self.implementation]:
         self.request(self.url + p, 'delete')
         (code, return_code, ellapsed_time) = self.request(self.url + p, 'write')

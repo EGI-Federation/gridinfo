@@ -13,7 +13,7 @@ rpmdefines=--define='_topdir ${rpmbuild}' \
         --define='_rpmdir %{_topdir}/RPMS'
 
 dist: clean
-	tar -zcvf ./${name}-${version}.tar.gz ../src/check_webdav_endpoint ../src/lcgdmcommon.py
+	tar -zcvf ./${name}-${version}.tar.gz ../src/check_webdav_endpoint ../src/lcgdmcommon.py ../README ../LICENSE
 
 clean:
 	@rm -rf $(rpmbuild)
