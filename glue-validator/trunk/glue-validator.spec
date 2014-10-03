@@ -3,11 +3,11 @@
 %endif
 Summary: A validation framework for Grid information providers
 Name: glue-validator
-Version: 2.0.24
-Release: 1%{?dist}
+Version: 2.0.25
+Release: 0%{?dist}
 # The source for this package was pulled from upstream's vcs.  Use the
 # following commands to generate the tarball:
-#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_24_1 %{name}-%{version}
+#   svn export http://svnweb.cern.ch/guest/gridinfo/glue-validator/tags/R_2_0_25_0 %{name}-%{version}
 #  tar -czvf %{name}-%{version}.tar.gz %{name}-%{version}
 Source0: %{name}-%{version}.tar.gz
 License: ASL 2.0
@@ -46,6 +46,10 @@ rm -rf $RPM_BUILD_ROOT
 %{_mandir}/man1/glue-validator.1.gz
 
 %changelog
+
+* Fri Oct 03 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.25-0
+- # GRIDINFO-58: Workaround for StoRM in the Domain Foreign Keys Test
+- Fix help examples that were not correct
 
 * Wed Sep 03 2014 Maria Alandes <maria.alandes.pradillo@cern.ch> - 2.0.24-1
 - Increased version
