@@ -159,9 +159,9 @@ Other Options:
 
 Examples:
 
-  GLUE 1.3 validation: glue-validator -H localhost -p 2170 -b o=grid -g glue1
-  GLUE 2.0 validation: glue-validator -H localhost -p 2170 -b o=glue -g glue2
   EGI profile against GLUE 2.0 validation: glue-validator -H localhost -p 2170 -b o=glue 
+  GLUE 1.3 validation: glue-validator -H localhost -p 2170 -b o=grid -g glue1 -s general
+  GLUE 2.0 validation: glue-validator -H localhost -p 2170 -b o=glue -g glue2 -s general
 
 ''')
    
