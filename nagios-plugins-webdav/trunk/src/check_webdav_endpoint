@@ -34,7 +34,7 @@ from lcgdmcommon import *
 
 class check_webdav_endpoint:
   "Check if an endpoint defined by the hostname is available for writing through https by a member from the specified VO in a reasonable amount of time."
-  __version__     = "1.1.0"
+  __version__     = "1.2.1"
   __nagios_id__   = "DM-WEBDAV-ENDPOINT"
 
   # Defaults

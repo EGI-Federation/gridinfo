@@ -1,23 +1,32 @@
 DM-WEBDAV-ENDPOINT
+Check if an endpoint defined by the hostname is available for writing through https by a member from the specified VO in a reasonable amount of time.
 
-Check if an endpoint defined by the hostname is available for writing through https by a dteam member in a reasonable amount of time.
+Usage: ./check_webdav_endpoint [options]
 
-Options:
-    -w, --warning\tSets the warning value, in seconds. Default: %d
-    -c, --critical\tSets the critical value, in seconds. Default: %d
-    -t, --timeout\tSets the timeout value, in seconds. Default: %d
-    -H, --hostname\tThe hostname to query.
-    -p, --port\tThe server port. Default: %d
-    -P, --path\tThe optionnal path.
-    -x, --proxy\tThe path to the proxy to use.
+    -h, --help  Shows this help
+    -V, --version   Shows this plugin version
+    -v, --verbose   Sets verbose mode
+
+    -H, --hostname  The hostname to query. (Mandatory)
+        --vo    The Virtual Organization. (Mandatory)
+    -x, --proxy The path to the proxy to use. (Mandatory)
+    -p, --port  The server port. (Optionnal, default: 443)
+    -P, --path  The optionnal path. (Optionnal)
+    -w, --warning   Sets the warning value, in seconds. (Optionnal, default: 3)
+    -c, --critical  Sets the critical value, in seconds. (Optionnal, default: 10)
+    -t, --timeout   Sets the timeout value, in seconds. (Optionnal, default: 10)
+
+Warning and critical threshold can be set to trigger alert if the request delay
+is too high.
 
 Description of work executed by the probe:
 
-1. Construct the URL based on the hostname. It uses the path if given or look for it in the GLUE2 bdii and chose the one that fit its type (DPM, dCache, ...).
-2. Tries to write a test file with a PUT request
-    If it gets the HTTP code 201, the test is passed.
-    Otherwise, the test has failed.
-3. Clean the directory by removing the file.
+    1. Construct the URL based on the hostname. It uses the path if given or look
+    for it in the GLUE2 bdii and chose the one that fit its type (DPM, dCache, ...).
+    2. Tries to write a test file with a PUT request
+        If it gets the HTTP code 201, the test is passed.
+        Otherwise, the test has failed.
+    3. Clean the directory by removing the file.
 
 What does the server need to pass the test?
 
@@ -28,3 +37,8 @@ What does the server need to pass the test?
 3. The configuration of your server needs to be setup to allow writing by a dteam member for these paths:
     - for DPM: /dpm/<DN>/home/dteam/
     - for dCache: /pnfs/<DN>/data/dteam/
+
+Send and email to dpm-users-forum@cern.ch if you have questions
+regarding the use of this software. To submit patches or suggest improvements
+send an email to dpm-devel@cern.ch
+
