@@ -136,14 +136,14 @@ Description of work executed by the probe:
         self.implementation = "Default"
     else:
         # Look for the endpoint in the BDII to know which kind of storage it is and determine the correct path
-        bdii_list = os.environ['LCG_GFAL_INFOSYS'].split(',')
-        for bdii in bdii_list:
-            try:
+        try:
+            bdii_list = os.environ['LCG_GFAL_INFOSYS'].split(',')
+            for bdii in bdii_list:
                 con = ldap.initialize('ldap://' + bdii)
                 result = con.result(con.search('o=glue', ldap.SCOPE_SUBTREE, '(&(objectClass=Glue2Endpoint)(|(GLUE2EndpointInterfaceName=webdav)(GLUE2EndpointInterfaceName=https)(GLUE2EndpointInterfaceName=http))(GLUE2EndpointURL=*'+self.host+'*))'))
                 break
-            except ldap.SERVER_DOWN:
-                return None
+        except:
+            return None
         self.path = None
         try:
             endpoint = result[1][0][1]
@@ -213,7 +213,7 @@ Description of work executed by the probe:
         if 'path' not in dir(self):
             return (EX_UNKNOWN, "No BDII available.", None)
         else:
-            return (EX_UNKNOWN, "No entry is the BDII.", None)
+            return (EX_OK, "No entry in the BDII.", None)
 
     host = self.host[self.host.find(".")+1:]
     path = {'Default': [self.path],
