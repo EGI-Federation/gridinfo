@@ -1,11 +1,11 @@
 Name:           nagios-plugins-emi.webdav
-Version:        1.2.0
+Version:        1.2.1
 Release:        1%{?dist}
 Summary:        Nagios module to test webdav interface of egi endpoints
 Group:          Applications/Internet
 License:        ASL 2.0
 Source:         %{name}-%{version}.tar.gz
-URL:            https://svnweb.cern.ch/trac/gridinfo/browser/nagios-plugins-webdav/trunk/
+URL:            https://svnweb.cern.ch/trac/gridinfo/browser/nagios-plugins-webdav/trunk/README
 BuildArch:      noarch
 BuildRoot:		%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
@@ -47,6 +47,9 @@ cp --preserve=timestamps src/lcgdmcommon.py %{buildroot}%{python2_sitelib}
 rm -rf %{buildroot}
 
 %changelog
+* Mon Dec 1 2014 Ivan Calvet <ivan.calvet@cern.ch> - 1.2.1-1
+- Changed the return status from UNKNOWN to OK if there is no entry in the BDII.
+
 * Thu Sep 25 2014 Ivan Calvet <ivan.calvet@cern.ch> - 1.2.0-1
 - Added the possibility of specify the VO and improved return status.
 
