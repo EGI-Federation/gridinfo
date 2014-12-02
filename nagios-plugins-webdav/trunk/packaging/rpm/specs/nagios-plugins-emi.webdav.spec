@@ -7,7 +7,7 @@ License:        ASL 2.0
 Source0:        %{name}-%{version}.tar.gz
 URL:            https://svnweb.cern.ch/trac/gridinfo/browser/nagios-plugins-webdav/trunk/README
 BuildArch:      noarch
-BuildRoot:		%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
+BuildRoot:	%{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 Requires:       time
 Requires:       pycurl
@@ -19,7 +19,7 @@ Requires:       ca-policy-egi-core
 This package provides a nagios module to test webdav interface of egi endpoints
 
 %prep
-%setup -qc
+%setup -q
 %{!?__python2: %global __python2 /usr/bin/python2}
 %{!?python2_sitelib: %global python2_sitelib %(%{__python2} -c "from distutils.sysconfig import get_python_lib; print(get_python_lib())")}
 
@@ -35,9 +35,7 @@ cp --preserve=timestamps src/lcgdmcommon.py %{buildroot}%{python2_sitelib}
 
 %files
 %{_libexecdir}/grid-monitoring/probes/check_webdav_endpoint
-%{python2_sitelib}/lcgdmcommon.py
-%{python2_sitelib}/lcgdmcommon.pyc
-%{python2_sitelib}/lcgdmcommon.pyo
+%{python2_sitelib}/lcgdmcommon.py*
 %dir %attr(0750,nagios,nagios) %{_localstatedir}/lib/grid-monitoring/%{name}
 %doc LICENSE
 %doc README
