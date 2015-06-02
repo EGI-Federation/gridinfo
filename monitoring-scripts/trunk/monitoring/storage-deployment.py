@@ -20,13 +20,13 @@ test_list = [ 'glue1_storage_online', 'glue1_storage_nearline', 'glue2_storage_o
               'glue2_storage_endpoints', \
               'glue1_storage_instances', 'glue2_storage_instances', 'glue1_storage_sites', 'glue2_storage_sites' ]
 
-se_list = [ 'DPM', 'StoRM', 'dCache', 'CASTOR', 'eos' ]
+se_list = [ 'DPM', 'StoRM', 'dCache', 'castor', 'eos' ]
 
 storage_manager_dict = {
 'DPM'    : 'DPM',
 'StoRM'  : 'storm-backend-server',
 'dCache' : 'dCache',
-'CASTOR' : 'CASTOR',
+'castor' : 'castor',
 'eos'    : 'eos' 
 }
 
@@ -40,8 +40,12 @@ glue2_storage_endpoints = {
 'dCache' : 'ldapsearch -h lcg-bdii -p 2170 -x -LLL -b o=glue \
             \'(&(objectClass=GLUE2Endpoint)(GLUE2EndpointImplementationName=dCache))\' \
             dn | grep dn: | wc -l',
-'CASTOR' : 'echo "NA"',
-'eos'    : 'echo "NA"'
+'castor' : 'ldapsearch -h lcg-bdii -p 2170 -x -LLL -b o=glue \
+            \'(&(objectClass=GLUE2Endpoint)(GLUE2EndpointImplementationName=castor))\' \
+            dn | grep dn: | wc -l',
+'eos'    : 'ldapsearch -h lcg-bdii -p 2170 -x -LLL -b o=glue \
+            \'(&(objectClass=GLUE2Endpoint)(GLUE2EndpointImplementationName=eos))\' \
+            dn | grep dn: | wc -l'
 }
 
 glue2_storage_capacity_dict = {
@@ -85,9 +89,23 @@ glue2_storage_capacity_dict = {
                     (GLUE2StorageServiceCapacityStorageServiceForeignKey=$i))" \
                     GLUE2StorageServiceCapacityTotalSize | grep GLUE2StorageServiceCapacityTotalSize: | cut -d":" -f2; \
                     done | awk \'{sum+=$1} END {print sum/1000000}\'',
-'CASTOR_online'  : 'echo "NA"',
-'CASTOR_nearline': 'echo "NA"',
-'eos_online'     : 'echo "NA"',
+'castor_online'  : 'echo "NA"',
+'castor_nearline': 'for i in `ldapsearch -h lcg-bdii -p 2170 -x -LLL -b o=glue \
+                    \'(&(objectClass=GLUE2Service)(GLUE2ServiceType=castor))\' \
+                    GLUE2ServiceID | grep GLUE2ServiceID: | cut -d":" -f2-`; \
+                    do ldapsearch -h lcg-bdii -p 2170 -x -LLL -b o=glue \
+                    "(&(objectClass=GLUE2StorageServiceCapacity)(GLUE2StorageServiceCapacityType=nearline)\
+                    (GLUE2StorageServiceCapacityStorageServiceForeignKey=$i))" \
+                    GLUE2StorageServiceCapacityTotalSize | grep GLUE2StorageServiceCapacityTotalSize: | cut -d":" -f2; \
+                    done | awk \'{sum+=$1} END {print sum/1000000}\'',
+'eos_online'     : 'for i in `ldapsearch -h lcg-bdii -p 2170 -x -LLL -b o=glue \
+                    \'(&(objectClass=GLUE2Service)(GLUE2ServiceType=eos))\' \
+                    GLUE2ServiceID | grep GLUE2ServiceID: | cut -d":" -f2-`; \
+                    do ldapsearch -h lcg-bdii -p 2170 -x -LLL -b o=glue \
+                    "(&(objectClass=GLUE2StorageServiceCapacity)(GLUE2StorageServiceCapacityType=online)\
+                    (GLUE2StorageServiceCapacityStorageServiceForeignKey=$i))" \
+                    GLUE2StorageServiceCapacityTotalSize | grep GLUE2StorageServiceCapacityTotalSize: | cut -d":" -f2; \
+                    done | awk \'{sum+=$1} END {print sum/1000000}\'',
 'eos_nearline'   : 'echo "NA"'
 }
 
@@ -144,7 +162,8 @@ for test in test_list:
            print test_dict[test]
         p = subprocess.Popen(test_dict[test] ,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         results = p.communicate()
-        if ( results[0].find("Error") > -1 or results[0].find("UNKNOWN") > -1 ):
+        if ( results[0].find("Error") > -1 or results[0].find("UNKNOWN") > -1  or \
+             results[0].find("Can't contact") > -1):
             color = "grey"
             result = "Unreachable"
         elif ( results[0].find("NA") > -1 ):
