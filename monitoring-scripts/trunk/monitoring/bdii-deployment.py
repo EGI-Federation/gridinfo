@@ -20,7 +20,8 @@ total = {
 'bdii_top' : 0
 }
 
-for version in ["5.2.10", "5.2.12", "5.2.13", "5.2.17", "5.2.20", "5.2.21", "5.2.22"]:
+# Removed "5.2.13" and "5.2.20" since no sites are deploying these versions
+for version in ["5.2.10", "5.2.12", "5.2.17", "5.2.21", "5.2.22", "5.2.23"]:
     output_file_name = "%s/%s.txt" % (path_to_output,version) 
     output_fd = os.open (output_file_name, os.O_WRONLY | os.O_CREAT, 0600)
     for bdii in ["bdii_site", "bdii_top"]:
@@ -34,7 +35,7 @@ for version in ["5.2.10", "5.2.12", "5.2.13", "5.2.17", "5.2.20", "5.2.21", "5.2
 
         p = subprocess.Popen(command ,shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
         results = p.communicate()
-        if (results[0].find("Error") > -1 or results[0].find("UNKNOWN") > -1 ):
+        if (results[0].find("Error") > -1 or results[0].find("UNKNOWN") > -1 or results[0].find("Can't contact") > -1):
             color = "grey"
             result = "Unreachable" 
         else:
