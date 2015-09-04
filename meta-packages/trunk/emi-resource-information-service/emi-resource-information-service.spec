@@ -1,5 +1,5 @@
 Name:		emi-resource-information-service
-Version:	1.0.3
+Version:	1.0.4
 Release:	1%{?dist}
 Summary:	Metapackage for the resource information service
 Group:		Unknown
@@ -11,9 +11,6 @@ Requires:     bdii
 Requires:     glue-schema
 Requires:     glite-info-provider-service
 Requires:     glue-validator
-Requires:     glue-validator-cron
-Requires:     emi-version
-Requires:     glite-yaim-bdii
 
 %description
 %{summary}
@@ -30,5 +27,8 @@ make install prefix=%{buildroot}
 %files
 
 %changelog
+* Fri Sep 04 2015 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.4-1
+- Removing obsolete dependencies and dependencies in yaim (Not available in CENTOS7)
+
 * Wed Nov 14 2012 Maria Alandes <maria.alandes.pradillo@cern.ch> - 1.0.3-1
 - Metapackage for emi-resource-information-service including dependency on glue-validator-cron
